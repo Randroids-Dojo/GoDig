@@ -53,6 +53,11 @@ COLORS = {
     "leather": (50, 35, 25),
     "leather_highlight": (70, 50, 35),
 
+    # Work gloves (distinct from skin and wood)
+    "glove": (80, 70, 55),
+    "glove_highlight": (100, 90, 70),
+    "glove_shadow": (55, 45, 35),
+
     # Outlines and details
     "outline": (25, 25, 30),
     "eye_white": (255, 255, 255),
@@ -183,17 +188,18 @@ def create_arm_component() -> Image.Image:
     # Muscle definition
     draw.rectangle([24, 6, 28, 10], fill=COLORS["skin_highlight"])
 
-    # === HAND ===
-    draw.rectangle([36, 3, 44, 15], fill=COLORS["skin"])
-    draw.rectangle([36, 3, 44, 8], fill=COLORS["skin_highlight"])
-    draw.rectangle([36, 12, 44, 15], fill=COLORS["skin_shadow"])
+    # === GLOVED HAND (for gripping pickaxe) ===
+    # Glove creates visual separation from wood handle
+    draw.rectangle([36, 3, 46, 15], fill=COLORS["glove"])
+    draw.rectangle([36, 3, 46, 8], fill=COLORS["glove_highlight"])
+    draw.rectangle([36, 12, 46, 15], fill=COLORS["glove_shadow"])
 
-    # Fingers
-    draw.rectangle([42, 5, 44, 13], fill=COLORS["skin"])
-    draw.rectangle([42, 8, 44, 11], fill=COLORS["skin_shadow"])
+    # Fingers gripping
+    draw.rectangle([44, 5, 46, 13], fill=COLORS["glove"])
+    draw.rectangle([44, 8, 46, 11], fill=COLORS["glove_shadow"])
 
     # Wrist line
-    draw.line([(36, 4), (36, 14)], fill=COLORS["skin_shadow"])
+    draw.line([(36, 4), (36, 14)], fill=COLORS["glove_shadow"])
 
     return img
 
@@ -201,7 +207,7 @@ def create_arm_component() -> Image.Image:
 def create_left_arm_component() -> Image.Image:
     """Create the left arm (non-swinging) that hangs at the side."""
     # This arm hangs down naturally on the left side of the body
-    img = Image.new('RGBA', (14, 40), COLORS["transparent"])
+    img = Image.new('RGBA', (14, 44), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
 
     # === UPPER ARM (SHIRT) - pointing down ===
@@ -223,13 +229,13 @@ def create_left_arm_component() -> Image.Image:
     # Muscle definition
     draw.rectangle([6, 24, 9, 28], fill=COLORS["skin_highlight"])
 
-    # === HAND ===
-    draw.rectangle([2, 34, 12, 40], fill=COLORS["skin"])
-    draw.rectangle([2, 34, 5, 40], fill=COLORS["skin_shadow"])
-    draw.rectangle([9, 34, 12, 38], fill=COLORS["skin_highlight"])
+    # === GLOVED HAND ===
+    draw.rectangle([2, 34, 12, 42], fill=COLORS["glove"])
+    draw.rectangle([2, 34, 5, 42], fill=COLORS["glove_shadow"])
+    draw.rectangle([9, 34, 12, 40], fill=COLORS["glove_highlight"])
 
     # Wrist line
-    draw.line([(3, 34), (11, 34)], fill=COLORS["skin_shadow"])
+    draw.line([(3, 34), (11, 34)], fill=COLORS["glove_shadow"])
 
     return img
 

@@ -49,3 +49,6 @@ resources/sprites/img2img_animation/
 
 # Polished animation intermediate files
 resources/sprites/polished_animation/
+
+# Pose-focused animation intermediate files
+resources/sprites/pose_focused_animation/

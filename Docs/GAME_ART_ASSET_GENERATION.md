@@ -5,12 +5,14 @@ This document outlines researched approaches for generating 2D sprites and game 
 ## Table of Contents
 
 - [Quick Recommendation](#quick-recommendation)
+- [Composable Sprite Builder (RECOMMENDED)](#composable-sprite-builder-recommended)
 - [Consistent Character Animation](#consistent-character-animation-critical)
-- [Option 1: PixelLab MCP (Recommended)](#option-1-pixellab-mcp-recommended)
+- [Option 1: PixelLab MCP](#option-1-pixellab-mcp-recommended)
 - [Option 2: ComfyUI + IP-Adapter](#option-2-comfyui--ip-adapter)
 - [Option 3: MFLUX (Static Assets Only)](#option-3-mflux-static-assets-only)
 - [Godot Integration](#godot-integration)
 - [Post-Processing Pipeline](#post-processing-pipeline)
+- [Animation Validation](#animation-validation)
 
 ---
 
@@ -20,11 +22,92 @@ For GoDig's requirements (consistent, automated, Godot-compatible):
 
 | Requirement | Best Option |
 |------------|-------------|
-| **Consistent Characters** | PixelLab MCP (Claude Code integration) |
-| **Animated Sprites** | PixelLab MCP (built-in animation) |
+| **Animated Sprites (PROVEN)** | **Composable Sprite Builder** (local, precise control) |
 | **Static Assets** | MFLUX Z-Image-Turbo (local, free) |
-| **Full Local Control** | ComfyUI + IP-Adapter + ControlNet |
-| **Best for Automation** | PixelLab MCP (direct Claude Code tool) |
+| **Cloud Alternative** | PixelLab MCP (if composable doesn't meet needs) |
+| **AI Animation (Experimental)** | ComfyUI + IP-Adapter (limited success) |
+
+> **Important**: After extensive testing, AI-based animation generation (IP-Adapter, ControlNet) failed to produce correct pose sequences. The **Composable Sprite Builder** is now the recommended approach for animations.
+
+---
+
+## Composable Sprite Builder (RECOMMENDED)
+
+**The proven solution for animation.** After extensive testing, AI-based approaches failed to produce correct pose sequences. The Composable Sprite Builder generates components once and assembles them programmatically.
+
+### Why This Works
+
+| Approach | Consistency | Pose Control | Result |
+|----------|-------------|--------------|--------|
+| **Composable Builder** | Perfect | Precise | ✅ Working animation |
+| AI (IP-Adapter) | Medium | Poor | ❌ Wrong poses |
+| AI (ControlNet) | Poor | Medium | ❌ Inconsistent |
+| AI (Combined) | Poor | Poor | ❌ Failed |
+
+### Architecture
+
+```
+COMPONENTS (generate/draw once):
+├── body.png         # Torso + legs (static)
+├── head.png         # Character head (static)
+├── arm.png          # Arm segment (rotatable)
+├── pickaxe.png      # Tool (attached to arm)
+
+POSE DEFINITIONS (code):
+├── Frame 0: arm_angle=-15° (ready)
+├── Frame 1: arm_angle=15°  (windup start)
+├── Frame 2: arm_angle=45°  (windup mid)
+├── Frame 3: arm_angle=80°  (windup full - overhead)
+├── Frame 4: arm_angle=50°  (swing start)
+├── Frame 5: arm_angle=10°  (swing mid)
+├── Frame 6: arm_angle=-30° (swing low)
+├── Frame 7: arm_angle=-55° (impact - ground)
+
+OUTPUT:
+└── sprite_sheet.png (1024x128, 8 frames)
+```
+
+### Usage
+
+```bash
+# Generate components and assemble sprite sheet
+python scripts/tools/composable_sprite_builder.py
+```
+
+### Benefits
+
+- ✅ **Perfect consistency** - Same pixels every frame
+- ✅ **Precise pose control** - Exact angles, not AI interpretation
+- ✅ **Zero runtime cost** - Static sprite sheet output
+- ✅ **Easy iteration** - Change angles, rebuild instantly
+- ✅ **Correct animation** - Pickaxe actually goes LOW → HIGH → LOW
+
+### Customization
+
+Edit `SWING_POSES` in `composable_sprite_builder.py`:
+
+```python
+SWING_POSES = [
+    {"name": "ready", "arm_angle": -15, "body_offset": (0, 0)},
+    {"name": "windup_full", "arm_angle": 80, "body_offset": (-4, 2)},
+    {"name": "impact", "arm_angle": -55, "body_offset": (6, -4)},
+    # Add more frames as needed
+]
+```
+
+### Replacing Art
+
+To use better artwork:
+1. Replace component PNGs in `resources/sprites/components/`
+2. Maintain same dimensions and pivot points
+3. Run `composable_sprite_builder.py` to regenerate
+
+### Current Output
+
+The miner swing animation (`miner_swing_composable.png`) uses this pipeline:
+- 8 frames, 128x128 each
+- Clear swing arc: ready → overhead → ground impact
+- Used by `miner_animation.tres`
 
 ---
 
@@ -32,16 +115,18 @@ For GoDig's requirements (consistent, automated, Godot-compatible):
 
 **The #1 challenge in AI sprite generation is maintaining character consistency across animation frames.** Standard text-to-image generation produces different-looking characters for each frame.
 
+> **Note**: After extensive testing, we found AI approaches unreliable for animation poses. See [Composable Sprite Builder](#composable-sprite-builder-recommended) for the working solution.
+
 ### Solutions for Consistency
 
-| Approach | Consistency | Setup Complexity | Cost |
-|----------|-------------|------------------|------|
-| **PixelLab MCP** | Excellent | Very Easy | Free tier + $12/mo |
-| **ComfyUI + IP-Adapter** | Good | Complex | Free (local) |
-| **Train Custom LoRA** | Excellent | Very Complex | Free (local) |
-| **MFLUX (no solution)** | Poor | Easy | Free |
+| Approach | Consistency | Pose Control | Setup | Cost |
+|----------|-------------|--------------|-------|------|
+| **Composable Builder** | Excellent | Excellent | Easy | Free |
+| **PixelLab MCP** | Excellent | Good | Easy | Free tier + $12/mo |
+| **ComfyUI + IP-Adapter** | Good | Poor | Complex | Free (local) |
+| **Train Custom LoRA** | Excellent | Medium | Very Complex | Free (local) |
 
-### Why PixelLab is Recommended
+### Why PixelLab May Still Be Useful
 
 1. **MCP Integration**: Works directly as a Claude Code tool
 2. **Built-in Consistency**: Designed specifically for game sprites
@@ -733,17 +818,65 @@ We created `scripts/tools/create_pose_references.py` to generate skeleton images
 ### Scripts Available
 
 ```bash
-# Multi-pass validated pipeline (with LLM judge)
+# RECOMMENDED: Composable sprite builder (working solution)
+python scripts/tools/composable_sprite_builder.py
+
+# Validate animation frames against pose checklist
+python scripts/tools/animation_validator.py
+
+# AI pipelines (experimental - limited success)
 python scripts/tools/validated_animation_pipeline.py reference.png --candidates 3
-
-# Img2img consistency pipeline (best balance for subtle animations)
-python scripts/tools/img2img_animation_pipeline.py reference.png
-
-# Create OpenPose skeleton references for swing animation
-python scripts/tools/create_pose_references.py
-
-# ControlNet + IP-Adapter pipeline (best pose control, requires pose refs)
 python scripts/tools/controlnet_animation_pipeline.py
+```
+
+---
+
+## Animation Validation
+
+When evaluating generated animation frames, use this checklist to catch pose issues early.
+
+### Pose Validation Checklist (Pickaxe Swing)
+
+| Frame | Expected Pickaxe Position |
+|-------|---------------------------|
+| 0 (ready) | LOW - at side, near waist/hip |
+| 1 (windup_1) | RISING - moving from low to mid |
+| 2 (windup_2) | MID-HIGH - at/above shoulder |
+| 3 (windup_full) | HIGH - ABOVE head (peak backswing) |
+| 4 (swing_start) | DESCENDING - from overhead |
+| 5 (swing_mid) | MID-FRONT - chest/waist height |
+| 6 (swing_low) | LOW-FRONT - approaching ground |
+| 7 (impact) | GROUND - at ground level |
+
+### Sequence Validation
+
+- [ ] Pickaxe travels LOW → HIGH → LOW
+- [ ] Clear overhead position in windup frames (2-3)
+- [ ] Pickaxe reaches ground in impact frame (7)
+- [ ] Motion reads as "swinging at ground"
+
+### Motion Validation
+
+- [ ] Visible change between consecutive frames
+- [ ] Progressive motion (not random)
+- [ ] No 3+ frames with pickaxe in same position
+
+### Failure Indicators
+
+**REJECT the animation if:**
+- Pickaxe stays in same position across all frames
+- No clear overhead backswing
+- Pickaxe never reaches ground level
+- Player wouldn't recognize it as "swinging pickaxe"
+
+### Validation Tool
+
+```bash
+# Print validation checklist
+python scripts/tools/animation_validator.py
+
+# Outputs validation config to:
+# resources/sprites/swing_animation_validation.json
 ```
 
 ---
@@ -752,20 +885,19 @@ python scripts/tools/controlnet_animation_pipeline.py
 
 For GoDig, the recommended approach is:
 
-### For Animated Characters (Consistent Frames)
+### For Animated Characters (PROVEN SOLUTION)
 
-1. **Primary Tool**: PixelLab MCP
-   - Direct Claude Code integration via MCP
-   - Built-in character consistency
-   - Animation support (walk, run, idle, attack)
-   - Free tier: 40 generations, then 5 daily
-   - Setup: Add MCP server with API token
+1. **Primary Tool**: Composable Sprite Builder
+   - Generate components once (body, head, arm, pickaxe)
+   - Assemble programmatically with precise angle control
+   - Output static sprite sheet (no runtime cost)
+   - **This actually works** - pickaxe goes LOW → HIGH → LOW
+   - See `scripts/tools/composable_sprite_builder.py`
 
-2. **Alternative (Local)**: ComfyUI + IP-Adapter
-   - Fully local, no API costs
-   - Use reference image for consistency
-   - ControlNet for pose control
-   - More complex setup required
+2. **Cloud Alternative**: PixelLab MCP
+   - May be useful if composable doesn't meet art quality needs
+   - Built-in animation support
+   - Free tier available
 
 ### For Static Assets (Backgrounds, Items)
 
@@ -773,7 +905,15 @@ For GoDig, the recommended approach is:
    - Fast local generation (~5s per image)
    - No authentication required
    - See `scripts/tools/generate_sprite.py`
-   - **Not suitable for animation frames** (no consistency)
+   - **Not suitable for animation frames** (no consistency or pose control)
+
+### AI Animation (Experimental - Limited Success)
+
+4. **ComfyUI + IP-Adapter + ControlNet**
+   - Tested extensively, failed to produce correct poses
+   - IP-Adapter maintains identity but not poses
+   - ControlNet competes with IP-Adapter
+   - Documented in experimental findings section
 
 ### Essential Post-Processing
 
@@ -783,11 +923,7 @@ For GoDig, the recommended approach is:
 
 ### Key Insight
 
-**Character consistency is the critical challenge.** Standard text-to-image tools like MFLUX, Draw Things, and basic Stable Diffusion will produce different-looking characters for each frame. For animation, you MUST use either:
-
-1. PixelLab (designed for this)
-2. IP-Adapter with reference image
-3. Custom-trained LoRA on your character
+**AI animation generation is unreliable for pose control.** After extensive testing with IP-Adapter, ControlNet, and various parameter combinations, AI approaches consistently failed to produce correct swing poses. The composable approach with programmatic assembly is the proven solution.
 
 ### Resources
 

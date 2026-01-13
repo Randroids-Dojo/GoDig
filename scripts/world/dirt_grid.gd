@@ -4,8 +4,8 @@ extends Node2D
 
 const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 
-const BLOCK_SIZE := 64
-const POOL_SIZE := 300
+const BLOCK_SIZE := 128
+const POOL_SIZE := 100  # Fewer blocks needed with larger size
 const ROWS_AHEAD := 10
 const ROWS_BEHIND := 5
 

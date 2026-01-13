@@ -22,6 +22,7 @@ GoDig/
 
 - Godot 4.5+ (GL Compatibility renderer)
 - Python 3.11+ (for running tests)
+- **Godot Automation Fork** (for running tests locally - see below)
 
 ### Running the Game
 
@@ -33,16 +34,24 @@ Open the project in Godot Editor and press F5, or run:
 
 ### Running Tests
 
-See [TESTING.md](TESTING.md) for detailed testing instructions.
+**Important:** PlayGodot tests require our [Godot automation fork](https://github.com/Randroids-Dojo/godot), not standard Godot Engine.
 
-Quick start:
+For local development, clone and build the fork as a sibling directory:
+
 ```bash
-# Install test dependencies
-pip install pytest pytest-asyncio pytest-xdist
+# Clone automation fork
+git clone https://github.com/Randroids-Dojo/godot.git ../godot
+cd ../godot && git checkout automation
 
-# Run tests
+# Build (macOS Apple Silicon example)
+scons platform=macos arch=arm64 target=editor -j8
+
+# Back to GoDig, run tests
+cd ../GoDig
 pytest tests/ -v
 ```
+
+See [TESTING.md](TESTING.md) for detailed testing instructions.
 
 ## Configuration
 

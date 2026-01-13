@@ -7,11 +7,11 @@ signal game_started
 signal game_over
 signal depth_updated(depth: int)
 
-# Grid constants
-const BLOCK_SIZE := 64
-const GRID_WIDTH := 11  # (720 - 16) / 64 = 11 blocks
-const GRID_OFFSET_X := 8  # Center the grid: (720 - 11*64) / 2 = 8
-const SURFACE_ROW := 14  # Dirt starts at row 14 (bottom quarter of 1280/64 = 20 rows)
+# Grid constants (128x128 blocks, same size as player)
+const BLOCK_SIZE := 128
+const GRID_WIDTH := 5  # 720 / 128 = 5.625, use 5 blocks centered
+const GRID_OFFSET_X := 40  # Center the grid: (720 - 5*128) / 2 = 40
+const SURFACE_ROW := 7  # Dirt starts at row 7 (bottom quarter of 1280/128 = 10 rows)
 const VIEWPORT_WIDTH := 720
 const VIEWPORT_HEIGHT := 1280
 

@@ -692,12 +692,43 @@ We built `scripts/tools/validated_animation_pipeline.py` with:
 
 **IP-Adapter preserves character IDENTITY but not PIXEL-LEVEL consistency.**
 
-For truly distinct poses (e.g., pickaxe swing from overhead to ground), current approaches cannot maintain perfect consistency. You need:
+For truly distinct poses (e.g., pickaxe swing from overhead to ground), current approaches cannot maintain perfect consistency.
 
-1. **ControlNet with OpenPose** - Skeleton-guided pose control
-2. **Sprite Sheet Diffusion** - Models trained specifically for sprite sheets
-3. **Manual keyframes** - Draw key poses, AI interpolation between
-4. **Post-processing** - Manual touch-up of generated frames
+### ControlNet + IP-Adapter Pipeline (Advanced)
+
+We implemented `scripts/tools/controlnet_animation_pipeline.py` combining:
+- **ControlNet (OpenPose)**: Controls WHERE body parts are (pose/skeleton)
+- **IP-Adapter**: Controls WHAT the character looks like (appearance)
+
+#### Results
+
+| ControlNet Strength | IP-Adapter Weight | Consistency | Pose Variety |
+|---------------------|-------------------|-------------|--------------|
+| 0.7 | 0.95 | Poor | Good poses follow skeleton |
+| 0.5 | 0.98 | Medium | Moderate pose variation |
+| 0.3 | 0.98 | Good | Limited pose variation |
+
+**Key finding**: ControlNet and IP-Adapter compete for influence. Higher ControlNet means better pose control but worse consistency. Higher IP-Adapter means better consistency but weaker pose control.
+
+#### OpenPose Reference Generation
+
+We created `scripts/tools/create_pose_references.py` to generate skeleton images for 8 pickaxe swing poses:
+- COCO 18-point keypoint format
+- Color-coded limbs (red body, green/blue arms, yellow/magenta legs)
+- Output: `resources/sprites/pose_references/pose_*.png`
+
+#### Remaining Challenges
+
+1. Background artifacts persist (ControlNet introduces scene elements)
+2. SD 1.5 struggles with clean pixel art style
+3. The trade-off between consistency and pose variety remains fundamental
+
+### Next Steps for Production Quality
+
+1. **Sprite Sheet Diffusion** - Models trained specifically for sprite sheets
+2. **Manual keyframes** - Draw key poses, AI interpolation between
+3. **Post-processing** - Manual touch-up of generated frames
+4. **PixelLab** - Commercial solution designed for this problem
 
 ### Scripts Available
 
@@ -705,8 +736,14 @@ For truly distinct poses (e.g., pickaxe swing from overhead to ground), current 
 # Multi-pass validated pipeline (with LLM judge)
 python scripts/tools/validated_animation_pipeline.py reference.png --candidates 3
 
-# Img2img consistency pipeline (best balance)
+# Img2img consistency pipeline (best balance for subtle animations)
 python scripts/tools/img2img_animation_pipeline.py reference.png
+
+# Create OpenPose skeleton references for swing animation
+python scripts/tools/create_pose_references.py
+
+# ControlNet + IP-Adapter pipeline (best pose control, requires pose refs)
+python scripts/tools/controlnet_animation_pipeline.py
 ```
 
 ---

@@ -175,36 +175,37 @@ Draw Things includes a gRPC server for external automation:
 
 ---
 
-## Option 3: MFLUX
+## Option 3: MFLUX (Tested & Recommended for CLI)
 
 MLX-native implementation of FLUX for Apple Silicon, optimized for performance.
+
+> **Note**: MFLUX requires Python 3.10+ due to modern type hint syntax. Use Homebrew Python.
 
 ### Installation
 
 ```bash
-# Install via pip
-pip install mflux
-
-# Or with Homebrew dependencies
+# Install Python 3.11 via Homebrew (required - system Python 3.9 won't work)
 brew install python@3.11
-pip3 install mflux
+
+# Install MFLUX and dependencies
+/opt/homebrew/bin/pip3.11 install mflux rembg pillow onnxruntime
 ```
 
 ### CLI Usage
 
 ```bash
-# Generate an image
-mflux-generate \
+# Use Z-Image-Turbo model (no HuggingFace auth required!)
+/opt/homebrew/bin/mflux-generate-z-image-turbo \
     --prompt "pixel art sword, game asset, transparent background" \
-    --model dev \
-    --steps 4 \
+    --steps 9 \
     --seed 42 \
-    --height 128 \
-    --width 128 \
+    --height 256 \
+    --width 256 \
+    --quantize 4 \
     --output sprite.png
 
-# Use 4-bit quantization for lower memory (6GB vs 24GB)
-mflux-generate --quantize 4 --prompt "pixel art character"
+# Note: FLUX Schnell/Dev models require HuggingFace authentication
+# Z-Image-Turbo is recommended for automation as it works without login
 ```
 
 ### Performance
@@ -219,21 +220,43 @@ mflux-generate --quantize 4 --prompt "pixel art character"
 
 ```python
 import subprocess
+from pathlib import Path
 
-def generate_sprite(prompt, output_path, width=128, height=128):
-    """Generate a sprite using mflux."""
+MFLUX_BIN = Path("/opt/homebrew/bin/mflux-generate-z-image-turbo")
+
+def generate_sprite(prompt, output_path, width=256, height=256, seed=None):
+    """Generate a sprite using mflux Z-Image-Turbo."""
     cmd = [
-        "mflux-generate",
+        str(MFLUX_BIN),
         "--prompt", prompt,
-        "--model", "schnell",  # Faster model
-        "--steps", "4",
-        "--quantize", "8",
+        "--steps", "9",
+        "--quantize", "4",  # Low memory mode
         "--width", str(width),
         "--height", str(height),
         "--output", output_path
     ]
+    if seed is not None:
+        cmd.extend(["--seed", str(seed)])
     subprocess.run(cmd, check=True)
     return output_path
+```
+
+### GoDig Sprite Generation Script
+
+A complete sprite generation script is available at `scripts/tools/generate_sprite.py`:
+
+```bash
+# Generate a miner sprite
+/opt/homebrew/bin/python3.11 scripts/tools/generate_sprite.py \
+    miner_swing "miner character swinging a pickaxe" --seed 42
+
+# Generate a weapon
+/opt/homebrew/bin/python3.11 scripts/tools/generate_sprite.py \
+    sword "medieval sword weapon" --width 64 --height 64
+
+# Generate a background (skip background removal)
+/opt/homebrew/bin/python3.11 scripts/tools/generate_sprite.py \
+    cave "underground cave scene" --no-remove-bg --width 720 --height 1280
 ```
 
 ### Pros
@@ -587,26 +610,35 @@ def create_sprite_sheet(frames: list, columns: int = 8) -> Image:
 
 For GoDig, the recommended approach is:
 
-1. **Primary Tool**: ComfyUI with Python API
+1. **Primary Tool (Tested)**: MFLUX with Z-Image-Turbo
+   - Works immediately without HuggingFace authentication
+   - Simple CLI that can be called from Python/scripts
+   - Excellent Apple Silicon optimization
+   - See `scripts/tools/generate_sprite.py` for working implementation
+
+2. **Alternative for Complex Workflows**: ComfyUI with Python API
    - Most flexible for automation
    - Extensive node ecosystem for game assets
    - Active community and documentation
+   - Requires more setup
 
-2. **Alternative**: Draw Things with JavaScript scripting
-   - Easiest setup (App Store install)
+3. **Easiest Setup**: Draw Things (App Store)
+   - One-click install
    - Good scripting support
    - Native macOS optimization
 
-3. **For Quick CLI Generation**: MFLUX
-   - Simple command-line interface
-   - Excellent for Apple Silicon
-   - Fast with quantized models
-
 4. **Essential Post-Processing**:
-   - `rembg` for background removal
-   - Pillow for image manipulation
-   - Custom scripts for sprite sheet assembly
+   - `rembg` for background removal (tested, works well)
+   - Pillow for image manipulation and resizing
+   - Nearest-neighbor resampling for pixel art
 
-5. **Model Selection**:
-   - Pixel Art Diffusion XL for high-quality output
-   - 2D Pixel Toolkit LoRA for consistent game assets
+5. **Tested Pipeline** (in `scripts/tools/generate_sprite.py`):
+   - Generate at 256x256 with Z-Image-Turbo (~5s with 4-bit quantization)
+   - Remove background with rembg (~2s)
+   - Resize to final dimensions (128x128) with nearest-neighbor
+   - Total time: ~10s per sprite
+
+6. **Requirements**:
+   - Python 3.11+ (via Homebrew: `brew install python@3.11`)
+   - MFLUX: `/opt/homebrew/bin/pip3.11 install mflux`
+   - rembg: `/opt/homebrew/bin/pip3.11 install rembg onnxruntime`

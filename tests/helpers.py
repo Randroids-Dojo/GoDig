@@ -17,7 +17,7 @@ PATHS = {
     "main": "/root/Main",
     "player": "/root/Main/Player",
     "dirt_grid": "/root/Main/DirtGrid",
-    "camera": "/root/Main/Camera2D",
+    "camera": "/root/Main/Player/Camera2D",
     "depth_label": "/root/Main/UI/DepthLabel",
     "game_manager": "/root/GameManager",
 }

@@ -53,10 +53,10 @@ COLORS = {
     "leather": (50, 35, 25),
     "leather_highlight": (70, 50, 35),
 
-    # Work gloves (distinct from skin and wood)
-    "glove": (80, 70, 55),
-    "glove_highlight": (100, 90, 70),
-    "glove_shadow": (55, 45, 35),
+    # Work gloves (lighter, warmer tones for balanced std_dev)
+    "glove": (140, 110, 75),
+    "glove_highlight": (165, 135, 100),
+    "glove_shadow": (115, 85, 55),
 
     # Outlines and details
     "outline": (25, 25, 30),

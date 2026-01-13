@@ -46,3 +46,6 @@ tests/screenshots/
 # Intermediate animation frames (raw ComfyUI output)
 resources/sprites/controlnet_animation/
 resources/sprites/img2img_animation/
+
+# Polished animation intermediate files
+resources/sprites/polished_animation/

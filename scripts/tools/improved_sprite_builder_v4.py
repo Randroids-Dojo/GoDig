@@ -67,53 +67,43 @@ COLORS = {
 
 
 def create_body_component() -> Image.Image:
-    """Create improved body (torso + legs) component with 3-tone shading."""
+    """Create body (torso + legs) with optimized 8-color palette."""
     img = Image.new('RGBA', (52, 68), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
 
-    # === TORSO (wider for better density) ===
-    # Main torso block
-    draw.rectangle([14, 2, 20, 26], fill=COLORS["shirt_shadow"])
-    draw.rectangle([20, 2, 30, 26], fill=COLORS["shirt"])
-    draw.rectangle([30, 2, 38, 26], fill=COLORS["shirt_highlight"])
+    # Using 2-tone shading to stay within 8 colors total:
+    # shirt (2), jeans (2), leather (2), skin (1), outline (1) = 8
 
-    # Shoulder areas (larger)
+    # === TORSO (2-tone shirt) ===
+    draw.rectangle([14, 2, 26, 26], fill=COLORS["shirt_shadow"])
+    draw.rectangle([26, 2, 38, 26], fill=COLORS["shirt"])
+
+    # Shoulder areas
     draw.rectangle([10, 4, 14, 14], fill=COLORS["shirt_shadow"])
-    draw.rectangle([38, 4, 42, 14], fill=COLORS["shirt_highlight"])
+    draw.rectangle([38, 4, 42, 14], fill=COLORS["shirt"])
 
     # Collar detail
     draw.rectangle([22, 2, 30, 6], fill=COLORS["skin_shadow"])
 
-    # Shirt pocket detail
-    draw.rectangle([32, 10, 36, 14], fill=COLORS["shirt_shadow"])
-
     # === BELT ===
     draw.rectangle([14, 26, 38, 31], fill=COLORS["leather"])
-    draw.rectangle([30, 26, 38, 31], fill=COLORS["leather_highlight"])
-    draw.rectangle([23, 27, 29, 30], fill=COLORS["metal_highlight"])
+    draw.rectangle([23, 27, 29, 30], fill=COLORS["leather_highlight"])
 
-    # === LEGS (wider) ===
+    # === LEGS (2-tone jeans) ===
     draw.rectangle([14, 31, 25, 54], fill=COLORS["jeans_shadow"])
-    draw.rectangle([17, 31, 25, 54], fill=COLORS["jeans"])
     draw.rectangle([27, 31, 38, 54], fill=COLORS["jeans"])
-    draw.rectangle([32, 31, 38, 54], fill=COLORS["jeans_highlight"])
-
-    # Knee highlights
-    draw.rectangle([19, 40, 23, 44], fill=COLORS["jeans_highlight"])
-    draw.rectangle([32, 40, 36, 44], fill=COLORS["jeans_highlight"])
 
     # Crotch shadow
     draw.rectangle([25, 31, 27, 38], fill=COLORS["jeans_shadow"])
 
-    # === BOOTS (wider) ===
+    # === BOOTS ===
     draw.rectangle([12, 54, 26, 62], fill=COLORS["leather"])
     draw.rectangle([12, 54, 16, 62], fill=COLORS["outline"])
     draw.rectangle([26, 54, 40, 62], fill=COLORS["leather"])
-    draw.rectangle([36, 54, 40, 62], fill=COLORS["leather_highlight"])
     draw.rectangle([12, 60, 26, 62], fill=COLORS["outline"])
     draw.rectangle([26, 60, 40, 62], fill=COLORS["outline"])
 
-    # Boot details
+    # Boot highlights
     draw.rectangle([18, 56, 22, 58], fill=COLORS["leather_highlight"])
     draw.rectangle([30, 56, 34, 58], fill=COLORS["leather_highlight"])
 

@@ -10,7 +10,7 @@ enum State { IDLE, MOVING, MINING }
 const BLOCK_SIZE := 64
 const MOVE_DURATION := 0.15  # Seconds to move one block
 
-@export var dirt_grid: Node2D  # DirtGrid node
+var dirt_grid: Node2D  # Set by test_level.gd
 
 var current_state: State = State.IDLE
 var grid_position: Vector2i  # Top-left of player's 2x2 footprint

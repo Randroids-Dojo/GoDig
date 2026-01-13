@@ -637,6 +637,80 @@ def create_sprite_sheet(frames: list, columns: int = 8) -> Image:
 
 ---
 
+## Experimental Findings: Animation Consistency Pipeline
+
+Based on extensive testing with ComfyUI + IP-Adapter, here are our findings on achieving consistent animation frames:
+
+### Approaches Tested
+
+| Approach | Consistency | Pose Variation | Result |
+|----------|-------------|----------------|--------|
+| IP-Adapter txt2img | Poor | High | Different characters each frame |
+| IP-Adapter + candidates | Medium | High | Better but still inconsistent |
+| Img2img low denoise (0.25-0.35) | Excellent | Poor | Same pose, subtle changes |
+| Img2img med denoise (0.45-0.65) | Good | Medium | **Best balance** |
+| Img2img high denoise (0.7+) | Poor | High | Loses consistency |
+
+### Key Insight: Consistency vs Variation Trade-off
+
+```
+Low Denoise (0.2-0.3)  ──────────────────────────────  High Denoise (0.7+)
+     │                                                        │
+     │  EXCELLENT consistency                    POOR consistency
+     │  POOR pose variation                      EXCELLENT pose variation
+     │                                                        │
+     └──── Sweet spot: 0.45-0.55 for subtle animation ────────┘
+```
+
+### Multi-Pass LLM Validation Pipeline
+
+We built `scripts/tools/validated_animation_pipeline.py` with:
+
+1. **Multi-Candidate Generation**: Generate N candidates per frame
+2. **LLM Evaluation** (Claude Vision): Score each candidate on:
+   - Style consistency (40% weight)
+   - Quality/artifacts (30% weight)
+   - Pose correctness (30% weight)
+3. **Cross-Frame Consistency Check**: Compare all frames together
+4. **Regeneration Loop**: Retry problematic frames with adjusted parameters
+
+### What Works
+
+- ✅ **Img2img from base frame** preserves character identity well
+- ✅ **High IP-Adapter weights (0.95+)** help maintain colors/proportions
+- ✅ **LLM evaluation** can identify inconsistent frames automatically
+- ✅ **Consistent prompts** with same color/feature descriptions help
+
+### What Doesn't Work
+
+- ❌ **Txt2img** produces different characters even with IP-Adapter
+- ❌ **Low denoise** can't create dramatic pose changes (pickaxe overhead→ground)
+- ❌ **Random seeds** without reference cause style drift
+- ❌ **Varying prompts** between frames causes inconsistency
+
+### Fundamental Limitation
+
+**IP-Adapter preserves character IDENTITY but not PIXEL-LEVEL consistency.**
+
+For truly distinct poses (e.g., pickaxe swing from overhead to ground), current approaches cannot maintain perfect consistency. You need:
+
+1. **ControlNet with OpenPose** - Skeleton-guided pose control
+2. **Sprite Sheet Diffusion** - Models trained specifically for sprite sheets
+3. **Manual keyframes** - Draw key poses, AI interpolation between
+4. **Post-processing** - Manual touch-up of generated frames
+
+### Scripts Available
+
+```bash
+# Multi-pass validated pipeline (with LLM judge)
+python scripts/tools/validated_animation_pipeline.py reference.png --candidates 3
+
+# Img2img consistency pipeline (best balance)
+python scripts/tools/img2img_animation_pipeline.py reference.png
+```
+
+---
+
 ## Summary
 
 For GoDig, the recommended approach is:

@@ -8,6 +8,9 @@ extends Node2D
 
 
 func _ready() -> void:
+	# Give player reference to dirt grid for mining
+	player.dirt_grid = dirt_grid
+
 	# Initialize the dirt grid with the player reference
 	dirt_grid.initialize(player, GameManager.SURFACE_ROW)
 

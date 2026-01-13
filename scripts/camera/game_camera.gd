@@ -1,28 +1,16 @@
-class_name GameCamera
 extends Camera2D
-## Camera that follows the player vertically with smooth interpolation.
-## Horizontal position is locked to center of viewport.
+## Camera that follows the player.
+## Should be a child of the player node for automatic following.
 
-@export var target: Node2D
-@export var vertical_offset := -100.0  # Look ahead (negative = show more below player)
-@export var smooth_speed := 8.0
-
-var _center_x: float
+# Offset from player origin
+# X=64 centers on player sprite (player is 128px wide)
+# Y=200 looks ahead below the player
+const PLAYER_CENTER_X := 64.0
+const LOOK_AHEAD_Y := 200.0
 
 
 func _ready() -> void:
-	# Lock horizontal position to viewport center
-	_center_x = get_viewport_rect().size.x / 2.0
-	position.x = _center_x
-
-
-func _process(delta: float) -> void:
-	if target == null:
-		return
-
-	# Smooth vertical follow with offset
-	var target_y := target.position.y + vertical_offset
-	position.y = lerpf(position.y, target_y, smooth_speed * delta)
-
-	# Keep horizontal position locked
-	position.x = _center_x
+	# Position camera relative to player
+	# X centers on player sprite, Y looks below
+	position = Vector2(PLAYER_CENTER_X, PLAYER_CENTER_X + LOOK_AHEAD_Y)
+	make_current()

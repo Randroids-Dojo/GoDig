@@ -1,0 +1,55 @@
+[gd_scene load_steps=8 format=3 uid="uid://test_level_001"]
+
+[ext_resource type="Script" path="res://scripts/test_level.gd" id="1_level"]
+[ext_resource type="Script" path="res://scripts/world/dirt_grid.gd" id="2_grid"]
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="3_player"]
+[ext_resource type="Script" path="res://scripts/camera/game_camera.gd" id="4_camera"]
+[ext_resource type="SpriteFrames" path="res://resources/sprites/miner_animation.tres" id="5_anim"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(120, 120)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_area"]
+size = Vector2(64, 64)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_level")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 720.0
+offset_bottom = 2000.0
+color = Color(0.529, 0.808, 0.922, 1)
+
+[node name="DirtGrid" type="Node2D" parent="."]
+script = ExtResource("2_grid")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(264, 768)
+script = ExtResource("3_player")
+dirt_grid = NodePath("../DirtGrid")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(64, 64)
+shape = SubResource("RectangleShape2D_player")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player"]
+position = Vector2(64, 64)
+sprite_frames = ExtResource("5_anim")
+animation = &"swing"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(360, 640)
+script = ExtResource("4_camera")
+target = NodePath("../Player")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="DepthLabel" type="Label" parent="UI"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 50.0
+theme_override_font_sizes/font_size = 24
+text = "Depth: 0"
+
+[connection signal="depth_changed" from="Player" to="." method="_on_player_depth_changed"]

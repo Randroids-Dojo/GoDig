@@ -1,6 +1,6 @@
 [gd_resource type="SpriteFrames" load_steps=10 format=3]
 
-[ext_resource type="Texture2D" path="res://resources/sprites/miner_swing_sheet_8frame.png" id="1_sheet"]
+[ext_resource type="Texture2D" path="res://resources/sprites/miner_swing_v2.png" id="1_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_frame1"]
 atlas = ExtResource("1_sheet")

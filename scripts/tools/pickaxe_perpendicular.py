@@ -40,60 +40,67 @@ def create_perpendicular_pickaxe() -> Image.Image:
     img = Image.new('RGBA', (52, 24), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
 
-    center_y = 11  # Vertical center
+    # Handle center positioned for perfect vertical balance
+    # Handle from y=8 to y=13 gives center at y=10.5
+    # Head from y=0 to y=21 gives extends_above = extends_below = 10.5
+    # Thinner handle (5px) improves silhouette ratio: 21/5 = 4.2 > 3.0
 
     # === WOODEN HANDLE ===
-    # Match primer length for color balance
     handle_length = 34
+    handle_top = 8
+    handle_bottom = 13
 
-    # Thicker handle for more wood pixels
-    draw.rectangle([0, center_y - 3, handle_length, center_y + 3], fill=COLORS["wood"])
-    draw.rectangle([0, center_y - 3, handle_length, center_y - 1], fill=COLORS["wood_hi"])
-    draw.rectangle([0, center_y + 1, handle_length, center_y + 3], fill=COLORS["wood_lo"])
+    # Main handle with 3-tone shading
+    draw.rectangle([0, handle_top, handle_length, handle_bottom], fill=COLORS["wood"])
+    draw.rectangle([0, handle_top, handle_length, handle_top + 1], fill=COLORS["wood_hi"])
+    draw.rectangle([0, handle_bottom - 1, handle_length, handle_bottom], fill=COLORS["wood_lo"])
 
-    # Handle end
-    draw.rectangle([0, center_y - 4, 4, center_y + 4], fill=COLORS["wood_lo"])
-    draw.rectangle([1, center_y - 3, 3, center_y + 3], fill=COLORS["wood"])
+    # Handle end (slightly taller for grip)
+    draw.rectangle([0, handle_top - 1, 4, handle_bottom + 1], fill=COLORS["wood_lo"])
+    draw.rectangle([1, handle_top, 3, handle_bottom], fill=COLORS["wood"])
 
     # Wood grain
     for x in range(6, handle_length - 2, 4):
-        draw.line([(x, center_y - 2), (x, center_y + 2)], fill=COLORS["wood_lo"])
+        draw.line([(x, handle_top + 1), (x, handle_bottom - 1)], fill=COLORS["wood_lo"])
 
     # === PERPENDICULAR METAL HEAD ===
     head_x = handle_length - 2
-    head_width = 5  # Narrower head
+    head_width = 5
+    head_top = 1
+    head_bottom = 20  # Head from y=1 to y=20, tip at y=0 and y=21
 
-    # Vertical bar - extends above and below handle
-    draw.rectangle([head_x, 2, head_x + head_width, 22], fill=COLORS["metal"])
+    # Vertical bar
+    draw.rectangle([head_x, head_top, head_x + head_width, head_bottom], fill=COLORS["metal"])
 
     # Shading on vertical bar
-    draw.rectangle([head_x, 2, head_x + 2, 22], fill=COLORS["metal_lo"])  # Left shadow
-    draw.rectangle([head_x + head_width - 2, 2, head_x + head_width, 22], fill=COLORS["metal_hi"])  # Right
+    draw.rectangle([head_x, head_top, head_x + 2, head_bottom], fill=COLORS["metal_lo"])
+    draw.rectangle([head_x + head_width - 2, head_top, head_x + head_width, head_bottom], fill=COLORS["metal_hi"])
 
     # Top pointed end
     top_point_x = head_x + head_width // 2
     draw.polygon([
-        (head_x + 1, 2),
+        (head_x + 1, head_top),
         (top_point_x, 0),
-        (head_x + head_width - 1, 2)
+        (head_x + head_width - 1, head_top)
     ], fill=COLORS["metal_lo"])
     draw.point((top_point_x, 0), fill=COLORS["gleam"])
 
     # Bottom pointed end
     draw.polygon([
-        (head_x + 1, 22),
-        (top_point_x, 24),
-        (head_x + head_width - 1, 22)
+        (head_x + 1, head_bottom),
+        (top_point_x, 21),
+        (head_x + head_width - 1, head_bottom)
     ], fill=COLORS["metal_lo"])
 
     # === PICK POINT extending right ===
+    handle_center = (handle_top + handle_bottom) // 2  # = 10
     for dx in range(head_width, 16):
         x = head_x + dx
         if x >= img.width:
             break
         thickness = max(1, 3 - dx // 4)
         for dy in range(-thickness, thickness + 1):
-            y = center_y + dy
+            y = handle_center + dy
             if 0 <= y < img.height:
                 if dy <= 0:
                     img.putpixel((x, y), COLORS["metal_hi"])
@@ -102,10 +109,10 @@ def create_perpendicular_pickaxe() -> Image.Image:
 
     # Sharp tip
     if head_x + 14 < img.width:
-        img.putpixel((head_x + 14, center_y), COLORS["gleam"])
+        img.putpixel((head_x + 14, handle_center), COLORS["gleam"])
 
     # === COLLAR ===
-    draw.rectangle([head_x - 2, center_y - 4, head_x, center_y + 4], fill=COLORS["metal_lo"])
+    draw.rectangle([head_x - 2, handle_center - 4, head_x, handle_center + 4], fill=COLORS["metal_lo"])
 
     return img
 

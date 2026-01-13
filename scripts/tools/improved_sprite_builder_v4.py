@@ -177,6 +177,38 @@ def create_arm_component() -> Image.Image:
     return img
 
 
+def create_left_arm_component() -> Image.Image:
+    """Create the left arm (non-swinging) that hangs at the side."""
+    # This arm hangs down naturally on the left side of the body
+    img = Image.new('RGBA', (12, 36), COLORS["transparent"])
+    draw = ImageDraw.Draw(img)
+
+    # === UPPER ARM (SHIRT) - pointing down ===
+    # Shoulder area
+    draw.ellipse([2, 0, 10, 8], fill=COLORS["shirt_shadow"])
+    draw.ellipse([4, 2, 8, 6], fill=COLORS["shirt"])
+
+    # Upper arm going down
+    draw.rectangle([3, 6, 9, 18], fill=COLORS["shirt"])
+    draw.rectangle([3, 6, 5, 18], fill=COLORS["shirt_shadow"])
+    draw.rectangle([7, 6, 9, 12], fill=COLORS["shirt_highlight"])
+
+    # === FOREARM (SKIN) ===
+    draw.rectangle([3, 18, 9, 30], fill=COLORS["skin"])
+    draw.rectangle([3, 18, 5, 30], fill=COLORS["skin_shadow"])
+    draw.rectangle([7, 18, 9, 24], fill=COLORS["skin_highlight"])
+
+    # === HAND ===
+    draw.rectangle([2, 30, 10, 36], fill=COLORS["skin"])
+    draw.rectangle([2, 30, 4, 36], fill=COLORS["skin_shadow"])
+    draw.rectangle([8, 30, 10, 34], fill=COLORS["skin_highlight"])
+
+    # Wrist line
+    draw.line([(3, 30), (9, 30)], fill=COLORS["skin_shadow"])
+
+    return img
+
+
 def create_pickaxe_component() -> Image.Image:
     """Create improved pickaxe component with detailed metal head."""
     img = Image.new('RGBA', (52, 24), COLORS["transparent"])
@@ -256,6 +288,7 @@ def assemble_frame(
     head: Image.Image,
     arm: Image.Image,
     pickaxe: Image.Image,
+    left_arm: Image.Image,
     arm_angle: float,
     body_offset: tuple = (0, 0),
 ) -> Image.Image:
@@ -266,6 +299,14 @@ def assemble_frame(
     body_x = (FRAME_WIDTH - body.width) // 2 + body_offset[0]
     body_y = FRAME_HEIGHT - body.height - 8 + body_offset[1]
 
+    # === LEFT ARM (non-swinging, hangs at side) ===
+    # Position at left shoulder
+    left_shoulder_x = body_x + 10
+    left_shoulder_y = body_y + 6
+    left_arm_x = left_shoulder_x - 4
+    left_arm_y = left_shoulder_y - 2
+
+    # === RIGHT ARM (swinging with pickaxe) ===
     # Shoulder position on the body (right shoulder area)
     shoulder_x = body_x + body.width - 14
     shoulder_y = body_y + 8
@@ -285,13 +326,16 @@ def assemble_frame(
     arm_x = shoulder_x - new_pivot[0]
     arm_y = shoulder_y - new_pivot[1]
 
-    # Layer components
+    # Layer components - left arm always behind body
+    frame.paste(left_arm, (left_arm_x, left_arm_y), left_arm)
+
+    # Layer body and right arm based on arm position
     if arm_angle > 60:
-        # Arm behind body during windup
+        # Right arm behind body during windup
         frame.paste(rotated, (arm_x, arm_y), rotated)
         frame.paste(body, (body_x, body_y), body)
     else:
-        # Arm in front of body normally
+        # Right arm in front of body normally
         frame.paste(body, (body_x, body_y), body)
         frame.paste(rotated, (arm_x, arm_y), rotated)
 
@@ -334,14 +378,18 @@ def generate_components():
     arm.save(COMPONENTS_DIR / "arm.png")
     print(f"  Saved: arm.png ({arm.size})")
 
+    left_arm = create_left_arm_component()
+    left_arm.save(COMPONENTS_DIR / "left_arm.png")
+    print(f"  Saved: left_arm.png ({left_arm.size})")
+
     pickaxe = create_pickaxe_component()
     pickaxe.save(COMPONENTS_DIR / "pickaxe.png")
     print(f"  Saved: pickaxe.png ({pickaxe.size})")
 
-    return body, head, arm, pickaxe
+    return body, head, arm, left_arm, pickaxe
 
 
-def build_sprite_sheet(body, head, arm, pickaxe) -> Image.Image:
+def build_sprite_sheet(body, head, arm, left_arm, pickaxe) -> Image.Image:
     """Build complete sprite sheet from components and poses."""
     num_frames = len(SWING_POSES)
     sheet_width = FRAME_WIDTH * num_frames
@@ -349,7 +397,7 @@ def build_sprite_sheet(body, head, arm, pickaxe) -> Image.Image:
 
     sheet = Image.new('RGBA', (sheet_width, sheet_height), COLORS["transparent"])
 
-    print(f"\nAssembling {num_frames} frames with improved rotation...")
+    print(f"\nAssembling {num_frames} frames with both arms...")
 
     for i, pose in enumerate(SWING_POSES):
         print(f"  Frame {i}: {pose['name']} (arm_angle={pose['arm_angle']})")
@@ -359,6 +407,7 @@ def build_sprite_sheet(body, head, arm, pickaxe) -> Image.Image:
             head=head,
             arm=arm,
             pickaxe=pickaxe,
+            left_arm=left_arm,
             arm_angle=pose["arm_angle"],
             body_offset=pose["body_offset"]
         )
@@ -372,11 +421,11 @@ def build_sprite_sheet(body, head, arm, pickaxe) -> Image.Image:
 def main():
     print("=" * 60)
     print("IMPROVED COMPOSABLE SPRITE BUILDER - V4")
-    print("Fixed arm rotation!")
+    print("Fixed arm rotation + both arms!")
     print("=" * 60)
 
-    body, head, arm, pickaxe = generate_components()
-    sheet = build_sprite_sheet(body, head, arm, pickaxe)
+    body, head, arm, left_arm, pickaxe = generate_components()
+    sheet = build_sprite_sheet(body, head, arm, left_arm, pickaxe)
 
     output_path = OUTPUT_DIR / "miner_swing_composable.png"
     sheet.save(output_path)

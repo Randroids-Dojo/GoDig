@@ -5,177 +5,208 @@ This document outlines researched approaches for generating 2D sprites and game 
 ## Table of Contents
 
 - [Quick Recommendation](#quick-recommendation)
-- [Tool Comparison](#tool-comparison)
-- [Option 1: ComfyUI (Recommended)](#option-1-comfyui-recommended)
-- [Option 2: Draw Things](#option-2-draw-things)
-- [Option 3: MFLUX](#option-3-mflux)
-- [Option 4: AUTOMATIC1111](#option-4-automatic1111)
-- [Recommended Models for Pixel Art](#recommended-models-for-pixel-art)
+- [Consistent Character Animation](#consistent-character-animation-critical)
+- [Option 1: PixelLab MCP (Recommended)](#option-1-pixellab-mcp-recommended)
+- [Option 2: ComfyUI + IP-Adapter](#option-2-comfyui--ip-adapter)
+- [Option 3: MFLUX (Static Assets Only)](#option-3-mflux-static-assets-only)
 - [Godot Integration](#godot-integration)
-- [Workflow for Claude Code Integration](#workflow-for-claude-code-integration)
 - [Post-Processing Pipeline](#post-processing-pipeline)
 
 ---
 
 ## Quick Recommendation
 
-For GoDig's requirements (local, free, CLI-scriptable, consistent, Godot-compatible):
+For GoDig's requirements (consistent, automated, Godot-compatible):
 
 | Requirement | Best Option |
 |------------|-------------|
-| **Overall Best** | ComfyUI with Python API |
-| **Easiest Setup** | Draw Things (App Store) |
-| **Apple Silicon Optimized** | MFLUX |
-| **Most Flexible** | ComfyUI |
-| **Best for Automation** | ComfyUI API or Draw Things Scripting |
+| **Consistent Characters** | PixelLab MCP (Claude Code integration) |
+| **Animated Sprites** | PixelLab MCP (built-in animation) |
+| **Static Assets** | MFLUX Z-Image-Turbo (local, free) |
+| **Full Local Control** | ComfyUI + IP-Adapter + ControlNet |
+| **Best for Automation** | PixelLab MCP (direct Claude Code tool) |
+
+---
+
+## Consistent Character Animation (CRITICAL)
+
+**The #1 challenge in AI sprite generation is maintaining character consistency across animation frames.** Standard text-to-image generation produces different-looking characters for each frame.
+
+### Solutions for Consistency
+
+| Approach | Consistency | Setup Complexity | Cost |
+|----------|-------------|------------------|------|
+| **PixelLab MCP** | Excellent | Very Easy | Free tier + $12/mo |
+| **ComfyUI + IP-Adapter** | Good | Complex | Free (local) |
+| **Train Custom LoRA** | Excellent | Very Complex | Free (local) |
+| **MFLUX (no solution)** | Poor | Easy | Free |
+
+### Why PixelLab is Recommended
+
+1. **MCP Integration**: Works directly as a Claude Code tool
+2. **Built-in Consistency**: Designed specifically for game sprites
+3. **Animation Support**: Generate walk/run/idle/attack animations
+4. **Multi-directional**: Create 4 or 8 directional character views
+5. **Free Tier**: 40 fast generations, then 5 daily
 
 ---
 
 ## Tool Comparison
 
-| Tool | Local | Free | CLI/API | Brew Install | Animation | Ease of Use |
-|------|-------|------|---------|--------------|-----------|-------------|
-| **ComfyUI** | Yes | Yes | Yes (HTTP API) | Partial | Yes | Medium |
-| **Draw Things** | Yes | Yes | Yes (JavaScript + gRPC) | No (App Store) | Limited | Easy |
-| **MFLUX** | Yes | Yes | Yes (CLI) | Via pip | No | Medium |
-| **AUTOMATIC1111** | Yes | Yes | Yes (API) | Partial | Via extensions | Medium |
-| **DiffusionBee** | Yes | Yes | No | No | No | Very Easy |
+| Tool | Consistent Chars | Animation | Claude Code Integration | Local | Free |
+|------|------------------|-----------|------------------------|-------|------|
+| **PixelLab MCP** | Excellent | Yes | Yes (MCP) | Cloud | Free tier |
+| **ComfyUI + IP-Adapter** | Good | Manual | Via API | Yes | Yes |
+| **MFLUX** | Poor | No | Via script | Yes | Yes |
+| **Draw Things** | Poor | No | Via script | Yes | Yes |
 
 ---
 
-## Option 1: ComfyUI (Recommended)
+## Option 1: PixelLab MCP (Recommended)
 
-ComfyUI is a node-based Stable Diffusion interface with a powerful API, ideal for automated game asset generation.
+PixelLab provides an MCP (Model Context Protocol) server that integrates directly with Claude Code, enabling consistent pixel art character generation with built-in animation support.
 
-### Installation
+### Why PixelLab for GoDig
+
+- **Consistent Characters**: Designed specifically to maintain character appearance across frames
+- **Built-in Animations**: Walk, run, idle, attack cycles with frame consistency
+- **Multi-directional**: Generate 4 or 8 directional views automatically
+- **MCP Integration**: Works as a native Claude Code tool
+- **No Local GPU**: Runs on cloud GPUs
+
+### Setup for Claude Code
+
+1. Sign up at [PixelLab.ai](https://www.pixellab.ai/) (free tier: 40 generations)
+2. Get your API token from the dashboard
+3. Add to Claude Code MCP configuration:
 
 ```bash
-# Prerequisites
-brew install cmake protobuf rust python@3.10 git wget
+# Add PixelLab MCP server to Claude Code
+claude mcp add pixellab \
+  --transport http \
+  --url https://api.pixellab.ai/mcp \
+  --header "Authorization: Bearer YOUR_API_TOKEN"
+```
 
-# Install ComfyUI via comfy-cli
-pip install comfy-cli
-comfy install
+Or add manually to `~/.claude/settings.json`:
 
-# Or manual installation
+```json
+{
+  "mcpServers": {
+    "pixellab": {
+      "url": "https://api.pixellab.ai/mcp",
+      "transport": "http",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_TOKEN"
+      }
+    }
+  }
+}
+```
+
+### Available MCP Tools
+
+Once configured, Claude Code gains access to:
+
+```python
+# Create a consistent character with multiple directions
+create_character(
+    description="pixel art miner with hard hat and pickaxe",
+    n_directions=4  # or 8 for 8-directional
+)
+
+# Add animation to an existing character
+animate_character(
+    character_id="abc123",
+    animation="swing"  # walk, run, idle, attack, etc.
+)
+
+# Create tilesets for environments
+create_tileset(
+    lower="underground cave floor",
+    upper="rocky cave wall"
+)
+```
+
+### Pricing
+
+| Tier | Cost | Features |
+|------|------|----------|
+| **Free Trial** | $0 | 40 fast generations, then 5 daily (up to 200x200) |
+| **Pixel Apprentice** | $12/month | Up to 320x320, animation tools |
+| **Pixel Architect** | $50/month | Highest priority, team features |
+
+### Resources
+
+- [PixelLab MCP GitHub](https://github.com/pixellab-code/pixellab-mcp)
+- [Interactive Setup Guide](https://www.pixellab.ai/vibe-coding)
+- [Documentation](https://www.pixellab.ai/docs)
+
+---
+
+## Option 2: ComfyUI + IP-Adapter
+
+For fully local generation with character consistency, use ComfyUI with IP-Adapter. IP-Adapter uses a reference image to maintain character appearance across frames.
+
+### How IP-Adapter Enables Consistency
+
+1. **Reference Image**: Provide a single character image as reference
+2. **CLIP Vision**: Encodes the reference into feature embeddings
+3. **IP-Adapter**: Conditions generation on those embeddings
+4. **ControlNet (optional)**: Adds pose control for animation frames
+
+### Installation on Apple Silicon
+
+```bash
+# Install ComfyUI
 git clone https://github.com/comfyanonymous/ComfyUI.git
 cd ComfyUI
 pip install -r requirements.txt
 
-# For Apple Silicon optimization
-pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
+# Install IP-Adapter Plus custom nodes
+cd custom_nodes
+git clone https://github.com/cubiq/ComfyUI_IPAdapter_plus.git
+
+# Download required models to ComfyUI/models/
+# - ipadapter/ip-adapter-plus_sdxl_vit-h.bin
+# - clip_vision/CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors
 ```
 
-### Running
-
-```bash
-# Start ComfyUI server
-cd ComfyUI
-python main.py
-
-# Access at http://127.0.0.1:8188
-```
-
-### API Usage with Python
+### Workflow for Animation Frames
 
 ```python
-import json
-import urllib.request
-import urllib.parse
-
-COMFYUI_URL = "http://127.0.0.1:8188"
-
-def queue_prompt(prompt_workflow):
-    """Submit a workflow to ComfyUI for processing."""
-    data = json.dumps({"prompt": prompt_workflow}).encode('utf-8')
-    req = urllib.request.Request(f"{COMFYUI_URL}/prompt", data=data)
-    return json.loads(urllib.request.urlopen(req).read())
-
-def get_image(filename, subfolder, folder_type):
-    """Retrieve generated image from ComfyUI."""
-    params = urllib.parse.urlencode({
-        "filename": filename,
-        "subfolder": subfolder,
-        "type": folder_type
-    })
-    with urllib.request.urlopen(f"{COMFYUI_URL}/view?{params}") as response:
-        return response.read()
-```
-
-### Key Nodes for Game Assets
-
-- **SpriteSheetMaker**: Arranges individual sprites into sheets
-- **Background Removal**: Creates transparent PNGs
-- **Image Grid**: Arranges frames for animation
-- **ControlNet**: Maintain pose/style consistency
-
-### Recommended Workflow
-
-1. Load pixel art checkpoint/LoRA
-2. Generate individual frames with consistent seed
-3. Use Background Removal node
-4. Arrange into sprite sheet with Image Grid
-5. Export as PNG with transparency
-
----
-
-## Option 2: Draw Things
-
-A native macOS app with JavaScript scripting support.
-
-### Installation
-
-Download from the [Mac App Store](https://apps.apple.com/us/app/draw-things-ai-generation/id6444050820) (free).
-
-### Scripting for Automation
-
-Draw Things supports JavaScript scripting for batch processing:
-
-```javascript
-// Example: Batch generate sprites
-const prompts = [
-    "pixel art knight idle pose, transparent background",
-    "pixel art knight walking, transparent background",
-    "pixel art knight attacking, transparent background"
-];
-
-for (const prompt of prompts) {
-    const result = pipeline.run({
-        prompt: prompt,
-        negativePrompt: "blurry, realistic, 3d",
-        steps: 20,
-        width: 128,
-        height: 128
-    });
-
-    // Save to Pictures directory
-    filesystem.pictures.write(`sprite_${Date.now()}.png`, result.image);
-}
-```
-
-### gRPC CLI Server
-
-Draw Things includes a gRPC server for external automation:
-
-```bash
-# The gRPCServerCLI is bundled with Draw Things
-# Can be called from external scripts for headless generation
+# Pseudocode workflow
+1. Generate or draw a single reference character image
+2. Load reference into IP-Adapter (weight 0.8-1.0)
+3. Use ControlNet with pose images for each animation frame
+4. Generate frames - IP-Adapter maintains character appearance
+5. Post-process: background removal, resize
 ```
 
 ### Pros
-- Native macOS app, highly optimized for Apple Silicon
-- Easy model management
-- Built-in scripting
-- Supports FLUX, SDXL, SD 1.5
+- Fully local, no API costs
+- Good consistency with reference image
+- Flexible pose control with ControlNet
 
 ### Cons
-- Limited to Draw Things ecosystem
-- Scripting less flexible than ComfyUI
-- No Homebrew install
+- Complex setup
+- Requires manual pose creation
+- Not as seamless as PixelLab for animations
+- Apple Silicon support can have issues
+
+### Resources
+
+- [ComfyUI_IPAdapter_plus](https://github.com/cubiq/ComfyUI_IPAdapter_plus)
+- [Flux + IPAdapter on Apple Silicon Guide](https://medium.com/@tchpnk/flux-ipadapter-comfyui-on-apple-silicon-2024-9577b0f0e91f)
+- [Consistent Character Tutorial](https://stable-diffusion-art.com/consistent-character-view-angle/)
 
 ---
 
-## Option 3: MFLUX (Tested & Recommended for CLI)
+## Option 3: MFLUX (Static Assets Only)
+
+> **Warning**: MFLUX cannot maintain character consistency across frames. Use only for static assets like backgrounds, items, or single-pose characters.
+
+### MFLUX Details
 
 MLX-native implementation of FLUX for Apple Silicon, optimized for performance.
 
@@ -610,35 +641,46 @@ def create_sprite_sheet(frames: list, columns: int = 8) -> Image:
 
 For GoDig, the recommended approach is:
 
-1. **Primary Tool (Tested)**: MFLUX with Z-Image-Turbo
-   - Works immediately without HuggingFace authentication
-   - Simple CLI that can be called from Python/scripts
-   - Excellent Apple Silicon optimization
-   - See `scripts/tools/generate_sprite.py` for working implementation
+### For Animated Characters (Consistent Frames)
 
-2. **Alternative for Complex Workflows**: ComfyUI with Python API
-   - Most flexible for automation
-   - Extensive node ecosystem for game assets
-   - Active community and documentation
-   - Requires more setup
+1. **Primary Tool**: PixelLab MCP
+   - Direct Claude Code integration via MCP
+   - Built-in character consistency
+   - Animation support (walk, run, idle, attack)
+   - Free tier: 40 generations, then 5 daily
+   - Setup: Add MCP server with API token
 
-3. **Easiest Setup**: Draw Things (App Store)
-   - One-click install
-   - Good scripting support
-   - Native macOS optimization
+2. **Alternative (Local)**: ComfyUI + IP-Adapter
+   - Fully local, no API costs
+   - Use reference image for consistency
+   - ControlNet for pose control
+   - More complex setup required
 
-4. **Essential Post-Processing**:
-   - `rembg` for background removal (tested, works well)
-   - Pillow for image manipulation and resizing
-   - Nearest-neighbor resampling for pixel art
+### For Static Assets (Backgrounds, Items)
 
-5. **Tested Pipeline** (in `scripts/tools/generate_sprite.py`):
-   - Generate at 256x256 with Z-Image-Turbo (~5s with 4-bit quantization)
-   - Remove background with rembg (~2s)
-   - Resize to final dimensions (128x128) with nearest-neighbor
-   - Total time: ~10s per sprite
+3. **MFLUX Z-Image-Turbo**: Good for single images
+   - Fast local generation (~5s per image)
+   - No authentication required
+   - See `scripts/tools/generate_sprite.py`
+   - **Not suitable for animation frames** (no consistency)
 
-6. **Requirements**:
-   - Python 3.11+ (via Homebrew: `brew install python@3.11`)
-   - MFLUX: `/opt/homebrew/bin/pip3.11 install mflux`
-   - rembg: `/opt/homebrew/bin/pip3.11 install rembg onnxruntime`
+### Essential Post-Processing
+
+- `rembg` for background removal
+- Pillow for image manipulation
+- Nearest-neighbor resampling for pixel art
+
+### Key Insight
+
+**Character consistency is the critical challenge.** Standard text-to-image tools like MFLUX, Draw Things, and basic Stable Diffusion will produce different-looking characters for each frame. For animation, you MUST use either:
+
+1. PixelLab (designed for this)
+2. IP-Adapter with reference image
+3. Custom-trained LoRA on your character
+
+### Resources
+
+- [PixelLab MCP](https://github.com/pixellab-code/pixellab-mcp) - Claude Code integration
+- [ComfyUI Spritesheet Guide](https://apatero.com/blog/generate-clean-spritesheets-comfyui-guide-2025)
+- [IP-Adapter for Consistent Characters](https://stable-diffusion-art.com/consistent-character-view-angle/)
+- [Sprite Sheet Diffusion Paper](https://arxiv.org/html/2412.03685v2)

@@ -59,6 +59,10 @@ See [TESTING.md](TESTING.md) for detailed testing instructions.
 - **Renderer**: GL Compatibility
 - **Orientation**: Portrait
 
+## Deployment
+
+Pushes to `main` automatically deploy to Vercel. Pull requests get preview URLs.
+
 ## License
 
 TBD

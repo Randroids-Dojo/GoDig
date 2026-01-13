@@ -1,19 +1,20 @@
 extends CharacterBody2D
 ## Player controller with grid-based movement and mining.
 ## Uses a state machine: IDLE, MOVING, MINING.
+## Player is 128x128 (same size as one dirt block).
 
 signal block_destroyed(grid_pos: Vector2i)
 signal depth_changed(depth: int)
 
 enum State { IDLE, MOVING, MINING }
 
-const BLOCK_SIZE := 64
+const BLOCK_SIZE := 128
 const MOVE_DURATION := 0.15  # Seconds to move one block
 
 var dirt_grid: Node2D  # Set by test_level.gd
 
 var current_state: State = State.IDLE
-var grid_position: Vector2i  # Top-left of player's 2x2 footprint
+var grid_position: Vector2i  # Player's grid cell (1x1 now)
 var target_grid_position: Vector2i
 var mining_direction: Vector2i
 var mining_target: Vector2i
@@ -34,68 +35,45 @@ func _process(_delta: float) -> void:
 		State.MOVING:
 			pass  # Tween handles movement
 		State.MINING:
-			pass  # Animation callback handles completion
+			_handle_mining_input()
 
 
 func _handle_idle_input() -> void:
-	var dir := Vector2i.ZERO
-
-	if Input.is_action_pressed("move_down"):
-		dir = Vector2i(0, 1)
-	elif Input.is_action_pressed("move_left"):
-		dir = Vector2i(-1, 0)
-	elif Input.is_action_pressed("move_right"):
-		dir = Vector2i(1, 0)
-
+	var dir := _get_input_direction()
 	if dir != Vector2i.ZERO:
 		_try_move_or_mine(dir)
+
+
+func _handle_mining_input() -> void:
+	# Stop mining if player releases the direction key
+	var dir := _get_input_direction()
+	if dir != mining_direction:
+		sprite.stop()
+		current_state = State.IDLE
+
+
+func _get_input_direction() -> Vector2i:
+	if Input.is_action_pressed("move_down"):
+		return Vector2i(0, 1)
+	elif Input.is_action_pressed("move_left"):
+		return Vector2i(-1, 0)
+	elif Input.is_action_pressed("move_right"):
+		return Vector2i(1, 0)
+	return Vector2i.ZERO
 
 
 func _try_move_or_mine(direction: Vector2i) -> void:
 	var target := grid_position + direction
 
 	# Check bounds (don't go off left/right edges)
-	if target.x < 0 or target.x + 1 >= GameManager.GRID_WIDTH:
+	if target.x < 0 or target.x >= GameManager.GRID_WIDTH:
 		return
 
-	# Check if path is clear (need to check cells for 2x2 player)
-	var blocked_cells := _get_blocked_cells(target, direction)
-
-	if blocked_cells.is_empty():
-		_start_move(target)
+	# Check if target cell has a block
+	if dirt_grid and dirt_grid.has_block(target):
+		_start_mining(direction, target)
 	else:
-		_start_mining(direction, blocked_cells[0])
-
-
-func _get_blocked_cells(target_pos: Vector2i, dir: Vector2i) -> Array[Vector2i]:
-	## Player is 2x2, check which cells block movement in given direction
-	var blocked: Array[Vector2i] = []
-	var cells_to_check: Array[Vector2i] = []
-
-	if dir == Vector2i(0, 1):  # Moving down
-		# Check bottom edge of player's new position
-		cells_to_check = [
-			Vector2i(target_pos.x, target_pos.y + 1),
-			Vector2i(target_pos.x + 1, target_pos.y + 1)
-		]
-	elif dir == Vector2i(-1, 0):  # Moving left
-		# Check left edge of player's new position
-		cells_to_check = [
-			Vector2i(target_pos.x, target_pos.y),
-			Vector2i(target_pos.x, target_pos.y + 1)
-		]
-	elif dir == Vector2i(1, 0):  # Moving right
-		# Check right edge of player's new position
-		cells_to_check = [
-			Vector2i(target_pos.x + 1, target_pos.y),
-			Vector2i(target_pos.x + 1, target_pos.y + 1)
-		]
-
-	for cell in cells_to_check:
-		if dirt_grid and dirt_grid.has_block(cell):
-			blocked.append(cell)
-
-	return blocked
+		_start_move(target)
 
 
 func _start_move(target: Vector2i) -> void:
@@ -140,17 +118,15 @@ func _on_animation_finished() -> void:
 
 	if destroyed:
 		block_destroyed.emit(mining_target)
-		# Check if path is now clear
-		var blocked := _get_blocked_cells(grid_position + mining_direction, mining_direction)
-		if blocked.is_empty():
-			_start_move(grid_position + mining_direction)
-		else:
-			# Continue mining next block in path
-			mining_target = blocked[0]
-			sprite.play("swing")
+		# Block destroyed, move into the space
+		_start_move(mining_target)
 	else:
-		# Block still has health, continue mining same block
-		sprite.play("swing")
+		# Block still has health, continue mining if key still pressed
+		var dir := _get_input_direction()
+		if dir == mining_direction:
+			sprite.play("swing")
+		else:
+			current_state = State.IDLE
 
 
 func _update_depth() -> void:

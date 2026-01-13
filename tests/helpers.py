@@ -15,9 +15,10 @@ WAIT_TIMEOUT = 5.0
 # =============================================================================
 PATHS = {
     "main": "/root/Main",
-    "title_label": "/root/Main/CenterContainer/VBoxContainer/TitleLabel",
-    "subtitle_label": "/root/Main/CenterContainer/VBoxContainer/SubtitleLabel",
-    "status_label": "/root/Main/CenterContainer/VBoxContainer/StatusLabel",
+    "player": "/root/Main/Player",
+    "dirt_grid": "/root/Main/DirtGrid",
+    "camera": "/root/Main/Camera2D",
+    "depth_label": "/root/Main/UI/DepthLabel",
     "game_manager": "/root/GameManager",
 }
 

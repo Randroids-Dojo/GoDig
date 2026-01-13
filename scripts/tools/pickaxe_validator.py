@@ -266,12 +266,13 @@ def validate_pickaxe(img_path: Path = None) -> PickaxeScore:
     colors = analyze_color_separation(img)
     vertical = analyze_vertical_extent(img)
 
-    # Weight silhouette and vertical extent higher - these make it "look like a pickaxe"
+    # Weight vertical extent MOST heavily - perpendicular head is key to pickaxe look
+    # A pickaxe's defining feature is the vertical head perpendicular to handle
     overall = (
-        silhouette * 0.35 +
-        proportions * 0.15 +
-        colors * 0.15 +
-        vertical * 0.35
+        silhouette * 0.20 +
+        proportions * 0.10 +
+        colors * 0.20 +
+        vertical * 0.50  # Increased - this is what makes it look like a pickaxe
     )
 
     return PickaxeScore(

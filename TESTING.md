@@ -2,52 +2,81 @@
 
 This project uses **PlayGodot** for E2E automated testing. PlayGodot enables Python-based tests that control the game via a WebSocket automation protocol.
 
-## Prerequisites
+## IMPORTANT: Godot Automation Fork Required
 
-PlayGodot requires a custom Godot fork with automation support. This is **not** the standard Godot Engine.
+**You cannot run PlayGodot tests with standard Godot Engine.**
 
-### Option 1: Download Pre-built Binary (Recommended)
+PlayGodot requires our custom Godot fork with automation protocol support. This fork adds WebSocket-based automation capabilities that standard Godot does not have.
 
-Download the automation-enabled Godot from our releases:
-- [godot-automation releases](https://github.com/Randroids-Dojo/godot/releases/tag/automation-latest)
+### Local Development
 
-### Option 2: Build from Source
+For local testing, use the sibling `../godot` directory:
+
+```
+Documents/Dev/Godot/
+├── godot/          # Automation fork (required for testing)
+│   └── bin/
+│       └── godot.macos.editor.arm64  # Built binary
+└── GoDig/          # This project
+```
+
+### Quick Setup
 
 ```bash
-# Clone the automation fork
+# 1. Clone the automation fork as a sibling directory
 git clone https://github.com/Randroids-Dojo/godot.git ../godot
 cd ../godot
 git checkout automation
 
-# Build for your platform
-# macOS (Apple Silicon)
+# 2. Build for your platform
+# macOS Apple Silicon:
 scons platform=macos arch=arm64 target=editor -j8
 
-# macOS (Intel)
+# macOS Intel:
 scons platform=macos arch=x86_64 target=editor -j8
 
-# Linux
+# Linux:
 scons platform=linuxbsd target=editor -j8
 
-# Windows
-scons platform=windows target=editor -j8
+# 3. Create .godot-path in GoDig (auto-detected, but explicit is better)
+cd ../GoDig
+echo '../godot/bin/godot.macos.editor.arm64' > .godot-path
 ```
 
-## Setup
+### CI/CD
 
-### 1. Configure Godot Path
+The GitHub Actions workflow automatically:
+1. Downloads a pre-built automation-enabled Godot from [Randroids-Dojo/godot releases](https://github.com/Randroids-Dojo/godot/releases/tag/automation-latest)
+2. Uses `godot.linuxbsd.editor.x86_64.mono` for Linux runners
+3. Runs tests in headless mode with Xvfb
 
-Create a `.godot-path` file in the project root pointing to your automation-enabled Godot:
+You don't need to configure anything for CI - it handles the automation fork automatically.
+
+## Godot Path Configuration
+
+The test framework searches for Godot in this order:
+
+1. **`GODOT_PATH` environment variable** - Explicit override
+2. **`.godot-path` file** - Project-local config (gitignored)
+3. **`../godot/bin/`** - Sibling directory (recommended for local dev)
+4. **Well-known locations** - `~/Documents/Dev/Godot/godot/bin/`, etc.
+
+### Recommended: Use .godot-path
+
+Create a `.godot-path` file pointing to your built automation fork:
 
 ```bash
-# macOS example
+# macOS Apple Silicon
 echo '/Users/yourname/Documents/Dev/Godot/godot/bin/godot.macos.editor.arm64' > .godot-path
 
-# Or set environment variable
-export GODOT_PATH=/path/to/godot/bin/godot.macos.editor.arm64
+# macOS Intel
+echo '/Users/yourname/Documents/Dev/Godot/godot/bin/godot.macos.editor.x86_64' > .godot-path
+
+# Linux
+echo '/home/yourname/godot/bin/godot.linuxbsd.editor.x86_64' > .godot-path
 ```
 
-### 2. Install PlayGodot Python Library
+## Installing PlayGodot Python Library
 
 ```bash
 # Clone PlayGodot
@@ -67,7 +96,7 @@ pip install pytest pytest-asyncio pytest-xdist
 # Run all tests
 pytest tests/ -v
 
-# Run with parallel workers
+# Run with parallel workers (faster)
 pytest tests/ -v -n 4
 
 # Run a specific test
@@ -85,22 +114,21 @@ Tests use Python's `pytest` with `pytest-asyncio` for async support.
 
 ```python
 import pytest
-from helpers import PATHS
 
 @pytest.mark.asyncio
 async def test_something(game):
     """Test description."""
-    # Check if a node exists
+    # Check if a node exists (returns bool)
     exists = await game.node_exists("/root/Main")
-    assert exists["exists"]
+    assert exists
 
-    # Get a property
-    result = await game.get_property("/root/Main/Label", "text")
-    assert result["value"] == "Expected Text"
+    # Get a property (returns value directly)
+    text = await game.get_property("/root/Main/Label", "text")
+    assert text == "Expected Text"
 
-    # Call a method
+    # Call a method (returns result directly)
     result = await game.call("/root/Main", "some_method")
-    assert result["value"] == expected_value
+    assert result == expected_value
 
     # Simulate input
     await game.press_action("fire")
@@ -109,10 +137,10 @@ async def test_something(game):
 
 ### Available Commands
 
-- `game.node_exists(path)` - Check if node exists
-- `game.get_property(path, property)` - Get a node property
+- `game.node_exists(path)` - Check if node exists (returns bool)
+- `game.get_property(path, property)` - Get a node property (returns value)
 - `game.set_property(path, property, value)` - Set a node property
-- `game.call(path, method, *args)` - Call a method on a node
+- `game.call(path, method, args=[])` - Call a method on a node (returns result)
 - `game.press_action(action)` - Press an input action
 - `game.hold_action(action, duration)` - Hold an input action
 - `game.click(x, y)` - Click at coordinates
@@ -122,14 +150,20 @@ async def test_something(game):
 - `game.wait_frames(count)` - Wait for frames
 - `game.screenshot()` - Capture screenshot
 
-## CI/CD
+## Troubleshooting
 
-Tests run automatically in GitHub Actions. The workflow:
+### "GODOT AUTOMATION FORK NOT FOUND"
 
-1. Downloads pre-built Godot automation binary
-2. Installs PlayGodot Python library
-3. Imports the Godot project
-4. Runs all tests with 4 parallel workers
-5. Uploads screenshots on failure
+You're trying to run tests without the automation fork. See setup instructions above.
 
-To disable tests in CI, set the repository variable `ENABLE_PLAYGODOT_TESTS=false`.
+### Tests hang or timeout
+
+- Ensure you're using the automation fork, not standard Godot
+- Check that the game scene loads correctly in the editor first
+- Verify node paths in your tests match the actual scene structure
+
+### "Node not found" errors
+
+- Double-check node paths using the Godot editor's scene tree
+- Remember paths start from `/root/` not the scene root
+- Autoloads are at `/root/AutoloadName`

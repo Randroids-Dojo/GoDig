@@ -52,3 +52,4 @@ resources/sprites/polished_animation/
 
 # Pose-focused animation intermediate files
 resources/sprites/pose_focused_animation/
+*.import

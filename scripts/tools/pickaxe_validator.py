@@ -115,7 +115,11 @@ def analyze_silhouette(img: Image.Image) -> float:
 
 
 def analyze_proportions(img: Image.Image) -> float:
-    """Check if head is approximately 1/3 of total length."""
+    """Check if head is approximately 1/3 of total length.
+
+    Uses relative change detection: the head is where vertical extent
+    increases significantly above the handle baseline.
+    """
     if img.mode != 'RGBA':
         img = img.convert('RGBA')
 
@@ -135,15 +139,33 @@ def analyze_proportions(img: Image.Image) -> float:
 
     total_length = max_x - min_x
 
-    # Find where the "head" starts (where vertical extent increases)
-    center_y = height // 2
+    # Calculate vertical extent for each column
+    col_extents = []
+    for x in range(min_x, max_x + 1):
+        col_min_y, col_max_y = height, 0
+        for y in range(height):
+            if pixels[x, y][3] > 128:
+                col_min_y = min(col_min_y, y)
+                col_max_y = max(col_max_y, y)
+        extent = col_max_y - col_min_y if col_max_y > col_min_y else 0
+        col_extents.append((x, extent))
 
-    # Scan from right to find where head ends
+    if not col_extents:
+        return 0.2
+
+    # Calculate handle baseline (average extent in left 50%)
+    handle_portion = len(col_extents) // 2
+    handle_extents = [e[1] for e in col_extents[:handle_portion] if e[1] > 0]
+    if not handle_extents:
+        return 0.2
+    handle_baseline = sum(handle_extents) / len(handle_extents)
+
+    # Find where head starts: where extent is > 1.5x handle baseline
     head_start = max_x
-    for x in range(max_x, min_x, -1):
-        # Check if this column has significant vertical extent
-        col_pixels = sum(1 for y in range(height) if pixels[x, y][3] > 128)
-        if col_pixels < 3:  # Transition to handle
+    threshold = handle_baseline * 1.3  # 30% increase = head transition
+
+    for x, extent in col_extents:
+        if extent > threshold:
             head_start = x
             break
 

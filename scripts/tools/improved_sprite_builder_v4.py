@@ -66,40 +66,51 @@ def create_body_component() -> Image.Image:
     img = Image.new('RGBA', (52, 68), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
 
-    # === TORSO ===
-    draw.rectangle([16, 2, 20, 26], fill=COLORS["shirt_shadow"])
-    draw.rectangle([20, 2, 28, 26], fill=COLORS["shirt"])
-    draw.rectangle([28, 2, 34, 26], fill=COLORS["shirt_highlight"])
+    # === TORSO (wider for better density) ===
+    # Main torso block
+    draw.rectangle([14, 2, 20, 26], fill=COLORS["shirt_shadow"])
+    draw.rectangle([20, 2, 30, 26], fill=COLORS["shirt"])
+    draw.rectangle([30, 2, 38, 26], fill=COLORS["shirt_highlight"])
 
-    # Shoulder areas
-    draw.rectangle([12, 4, 16, 12], fill=COLORS["shirt_shadow"])
-    draw.rectangle([34, 4, 38, 12], fill=COLORS["shirt_highlight"])
+    # Shoulder areas (larger)
+    draw.rectangle([10, 4, 14, 14], fill=COLORS["shirt_shadow"])
+    draw.rectangle([38, 4, 42, 14], fill=COLORS["shirt_highlight"])
 
     # Collar detail
-    draw.rectangle([22, 2, 28, 5], fill=COLORS["skin_shadow"])
+    draw.rectangle([22, 2, 30, 6], fill=COLORS["skin_shadow"])
+
+    # Shirt pocket detail
+    draw.rectangle([32, 10, 36, 14], fill=COLORS["shirt_shadow"])
 
     # === BELT ===
-    draw.rectangle([16, 26, 34, 30], fill=COLORS["leather"])
-    draw.rectangle([28, 26, 34, 30], fill=COLORS["leather_highlight"])
-    draw.rectangle([23, 27, 27, 29], fill=COLORS["metal_highlight"])
+    draw.rectangle([14, 26, 38, 31], fill=COLORS["leather"])
+    draw.rectangle([30, 26, 38, 31], fill=COLORS["leather_highlight"])
+    draw.rectangle([23, 27, 29, 30], fill=COLORS["metal_highlight"])
 
-    # === LEGS ===
-    draw.rectangle([16, 30, 24, 52], fill=COLORS["jeans_shadow"])
-    draw.rectangle([18, 30, 24, 52], fill=COLORS["jeans"])
-    draw.rectangle([26, 30, 34, 52], fill=COLORS["jeans"])
-    draw.rectangle([30, 30, 34, 52], fill=COLORS["jeans_highlight"])
+    # === LEGS (wider) ===
+    draw.rectangle([14, 31, 25, 54], fill=COLORS["jeans_shadow"])
+    draw.rectangle([17, 31, 25, 54], fill=COLORS["jeans"])
+    draw.rectangle([27, 31, 38, 54], fill=COLORS["jeans"])
+    draw.rectangle([32, 31, 38, 54], fill=COLORS["jeans_highlight"])
 
     # Knee highlights
-    draw.rectangle([20, 38, 22, 41], fill=COLORS["jeans_highlight"])
-    draw.rectangle([30, 38, 32, 41], fill=COLORS["jeans_highlight"])
+    draw.rectangle([19, 40, 23, 44], fill=COLORS["jeans_highlight"])
+    draw.rectangle([32, 40, 36, 44], fill=COLORS["jeans_highlight"])
 
-    # === BOOTS ===
-    draw.rectangle([14, 52, 25, 58], fill=COLORS["leather"])
-    draw.rectangle([14, 52, 17, 58], fill=COLORS["outline"])
-    draw.rectangle([25, 52, 36, 58], fill=COLORS["leather"])
-    draw.rectangle([33, 52, 36, 58], fill=COLORS["leather_highlight"])
-    draw.rectangle([14, 56, 25, 58], fill=COLORS["outline"])
-    draw.rectangle([25, 56, 36, 58], fill=COLORS["outline"])
+    # Crotch shadow
+    draw.rectangle([25, 31, 27, 38], fill=COLORS["jeans_shadow"])
+
+    # === BOOTS (wider) ===
+    draw.rectangle([12, 54, 26, 62], fill=COLORS["leather"])
+    draw.rectangle([12, 54, 16, 62], fill=COLORS["outline"])
+    draw.rectangle([26, 54, 40, 62], fill=COLORS["leather"])
+    draw.rectangle([36, 54, 40, 62], fill=COLORS["leather_highlight"])
+    draw.rectangle([12, 60, 26, 62], fill=COLORS["outline"])
+    draw.rectangle([26, 60, 40, 62], fill=COLORS["outline"])
+
+    # Boot details
+    draw.rectangle([18, 56, 22, 58], fill=COLORS["leather_highlight"])
+    draw.rectangle([30, 56, 34, 58], fill=COLORS["leather_highlight"])
 
     return img
 
@@ -152,27 +163,37 @@ def create_arm_component() -> Image.Image:
 
     # === UPPER ARM (SHIRT) ===
     # Shoulder joint (this is where it attaches to body)
-    draw.ellipse([0, 4, 8, 14], fill=COLORS["shirt_shadow"])
-    draw.ellipse([2, 6, 6, 12], fill=COLORS["shirt"])
+    draw.ellipse([0, 3, 10, 15], fill=COLORS["shirt_shadow"])
+    draw.ellipse([2, 5, 8, 13], fill=COLORS["shirt"])
+    draw.ellipse([3, 6, 7, 10], fill=COLORS["shirt_highlight"])
 
-    # Upper arm
-    draw.rectangle([6, 5, 18, 13], fill=COLORS["shirt"])
-    draw.rectangle([12, 4, 18, 8], fill=COLORS["shirt_highlight"])
-    draw.rectangle([6, 10, 12, 13], fill=COLORS["shirt_shadow"])
+    # Upper arm with 3-tone shading
+    draw.rectangle([6, 4, 18, 14], fill=COLORS["shirt"])
+    draw.rectangle([6, 4, 18, 8], fill=COLORS["shirt_highlight"])
+    draw.rectangle([6, 11, 18, 14], fill=COLORS["shirt_shadow"])
 
-    # === FOREARM (SKIN) ===
-    draw.rectangle([18, 5, 24, 13], fill=COLORS["skin_shadow"])
-    draw.rectangle([24, 5, 36, 13], fill=COLORS["skin"])
-    draw.rectangle([30, 5, 36, 9], fill=COLORS["skin_highlight"])
+    # Elbow detail
+    draw.rectangle([16, 6, 20, 12], fill=COLORS["shirt_shadow"])
+
+    # === FOREARM (SKIN) with better shading ===
+    draw.rectangle([18, 4, 36, 14], fill=COLORS["skin"])
+    draw.rectangle([18, 4, 36, 8], fill=COLORS["skin_highlight"])
+    draw.rectangle([18, 11, 36, 14], fill=COLORS["skin_shadow"])
+
+    # Muscle definition
+    draw.rectangle([24, 6, 28, 10], fill=COLORS["skin_highlight"])
 
     # === HAND ===
-    draw.rectangle([36, 4, 42, 14], fill=COLORS["skin"])
-    draw.rectangle([38, 4, 42, 8], fill=COLORS["skin_highlight"])
-    draw.rectangle([40, 6, 44, 12], fill=COLORS["skin"])
-    draw.rectangle([40, 8, 44, 10], fill=COLORS["skin_shadow"])
+    draw.rectangle([36, 3, 44, 15], fill=COLORS["skin"])
+    draw.rectangle([36, 3, 44, 8], fill=COLORS["skin_highlight"])
+    draw.rectangle([36, 12, 44, 15], fill=COLORS["skin_shadow"])
+
+    # Fingers
+    draw.rectangle([42, 5, 44, 13], fill=COLORS["skin"])
+    draw.rectangle([42, 8, 44, 11], fill=COLORS["skin_shadow"])
 
     # Wrist line
-    draw.line([(36, 5), (36, 13)], fill=COLORS["skin_shadow"])
+    draw.line([(36, 4), (36, 14)], fill=COLORS["skin_shadow"])
 
     return img
 
@@ -180,31 +201,35 @@ def create_arm_component() -> Image.Image:
 def create_left_arm_component() -> Image.Image:
     """Create the left arm (non-swinging) that hangs at the side."""
     # This arm hangs down naturally on the left side of the body
-    img = Image.new('RGBA', (12, 36), COLORS["transparent"])
+    img = Image.new('RGBA', (14, 40), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
 
     # === UPPER ARM (SHIRT) - pointing down ===
-    # Shoulder area
-    draw.ellipse([2, 0, 10, 8], fill=COLORS["shirt_shadow"])
-    draw.ellipse([4, 2, 8, 6], fill=COLORS["shirt"])
+    # Shoulder area with 3-tone shading
+    draw.ellipse([2, 0, 12, 10], fill=COLORS["shirt_shadow"])
+    draw.ellipse([4, 2, 10, 8], fill=COLORS["shirt"])
+    draw.ellipse([5, 3, 9, 7], fill=COLORS["shirt_highlight"])
 
-    # Upper arm going down
-    draw.rectangle([3, 6, 9, 18], fill=COLORS["shirt"])
-    draw.rectangle([3, 6, 5, 18], fill=COLORS["shirt_shadow"])
-    draw.rectangle([7, 6, 9, 12], fill=COLORS["shirt_highlight"])
+    # Upper arm going down with proper shading
+    draw.rectangle([3, 8, 11, 20], fill=COLORS["shirt"])
+    draw.rectangle([3, 8, 6, 20], fill=COLORS["shirt_shadow"])
+    draw.rectangle([8, 8, 11, 14], fill=COLORS["shirt_highlight"])
 
-    # === FOREARM (SKIN) ===
-    draw.rectangle([3, 18, 9, 30], fill=COLORS["skin"])
-    draw.rectangle([3, 18, 5, 30], fill=COLORS["skin_shadow"])
-    draw.rectangle([7, 18, 9, 24], fill=COLORS["skin_highlight"])
+    # === FOREARM (SKIN) with 3-tone shading ===
+    draw.rectangle([3, 20, 11, 34], fill=COLORS["skin"])
+    draw.rectangle([3, 20, 6, 34], fill=COLORS["skin_shadow"])
+    draw.rectangle([8, 20, 11, 28], fill=COLORS["skin_highlight"])
+
+    # Muscle definition
+    draw.rectangle([6, 24, 9, 28], fill=COLORS["skin_highlight"])
 
     # === HAND ===
-    draw.rectangle([2, 30, 10, 36], fill=COLORS["skin"])
-    draw.rectangle([2, 30, 4, 36], fill=COLORS["skin_shadow"])
-    draw.rectangle([8, 30, 10, 34], fill=COLORS["skin_highlight"])
+    draw.rectangle([2, 34, 12, 40], fill=COLORS["skin"])
+    draw.rectangle([2, 34, 5, 40], fill=COLORS["skin_shadow"])
+    draw.rectangle([9, 34, 12, 38], fill=COLORS["skin_highlight"])
 
     # Wrist line
-    draw.line([(3, 30), (9, 30)], fill=COLORS["skin_shadow"])
+    draw.line([(3, 34), (11, 34)], fill=COLORS["skin_shadow"])
 
     return img
 

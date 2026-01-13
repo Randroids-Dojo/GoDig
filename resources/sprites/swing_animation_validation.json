@@ -1,0 +1,106 @@
+{
+  "animation_type": "pickaxe_swing",
+  "frame_count": 8,
+  "poses": [
+    {
+      "frame_idx": 0,
+      "frame_name": "ready",
+      "description": "Standing ready, pickaxe held at side or resting",
+      "pickaxe_position": "LOW - at side, near waist/hip level, or resting on shoulder",
+      "body_position": "Standing straight, weight centered",
+      "key_elements": [
+        "pickaxe visible",
+        "standing upright",
+        "relaxed stance"
+      ]
+    },
+    {
+      "frame_idx": 1,
+      "frame_name": "windup_1",
+      "description": "Beginning wind-up, pickaxe starting to rise",
+      "pickaxe_position": "RISING - moving from low to mid height",
+      "body_position": "Slight lean back, preparing for swing",
+      "key_elements": [
+        "pickaxe rising",
+        "arms beginning to lift"
+      ]
+    },
+    {
+      "frame_idx": 2,
+      "frame_name": "windup_2",
+      "description": "Mid wind-up, pickaxe at shoulder height",
+      "pickaxe_position": "MID-HIGH - at or above shoulder level",
+      "body_position": "Leaning back, coiling for power",
+      "key_elements": [
+        "pickaxe at shoulder level",
+        "arms bent"
+      ]
+    },
+    {
+      "frame_idx": 3,
+      "frame_name": "windup_full",
+      "description": "Full wind-up, pickaxe raised overhead",
+      "pickaxe_position": "HIGH - ABOVE the head, at peak of backswing",
+      "body_position": "Leaning back, maximum coil",
+      "key_elements": [
+        "pickaxe ABOVE head",
+        "arms extended up"
+      ]
+    },
+    {
+      "frame_idx": 4,
+      "frame_name": "swing_start",
+      "description": "Beginning downswing, pickaxe starting to come down",
+      "pickaxe_position": "DESCENDING - moving from overhead toward front",
+      "body_position": "Starting to lean forward, weight shifting",
+      "key_elements": [
+        "pickaxe descending",
+        "forward momentum"
+      ]
+    },
+    {
+      "frame_idx": 5,
+      "frame_name": "swing_mid",
+      "description": "Mid-swing, pickaxe in front of body",
+      "pickaxe_position": "MID-FRONT - in front of body, around chest/waist height",
+      "body_position": "Leaning forward, driving the swing",
+      "key_elements": [
+        "pickaxe in front",
+        "arms extended forward"
+      ]
+    },
+    {
+      "frame_idx": 6,
+      "frame_name": "swing_low",
+      "description": "Low swing, pickaxe approaching ground",
+      "pickaxe_position": "LOW-FRONT - below waist, approaching ground",
+      "body_position": "Bent forward, following through",
+      "key_elements": [
+        "pickaxe low",
+        "near ground level"
+      ]
+    },
+    {
+      "frame_idx": 7,
+      "frame_name": "impact",
+      "description": "Impact, pickaxe at ground level",
+      "pickaxe_position": "GROUND - at or near ground level, extended forward",
+      "body_position": "Bent forward, follow-through complete",
+      "key_elements": [
+        "pickaxe at ground",
+        "impact pose"
+      ]
+    }
+  ],
+  "validation_criteria": {
+    "pose_validation": "Each frame must match expected pickaxe position",
+    "sequence_validation": "Pickaxe must travel LOW \u2192 HIGH \u2192 LOW",
+    "motion_validation": "Visible progressive change between frames"
+  },
+  "failure_conditions": [
+    "Pickaxe stays in same position across all frames",
+    "No clear overhead backswing (frames 2-3)",
+    "Pickaxe never reaches ground level (frame 7)",
+    "Motion doesn't read as downward swing"
+  ]
+}

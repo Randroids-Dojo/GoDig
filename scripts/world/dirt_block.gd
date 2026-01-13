@@ -3,7 +3,7 @@ extends ColorRect
 ## Managed by DirtGrid via object pooling.
 
 const DIRT_COLOR := Color(0.545, 0.353, 0.169)  # Brown
-const BLOCK_SIZE := 64
+const BLOCK_SIZE := 128
 const MAX_HITS := 4
 
 var grid_position: Vector2i = Vector2i.ZERO

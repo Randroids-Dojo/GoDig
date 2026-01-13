@@ -1,0 +1,44 @@
+# Godot 4+ specific ignores
+.godot/
+
+# Godot-specific ignores
+*.translation
+
+# Imported textures and samples
+.import/
+
+# Export templates
+*.exe
+*.pck
+*.apk
+*.aab
+*.ipa
+*.zip
+
+# Mono-specific ignores
+.mono/
+data_*/
+mono_crash.*.json
+
+# Build output
+build/
+
+# Vercel
+.vercel/
+.vercel
+.env*.local
+__pycache__/
+.venv/
+
+# Local Godot path configuration (for PlayGodot tests)
+.godot-path
+
+# Claude Code user-specific settings (project settings.json is tracked)
+.claude/settings.local.json
+.claude/*.local.md
+
+# Node.js (if accidentally created)
+node_modules/
+
+# Test screenshots
+tests/screenshots/

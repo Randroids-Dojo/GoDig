@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c1godig_main"]
+[gd_scene load_steps=3 format=3 uid="uid://c1godig_main"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Texture2D" uid="uid://miner_sprite" path="res://resources/sprites/miner_swing.png" id="2_miner"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -42,6 +43,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Hello World!"
 horizontal_alignment = 1
+
+[node name="MinerSprite" type="TextureRect" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_miner")
+stretch_mode = 4
+size_flags_horizontal = 4
 
 [node name="StatusLabel" type="Label" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true

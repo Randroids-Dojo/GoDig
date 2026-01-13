@@ -1,0 +1,7 @@
+# PlayGodot test dependencies
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+pytest-xdist>=3.0.0
+
+# PlayGodot is installed separately from the Randroids-Dojo/PlayGodot repo
+# pip install -e /path/to/PlayGodot/python

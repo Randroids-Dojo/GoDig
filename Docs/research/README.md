@@ -53,6 +53,14 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 | [Visual Style](visual-style.md) | ✅ Done | 16x16 pixel art, layer color themes, lighting |
 | [Tutorial & Onboarding](tutorial-onboarding.md) | ✅ Done | Progressive disclosure, 5-min tutorial |
 | [Game Feel & Juice](game-feel-juice.md) | ✅ Done | Screen shake, particles, squash/stretch |
+| [Player Onboarding](player-onboarding.md) | ✅ Done | Contextual hints, FTUE flow, skip options |
+
+### Player Psychology & Design
+| Document | Status | Key Decisions |
+|----------|--------|---------------|
+| [Psychology of Mining](psychology-of-mining.md) | ✅ Done | Discovery loop, collection psychology, risk/reward |
+| [Session Design](session-design.md) | ✅ Done | 5-15 min target, natural stopping points, retention |
+| [Surface Expansion](surface-expansion.md) | ✅ Done | Slot-based MVP, endless horizontal, building progression |
 
 ## Open Design Questions
 

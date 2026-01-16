@@ -227,10 +227,10 @@ func get_hazard_chance(depth: int, hazard_type: String) -> float:
 - Avoiding deep areas (reward insufficient)
 
 ## Questions to Resolve
-- [ ] Exact hardness formula coefficients
-- [ ] Tool tier count (9 seems good?)
-- [ ] Hazard damage values
-- [ ] Difficulty setting implementation?
+- [x] Hardness formula → base * (1.15 ^ layer) per block type
+- [x] Tool tier count → 9 tiers (Rusty to Void)
+- [x] Hazard damage → 10-50% health based on hazard type
+- [x] Difficulty settings → Not at launch, single balanced mode
 
 ## Implementation Checklist
 

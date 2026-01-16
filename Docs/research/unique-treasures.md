@@ -259,8 +259,8 @@ func get_luck_bonus() -> float:
 ```
 
 ## Questions to Resolve
-- [ ] How many total unique artifacts?
-- [ ] Tradeable/sellable artifacts or keep forever?
-- [ ] Museum mandatory or optional building?
-- [ ] Luck stat visible to player?
-- [ ] Treasure maps as rare loot?
+- [x] Unique artifacts → 50 collectibles across all layers
+- [x] Artifact handling → Keep forever, display in museum
+- [x] Museum → Optional building, v1.0 feature
+- [x] Luck stat → Hidden, affects rare drop rates
+- [x] Treasure maps → v1.0 feature, mark dig spots

@@ -88,6 +88,16 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 |----------|--------|---------------|
 | [QoL Features](qol-features.md) | ✅ Done | Auto-pickup, quick-sell, depth indicator |
 | [Localization Strategy](localization-strategy.md) | ✅ Done | EN/ES/PT at launch, icons over text |
+| [Ladder & Traversal Items](ladder-traversal-items.md) | ✅ Done | Ladders, ropes, grappling hook, elevator |
+
+### Analysis & Strategy
+| Document | Status | Key Decisions |
+|----------|--------|---------------|
+| [Competitive Analysis](competitive-analysis.md) | ✅ Done | Lessons from Motherload, SteamWorld Dig, etc. |
+| [Difficulty Scaling](difficulty-scaling.md) | ✅ Done | Block hardness curves, soft gates |
+| [Monetization Strategy](monetization-strategy.md) | ✅ Done | Freemium, ethical IAP, ad placement |
+| [Art Style Direction](art-style-direction.md) | ✅ Done | 16x16 pixel art, layer palettes |
+| [Sound Design (Detailed)](sound-design-detailed.md) | ✅ Done | Material SFX, dynamic music, ambient |
 
 ## Open Design Questions
 

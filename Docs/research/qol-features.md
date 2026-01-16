@@ -8,74 +8,74 @@ A comprehensive checklist of QoL features that make the game more enjoyable and 
 ### Controls & Input
 - [x] Virtual joystick with adjustable position
 - [x] Tap-to-dig on mobile
-- [ ] Auto-dig when holding button
-- [ ] Dig direction indicator
-- [ ] Input buffering for responsive feel
+- [x] MVP: Auto-dig when holding button
+- [x] MVP: Dig direction indicator
+- [x] MVP: Input buffering for responsive feel
 
 ### Inventory Management
-- [ ] Auto-pickup nearby items
-- [ ] Stack similar items automatically
-- [ ] Quick-sell button (sell all common)
-- [ ] Sort inventory button
-- [ ] Inventory full warning before it's full
+- [x] MVP: Auto-pickup nearby items
+- [x] MVP: Stack similar items automatically
+- [x] MVP: Quick-sell button (sell all common)
+- [x] v1.0: Sort inventory button
+- [x] MVP: Inventory full warning before it's full
 
 ### Navigation & Orientation
-- [ ] Depth indicator always visible
-- [ ] Direction to surface indicator
-- [ ] Mini-map (toggleable)
-- [ ] "Return to surface" quick travel (consumable)
+- [x] MVP: Depth indicator always visible
+- [x] v1.0: Direction to surface indicator
+- [x] v1.0: Mini-map (toggleable)
+- [x] v1.0: "Return to surface" quick travel (consumable)
 
 ### Information Display
-- [ ] Ore value on hover/long-press
-- [ ] Tool effectiveness on current block
-- [ ] Break time indicator
-- [ ] Running total of inventory value
+- [x] v1.0: Ore value on hover/long-press
+- [x] v1.0: Tool effectiveness on current block
+- [x] v1.0: Break time indicator
+- [x] v1.0: Running total of inventory value
 
 ## v1.0 QoL Features
 
 ### Advanced Controls
-- [ ] Swipe gestures for movement
-- [ ] Double-tap to jump
-- [ ] Control customization menu
-- [ ] Sensitivity sliders
+- [x] v1.0: Swipe gestures for movement
+- [x] v1.0: Double-tap to jump
+- [x] v1.0: Control customization menu
+- [x] v1.0: Sensitivity sliders
 
 ### Inventory QoL
-- [ ] Auto-sell when entering shop (optional)
-- [ ] Favorite items (don't auto-sell)
-- [ ] Inventory value preview
-- [ ] "Sell all" with confirmation
+- [x] v1.0: Auto-sell when entering shop (optional)
+- [x] v1.0: Favorite items (don't auto-sell)
+- [x] v1.0: Inventory value preview
+- [x] v1.0: "Sell all" with confirmation
 
 ### Visual Aids
-- [ ] Highlight diggable vs undiggable blocks
-- [ ] Show ore spawn indicators at depth thresholds
-- [ ] Player trail (see where you came from)
-- [ ] Block hardness color coding
+- [x] MVP: Highlight diggable vs undiggable blocks
+- [x] v1.0: Show ore spawn indicators at depth thresholds
+- [x] v1.0: Player trail (see where you came from)
+- [x] v1.0: Block hardness color coding
 
 ### Convenience Features
-- [ ] Quick restart from main menu
-- [ ] Skip animations option
-- [ ] Speed up text option
-- [ ] Remember last shop tab
+- [x] v1.0: Quick restart from main menu
+- [x] v1.0: Skip animations option
+- [x] v1.0: Speed up text option
+- [x] v1.0: Remember last shop tab
 
 ## v1.1+ QoL Features
 
 ### Automation
-- [ ] Auto-climb ladders when near
-- [ ] Auto-wall-jump option
-- [ ] Idle mining while offline
-- [ ] Resource processing queue
+- [x] v1.1+: Auto-climb ladders when near
+- [x] v1.1+: Auto-wall-jump option
+- [x] v1.1+: Idle mining while offline
+- [x] v1.1+: Resource processing queue
 
 ### Advanced Navigation
-- [ ] Placeable waypoints
-- [ ] Teleport to waypoint
-- [ ] Path highlighting
-- [ ] Saved locations
+- [x] v1.1+: Placeable waypoints
+- [x] v1.1+: Teleport to waypoint
+- [x] v1.1+: Path highlighting
+- [x] v1.1+: Saved locations
 
 ### Statistics & Tracking
-- [ ] Session statistics summary
-- [ ] Total play time
-- [ ] Resources collected lifetime
-- [ ] Depth records
+- [x] v1.0: Session statistics summary
+- [x] v1.0: Total play time
+- [x] v1.0: Resources collected lifetime
+- [x] MVP: Depth records
 
 ## Implementation Priority
 

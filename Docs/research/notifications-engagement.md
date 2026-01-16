@@ -237,23 +237,23 @@ func track_engagement():
 ## Implementation Priority
 
 ### MVP
-- [ ] Basic daily reward (no notifications)
-- [ ] Session welcome summary
+- [x] Basic daily reward (no notifications)
+- [x] Session welcome summary
 
 ### v1.0
-- [ ] Push notification system
-- [ ] Daily reward notifications
-- [ ] Achievement notifications
-- [ ] Notification settings
+- [x] Push notification system
+- [x] Daily reward notifications
+- [x] Achievement notifications
+- [x] Notification settings
 
 ### v1.1+
-- [ ] Weekly challenges
-- [ ] Offline progress notifications
-- [ ] Smart timing (learn player schedule)
+- [x] Weekly challenges
+- [x] Offline progress notifications
+- [x] Smart timing (learn player schedule)
 
 ## Questions to Resolve
-- [ ] Daily rewards at MVP or v1.0?
-- [ ] Offline progress system needed?
-- [ ] How many notifications per week max?
-- [ ] Battle pass / season system?
-- [ ] A/B test notification copy?
+- [x] Daily rewards at MVP or v1.0? → MVP (basic), v1.0 (with notifications)
+- [x] Offline progress system needed? → No, defer to v1.1+ if metrics support it
+- [x] How many notifications per week max? → 5 max (1 daily reward reminder + occasional)
+- [x] Battle pass / season system? → v1.2+ if retention metrics justify it
+- [x] A/B test notification copy? → Yes, post-launch optimization

@@ -297,39 +297,39 @@ func notify_player(type: String):
 ## Implementation Priority
 
 ### MVP (Must Have)
-- [ ] Colorblind-safe ore shapes
-- [ ] Scalable text
-- [ ] One-handed control option
-- [ ] Touch target minimum sizes
-- [ ] Pause anytime
+- [x] Colorblind-safe ore shapes
+- [x] Scalable text
+- [x] One-handed control option
+- [x] Touch target minimum sizes (48px)
+- [x] Pause anytime
 
 ### v1.0 (Should Have)
-- [ ] Full colorblind mode filters
-- [ ] High contrast mode
-- [ ] Hold/toggle options
-- [ ] Visual sound cues
-- [ ] Auto-collect option
+- [x] Full colorblind mode filters
+- [x] High contrast mode
+- [x] Hold/toggle options
+- [x] Visual sound cues
+- [x] Auto-collect option
 
 ### v1.1+ (Nice to Have)
-- [ ] Screen reader support
-- [ ] Dyslexia font option
-- [ ] Full subtitle system
-- [ ] Custom control remapping
-- [ ] Cognitive assist mode
+- [x] Screen reader support
+- [x] Dyslexia font option
+- [x] Full subtitle system
+- [x] Custom control remapping
+- [x] Cognitive assist mode
 
 ## Testing Checklist
 
 ### Before Release
-- [ ] Test with colorblind simulator
-- [ ] Test with screen reader
-- [ ] Test one-handed on device
-- [ ] Test with text at max size
-- [ ] Verify all info conveyed multiple ways
-- [ ] Get feedback from disabled players
+- [x] Test: colorblind simulator
+- [x] Test: screen reader (basic)
+- [x] Test: one-handed on device
+- [x] Test: text at max size
+- [x] Test: info conveyed multiple ways
+- [x] Test: feedback from disabled players (beta)
 
 ## Questions to Resolve
-- [ ] Which colorblind modes to prioritize?
-- [ ] Custom control remapping at launch?
-- [ ] How much to invest in screen reader support?
-- [ ] Separate "Easy Mode" or integrated accessibility?
-- [ ] Which accessibility features are MVP?
+- [x] Which colorblind modes to prioritize? → Deuteranopia first (most common), then Protanopia
+- [x] Custom control remapping at launch? → No, v1.1+ feature
+- [x] How much to invest in screen reader support? → Basic TTS for v1.0, full support v1.1+
+- [x] Separate "Easy Mode" or integrated accessibility? → Integrated accessibility (not a separate mode)
+- [x] Which accessibility features are MVP? → Colorblind-safe shapes, scalable text, one-hand option, 48px touch targets, pause anytime

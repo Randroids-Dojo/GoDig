@@ -251,8 +251,8 @@ func _notification(what):
 - [LabChirp](https://labbed.itch.io/labchirp) - Sound effects
 
 ## Questions to Resolve
-- [ ] Music during mining or ambient-only?
-- [ ] Depth-layered music or zone tracks?
-- [ ] Haptic feedback integration?
-- [ ] Audio cues for nearby rare ores?
-- [ ] Accessibility: visual alternatives for audio cues?
+- [x] Music style → Ambient loops, intensify near hazards
+- [x] Music layers → Change by depth zone (surface, mid, deep)
+- [x] Haptics → Yes for dig, pickup, achievements (v1.0)
+- [x] Rare ore cues → Subtle sparkle sound when close
+- [x] Visual alternatives → Yes, particle effects mirror sounds

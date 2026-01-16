@@ -302,18 +302,18 @@ var audio_settings = {
 ## Asset List
 
 ### MVP Audio Needs
-- [ ] 3 dig sounds per material (4 materials = 12 total)
-- [ ] 3 pickup sounds (common, rare, legendary)
-- [ ] Jump/land sounds
-- [ ] UI click, purchase, error
-- [ ] Surface music loop (2-3 min)
-- [ ] Underground ambient (1 track)
+- [x] MVP dig sounds → 3 per material, 4 materials = 12 total
+- [x] Pickup sounds → 3 tiers (common, rare, legendary)
+- [x] Jump/land → 2 sounds each
+- [x] UI sounds → click, purchase, error, success
+- [x] Surface music → 2-3 min loop, cheerful tone
+- [x] Underground ambient → 1 looping track for MVP
 
 ### v1.0 Audio Needs
-- [ ] Full dig sound set (7 materials)
-- [ ] Music for each layer (6 tracks)
-- [ ] Ambient for each layer (6 tracks)
-- [ ] Shop music
+- [x] v1.0 dig sounds → 7 materials, 3 variations each
+- [x] v1.0 layer music → 6 unique tracks by depth
+- [x] v1.0 layer ambient → 6 atmospheric loops
+- [x] Shop music → Shared upbeat loop for all shops
 - [ ] Achievement fanfare
 - [ ] More UI sounds
 

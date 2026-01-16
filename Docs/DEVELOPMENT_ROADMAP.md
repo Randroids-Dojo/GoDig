@@ -131,22 +131,28 @@ Core loop working: dig → collect → sell → upgrade → repeat
 All major research questions have been resolved. Remaining items are deferred to v1.0+.
 
 ## Stats (Updated: 2026-01-16)
-- Total tasks: 300
-- Completed: 105
-- Open: 195
+- Total tasks: 310
+- Completed: 108
+- Open: 202
 - Research docs: 48 (complete)
 - All research decisions resolved
 - All blocking decisions made
+
+### Underground Layer System Tasks
+- DEV: Define 7 underground layer types (Topsoil→Void)
+- DEV: Layer depth boundaries (0-50m, 50-200m, etc.)
+- DEV: Layer color palettes (browns→grays→blues→reds)
+- DEV: Infinite depth scaling (no hard cap)
+- v1.0: Crystal Caves layer (1000-2000m, glowing)
+- v1.0: Magma Zone layer (2000-5000m, heat hazards)
+- v1.1+: Void Depths layer (5000m+, end-game)
 
 ### Traversal System Tasks
 - DEV: Ladder placement system (grid-based, validation)
 - DEV: Climbing state for player
 - DEV: Traversal item persistence
 - DEV: Ladder quick-slot HUD
-- v1.0: Placeable ladders
-- v1.0: Rope item
-- v1.0: Grappling hook tool
-- v1.0: Elevator building
+- v1.0: Placeable ladders, Rope item, Grappling hook, Elevator
 
 ## Key Design Decisions Made
 1. **No fuel mechanic** - Inventory pressure creates return-to-surface tension

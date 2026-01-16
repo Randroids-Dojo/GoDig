@@ -223,8 +223,8 @@ func take_fall_damage(distance: float):
 - Parachute item (late game)
 
 ## Questions to Resolve
-- [ ] Ladder segments or full ladder items?
-- [ ] Wall jump from start or unlock?
-- [ ] Fall damage severity curve
-- [ ] Rope vs Grappling hook vs both?
-- [ ] Touch controls for ladder placement
+- [x] Ladder segments or full ladder items? → Single segment per tile
+- [x] Wall jump from start or unlock? → Available from start (core mechanic)
+- [x] Fall damage severity curve → None in MVP, v1.0 feature
+- [x] Rope vs Grappling hook vs both? → Both (rope consumable, hook permanent)
+- [x] Touch controls for ladder placement → Tap tile + quick-slot HUD

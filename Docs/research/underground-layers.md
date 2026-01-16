@@ -196,8 +196,8 @@ func get_layer_blend(depth: int) -> Dictionary:
 | Void | ??? | ??? | ??? |
 
 ## Questions to Resolve
-- [ ] How many unique layers?
-- [ ] Hard transitions or gradual blending?
-- [ ] Horizontal biomes or just vertical?
-- [ ] Enemies in mining game?
-- [ ] Special mechanics for deepest layer?
+- [x] Unique layers → 7 (Topsoil to Void Depths)
+- [x] Layer transitions → Gradual blending over 20-30m
+- [x] Horizontal biomes → v1.1+ feature
+- [x] Enemies → No at launch, environmental hazards only
+- [x] Void Depths mechanics → v1.1+ special content

@@ -274,8 +274,8 @@ func generate_daily():
 - Endless content updates
 
 ## Questions to Resolve
-- [ ] Prestige at launch or add later?
-- [ ] How many prestige upgrades?
-- [ ] Mandatory tutorial for prestige?
-- [ ] Cross-device progress sync?
-- [ ] Seasonal content/events?
+- [x] Prestige timing → v1.0 (not MVP)
+- [x] Prestige upgrades → 10 permanent bonuses
+- [x] Prestige tutorial → Yes, explain benefits before reset
+- [x] Cross-device sync → v1.1+ cloud save
+- [x] Seasonal events → v1.1+ consideration

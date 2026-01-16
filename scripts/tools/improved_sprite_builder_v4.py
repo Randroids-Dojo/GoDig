@@ -157,47 +157,45 @@ def create_head_component() -> Image.Image:
 def create_arm_component() -> Image.Image:
     """Create improved arm component with shoulder attachment point.
 
-    Proportions matched to left arm (11px thickness):
+    Proportions exactly matched to left arm (11px thickness):
     - shirt (2): shirt, shirt_shadow
     - skin (3): skin_highlight, skin, skin_shadow
     - glove (3): glove_highlight, glove, glove_shadow
     """
     # Arm pointing RIGHT (0 degrees)
     # The shoulder attachment point is at the LEFT of this image
-    # Height reduced from 18 to 14 to match left arm proportions
-    img = Image.new('RGBA', (42, 14), COLORS["transparent"])
+    # Thickness: 11 pixels (y=1 to y=11, matching left arm exactly)
+    img = Image.new('RGBA', (42, 13), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
-
-    # Arm spans y=1 to y=12 (11 pixels thick, matching left arm)
 
     # === UPPER ARM (SHIRT) - 2-tone shading ===
     # Shoulder joint (this is where it attaches to body)
-    draw.ellipse([0, 1, 8, 12], fill=COLORS["shirt_shadow"])
-    draw.ellipse([2, 3, 6, 10], fill=COLORS["shirt"])
+    draw.ellipse([0, 1, 8, 11], fill=COLORS["shirt_shadow"])
+    draw.ellipse([2, 3, 6, 9], fill=COLORS["shirt"])
 
     # Upper arm with 2-tone shading
-    draw.rectangle([5, 2, 16, 11], fill=COLORS["shirt"])
-    draw.rectangle([5, 9, 16, 11], fill=COLORS["shirt_shadow"])
+    draw.rectangle([5, 1, 16, 10], fill=COLORS["shirt"])
+    draw.rectangle([5, 8, 16, 10], fill=COLORS["shirt_shadow"])
 
     # Elbow detail
-    draw.rectangle([14, 4, 18, 10], fill=COLORS["shirt_shadow"])
+    draw.rectangle([14, 3, 18, 9], fill=COLORS["shirt_shadow"])
 
     # === FOREARM (SKIN) with shading ===
-    draw.rectangle([16, 2, 32, 11], fill=COLORS["skin"])
-    draw.rectangle([16, 2, 32, 5], fill=COLORS["skin_highlight"])
-    draw.rectangle([16, 9, 32, 11], fill=COLORS["skin_shadow"])
+    draw.rectangle([16, 1, 32, 10], fill=COLORS["skin"])
+    draw.rectangle([16, 1, 32, 4], fill=COLORS["skin_highlight"])
+    draw.rectangle([16, 8, 32, 10], fill=COLORS["skin_shadow"])
 
     # Muscle definition
-    draw.rectangle([22, 4, 26, 8], fill=COLORS["skin_highlight"])
+    draw.rectangle([22, 3, 26, 7], fill=COLORS["skin_highlight"])
 
     # === GLOVED HAND (for gripping pickaxe) ===
-    # Slimmer glove to match arm proportions
-    draw.rectangle([32, 2, 41, 12], fill=COLORS["glove"])
-    draw.rectangle([32, 2, 41, 6], fill=COLORS["glove_highlight"])
-    draw.rectangle([32, 10, 41, 12], fill=COLORS["glove_shadow"])
+    # Slimmer glove to match arm proportions exactly
+    draw.rectangle([32, 1, 41, 11], fill=COLORS["glove"])
+    draw.rectangle([32, 1, 41, 5], fill=COLORS["glove_highlight"])
+    draw.rectangle([32, 9, 41, 11], fill=COLORS["glove_shadow"])
 
     # Wrist line
-    draw.line([(32, 3), (32, 11)], fill=COLORS["glove_shadow"])
+    draw.line([(32, 2), (32, 10)], fill=COLORS["glove_shadow"])
 
     return img
 
@@ -399,9 +397,9 @@ def assemble_frame(
     shoulder_y = body_y + 8
 
     # Combine arm and pickaxe into one image
-    # Arm is 42x14, pickaxe is 36x24, combined with pickaxe at hand position
+    # Arm is 42x13, pickaxe is 36x24, combined with pickaxe at hand position
     arm_pickaxe = Image.new('RGBA', (70, 26), COLORS["transparent"])
-    arm_pickaxe.paste(arm, (0, 6), arm)  # Arm centered vertically
+    arm_pickaxe.paste(arm, (0, 7), arm)  # Arm centered vertically
     arm_pickaxe.paste(pickaxe, (34, 1), pickaxe)  # Pickaxe at hand position
 
     # The shoulder pivot point is at the LEFT side of the arm

@@ -83,6 +83,12 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 | [Notifications & Engagement](notifications-engagement.md) | ✅ Done | Ethical hooks, daily rewards, opt-in |
 | [Social Features](social-features.md) | ✅ Done | Leaderboards, achievements, v1.1+ priority |
 
+### Release & Polish
+| Document | Status | Key Decisions |
+|----------|--------|---------------|
+| [QoL Features](qol-features.md) | ✅ Done | Auto-pickup, quick-sell, depth indicator |
+| [Localization Strategy](localization-strategy.md) | ✅ Done | EN/ES/PT at launch, icons over text |
+
 ## Open Design Questions
 
 ### Core Gameplay
@@ -98,7 +104,7 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 - [ ] How many total resource types?
 
 ### Technical
-- [ ] Optimal chunk size for mobile (8x8? 16x16?)
+- [x] Optimal chunk size for mobile? → 16x16 recommended
 - [ ] Landscape or portrait orientation?
 - [ ] Fantasy setting or realistic?
 

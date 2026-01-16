@@ -101,12 +101,12 @@ def create_body_component() -> Image.Image:
     # Crotch shadow
     draw.rectangle([25, 31, 27, 38], fill=COLORS["jeans_shadow"])
 
-    # === BOOTS ===
-    draw.rectangle([12, 54, 26, 62], fill=COLORS["leather"])
-    draw.rectangle([12, 54, 16, 62], fill=COLORS["outline"])
-    draw.rectangle([26, 54, 40, 62], fill=COLORS["leather"])
-    draw.rectangle([12, 60, 26, 62], fill=COLORS["outline"])
-    draw.rectangle([26, 60, 40, 62], fill=COLORS["outline"])
+    # === BOOTS (extended to bottom of body frame) ===
+    draw.rectangle([12, 54, 26, 67], fill=COLORS["leather"])
+    draw.rectangle([12, 54, 16, 67], fill=COLORS["outline"])
+    draw.rectangle([26, 54, 40, 67], fill=COLORS["leather"])
+    draw.rectangle([12, 65, 26, 67], fill=COLORS["outline"])  # Boot soles
+    draw.rectangle([26, 65, 40, 67], fill=COLORS["outline"])
 
     # Boot highlights
     draw.rectangle([18, 56, 22, 58], fill=COLORS["leather_highlight"])
@@ -383,7 +383,9 @@ def assemble_frame(
     # Calculate body position (shifted left to give room for pickaxe swing)
     # -24 offset moves body left so pickaxe head stays in frame
     body_x = (FRAME_WIDTH - body.width) // 2 - 24 + body_offset[0]
-    body_y = FRAME_HEIGHT - body.height - 4 + body_offset[1]
+    # Position body so feet touch the bottom of the frame
+    # body.height = 68, boots end at y=62 within body, so body_y should put feet at y=127
+    body_y = FRAME_HEIGHT - body.height + body_offset[1]
 
     # === LEFT ARM (non-swinging, hangs at side) ===
     # Position at left shoulder

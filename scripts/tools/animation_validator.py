@@ -266,8 +266,156 @@ def save_validation_config(output_path: Path):
     print(f"Validation config saved to: {output_path}")
 
 
+def analyze_frame_metrics():
+    """Analyze numeric metrics for animation frames."""
+    from PIL import Image
+    import statistics
+
+    PROJECT_ROOT = Path(__file__).parent.parent.parent
+    COMPONENTS_DIR = PROJECT_ROOT / "resources" / "sprites" / "components"
+
+    frames = sorted(COMPONENTS_DIR.glob("frame_*.png"))
+
+    if len(frames) < 2:
+        print("Not enough frames to analyze")
+        return None
+
+    pixel_counts = []
+    color_counts = []
+
+    for frame_path in frames:
+        img = Image.open(frame_path).convert('RGBA')
+        opaque = [p for p in img.getdata() if p[3] > 0]
+        pixel_counts.append(len(opaque))
+        colors = set(p[:3] for p in opaque)
+        color_counts.append(len(colors))
+
+    # Calculate consistency metrics
+    mean_pixels = statistics.mean(pixel_counts)
+    std_pixels = statistics.stdev(pixel_counts) if len(pixel_counts) > 1 else 0
+    cv_pixels = std_pixels / mean_pixels if mean_pixels > 0 else 0
+
+    mean_colors = statistics.mean(color_counts)
+    std_colors = statistics.stdev(color_counts) if len(color_counts) > 1 else 0
+
+    # Score pixel consistency (CV < 0.1 is good)
+    if cv_pixels < 0.05:
+        pixel_score = 1.0
+    elif cv_pixels < 0.10:
+        pixel_score = 0.9
+    elif cv_pixels < 0.15:
+        pixel_score = 0.8
+    else:
+        pixel_score = 0.6
+
+    # Score color consistency (all frames should use similar palette)
+    color_cv = std_colors / mean_colors if mean_colors > 0 else 0
+    if color_cv < 0.05:
+        color_score = 1.0
+    elif color_cv < 0.10:
+        color_score = 0.9
+    else:
+        color_score = 0.8
+
+    overall = (pixel_score + color_score) / 2
+
+    return {
+        'frame_count': len(frames),
+        'pixel_consistency': pixel_score,
+        'color_consistency': color_score,
+        'overall': overall,
+        'details': {
+            'mean_pixels': mean_pixels,
+            'pixel_cv': cv_pixels,
+            'mean_colors': mean_colors,
+            'color_cv': color_cv,
+        }
+    }
+
+
+def analyze_motion():
+    """Analyze motion between consecutive frames."""
+    from PIL import Image
+    import statistics
+
+    PROJECT_ROOT = Path(__file__).parent.parent.parent
+    COMPONENTS_DIR = PROJECT_ROOT / "resources" / "sprites" / "components"
+
+    frames = sorted(COMPONENTS_DIR.glob("frame_*.png"))
+
+    if len(frames) < 2:
+        return None
+
+    images = [Image.open(f).convert('RGBA') for f in frames]
+    diffs = []
+
+    for i in range(len(images) - 1):
+        changed = 0
+        total = 0
+        for p1, p2 in zip(images[i].getdata(), images[i + 1].getdata()):
+            if p1[3] > 0 or p2[3] > 0:
+                total += 1
+                if p1 != p2:
+                    changed += 1
+        diffs.append(changed / total if total > 0 else 0)
+
+    avg_diff = statistics.mean(diffs)
+    min_diff = min(diffs)
+
+    if min_diff < 0.02:
+        motion_score = 0.5
+    elif avg_diff < 0.05:
+        motion_score = 0.7
+    elif avg_diff < 0.30:
+        motion_score = 1.0
+    else:
+        motion_score = 0.8
+
+    return {
+        'avg_change': avg_diff,
+        'min_change': min_diff,
+        'max_change': max(diffs),
+        'motion_score': motion_score
+    }
+
+
+def print_frame_metrics():
+    """Print numeric frame analysis."""
+    metrics = analyze_frame_metrics()
+    motion = analyze_motion()
+
+    if not metrics:
+        return
+
+    print()
+    print("=" * 60)
+    print("ANIMATION FRAME METRICS")
+    print("=" * 60)
+    print(f"Frames: {metrics['frame_count']}")
+    print(f"Pixel Consistency: {metrics['pixel_consistency']:.2f}")
+    print(f"Color Consistency: {metrics['color_consistency']:.2f}")
+    print(f"Overall: {metrics['overall']:.2f}")
+    print()
+    print("Details:")
+    print(f"  Avg pixels/frame: {metrics['details']['mean_pixels']:.0f}")
+    print(f"  Pixel CV: {metrics['details']['pixel_cv']:.3f}")
+    print(f"  Avg colors/frame: {metrics['details']['mean_colors']:.0f}")
+    print(f"  Color CV: {metrics['details']['color_cv']:.3f}")
+
+    if motion:
+        print()
+        print("Motion Analysis:")
+        print(f"  Motion Score: {motion['motion_score']:.2f}")
+        print(f"  Avg change: {motion['avg_change']*100:.1f}%")
+        print(f"  Min change: {motion['min_change']*100:.1f}%")
+        print(f"  Max change: {motion['max_change']*100:.1f}%")
+
+    print("=" * 60)
+
+
 if __name__ == "__main__":
     print_validation_checklist()
+    print_frame_metrics()
 
     # Save config for future use
     config_path = Path(__file__).parent.parent.parent / "resources" / "sprites" / "swing_animation_validation.json"

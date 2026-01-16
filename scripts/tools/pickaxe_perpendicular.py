@@ -31,74 +31,67 @@ COLORS = {
 
 def create_perpendicular_pickaxe() -> Image.Image:
     """
-    Create pickaxe with properly perpendicular head.
+    Create compact perpendicular pickaxe - T-shape that fits in frame.
 
-    The head will be a vertical bar that extends well above
-    and below the horizontal handle line.
+    Shortened design to prevent clipping when arm rotates.
+    Total width: 36 pixels (24 handle + 12 head)
     """
-    # Canvas size matched to primer (52x24)
-    img = Image.new('RGBA', (52, 24), COLORS["transparent"])
+    img = Image.new('RGBA', (36, 24), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
 
-    # Handle center positioned for perfect vertical balance
-    # Handle from y=8 to y=13 gives center at y=10.5
-    # Head from y=0 to y=21 gives extends_above = extends_below = 10.5
-    # Thinner handle (5px) improves silhouette ratio: 21/5 = 4.2 > 3.0
-
     # === WOODEN HANDLE ===
-    handle_length = 34
-    handle_top = 8
-    handle_bottom = 13
+    handle_length = 24
+    handle_top = 9
+    handle_bottom = 14
 
     # Main handle with 3-tone shading
     draw.rectangle([0, handle_top, handle_length, handle_bottom], fill=COLORS["wood"])
     draw.rectangle([0, handle_top, handle_length, handle_top + 1], fill=COLORS["wood_hi"])
     draw.rectangle([0, handle_bottom - 1, handle_length, handle_bottom], fill=COLORS["wood_lo"])
 
-    # Handle end (slightly taller for grip)
-    draw.rectangle([0, handle_top - 1, 4, handle_bottom + 1], fill=COLORS["wood_lo"])
-    draw.rectangle([1, handle_top, 3, handle_bottom], fill=COLORS["wood"])
+    # Handle grip end
+    draw.rectangle([0, handle_top - 1, 3, handle_bottom + 1], fill=COLORS["wood_lo"])
+    draw.rectangle([1, handle_top, 2, handle_bottom], fill=COLORS["wood"])
 
-    # Wood grain
-    for x in range(6, handle_length - 2, 4):
+    # Wood grain lines
+    for x in range(5, handle_length - 2, 4):
         draw.line([(x, handle_top + 1), (x, handle_bottom - 1)], fill=COLORS["wood_lo"])
 
-    # === PERPENDICULAR METAL HEAD ===
-    head_x = handle_length - 2
-    head_width = 5
-    head_top = 1
-    head_bottom = 20  # Head from y=1 to y=20, tip at y=0 and y=21
+    # === PERPENDICULAR METAL HEAD (T-shape) ===
+    head_x = handle_length - 2  # = 22
+    head_width = 4
+    head_top = 2
+    head_bottom = 21
 
-    # Vertical bar
+    # Vertical bar of the T
     draw.rectangle([head_x, head_top, head_x + head_width, head_bottom], fill=COLORS["metal"])
+    draw.rectangle([head_x, head_top, head_x + 1, head_bottom], fill=COLORS["metal_lo"])
+    draw.rectangle([head_x + head_width - 1, head_top, head_x + head_width, head_bottom], fill=COLORS["metal_hi"])
 
-    # Shading on vertical bar
-    draw.rectangle([head_x, head_top, head_x + 2, head_bottom], fill=COLORS["metal_lo"])
-    draw.rectangle([head_x + head_width - 2, head_top, head_x + head_width, head_bottom], fill=COLORS["metal_hi"])
-
-    # Top pointed end
-    top_point_x = head_x + head_width // 2
+    # Top pointed tip
+    top_center = head_x + head_width // 2
     draw.polygon([
         (head_x + 1, head_top),
-        (top_point_x, 0),
+        (top_center, 0),
         (head_x + head_width - 1, head_top)
     ], fill=COLORS["metal_lo"])
-    draw.point((top_point_x, 0), fill=COLORS["gleam"])
+    img.putpixel((top_center, 0), COLORS["gleam"])
 
-    # Bottom pointed end
+    # Bottom pointed tip
     draw.polygon([
         (head_x + 1, head_bottom),
-        (top_point_x, 21),
+        (top_center, 23),
         (head_x + head_width - 1, head_bottom)
     ], fill=COLORS["metal_lo"])
 
-    # === PICK POINT extending right ===
-    handle_center = (handle_top + handle_bottom) // 2  # = 10
-    for dx in range(head_width, 16):
+    # === SHORT HORIZONTAL SPIKE (the pick point) ===
+    handle_center = (handle_top + handle_bottom) // 2  # = 11
+    spike_length = 8  # Short spike to fit in frame
+    for dx in range(head_width, spike_length):
         x = head_x + dx
         if x >= img.width:
             break
-        thickness = max(1, 3 - dx // 4)
+        thickness = max(1, 2 - dx // 3)
         for dy in range(-thickness, thickness + 1):
             y = handle_center + dy
             if 0 <= y < img.height:
@@ -107,12 +100,12 @@ def create_perpendicular_pickaxe() -> Image.Image:
                 else:
                     img.putpixel((x, y), COLORS["metal_lo"])
 
-    # Sharp tip
-    if head_x + 14 < img.width:
-        img.putpixel((head_x + 14, handle_center), COLORS["gleam"])
+    # Sharp gleam at spike tip
+    if head_x + spike_length - 1 < img.width:
+        img.putpixel((head_x + spike_length - 1, handle_center), COLORS["gleam"])
 
-    # === COLLAR ===
-    draw.rectangle([head_x - 2, handle_center - 4, head_x, handle_center + 4], fill=COLORS["metal_lo"])
+    # === COLLAR (where head meets handle) ===
+    draw.rectangle([head_x - 2, handle_center - 3, head_x, handle_center + 3], fill=COLORS["metal_lo"])
 
     return img
 

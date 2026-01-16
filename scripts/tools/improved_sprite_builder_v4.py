@@ -67,7 +67,10 @@ COLORS = {
 
 
 def create_body_component() -> Image.Image:
-    """Create body (torso + legs) with optimized 8-color palette."""
+    """Create body (torso + legs) with optimized 8-color palette.
+
+    Enlarged collar/neck area to increase luminance variance (std dev >= 25).
+    """
     img = Image.new('RGBA', (52, 68), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
 
@@ -82,8 +85,10 @@ def create_body_component() -> Image.Image:
     draw.rectangle([10, 4, 14, 14], fill=COLORS["shirt_shadow"])
     draw.rectangle([38, 4, 42, 14], fill=COLORS["shirt"])
 
-    # Collar detail
-    draw.rectangle([22, 2, 30, 6], fill=COLORS["skin_shadow"])
+    # Enlarged collar/neck area (V-neck style for more skin visibility)
+    # This adds ~50 more skin pixels to increase shading variance
+    draw.rectangle([20, 0, 32, 6], fill=COLORS["skin_shadow"])
+    draw.polygon([(22, 6), (26, 12), (30, 6)], fill=COLORS["skin_shadow"])
 
     # === BELT ===
     draw.rectangle([14, 26, 38, 31], fill=COLORS["leather"])
@@ -150,21 +155,25 @@ def create_head_component() -> Image.Image:
 
 
 def create_arm_component() -> Image.Image:
-    """Create improved arm component with shoulder attachment point."""
+    """Create improved arm component with shoulder attachment point.
+
+    Optimized to use 8 colors (2-tone shirt like body):
+    - shirt (2): shirt, shirt_shadow
+    - skin (3): skin_highlight, skin, skin_shadow
+    - glove (3): glove_highlight, glove, glove_shadow
+    """
     # Arm pointing RIGHT (0 degrees)
     # The shoulder attachment point is at the LEFT of this image
     img = Image.new('RGBA', (44, 18), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
 
-    # === UPPER ARM (SHIRT) ===
+    # === UPPER ARM (SHIRT) - 2-tone shading ===
     # Shoulder joint (this is where it attaches to body)
     draw.ellipse([0, 3, 10, 15], fill=COLORS["shirt_shadow"])
     draw.ellipse([2, 5, 8, 13], fill=COLORS["shirt"])
-    draw.ellipse([3, 6, 7, 10], fill=COLORS["shirt_highlight"])
 
-    # Upper arm with 3-tone shading
+    # Upper arm with 2-tone shading (matching body optimization)
     draw.rectangle([6, 4, 18, 14], fill=COLORS["shirt"])
-    draw.rectangle([6, 4, 18, 8], fill=COLORS["shirt_highlight"])
     draw.rectangle([6, 11, 18, 14], fill=COLORS["shirt_shadow"])
 
     # Elbow detail
@@ -195,21 +204,25 @@ def create_arm_component() -> Image.Image:
 
 
 def create_left_arm_component() -> Image.Image:
-    """Create the left arm (non-swinging) that hangs at the side."""
+    """Create the left arm (non-swinging) that hangs at the side.
+
+    Optimized to use 8 colors (2-tone shirt like body):
+    - shirt (2): shirt, shirt_shadow
+    - skin (3): skin_highlight, skin, skin_shadow
+    - glove (3): glove_highlight, glove, glove_shadow
+    """
     # This arm hangs down naturally on the left side of the body
     img = Image.new('RGBA', (14, 44), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
 
-    # === UPPER ARM (SHIRT) - pointing down ===
-    # Shoulder area with 3-tone shading
+    # === UPPER ARM (SHIRT) - 2-tone shading ===
+    # Shoulder area
     draw.ellipse([2, 0, 12, 10], fill=COLORS["shirt_shadow"])
     draw.ellipse([4, 2, 10, 8], fill=COLORS["shirt"])
-    draw.ellipse([5, 3, 9, 7], fill=COLORS["shirt_highlight"])
 
-    # Upper arm going down with proper shading
+    # Upper arm going down with 2-tone shading (matching body optimization)
     draw.rectangle([3, 8, 11, 20], fill=COLORS["shirt"])
     draw.rectangle([3, 8, 6, 20], fill=COLORS["shirt_shadow"])
-    draw.rectangle([8, 8, 11, 14], fill=COLORS["shirt_highlight"])
 
     # === FOREARM (SKIN) with 3-tone shading ===
     draw.rectangle([3, 20, 11, 34], fill=COLORS["skin"])
@@ -231,30 +244,81 @@ def create_left_arm_component() -> Image.Image:
 
 
 def create_pickaxe_component() -> Image.Image:
-    """Create improved pickaxe component with detailed metal head."""
-    img = Image.new('RGBA', (52, 24), COLORS["transparent"])
+    """Create compact perpendicular pickaxe - T-shape that fits in frame.
+
+    Shortened design to prevent clipping when arm rotates.
+    Total width: 36 pixels (26 handle + 10 head)
+    """
+    img = Image.new('RGBA', (36, 24), COLORS["transparent"])
     draw = ImageDraw.Draw(img)
 
-    # === HANDLE ===
-    draw.rectangle([0, 10, 34, 12], fill=COLORS["wood_shadow"])
-    draw.rectangle([0, 8, 34, 10], fill=COLORS["wood"])
-    draw.rectangle([0, 6, 34, 8], fill=COLORS["wood_highlight"])
+    # === WOODEN HANDLE ===
+    handle_length = 24
+    handle_top = 9
+    handle_bottom = 14
 
-    for x in range(2, 32, 4):
-        draw.line([(x, 7), (x, 11)], fill=COLORS["wood_shadow"])
+    # Main handle with 3-tone shading
+    draw.rectangle([0, handle_top, handle_length, handle_bottom], fill=COLORS["wood"])
+    draw.rectangle([0, handle_top, handle_length, handle_top + 1], fill=COLORS["wood_highlight"])
+    draw.rectangle([0, handle_bottom - 1, handle_length, handle_bottom], fill=COLORS["wood_shadow"])
 
-    # === PICKAXE HEAD ===
-    head_points = [
-        (32, 8), (38, 2), (48, 6), (52, 10), (48, 14), (38, 18), (32, 12),
-    ]
-    draw.polygon(head_points, fill=COLORS["metal"])
-    draw.polygon([(34, 8), (40, 3), (48, 7), (42, 10), (34, 10)], fill=COLORS["metal_highlight"])
-    draw.polygon([(34, 12), (40, 16), (48, 13), (42, 11), (34, 11)], fill=COLORS["metal_shadow"])
-    draw.line([(50, 8), (52, 10), (50, 12)], fill=(255, 255, 255))
-    draw.polygon([(36, 4), (40, 0), (44, 4), (40, 6)], fill=COLORS["metal_shadow"])
-    draw.line([(38, 2), (42, 2)], fill=COLORS["metal_highlight"])
-    draw.ellipse([30, 7, 34, 13], fill=COLORS["metal_shadow"])
-    draw.ellipse([31, 8, 33, 12], fill=COLORS["wood"])
+    # Handle grip end
+    draw.rectangle([0, handle_top - 1, 3, handle_bottom + 1], fill=COLORS["wood_shadow"])
+    draw.rectangle([1, handle_top, 2, handle_bottom], fill=COLORS["wood"])
+
+    # Wood grain lines
+    for x in range(5, handle_length - 2, 4):
+        draw.line([(x, handle_top + 1), (x, handle_bottom - 1)], fill=COLORS["wood_shadow"])
+
+    # === PERPENDICULAR METAL HEAD (T-shape) ===
+    head_x = handle_length - 2  # = 28
+    head_width = 4
+    head_top = 2
+    head_bottom = 21
+
+    # Vertical bar of the T
+    draw.rectangle([head_x, head_top, head_x + head_width, head_bottom], fill=COLORS["metal"])
+    draw.rectangle([head_x, head_top, head_x + 1, head_bottom], fill=COLORS["metal_shadow"])
+    draw.rectangle([head_x + head_width - 1, head_top, head_x + head_width, head_bottom], fill=COLORS["metal_highlight"])
+
+    # Top pointed tip
+    top_center = head_x + head_width // 2
+    draw.polygon([
+        (head_x + 1, head_top),
+        (top_center, 0),
+        (head_x + head_width - 1, head_top)
+    ], fill=COLORS["metal_shadow"])
+    img.putpixel((top_center, 0), (255, 255, 255))  # Gleam on top
+
+    # Bottom pointed tip
+    draw.polygon([
+        (head_x + 1, head_bottom),
+        (top_center, 23),
+        (head_x + head_width - 1, head_bottom)
+    ], fill=COLORS["metal_shadow"])
+
+    # === SHORT HORIZONTAL SPIKE (the pick point) ===
+    handle_center = (handle_top + handle_bottom) // 2  # = 11
+    spike_length = 8  # Short spike to fit in frame
+    for dx in range(head_width, spike_length):
+        x = head_x + dx
+        if x >= img.width:
+            break
+        thickness = max(1, 2 - dx // 3)
+        for dy in range(-thickness, thickness + 1):
+            y = handle_center + dy
+            if 0 <= y < img.height:
+                if dy <= 0:
+                    img.putpixel((x, y), COLORS["metal_highlight"])
+                else:
+                    img.putpixel((x, y), COLORS["metal_shadow"])
+
+    # Sharp gleam at spike tip
+    if head_x + spike_length - 1 < img.width:
+        img.putpixel((head_x + spike_length - 1, handle_center), (255, 255, 255))
+
+    # === COLLAR (where head meets handle) ===
+    draw.rectangle([head_x - 2, handle_center - 3, head_x, handle_center + 3], fill=COLORS["metal_shadow"])
 
     return img
 
@@ -316,9 +380,10 @@ def assemble_frame(
     """Assemble components into a single frame with correct arm rotation."""
     frame = Image.new('RGBA', (FRAME_WIDTH, FRAME_HEIGHT), COLORS["transparent"])
 
-    # Calculate body position (centered in frame)
-    body_x = (FRAME_WIDTH - body.width) // 2 + body_offset[0]
-    body_y = FRAME_HEIGHT - body.height - 8 + body_offset[1]
+    # Calculate body position (shifted left to give room for pickaxe swing)
+    # -24 offset moves body left so pickaxe head stays in frame
+    body_x = (FRAME_WIDTH - body.width) // 2 - 24 + body_offset[0]
+    body_y = FRAME_HEIGHT - body.height - 4 + body_offset[1]
 
     # === LEFT ARM (non-swinging, hangs at side) ===
     # Position at left shoulder
@@ -333,9 +398,10 @@ def assemble_frame(
     shoulder_y = body_y + 8
 
     # Combine arm and pickaxe into one image
-    arm_pickaxe = Image.new('RGBA', (96, 28), COLORS["transparent"])
+    # Arm is 44x18, pickaxe is 36x24, combined at offset 36
+    arm_pickaxe = Image.new('RGBA', (72, 28), COLORS["transparent"])
     arm_pickaxe.paste(arm, (0, 5), arm)
-    arm_pickaxe.paste(pickaxe, (40, 2), pickaxe)
+    arm_pickaxe.paste(pickaxe, (36, 2), pickaxe)
 
     # The shoulder pivot point is at the LEFT side of the arm
     pivot = (4, 14)

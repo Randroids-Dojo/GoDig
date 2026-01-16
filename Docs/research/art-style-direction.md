@@ -339,11 +339,11 @@ assets/
 ---
 
 ## Questions to Resolve
-- [ ] Exact tile resolution (16x16 confirmed?)
-- [ ] Day/night cycle affects surface palette?
-- [ ] How many idle animation frames?
-- [ ] Glow effect implementation (shader vs sprite?)
-- [ ] Parallax background layers count?
+- [x] Tile resolution → 16x16 pixels confirmed
+- [x] Day/night palette → v1.1+ cosmetic feature
+- [x] Idle animation → 4 frames, subtle breathing
+- [x] Glow effects → Simple sprite overlay, no shaders
+- [x] Parallax layers → 4 (sky, clouds, mountains, hills)
 
 ## Priority Checklist
 

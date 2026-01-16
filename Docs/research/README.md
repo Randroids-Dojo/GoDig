@@ -99,6 +99,20 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 | [Art Style Direction](art-style-direction.md) | ✅ Done | 16x16 pixel art, layer palettes |
 | [Sound Design (Detailed)](sound-design-detailed.md) | ✅ Done | Material SFX, dynamic music, ambient |
 
+### Technical Systems
+| Document | Status | Key Decisions |
+|----------|--------|---------------|
+| [Camera & View System](camera-view-system.md) | ✅ Done | Smooth follow, zoom levels, darkness shader |
+| [Data Architecture](data-architecture.md) | ✅ Done | Godot Resources, registry pattern, save structure |
+
+### Key Design Decisions
+| Document | Status | Key Decisions |
+|----------|--------|---------------|
+| [Energy/Fuel Decision](energy-fuel-decision.md) | ✅ Done | No fuel mechanic, inventory-pressure only |
+| [Combat & Enemies Decision](combat-enemies-decision.md) | ✅ Done | No enemies at launch, environmental hazards |
+| [Currency System Decision](currency-system-decision.md) | ✅ Done | Single currency (coins) + material requirements |
+| [Screen Orientation Decision](screen-orientation-decision.md) | ✅ Done | Portrait mode for mobile |
+
 ### Launch & Operations
 | Document | Status | Key Decisions |
 |----------|--------|---------------|
@@ -109,21 +123,21 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 ## Open Design Questions
 
 ### Core Gameplay
-- [ ] Fuel/energy mechanic or inventory-pressure only?
-- [ ] How punishing is "getting stuck"?
+- [x] Fuel/energy mechanic or inventory-pressure only? → No fuel, inventory-only
+- [x] How punishing is "getting stuck"? → Wall-jump makes it recoverable
 - [x] Can player dig upward? → No at start, Drill unlocks at 500m
-- [ ] Combat/enemies in the mine?
+- [x] Combat/enemies in the mine? → No enemies at launch, environmental hazards
 
 ### Economy
-- [ ] Single currency (coins) or multi-currency?
-- [ ] Crafting system or pure buy/sell?
-- [ ] Prestige system at launch or add later?
-- [ ] How many total resource types?
+- [x] Single currency (coins) or multi-currency? → Single + material requirements
+- [x] Crafting system or pure buy/sell? → Buy with material requirements (no full crafting)
+- [ ] Prestige system at launch or add later? → TBD (researched in end-game-goals.md)
+- [x] How many total resource types? → 8 tiers of ores + gems + artifacts
 
 ### Technical
 - [x] Optimal chunk size for mobile? → 16x16 recommended
-- [ ] Landscape or portrait orientation?
-- [ ] Fantasy setting or realistic?
+- [x] Landscape or portrait orientation? → Portrait mode
+- [x] Fantasy setting or realistic? → Fantasy-lite (real ores + magical effects)
 
 ## Recommended Starting Point
 

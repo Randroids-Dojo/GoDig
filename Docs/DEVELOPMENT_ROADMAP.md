@@ -131,13 +131,26 @@ Core loop working: dig → collect → sell → upgrade → repeat
 All major research questions have been resolved. Remaining items are deferred to v1.0+.
 
 ## Stats (Updated: 2026-01-16)
-- Total tasks: 252
+- Total tasks: 272
 - Completed: 92
-- Open: 160
-- Ready to work: 151
+- Open: 180
+- Ready to work: 171
 - Research docs: 42 (complete)
 - All research decisions resolved
 - All blocking decisions made
+
+### New Tasks Added This Session
+- v1.0: Haptic feedback system
+- v1.0: Colorblind mode
+- v1.0: One-hand play option
+- v1.0: Text size options
+- v1.0: Localization system (EN/ES/PT)
+- v1.0: Analytics integration (Firebase)
+- v1.0: Rope item
+- v1.0: Fossil spawning system
+- v1.1+: Daily rewards system
+- v1.1+: Grappling hook
+- DEV: Squash/stretch on landing
 
 ## Key Design Decisions Made
 1. **No fuel mechanic** - Inventory pressure creates return-to-surface tension

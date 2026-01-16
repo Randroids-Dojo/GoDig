@@ -264,12 +264,12 @@ Settings > Gameplay > Show hints: [ON/OFF]
 ## First Session Goals
 
 ### Checklist for First 5 Minutes
-- [ ] Player has moved
-- [ ] Player has dug blocks
-- [ ] Player has collected resources
-- [ ] Player has returned to surface
-- [ ] Player has sold resources
-- [ ] Player has made first purchase
+- [x] Move tutorial → Arrow keys/joystick prompt
+- [x] Dig tutorial → Highlight diggable block
+- [x] Collect tutorial → Auto-pickup explanation
+- [x] Return tutorial → Wall-jump instruction
+- [x] Sell tutorial → Shop interaction guide
+- [x] Purchase tutorial → Upgrade recommendation
 
 ### Soft Targets
 - First ore: Within 10 seconds of digging
@@ -298,8 +298,8 @@ track_tutorial_event("completed", {"time_seconds": 240})
 - What's the average tutorial completion time?
 
 ## Questions to Resolve
-- [ ] Mandatory tutorial or always skippable?
-- [ ] Text prompts or fully visual?
-- [ ] Tutorial rewards (coins, items)?
-- [ ] Repeatable tutorial from settings?
-- [ ] Hint frequency and intrusiveness?
+- [x] Tutorial skip → Skippable after first step
+- [x] Prompt style → Minimal text + visual arrows
+- [x] Tutorial rewards → Small coin bonus on completion
+- [x] Tutorial replay → Yes, from settings menu
+- [x] Hints → Contextual, dismissible, cooldown

@@ -189,8 +189,8 @@ func _generate_tile_at(pos: Vector2i):
 ```
 
 ## Questions to Resolve
-- [ ] Chunk size for mobile performance (16x16? 8x8?)
-- [ ] How to save/load modified chunks?
-- [ ] Maximum loaded chunks at once?
-- [ ] Pre-generate chunks ahead of player?
-- [ ] Seed system for world sharing?
+- [x] Chunk size for mobile performance → 16x16 tiles
+- [x] How to save/load modified chunks? → Binary format with delta compression
+- [x] Maximum loaded chunks at once? → 25 chunks max
+- [x] Pre-generate chunks ahead of player? → Yes, 2-chunk radius ahead
+- [x] Seed system for world sharing? → Yes, sharable seed

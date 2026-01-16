@@ -175,8 +175,8 @@ Tier N cost ≈ Tier N-1 cost × 2 to 4
 - Time to 100%: 50+ hours
 
 ## Questions to Resolve
-- [ ] Single or multi-currency?
-- [ ] Crafting system or pure purchase?
-- [ ] How many tool tiers?
-- [ ] Prestige system at launch or later?
-- [ ] Achievement rewards: cosmetic or gameplay?
+- [x] Single or multi-currency? → Single (coins) + material requirements
+- [x] Crafting system or pure purchase? → Purchase with material requirements
+- [x] How many tool tiers? → 9 tiers (Rusty to Void)
+- [x] Prestige system at launch or later? → v1.0 (not MVP)
+- [x] Achievement rewards: cosmetic or gameplay? → Primarily cosmetic + small bonuses

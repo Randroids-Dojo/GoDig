@@ -1,6 +1,6 @@
 # GoDig - Game Design Summary
 
-> **Comprehensive design document consolidating decisions from 39+ research documents.**
+> **Comprehensive design document consolidating decisions from 48 research documents.**
 
 ## Game Concept
 
@@ -311,6 +311,23 @@ class_name BlockData extends Resource
 
 ---
 
+## Death & Respawn
+
+### Death Penalty (Depth-Scaled)
+| Depth | Inventory Loss | Coin Loss | Equipment |
+|-------|---------------|-----------|-----------|
+| 0-500m | 10% | 0% | Minor damage |
+| 500-2000m | 20% | 5% | Moderate damage |
+| 2000m+ | 30% | 10% | Heavy damage |
+
+### Key Rules
+- **Always respawn at surface** - Simple, predictable
+- **No permadeath** - Optional hardcore mode v1.1+
+- **Player structures protected** - Hazards cannot destroy ladders
+- **Hazard tutorials** - First-encounter contextual popups
+
+---
+
 ## Monetization (Freemium)
 
 ### Core Principles
@@ -423,4 +440,4 @@ Full research documentation available in `Docs/research/`:
 - Polish (audio, visual, game feel, accessibility)
 - Strategy (monetization, session design, competitive analysis)
 
-**Total**: 47 research documents covering all aspects of game design.
+**Total**: 48 research documents covering all aspects of game design.

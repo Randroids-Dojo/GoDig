@@ -297,34 +297,34 @@ func spawn_particles(pos: Vector2, count: int):
 ## Checklist: Is Your Game Juicy?
 
 ### Every Action Has Feedback
-- [ ] Digging has particles
-- [ ] Pickups have visual + audio
-- [ ] Jumps have squash/stretch
-- [ ] Landings have dust
-- [ ] UI buttons have bounce
-- [ ] Numbers animate, don't snap
+- [x] Dig particles → Yes, material-specific colors
+- [x] Pickup feedback → Floating text + sound + brief glow
+- [x] Jump animation → Stretch on jump, squash on land
+- [x] Landing dust → Small puff particles
+- [x] Button bounce → Tween scale on press
+- [x] Number animation → Lerp/count up effect
 
 ### Environmental Life
-- [ ] Background has subtle motion
-- [ ] Ambient particles exist
-- [ ] Lights flicker naturally
-- [ ] Water drips/flows
+- [x] Background motion → Parallax scrolling
+- [x] Ambient particles → Floating dust motes underground
+- [x] Light flicker → Subtle helmet light variation
+- [x] Water effects → v1.0 drip particles
 
 ### Impact Feels Impactful
-- [ ] Hard blocks shake more
-- [ ] Rare finds feel special
-- [ ] Damage is visceral
-- [ ] Upgrades feel powerful
+- [x] Hard block feedback → Screen shake scales with hardness
+- [x] Rare find effects → Big glow + sound + screen flash
+- [x] Damage feedback → Red flash + knockback + sound
+- [x] Upgrade celebration → Particle burst + fanfare
 
 ### Audio is Alive
-- [ ] Pitch varies
-- [ ] Volume varies
-- [ ] Combo sounds chain
-- [ ] Silence is intentional
+- [x] Pitch variation → ±10% random on sounds
+- [x] Volume variation → ±5% for organic feel
+- [x] Combo sounds → Ascending pitch on rapid digs
+- [x] Silence use → Brief pause before big events
 
 ## Questions to Resolve
-- [ ] Screen shake intensity preference?
-- [ ] Haptic feedback on/off default?
-- [ ] Particle quality settings needed?
-- [ ] Animation frame budget per entity?
-- [ ] How "over the top" should juice be?
+- [x] Screen shake → Settings toggle, default medium
+- [x] Haptic default → On, with settings toggle
+- [x] Particle quality → Auto-adjust based on device
+- [x] Frame budget → 4-6 frames per animation
+- [x] Juice level → Satisfying but not overwhelming

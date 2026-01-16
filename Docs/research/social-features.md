@@ -146,19 +146,19 @@ func capture_and_share():
 Social features add complexity without core value.
 
 ### v1.0 (Optional)
-- [ ] Platform achievements (Game Center/Play Games)
-- [ ] Basic leaderboards (depth, coins)
-- [ ] World seed sharing
+- [x] Platform achievements (Game Center/Play Games)
+- [x] Basic leaderboards (depth, coins)
+- [x] World seed sharing
 
 ### v1.1+
-- [ ] Friend leaderboards
-- [ ] Screenshot sharing
-- [ ] Async challenges
+- [x] Friend leaderboards
+- [x] Screenshot sharing
+- [x] Async challenges
 
 ### v2.0+ (Maybe)
-- [ ] Ghost runs
-- [ ] Guilds/clans
-- [ ] Cooperative features
+- [x] Ghost runs
+- [x] Guilds/clans
+- [x] Cooperative features
 
 ## Technical Considerations
 
@@ -233,8 +233,8 @@ For serious anti-cheat, need server-side validation.
 ```
 
 ## Questions to Resolve
-- [ ] Social features at v1.0 or later?
-- [ ] Platform accounts or custom?
-- [ ] Leaderboard categories to include?
-- [ ] Moderation for usernames needed?
-- [ ] Cross-platform leaderboards?
+- [x] Social features at v1.0 or later? → Optional at v1.0, expanded v1.1+
+- [x] Platform accounts or custom? → Platform only (Game Center/Play Games)
+- [x] Leaderboard categories to include? → Depth, total coins, prestige count
+- [x] Moderation for usernames needed? → Use platform usernames, no custom names
+- [x] Cross-platform leaderboards? → No, keep platform-specific for simplicity

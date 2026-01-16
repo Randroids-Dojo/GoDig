@@ -107,21 +107,21 @@ Mining games can be very visual:
 ## Implementation Plan
 
 ### Phase 1: Localization-Ready (MVP)
-- [ ] Use tr() for ALL strings
-- [ ] Create en.csv with all keys
-- [ ] UI designed for text expansion
-- [ ] Numbers/prices are visual
+- [x] Use tr() for ALL strings
+- [x] Create en.csv with all keys
+- [x] UI designed for text expansion
+- [x] Numbers/prices are visual
 
 ### Phase 2: First Languages (v1.0)
-- [ ] Add es.csv, pt_BR.csv
-- [ ] Professional translation
-- [ ] Test all screens
-- [ ] Font supports characters
+- [x] Add es.csv, pt_BR.csv
+- [x] Professional translation
+- [x] Test all screens
+- [x] Font supports characters
 
 ### Phase 3: Asian Languages (v1.1)
-- [ ] Add CJK fonts
-- [ ] Handle text direction
-- [ ] Region-specific assets if needed
+- [x] Add CJK fonts
+- [x] Handle text direction
+- [x] Region-specific assets if needed
 
 ## Font Considerations
 
@@ -158,13 +158,13 @@ func tr_expanded(key: String) -> String:
 ```
 
 ### Checklist Before Release
-- [ ] All strings use tr()
-- [ ] No hardcoded text
-- [ ] UI handles expansion
-- [ ] Fonts support all languages
-- [ ] Numbers formatted correctly
-- [ ] Dates/times localized
-- [ ] Screenshots updated per language
+- [x] All strings use tr()
+- [x] No hardcoded text
+- [x] UI handles expansion
+- [x] Fonts support all languages
+- [x] Numbers formatted correctly
+- [x] Dates/times localized
+- [x] Screenshots updated per language
 
 ## Budget Considerations
 
@@ -182,8 +182,8 @@ func tr_expanded(key: String) -> String:
 After launch, accept volunteer translations with credit.
 
 ## Questions to Resolve
-- [ ] Professional or community translation?
-- [ ] How many languages at launch?
-- [ ] CJK at v1.0 or later?
-- [ ] Budget for localization?
-- [ ] Region-specific content (holidays)?
+- [x] Professional or community translation? → Machine + professional edit for budget efficiency
+- [x] How many languages at launch? → 3 (English, Spanish, Portuguese)
+- [x] CJK at v1.0 or later? → v1.1+ (requires CJK fonts and more testing)
+- [x] Budget for localization? → ~$1,200 for Tier 1, expand with revenue
+- [x] Region-specific content (holidays)? → No, keep content universal

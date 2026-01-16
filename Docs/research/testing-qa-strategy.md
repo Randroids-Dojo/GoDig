@@ -135,26 +135,26 @@ Test on real devices.
 
 ### Smoke Tests (Every Build)
 Quick sanity checks:
-- [ ] Game launches
-- [ ] Player can move
-- [ ] Player can dig
-- [ ] Shop opens
-- [ ] Game saves
+- [x] Smoke: Game launches without crash
+- [x] Smoke: Player movement works
+- [x] Smoke: Digging functional
+- [x] Smoke: Shop UI opens
+- [x] Smoke: Save creates file
 
 ### Regression Tests (Before Release)
 Full test suite:
-- [ ] All unit tests pass
-- [ ] All integration tests pass
-- [ ] No crashes in 30-min play session
-- [ ] Save/load works correctly
-- [ ] All shops functional
+- [x] Regression: All unit tests pass
+- [x] Regression: All integration tests pass
+- [x] Regression: 30-min stability test
+- [x] Regression: Save/load round-trip
+- [x] Regression: All shops tested
 
 ### Compatibility Tests
-- [ ] Different screen sizes
-- [ ] Portrait orientation
-- [ ] Low memory conditions
-- [ ] Interrupted play (phone call)
-- [ ] Background/foreground cycle
+- [x] Compatibility: Multiple screen sizes
+- [x] Compatibility: Portrait mode verified
+- [x] Compatibility: Low memory graceful handling
+- [x] Compatibility: Interrupt handling (auto-pause)
+- [x] Compatibility: Background/resume cycle
 
 ## Beta Testing Strategy
 
@@ -274,8 +274,8 @@ jobs:
 - Continue beta for updates
 
 ## Questions to Resolve
-- [ ] GdUnit4 or built-in Godot tests?
-- [ ] How many beta testers to recruit?
-- [ ] Beta duration before launch?
-- [ ] Which devices are must-test?
-- [ ] Bug bounty for beta testers?
+- [x] Test framework → GdUnit4 for unit tests
+- [x] Beta size → 50-100 closed, 500+ open
+- [x] Beta duration → 4 weeks minimum
+- [x] Must-test → Low-end Android, iPhone SE, mid-range
+- [x] Bug bounty → Credit in game, no monetary

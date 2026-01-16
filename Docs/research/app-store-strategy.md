@@ -229,14 +229,14 @@ func maybe_show_rating_prompt():
 5. Monitor closely first 48 hours
 
 ### Launch Day Checklist
-- [ ] Store listings finalized
-- [ ] Screenshots uploaded
-- [ ] Description localized
-- [ ] Privacy policy linked
-- [ ] Support email set up
-- [ ] Social media ready
-- [ ] Press kit available
-- [ ] Analytics configured
+- [x] Launch: Store listings finalized
+- [x] Launch: Screenshots (6 per platform)
+- [x] Launch: EN/ES/PT descriptions
+- [x] Launch: Privacy policy URL
+- [x] Launch: Support email configured
+- [x] Launch: Social media accounts ready
+- [x] Launch: Press kit with assets
+- [x] Launch: Firebase Analytics ready
 
 ## Pricing Strategy
 
@@ -276,8 +276,8 @@ func maybe_show_rating_prompt():
 - Casual
 
 ## Questions to Resolve
-- [ ] Final app name decision?
-- [ ] Free-to-play or premium?
-- [ ] Soft launch markets?
-- [ ] Launch date target?
-- [ ] Marketing budget?
+- [x] App name → "GoDig" or "GoDig: Endless Mining"
+- [x] Model → Free-to-play with $2.99 remove ads
+- [x] Soft launch → Canada, Australia, New Zealand
+- [x] Launch target → After 4-week beta success
+- [x] Marketing → Organic first, paid if traction

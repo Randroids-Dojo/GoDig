@@ -314,8 +314,8 @@ var audio_settings = {
 - [x] v1.0 layer music → 6 unique tracks by depth
 - [x] v1.0 layer ambient → 6 atmospheric loops
 - [x] Shop music → Shared upbeat loop for all shops
-- [ ] Achievement fanfare
-- [ ] More UI sounds
+- [x] Achievement fanfare → 3-5 second celebratory jingle
+- [x] More UI sounds → Menu open/close, tab switch, error
 
 ### Audio Sources
 - **Royalty-free**: Freesound.org, OpenGameArt

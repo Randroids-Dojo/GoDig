@@ -285,8 +285,8 @@ var tutorial_variant = ABTestManager.get_variant("tutorial_style")
 ```
 
 ## Questions to Resolve
-- [ ] Firebase or GameAnalytics?
-- [ ] Analytics opt-in or opt-out default?
-- [ ] How much event data to collect?
-- [ ] Custom dashboard or use provider's?
-- [ ] A/B testing at launch or later?
+- [x] Firebase or GameAnalytics? → Firebase Analytics (free, powerful, cross-platform)
+- [x] Analytics opt-in or opt-out default? → Opt-out default (enabled unless disabled)
+- [x] How much event data to collect? → Essential events only (session, progression, economy)
+- [x] Custom dashboard or use provider's? → Firebase dashboard for v1.0, custom later if needed
+- [x] A/B testing at launch or later? → Post-launch (v1.1+) once baseline established

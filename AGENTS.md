@@ -51,6 +51,55 @@ After any `git push`, you must:
 
 Do not consider a push successful until CI is green.
 
+## Task Management with Dots
+
+**Use `dot` for tracking work items during sessions.**
+
+Dots is a lightweight task tracker for managing work. Use it to track discrete tasks, bugs, and features.
+
+### Quick Reference
+
+```bash
+# Creating dots
+dot "Fix the bug"                        # Quick add
+dot add "Design API" -p 1 -d "Details"   # With priority and description
+dot add "Subtask" -P dots-1              # As child of dots-1
+dot add "After X" -a dots-2              # Depends on dots-2
+
+# Working on dots
+dot ls                    # List all open dots
+dot ready                 # Show unblocked dots (ready to work)
+dot on dots-3             # Start working on a dot
+dot off dots-3            # Complete a dot
+dot off dots-3 -r "Done"  # Complete with reason
+
+# Viewing dots
+dot show dots-1           # Show dot details
+dot tree                  # Show hierarchy
+dot find "query"          # Search dots
+```
+
+### Priority Levels
+
+Use `-p` flag when creating dots:
+- `0` = Critical (do now)
+- `1` = High
+- `2` = Medium (default)
+- `3` = Low
+- `4` = Backlog
+
+### Workflow
+
+1. **Starting a session**: Run `dot ready` to see available work
+2. **Claiming work**: Run `dot on <id>` before starting
+3. **Completing work**: Run `dot off <id>` when done
+4. **Creating subtasks**: Use `-P parent-id` for hierarchical organization
+
+### When to Use Dots vs TodoWrite
+
+- **Dots**: Multi-step work, tasks that may span sessions, work with dependencies
+- **TodoWrite**: Simple single-session execution tracking visible to user
+
 ## Ralph Loop Protection
 
 **NEVER remove or cancel a Ralph loop without explicit user instruction.**

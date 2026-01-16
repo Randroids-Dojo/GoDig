@@ -69,6 +69,13 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 | [Unique Treasures](unique-treasures.md) | ✅ Done | Gems, artifacts, fossils, collection system |
 | [End Game & Goals](end-game-goals.md) | ✅ Done | Prestige system, mastery, long-term progression |
 
+### Technical & Optimization
+| Document | Status | Key Decisions |
+|----------|--------|---------------|
+| [Performance Optimization](performance-optimization.md) | ✅ Done | 16x16 chunks, threading, object pooling, battery |
+| [Upgrade Paths](upgrade-paths.md) | ✅ Done | Tool tiers, equipment slots, building levels |
+| [Accessibility Features](accessibility-features.md) | ✅ Done | Colorblind modes, one-hand play, visual cues |
+
 ## Open Design Questions
 
 ### Core Gameplay

@@ -291,8 +291,8 @@ func clear_cache():
 - Cache results for persistence
 
 ## Questions to Resolve
-- [ ] Vein sizes by ore type?
-- [ ] Pure noise vs random walk veins?
-- [ ] Overlap handling (multiple ores same spot)?
-- [ ] Special "rich vein" rare events?
-- [ ] Visible gem sparkle before mining?
+- [x] Vein sizes by ore type? → 3-8 tiles common, 1-3 tiles rare
+- [x] Pure noise vs random walk veins? → Hybrid (noise placement + walk expansion)
+- [x] Overlap handling? → Rarest ore wins (priority system)
+- [x] Special "rich vein" rare events? → Yes, 1% chance for 2x size
+- [x] Visible gem sparkle before mining? → Yes, subtle particle effect

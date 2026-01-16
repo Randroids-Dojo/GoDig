@@ -109,8 +109,8 @@ Depth 5km+:     Adamantine, Stardust (mythical)
 - Achievements for rare finds
 
 ## Questions to Resolve
-- [ ] How many unique resource types?
-- [ ] Crafting system or pure sell?
-- [ ] Weight/stack limits per resource?
-- [ ] Gem vs Ore distinction meaningful?
-- [ ] Fantasy elements or realistic?
+- [x] How many unique resource types? → 8 ore tiers + gems + artifacts
+- [x] Crafting system or pure sell? → Pure sell + material requirements for upgrades
+- [x] Weight/stack limits? → Stack to 99, no weight system
+- [x] Gem vs Ore distinction? → Gems sell higher, ores for upgrades
+- [x] Fantasy elements or realistic? → Fantasy-lite (real + mythril/stardust)

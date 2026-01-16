@@ -258,8 +258,8 @@ func cleanup_old_chunks(days_old: int = 30):
 ```
 
 ## Questions to Resolve
-- [ ] Resource vs Binary for chunks?
-- [ ] Auto-save frequency?
-- [ ] Max chunk files before cleanup?
-- [ ] Cloud save integration?
-- [ ] Multiple save slots?
+- [x] Resource vs Binary for chunks? → Binary for size efficiency
+- [x] Auto-save frequency? → Every 60 seconds + on surface return
+- [x] Max chunk files before cleanup? → Keep all modified chunks
+- [x] Cloud save integration? → v1.1+ feature
+- [x] Multiple save slots? → 3 slots for MVP

@@ -254,8 +254,8 @@ func get_effect_at_level(effect_name: String, level: int) -> float:
 ```
 
 ## Questions to Resolve
-- [ ] Linear upgrades or branching specializations?
-- [ ] Research/tech tree at launch or v1.1?
-- [ ] How many equipment slots?
-- [ ] Upgrade costs too steep or too shallow?
-- [ ] Visual changes for each upgrade level?
+- [x] Linear upgrades or branching? → Linear for MVP, branching v1.1+
+- [x] Research/tech tree? → v1.1+ feature
+- [x] How many equipment slots? → 4 slots (pickaxe, helmet, boots, backpack)
+- [x] Upgrade costs? → Exponential scaling, 2-3 trips per upgrade
+- [x] Visual changes for upgrades? → Yes, sprite variants per tier

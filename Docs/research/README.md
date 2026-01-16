@@ -62,6 +62,13 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 | [Session Design](session-design.md) | ✅ Done | 5-15 min target, natural stopping points, retention |
 | [Surface Expansion](surface-expansion.md) | ✅ Done | Slot-based MVP, endless horizontal, building progression |
 
+### Content & Challenges
+| Document | Status | Key Decisions |
+|----------|--------|---------------|
+| [Hazards & Challenges](hazards-challenges.md) | ✅ Done | Environmental hazards, depth-based danger, death penalty |
+| [Unique Treasures](unique-treasures.md) | ✅ Done | Gems, artifacts, fossils, collection system |
+| [End Game & Goals](end-game-goals.md) | ✅ Done | Prestige system, mastery, long-term progression |
+
 ## Open Design Questions
 
 ### Core Gameplay

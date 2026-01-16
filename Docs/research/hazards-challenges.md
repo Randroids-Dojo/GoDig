@@ -269,9 +269,11 @@ Stage 3: Blocks flash, loud crack, begin falling
 | Grappling Hook | Escape falls | Permanent |
 | Teleport Scroll | Emergency escape | Consumable |
 
-## Questions to Resolve
-- [ ] Permadeath option or always respawn?
-- [ ] How severe should resource loss be on death?
-- [ ] Enemies in addition to hazards for v1.0?
-- [ ] Can hazards destroy player-placed structures?
-- [ ] Tutorial for each new hazard type?
+## Questions Resolved
+- [x] Permadeath option or always respawn? → No permadeath (optional hardcore mode v1.1+)
+- [x] How severe should resource loss be on death? → 10-30% inventory based on depth
+- [x] Enemies in addition to hazards for v1.0? → No (see combat-enemies-decision.md)
+- [x] Can hazards destroy player-placed structures? → No (player structures protected)
+- [x] Tutorial for each new hazard type? → Yes (contextual first-encounter popups)
+
+See [death-respawn-decision.md](death-respawn-decision.md) for full details.

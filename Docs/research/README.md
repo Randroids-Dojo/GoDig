@@ -113,6 +113,7 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 | [Currency System Decision](currency-system-decision.md) | ✅ Done | Single currency (coins) + material requirements |
 | [Screen Orientation Decision](screen-orientation-decision.md) | ✅ Done | Portrait mode for mobile |
 | [Prestige Timing Decision](prestige-timing-decision.md) | ✅ Done | Add prestige at v1.0 (not MVP) |
+| [Death & Respawn Decision](death-respawn-decision.md) | ✅ Done | Depth-scaled penalty, no permadeath |
 
 ### Launch & Operations
 | Document | Status | Key Decisions |

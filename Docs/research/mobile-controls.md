@@ -223,8 +223,8 @@ func _ready():
 - Option to swap left/right handed
 
 ## Questions to Resolve
-- [ ] Virtual joystick position (fixed vs dynamic?)
-- [ ] Tap-to-dig or button-to-dig?
-- [ ] Gesture support (swipe to jump?)
-- [ ] Button size for different screen sizes
-- [ ] Landscape vs portrait orientation
+- [x] Virtual joystick position (fixed vs dynamic?) → Fixed position, left side
+- [x] Tap-to-dig or button-to-dig? → Both options available
+- [x] Gesture support (swipe to jump?) → v1.0 option, not MVP
+- [x] Button size for different screen sizes → Auto-scale based on screen DPI
+- [x] Landscape vs portrait orientation → Portrait mode

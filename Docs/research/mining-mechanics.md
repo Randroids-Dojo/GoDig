@@ -75,8 +75,8 @@ Options to consider:
 - Consider: deeper = more inventory needed = upgrade driver
 
 ## Questions to Resolve
-- [ ] Fuel mechanic or not?
-- [ ] How punishing is "stuck"?
-- [ ] Can player dig up at all?
-- [ ] Block hardness progression curve
-- [ ] Tool swing speed vs damage
+- [x] Fuel mechanic or not? → No fuel, inventory pressure only
+- [x] How punishing is "stuck"? → Wall-jump makes recovery possible
+- [x] Can player dig up at all? → No, until Drill upgrade at 500m
+- [x] Block hardness progression curve → Exponential by layer
+- [x] Tool swing speed vs damage → Both scale with tool tier

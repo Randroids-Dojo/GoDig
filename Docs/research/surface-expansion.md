@@ -250,11 +250,11 @@ Growing prosperity
 Bustling mining empire
 
 ## Questions to Resolve
-- [ ] Slot-based vs free placement for MVP?
-- [ ] How many total building slots?
-- [ ] Building upgrade levels (max 5?)
-- [ ] Day/night cycle in v1.0 or later?
-- [ ] NPCs: worth the effort?
+- [x] Slot-based vs free placement for MVP? → Slot-based for MVP
+- [x] How many total building slots? → 10 for MVP, 15+ for v1.0
+- [x] Building upgrade levels (max 5?) → 3 for MVP, 5 for v1.0
+- [x] Day/night cycle in v1.0 or later? → v1.1+ (cosmetic only)
+- [x] NPCs: worth the effort? → v1.1+ (optional, adds atmosphere)
 
 ## Recommendation Summary
 

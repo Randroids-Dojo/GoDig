@@ -298,8 +298,8 @@ func upgrade_backpack():
 - Adds complexity, little value
 
 ## Questions to Resolve
-- [ ] Use existing plugin (GLoot) or custom?
-- [ ] Start with 8 or more slots?
-- [ ] Show individual values or just total?
-- [ ] Sort options (type, value, quantity)?
-- [ ] Quick-sell from HUD without opening full inventory?
+- [x] Use existing plugin (GLoot) or custom? → Custom for simplicity
+- [x] Start with 8 or more slots? → 8 starting, upgradeable to 30
+- [x] Show individual values or just total? → Total value in HUD, details in inventory
+- [x] Sort options (type, value, quantity)? → All three available
+- [x] Quick-sell from HUD without opening full inventory? → Yes, v1.0 feature

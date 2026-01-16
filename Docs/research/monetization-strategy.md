@@ -310,11 +310,11 @@ If implementing premium currency:
 ---
 
 ## Questions to Resolve
-- [ ] Premium price point ($2.99 vs $3.99 vs $4.99)?
-- [ ] Rewarded ads: what bonuses are fair?
-- [ ] Premium currency: include or avoid?
-- [ ] Regional pricing strategy?
-- [ ] Launch promotion discounts?
+- [x] Premium price → $2.99 remove ads
+- [x] Rewarded ads → 2x sell value for 30 seconds
+- [x] Premium currency → Avoid, coins only
+- [x] Regional pricing → Use platform defaults
+- [x] Launch promotion → No discount, fair base price
 
 ## Ad Networks to Consider
 - Google AdMob (largest)

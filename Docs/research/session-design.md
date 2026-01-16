@@ -186,10 +186,10 @@ Day 7: Mystery box (random upgrade)
 - Low return rate = not compelling
 
 ## Questions to Resolve
-- [ ] Implement daily rewards system?
-- [ ] Offline progress for v1.0 or later?
-- [ ] How to handle mid-mine app close?
-- [ ] Session length warnings: yes/no?
+- [x] Daily rewards → v1.1+ ethical opt-in system
+- [x] Offline progress → Not planned, active play only
+- [x] App close → Auto-save, respawn at surface safely
+- [x] Session warnings → Optional gentle reminders
 
 ## Design Recommendations
 

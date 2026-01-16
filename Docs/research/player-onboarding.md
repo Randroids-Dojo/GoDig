@@ -250,11 +250,11 @@ func _process(delta):
 - No penalty for using in tutorial area
 
 ## Questions to Resolve
-- [ ] Skip tutorial by default for returning players?
-- [ ] How many hints before "help" prompt?
-- [ ] Tutorial area vs main world?
-- [ ] Achievement for completing tutorial?
-- [ ] Voice-over or text-only?
+- [x] Returning players → Auto-skip if save exists
+- [x] Help prompt → After 3 failed attempts
+- [x] Tutorial location → Main world, not separate
+- [x] Tutorial achievement → Yes, "First Steps"
+- [x] Tutorial audio → Text-only, no voice
 
 ## Implementation Checklist
 

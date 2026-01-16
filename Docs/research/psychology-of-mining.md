@@ -193,10 +193,10 @@
 - Depth records
 
 ## Questions to Resolve
-- [ ] How much death penalty is fair?
-- [ ] Should there be "wait timers" at all?
-- [ ] Collection goals: how many categories?
-- [ ] Prestige: soft or hard reset psychology?
+- [x] Death penalty → Lose 10% coins, keep inventory (merciful)
+- [x] Wait timers → No artificial timers, respect player time
+- [x] Collection categories → 3 (ores, gems, artifacts)
+- [x] Prestige reset → Soft reset, keep permanent bonuses
 
 ## Research Sources
 - Nir Eyal's "Hooked" model

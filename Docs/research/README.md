@@ -112,6 +112,7 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 | [Combat & Enemies Decision](combat-enemies-decision.md) | ✅ Done | No enemies at launch, environmental hazards |
 | [Currency System Decision](currency-system-decision.md) | ✅ Done | Single currency (coins) + material requirements |
 | [Screen Orientation Decision](screen-orientation-decision.md) | ✅ Done | Portrait mode for mobile |
+| [Prestige Timing Decision](prestige-timing-decision.md) | ✅ Done | Add prestige at v1.0 (not MVP) |
 
 ### Launch & Operations
 | Document | Status | Key Decisions |
@@ -131,7 +132,7 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 ### Economy
 - [x] Single currency (coins) or multi-currency? → Single + material requirements
 - [x] Crafting system or pure buy/sell? → Buy with material requirements (no full crafting)
-- [ ] Prestige system at launch or add later? → TBD (researched in end-game-goals.md)
+- [x] Prestige system at launch or add later? → Add at v1.0 (not MVP)
 - [x] How many total resource types? → 8 tiers of ores + gems + artifacts
 
 ### Technical

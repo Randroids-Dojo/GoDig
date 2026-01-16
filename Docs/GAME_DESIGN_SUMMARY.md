@@ -366,13 +366,15 @@ class_name BlockData extends Resource
 5. 8+ ore types
 6. Fall damage
 7. Achievement system
+8. **Prestige system** (essential for retention)
 
 ### Nice to Have (v1.1+)
-1. Prestige/rebirth system
+1. Skill trees (post-prestige)
 2. Underground biomes
-3. Enemies
+3. Optional enemies (Infested Zones)
 4. Automation buildings
 5. Cloud save
+6. Daily/weekly challenges
 
 ---
 
@@ -421,4 +423,4 @@ Full research documentation available in `Docs/research/`:
 - Polish (audio, visual, game feel, accessibility)
 - Strategy (monetization, session design, competitive analysis)
 
-**Total**: 39 research documents covering all aspects of game design.
+**Total**: 47 research documents covering all aspects of game design.

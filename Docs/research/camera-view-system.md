@@ -289,15 +289,15 @@ func get_visible_chunks() -> Array[Vector2i]:
 - [x] Screen shake support
 
 ### v1.0
-- [ ] Surface/underground zoom transition
-- [ ] Helmet light radius
-- [ ] Darkness shader
-- [ ] Safe area handling
+- [x] Surface/underground zoom transition → Smooth lerp on zone change
+- [x] Helmet light radius → Upgradeable, 3-7 tile radius
+- [x] Darkness shader → Simple radial gradient, depth-based
+- [x] Safe area handling → Respect notch/home bar insets
 
 ### v1.1+
-- [ ] Pinch to zoom
-- [ ] Mini-map camera
-- [ ] Screenshot mode
+- [x] Pinch to zoom → v1.0 feature, optional
+- [x] Mini-map camera → v1.0 feature
+- [x] Screenshot mode → v1.1+ feature
 
 ---
 

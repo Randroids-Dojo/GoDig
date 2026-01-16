@@ -178,9 +178,9 @@ Cost: 500 coins
 - Shows player progress at a glance
 
 ## Questions to Resolve
-- [ ] How many total buildings?
-- [ ] Slot-based or free placement?
-- [ ] Building upgrade levels (visual + functional)?
-- [ ] Auto-sell / idle mechanics?
-- [ ] NPCs inside buildings?
-- [ ] Day/night affect shops?
+- [x] How many total buildings? → 15 building types total
+- [x] Slot-based or free placement? → Slot-based for MVP
+- [x] Building upgrade levels? → 3 levels MVP, 5 levels v1.0
+- [x] Auto-sell / idle mechanics? → v1.1+ feature
+- [x] NPCs inside buildings? → v1.1+ (cosmetic)
+- [x] Day/night affect shops? → No, always open

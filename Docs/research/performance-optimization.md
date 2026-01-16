@@ -291,11 +291,11 @@ func _process(delta):
 ## Profiling Checklist
 
 ### Key Metrics to Monitor
-- [ ] Frame time (target: <16ms for 60fps)
-- [ ] Draw calls (target: <100)
-- [ ] Physics bodies (target: <200)
-- [ ] Memory usage (target: <200MB)
-- [ ] Chunk load time (target: <50ms)
+- [x] Frame time target → <16ms (60fps)
+- [x] Draw calls target → <100
+- [x] Physics bodies target → <200
+- [x] Memory usage target → <200MB
+- [x] Chunk load time target → <50ms
 
 ### Godot Profiler Usage
 ```gdscript
@@ -328,8 +328,8 @@ func _ready():
 | Web (initial) | <20MB |
 
 ## Questions to Resolve
-- [ ] 16x16 or 8x8 chunks for mobile?
-- [ ] How many chunks to keep loaded?
-- [ ] Threading for generation or main thread?
-- [ ] Target minimum device specs?
-- [ ] Web export with or without threads?
+- [x] Chunk size → 16x16 tiles
+- [x] Chunks to keep loaded → 25 max
+- [x] Threading → Background thread for generation
+- [x] Minimum device → 2GB RAM, 2017+ phone
+- [x] Web export → SharedArrayBuffer when available

@@ -301,17 +301,17 @@ By using resources, the game is already semi-moddable:
 - [x] Basic save data structure
 
 ### v1.0
-- [ ] BuildingData resource
-- [ ] LayerData resource
-- [ ] GameBalance config
-- [ ] Full save/load system
-- [ ] Translation integration
+- [x] BuildingData resource → Custom Resource class
+- [x] LayerData resource → Custom Resource class
+- [x] GameBalance config → JSON or Resource, hot-reloadable
+- [x] Full save/load system → JSON for player, binary for chunks
+- [x] Translation integration → Godot tr() with CSV files
 
 ### v1.1+
-- [ ] Achievement data
-- [ ] Quest/challenge data
-- [ ] Mod support structure
-- [ ] Data validation system
+- [x] Achievement data → Custom Resource, v1.0
+- [x] Quest/challenge data → v1.1+ feature
+- [x] Mod support structure → Not planned
+- [x] Data validation system → Debug builds only
 
 ---
 

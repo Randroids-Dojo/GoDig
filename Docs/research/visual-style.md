@@ -280,8 +280,8 @@ assets/
 - Include variants for visual variety
 
 ## Questions to Resolve
-- [ ] 16x16 or 32x32 base tile size?
-- [ ] Fantasy glow effects or realistic?
-- [ ] Dynamic lighting or baked shadows?
-- [ ] How many animation frames per action?
-- [ ] Custom font or system font?
+- [x] 16x16 or 32x32 base tile size? → 16x16 pixels
+- [x] Fantasy glow effects or realistic? → Fantasy-lite (subtle glow on gems)
+- [x] Dynamic lighting or baked shadows? → Simple depth-based darkness + helmet light
+- [x] How many animation frames per action? → 4-6 frames per action
+- [x] Custom font or system font? → Pixel font (Noto Sans for localization)

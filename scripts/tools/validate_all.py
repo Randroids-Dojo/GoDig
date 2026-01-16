@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from component_validator import validate_all_components
 from pickaxe_validator import validate_pickaxe
 from animation_validator import analyze_frame_metrics, analyze_motion
+from proportions_validator import validate_proportions
 
 
 # Quality targets
@@ -24,6 +25,7 @@ TARGETS = {
     'pickaxe': 0.95,
     'animation': 0.90,
     'coherence': 1.00,
+    'proportions': 0.90,
 }
 
 
@@ -58,12 +60,22 @@ def run_all_validations():
         'motion': motion['motion_score'] if motion else 0,
         'pass': anim['overall'] >= TARGETS['animation'],
     }
-    
+
+    # Proportions validation
+    proportions = validate_proportions()
+    results['proportions'] = {
+        'score': proportions.overall,
+        'arm_ratio': proportions.arm_thickness_ratio,
+        'bounds_valid': proportions.bounds_valid,
+        'pass': proportions.overall >= TARGETS['proportions'] and proportions.bounds_valid,
+    }
+
     # Overall pass/fail
     results['overall_pass'] = all([
         results['components']['pass'],
         results['pickaxe']['pass'],
         results['animation']['pass'],
+        results['proportions']['pass'],
     ])
     
     return results
@@ -73,9 +85,10 @@ def print_quick_summary(results):
     """Print quick pass/fail summary."""
     status = "✅ PASS" if results['overall_pass'] else "❌ FAIL"
     print(f"\n{status} - All Validations")
-    print(f"  Components: {results['components']['average']:.2f} ({'✓' if results['components']['pass'] else '✗'})")
-    print(f"  Pickaxe:    {results['pickaxe']['score']:.2f} ({'✓' if results['pickaxe']['pass'] else '✗'})")
-    print(f"  Animation:  {results['animation']['consistency']:.2f} ({'✓' if results['animation']['pass'] else '✗'})")
+    print(f"  Components:  {results['components']['average']:.2f} ({'✓' if results['components']['pass'] else '✗'})")
+    print(f"  Pickaxe:     {results['pickaxe']['score']:.2f} ({'✓' if results['pickaxe']['pass'] else '✗'})")
+    print(f"  Animation:   {results['animation']['consistency']:.2f} ({'✓' if results['animation']['pass'] else '✗'})")
+    print(f"  Proportions: {results['proportions']['score']:.2f} ({'✓' if results['proportions']['pass'] else '✗'})")
 
 
 def print_full_report(results):
@@ -101,7 +114,13 @@ def print_full_report(results):
     print("\n🎬 ANIMATION")
     print(f"  Consistency: {results['animation']['consistency']:.2f}")
     print(f"  Motion: {results['animation']['motion']:.2f}")
-    
+
+    # Proportions
+    print("\n📐 PROPORTIONS")
+    print(f"  Score: {results['proportions']['score']:.2f}")
+    print(f"  Arm thickness ratio: {results['proportions']['arm_ratio']:.2f}")
+    print(f"  Bounds valid: {'✓' if results['proportions']['bounds_valid'] else '✗'}")
+
     # Overall
     print("\n" + "=" * 60)
     if results['overall_pass']:

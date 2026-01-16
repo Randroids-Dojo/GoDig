@@ -131,26 +131,22 @@ Core loop working: dig → collect → sell → upgrade → repeat
 All major research questions have been resolved. Remaining items are deferred to v1.0+.
 
 ## Stats (Updated: 2026-01-16)
-- Total tasks: 272
-- Completed: 92
-- Open: 180
-- Ready to work: 171
-- Research docs: 42 (complete)
+- Total tasks: 300
+- Completed: 105
+- Open: 195
+- Research docs: 48 (complete)
 - All research decisions resolved
 - All blocking decisions made
 
-### New Tasks Added This Session
-- v1.0: Haptic feedback system
-- v1.0: Colorblind mode
-- v1.0: One-hand play option
-- v1.0: Text size options
-- v1.0: Localization system (EN/ES/PT)
-- v1.0: Analytics integration (Firebase)
+### Traversal System Tasks
+- DEV: Ladder placement system (grid-based, validation)
+- DEV: Climbing state for player
+- DEV: Traversal item persistence
+- DEV: Ladder quick-slot HUD
+- v1.0: Placeable ladders
 - v1.0: Rope item
-- v1.0: Fossil spawning system
-- v1.1+: Daily rewards system
-- v1.1+: Grappling hook
-- DEV: Squash/stretch on landing
+- v1.0: Grappling hook tool
+- v1.0: Elevator building
 
 ## Key Design Decisions Made
 1. **No fuel mechanic** - Inventory pressure creates return-to-surface tension

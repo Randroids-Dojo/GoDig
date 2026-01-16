@@ -99,6 +99,13 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 | [Art Style Direction](art-style-direction.md) | ✅ Done | 16x16 pixel art, layer palettes |
 | [Sound Design (Detailed)](sound-design-detailed.md) | ✅ Done | Material SFX, dynamic music, ambient |
 
+### Launch & Operations
+| Document | Status | Key Decisions |
+|----------|--------|---------------|
+| [Testing & QA Strategy](testing-qa-strategy.md) | ✅ Done | GdUnit4, PlayGodot integration, beta testing |
+| [Analytics & Metrics](analytics-metrics.md) | ✅ Done | Firebase, key KPIs, privacy-first |
+| [App Store Strategy](app-store-strategy.md) | ✅ Done | ASO, screenshots, freemium model |
+
 ## Open Design Questions
 
 ### Core Gameplay

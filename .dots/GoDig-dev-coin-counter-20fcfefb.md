@@ -1,0 +1,9 @@
+---
+title: "DEV: Coin counter HUD"
+status: open
+priority: 2
+issue-type: task
+created-at: "2026-01-16T00:39:28.305073-06:00"
+---
+
+Display current coins

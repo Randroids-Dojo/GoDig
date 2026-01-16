@@ -76,12 +76,19 @@ Research documentation for an endless 2D mining game built in Godot 4 for mobile
 | [Upgrade Paths](upgrade-paths.md) | ✅ Done | Tool tiers, equipment slots, building levels |
 | [Accessibility Features](accessibility-features.md) | ✅ Done | Colorblind modes, one-hand play, visual cues |
 
+### Decisions & Social
+| Document | Status | Key Decisions |
+|----------|--------|---------------|
+| [Dig Upward Decision](dig-upward-decision.md) | ✅ Done | No at start, unlock Drill at 500m |
+| [Notifications & Engagement](notifications-engagement.md) | ✅ Done | Ethical hooks, daily rewards, opt-in |
+| [Social Features](social-features.md) | ✅ Done | Leaderboards, achievements, v1.1+ priority |
+
 ## Open Design Questions
 
 ### Core Gameplay
 - [ ] Fuel/energy mechanic or inventory-pressure only?
 - [ ] How punishing is "getting stuck"?
-- [ ] Can player dig upward? (Start no, unlock later?)
+- [x] Can player dig upward? → No at start, Drill unlocks at 500m
 - [ ] Combat/enemies in the mine?
 
 ### Economy

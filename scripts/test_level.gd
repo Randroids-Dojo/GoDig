@@ -5,6 +5,7 @@ extends Node2D
 @onready var dirt_grid: Node2D = $DirtGrid
 @onready var player: CharacterBody2D = $Player
 @onready var depth_label: Label = $UI/DepthLabel
+@onready var touch_controls: Control = $UI/TouchControls
 
 
 func _ready() -> void:
@@ -13,6 +14,10 @@ func _ready() -> void:
 
 	# Initialize the dirt grid with the player reference
 	dirt_grid.initialize(player, GameManager.SURFACE_ROW)
+
+	# Connect touch controls to player
+	touch_controls.direction_pressed.connect(player.set_touch_direction)
+	touch_controls.direction_released.connect(player.clear_touch_direction)
 
 	# Start the game
 	GameManager.start_game()

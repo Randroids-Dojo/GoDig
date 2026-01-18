@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cw5k8h7j3m8yq"]
+[gd_scene load_steps=3 format=3 uid="uid://cw5k8h7j3m8yq"]
 
 [ext_resource type="Script" path="res://scripts/ui/touch_controls.gd" id="1_x8k7j"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSans-Regular.ttf" id="2_font"]
 
 [node name="TouchControls" type="Control"]
 layout_mode = 3
@@ -22,6 +23,7 @@ offset_top = -180.0
 offset_right = 200.0
 offset_bottom = -40.0
 grow_vertical = 0
+theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 48
 text = "◀"
 
@@ -35,6 +37,7 @@ offset_top = -180.0
 offset_right = 680.0
 offset_bottom = -40.0
 grow_vertical = 0
+theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 48
 text = "▶"
 
@@ -48,5 +51,6 @@ offset_top = -180.0
 offset_right = 460.0
 offset_bottom = -40.0
 grow_vertical = 0
+theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 48
 text = "▼"

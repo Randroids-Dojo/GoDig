@@ -24,6 +24,7 @@ PATHS = {
     "left_button": "/root/Main/UI/TouchControls/LeftButton",
     "right_button": "/root/Main/UI/TouchControls/RightButton",
     "down_button": "/root/Main/UI/TouchControls/DownButton",
+    "miner_sprite": "/root/Main/CenterContainer/VBoxContainer/SpriteContainer/MinerSprite",
 }
 
 

@@ -137,6 +137,9 @@ func _unload_chunk(chunk_pos: Vector2i) -> void:
 				to_remove.append(grid_pos)
 
 	for pos in to_remove:
+		# Clean up ore map entry when unloading
+		if _ore_map.has(pos):
+			_ore_map.erase(pos)
 		_release(pos)
 
 

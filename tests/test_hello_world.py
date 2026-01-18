@@ -536,9 +536,6 @@ async def test_pause_menu_has_pending_action(game):
     pending = await game.get_property(PATHS["pause_menu"], "_pending_action")
     assert pending == "", f"Pending action should start empty, got '{pending}'"
 
-<<<<<<< HEAD
-
-
 
 # =============================================================================
 # INFINITE TERRAIN TESTS

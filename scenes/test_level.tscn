@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://test_level_001"]
+[gd_scene load_steps=8 format=3 uid="uid://test_level_001"]
 
 [ext_resource type="Script" path="res://scripts/test_level.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/world/dirt_grid.gd" id="2_grid"]
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="3_player"]
 [ext_resource type="Script" path="res://scripts/camera/game_camera.gd" id="4_camera"]
 [ext_resource type="SpriteFrames" path="res://resources/sprites/miner_animation.tres" id="5_anim"]
+[ext_resource type="PackedScene" uid="uid://cw5k8h7j3m8yq" path="res://scenes/ui/touch_controls.tscn" id="6_touch"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(120, 120)
@@ -46,5 +47,7 @@ offset_right = 200.0
 offset_bottom = 50.0
 theme_override_font_sizes/font_size = 24
 text = "Depth: 0"
+
+[node name="TouchControls" parent="UI" instance=ExtResource("6_touch")]
 
 [connection signal="depth_changed" from="Player" to="." method="_on_player_depth_changed"]

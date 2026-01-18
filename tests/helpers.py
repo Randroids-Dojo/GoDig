@@ -20,6 +20,10 @@ PATHS = {
     "camera": "/root/Main/Player/Camera2D",
     "depth_label": "/root/Main/UI/DepthLabel",
     "game_manager": "/root/GameManager",
+    "touch_controls": "/root/Main/UI/TouchControls",
+    "left_button": "/root/Main/UI/TouchControls/LeftButton",
+    "right_button": "/root/Main/UI/TouchControls/RightButton",
+    "down_button": "/root/Main/UI/TouchControls/DownButton",
 }
 
 

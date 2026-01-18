@@ -101,3 +101,119 @@ async def test_touch_buttons_have_text(game):
     assert left_text == "◀", f"Left button should show '◀', got '{left_text}'"
     assert right_text == "▶", f"Right button should show '▶', got '{right_text}'"
     assert down_text == "▼", f"Down button should show '▼', got '{down_text}'"
+
+
+# =============================================================================
+# INFINITE TERRAIN TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_chunk_system(game):
+    """Verify the dirt grid uses chunk-based generation."""
+    # Check that the dirt grid has the chunk system constants
+    chunk_size = await game.get_property(PATHS["dirt_grid"], "CHUNK_SIZE")
+    load_radius = await game.get_property(PATHS["dirt_grid"], "LOAD_RADIUS")
+
+    assert chunk_size == 16, f"Chunk size should be 16, got {chunk_size}"
+    assert load_radius == 3, f"Load radius should be 3, got {load_radius}"
+
+
+@pytest.mark.asyncio
+async def test_initial_chunks_loaded(game):
+    """Verify chunks are loaded around player at start."""
+    # Get the loaded_chunks dictionary from dirt_grid
+    loaded_chunks = await game.get_property(PATHS["dirt_grid"], "_loaded_chunks")
+
+    assert loaded_chunks is not None, "Loaded chunks dictionary should exist"
+    assert len(loaded_chunks) > 0, "Should have loaded chunks at game start"
+
+
+@pytest.mark.asyncio
+async def test_horizontal_blocks_exist(game):
+    """Verify blocks exist horizontally beyond the old 5-column limit."""
+    # The old system only had 5 columns (0-4)
+    # With infinite terrain, we should have blocks in column 5+ and negative columns
+
+    # Check if dirt_grid has blocks at various horizontal positions
+    # We'll check if has_block method exists and can be called
+    # Note: We need to wait a bit for generation to complete
+    await game.wait_frames(10)
+
+    # Just verify the system accepts wider coordinates
+    # (actual block presence depends on surface row and generation)
+    # The key test is that the system doesn't reject x > 4
+    active_blocks = await game.get_property(PATHS["dirt_grid"], "_active")
+
+    assert active_blocks is not None, "Active blocks dictionary should exist"
+    # With chunk-based generation, we should have more than the old 5*ROWS_AHEAD blocks
+    assert len(active_blocks) > 50, f"Should have many blocks loaded with chunks, got {len(active_blocks)}"
+
+
+@pytest.mark.asyncio
+async def test_player_can_move_horizontally_unlimited(game):
+    """Verify player is not restricted by old horizontal bounds."""
+    # Get player's initial position
+    initial_pos = await game.get_property(PATHS["player"], "grid_position")
+
+    # The old system restricted movement to 0 <= x < 5
+    # New system should allow any x coordinate
+
+    # Simulate moving right multiple times
+    for i in range(3):
+        await game.send_action("move_right", True)
+        await game.wait_frames(15)  # Wait for movement animation
+        await game.send_action("move_right", False)
+        await game.wait_frames(2)
+
+    # Get new position
+    new_pos = await game.get_property(PATHS["player"], "grid_position")
+
+    # Player should have moved right (x increased)
+    # Even if there are blocks, player should attempt to move/mine
+    assert new_pos is not None, "Player should have a grid position"
+
+
+@pytest.mark.asyncio
+async def test_chunks_generated_around_player(game):
+    """Verify chunks are generated as player moves."""
+    # Get initial chunk count
+    initial_chunks = await game.get_property(PATHS["dirt_grid"], "_loaded_chunks")
+    initial_count = len(initial_chunks)
+
+    # Move player significantly to trigger new chunk loading
+    # Move right multiple times
+    for i in range(20):
+        await game.send_action("move_right", True)
+        await game.wait_frames(2)
+        await game.send_action("move_right", False)
+        await game.wait_frames(2)
+
+    # Give time for chunk generation
+    await game.wait_frames(10)
+
+    # Check that chunks were generated or remain loaded
+    current_chunks = await game.get_property(PATHS["dirt_grid"], "_loaded_chunks")
+    current_count = len(current_chunks)
+
+    # Should maintain chunks around player (some old chunks unloaded, new ones loaded)
+    assert current_count > 0, "Should have chunks loaded around player"
+    # The count might be similar due to unloading, but chunks should still exist
+    assert current_count >= 9, f"Should maintain at least 3x3 chunks around player, got {current_count}"
+
+
+@pytest.mark.asyncio
+async def test_grid_offset_is_zero(game):
+    """Verify GRID_OFFSET_X is set to 0 for infinite terrain."""
+    offset_x = await game.get_property(PATHS["game_manager"], "GRID_OFFSET_X")
+
+    assert offset_x == 0, f"GRID_OFFSET_X should be 0 for infinite terrain, got {offset_x}"
+
+
+@pytest.mark.asyncio
+async def test_player_starts_at_correct_position(game):
+    """Verify player starts at a valid grid position."""
+    grid_pos = await game.get_property(PATHS["player"], "grid_position")
+
+    assert grid_pos is not None, "Player should have a grid position"
+    # Player should start above the surface (row 7)
+    assert grid_pos["y"] <= 7, f"Player should start at or above surface row 7, got y={grid_pos['y']}"

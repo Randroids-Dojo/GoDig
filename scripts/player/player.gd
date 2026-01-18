@@ -12,6 +12,7 @@ const BLOCK_SIZE := 128
 const MOVE_DURATION := 0.15  # Seconds to move one block
 
 var dirt_grid: Node2D  # Set by test_level.gd
+var touch_direction: Vector2i = Vector2i.ZERO  # Direction from touch controls
 
 var current_state: State = State.IDLE
 var grid_position: Vector2i  # Player's grid cell (1x1 now)
@@ -53,6 +54,11 @@ func _handle_mining_input() -> void:
 
 
 func _get_input_direction() -> Vector2i:
+	# Check touch controls first
+	if touch_direction != Vector2i.ZERO:
+		return touch_direction
+
+	# Fall back to keyboard input
 	if Input.is_action_pressed("move_down"):
 		return Vector2i(0, 1)
 	elif Input.is_action_pressed("move_left"):
@@ -148,3 +154,13 @@ func _world_to_grid(world_pos: Vector2) -> Vector2i:
 		int((world_pos.x - GameManager.GRID_OFFSET_X) / BLOCK_SIZE),
 		int(world_pos.y / BLOCK_SIZE)
 	)
+
+
+## Called by TouchControls when a direction button is pressed
+func set_touch_direction(direction: Vector2i) -> void:
+	touch_direction = direction
+
+
+## Called by TouchControls when all direction buttons are released
+func clear_touch_direction() -> void:
+	touch_direction = Vector2i.ZERO

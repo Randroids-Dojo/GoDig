@@ -4,7 +4,7 @@ status: open
 priority: 2
 issue-type: task
 created-at: "2026-01-19T00:53:02.021108-06:00"
-blocks:
+after:
   - GoDig-implement-fall-damage-bba5eee9
 ---
 

@@ -303,3 +303,90 @@ async def test_game_manager_has_depth_milestones(game):
     assert len(milestones) > 0, "DEPTH_MILESTONES should not be empty"
     assert 10 in milestones, "DEPTH_MILESTONES should include 10m"
     assert 100 in milestones, "DEPTH_MILESTONES should include 100m"
+
+
+# =============================================================================
+# SETTINGS MANAGER TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_exists(game):
+    """Verify the SettingsManager autoload exists."""
+    exists = await game.node_exists(PATHS["settings_manager"])
+    assert exists, "SettingsManager autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_has_text_size_level(game):
+    """Verify SettingsManager has text_size_level property with default value."""
+    text_size_level = await game.get_property(PATHS["settings_manager"], "text_size_level")
+    assert text_size_level is not None, "SettingsManager should have text_size_level property"
+    assert text_size_level == 1, f"text_size_level should default to 1, got {text_size_level}"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_has_text_scales(game):
+    """Verify SettingsManager has TEXT_SCALES constant."""
+    text_scales = await game.get_property(PATHS["settings_manager"], "TEXT_SCALES")
+    assert text_scales is not None, "SettingsManager should have TEXT_SCALES constant"
+    assert len(text_scales) == 5, f"TEXT_SCALES should have 5 options, got {len(text_scales)}"
+    assert 1.0 in text_scales, "TEXT_SCALES should include 1.0 (normal)"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_has_colorblind_mode(game):
+    """Verify SettingsManager has colorblind_mode property."""
+    colorblind_mode = await game.get_property(PATHS["settings_manager"], "colorblind_mode")
+    assert colorblind_mode is not None, "SettingsManager should have colorblind_mode property"
+    # ColorblindMode.OFF = 0
+    assert colorblind_mode == 0, f"colorblind_mode should default to OFF (0), got {colorblind_mode}"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_has_hand_mode(game):
+    """Verify SettingsManager has hand_mode property."""
+    hand_mode = await game.get_property(PATHS["settings_manager"], "hand_mode")
+    assert hand_mode is not None, "SettingsManager should have hand_mode property"
+    # HandMode.STANDARD = 0
+    assert hand_mode == 0, f"hand_mode should default to STANDARD (0), got {hand_mode}"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_has_haptics_enabled(game):
+    """Verify SettingsManager has haptics_enabled property."""
+    haptics_enabled = await game.get_property(PATHS["settings_manager"], "haptics_enabled")
+    assert haptics_enabled is not None, "SettingsManager should have haptics_enabled property"
+    assert haptics_enabled is True, f"haptics_enabled should default to True, got {haptics_enabled}"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_has_reduced_motion(game):
+    """Verify SettingsManager has reduced_motion property."""
+    reduced_motion = await game.get_property(PATHS["settings_manager"], "reduced_motion")
+    assert reduced_motion is not None, "SettingsManager should have reduced_motion property"
+    assert reduced_motion is False, f"reduced_motion should default to False, got {reduced_motion}"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_has_audio_volumes(game):
+    """Verify SettingsManager has audio volume properties."""
+    master = await game.get_property(PATHS["settings_manager"], "master_volume")
+    sfx = await game.get_property(PATHS["settings_manager"], "sfx_volume")
+    music = await game.get_property(PATHS["settings_manager"], "music_volume")
+
+    assert master is not None, "SettingsManager should have master_volume property"
+    assert sfx is not None, "SettingsManager should have sfx_volume property"
+    assert music is not None, "SettingsManager should have music_volume property"
+
+    assert master == 1.0, f"master_volume should default to 1.0, got {master}"
+    assert sfx == 1.0, f"sfx_volume should default to 1.0, got {sfx}"
+    assert music == 1.0, f"music_volume should default to 1.0, got {music}"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_has_settings_path(game):
+    """Verify SettingsManager has SETTINGS_PATH constant."""
+    settings_path = await game.get_property(PATHS["settings_manager"], "SETTINGS_PATH")
+    assert settings_path is not None, "SettingsManager should have SETTINGS_PATH constant"
+    assert settings_path == "user://settings.cfg", f"SETTINGS_PATH should be 'user://settings.cfg', got '{settings_path}'"

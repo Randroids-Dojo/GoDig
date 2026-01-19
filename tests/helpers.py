@@ -26,6 +26,7 @@ PATHS = {
     "data_registry": "/root/DataRegistry",
     "inventory_manager": "/root/InventoryManager",
     "save_manager": "/root/SaveManager",
+    "settings_manager": "/root/SettingsManager",
     "platform_detector": "/root/PlatformDetector",
     "touch_controls": "/root/Main/UI/TouchControls",
     "virtual_joystick": "/root/Main/UI/TouchControls/VirtualJoystick",

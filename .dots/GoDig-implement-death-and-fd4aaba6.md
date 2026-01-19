@@ -4,8 +4,9 @@ status: open
 priority: 1
 issue-type: task
 created-at: "2026-01-19T00:52:47.235475-06:00"
-blocks:
+after:
   - GoDig-implement-player-hp-4f3e9af1
+  - GoDig-dev-surface-area-379633b2
 ---
 
 ## Description

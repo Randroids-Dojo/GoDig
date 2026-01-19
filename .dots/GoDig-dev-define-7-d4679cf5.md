@@ -4,8 +4,6 @@ status: open
 priority: 2
 issue-type: task
 created-at: "2026-01-16T02:00:39.013590-06:00"
-after:
-  - GoDig-dev-layer-depth-89c9d8ac
 ---
 
 ## Description

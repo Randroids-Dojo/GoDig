@@ -4,8 +4,6 @@ status: open
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:39:51.708683-06:00"
-after:
-  - GoDig-decision-fantasy-vs-cfeb07a3
 ---
 
 ## Description

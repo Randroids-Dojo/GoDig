@@ -92,6 +92,10 @@ func _apply_chunk_to_tilemap(chunk: SurfaceChunk) -> void:
 	if ground_tilemap == null:
 		return
 
+	# Skip if no tileset is configured
+	if ground_tilemap.tile_set == null:
+		return
+
 	var base_x := chunk.chunk_x * CHUNK_WIDTH
 
 	for local_pos in chunk.tiles.keys():
@@ -107,7 +111,7 @@ func _unload_surface_chunk(chunk_x: int) -> void:
 
 	var chunk: SurfaceChunk = loaded_chunks[chunk_x]
 
-	if ground_tilemap != null:
+	if ground_tilemap != null and ground_tilemap.tile_set != null:
 		var base_x := chunk_x * CHUNK_WIDTH
 
 		# Clear tiles from TileMap

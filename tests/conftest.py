@@ -168,8 +168,8 @@ def get_playgodot_port() -> int:
 
 
 @pytest_asyncio.fixture
-async def game():
-    """Launch the game and yield the Godot connection."""
+async def main_menu():
+    """Launch the game on the main menu and yield the Godot connection."""
     port = get_playgodot_port()
 
     async with Godot.launch(
@@ -180,6 +180,34 @@ async def game():
         godot_path=GODOT_PATH,
         port=port,
     ) as g:
-        # Wait for the main scene to be ready
-        await g.wait_for_node("/root/Main")
+        # Wait for the main menu to be ready
+        await g.wait_for_node("/root/MainMenu")
+        yield g
+
+
+@pytest_asyncio.fixture
+async def game():
+    """Launch the game and navigate directly to the game scene.
+
+    This fixture bypasses the main menu for faster test setup.
+    Main menu navigation is tested separately in test_main_menu.py.
+    """
+    port = get_playgodot_port()
+
+    async with Godot.launch(
+        str(GODOT_PROJECT),
+        headless=True,
+        resolution=(720, 1280),  # Match game's 9:16 portrait aspect ratio
+        timeout=15.0,
+        godot_path=GODOT_PATH,
+        port=port,
+    ) as g:
+        # Wait for the main menu to load first
+        await g.wait_for_node("/root/MainMenu")
+
+        # Change directly to the game scene for testing
+        await g.change_scene("res://scenes/test_level.tscn")
+
+        # Wait for the main game scene to load
+        await g.wait_for_node("/root/Main", timeout=10.0)
         yield g

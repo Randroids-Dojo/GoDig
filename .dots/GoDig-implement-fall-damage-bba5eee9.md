@@ -1,12 +1,17 @@
 ---
 title: "implement: Fall damage calculation"
-status: open
+status: done
 priority: 1
 issue-type: task
 created-at: "2026-01-19T00:52:30.847520-06:00"
-after:
-  - GoDig-implement-player-hp-4f3e9af1
+completed-at: "2026-01-19T13:00:00-06:00"
 ---
+
+**NOTE: ALREADY IMPLEMENTED** - Fall damage system is fully implemented in `player.gd` with:
+- Fall tracking via `_is_tracking_fall` and `_fall_start_y`
+- Damage calculation in `_apply_fall_damage()`
+- Wall-slide reset of fall tracking
+- Integration with HP system
 
 ## Description
 

@@ -7,7 +7,6 @@ created-at: "2026-01-19T00:52:47.235475-06:00"
 after:
   - GoDig-dev-surface-area-379633b2
   - GoDig-dev-player-spawn-b629056e
-  - GoDig-implement-inventorymanager-3439261e
 ---
 
 ## Description
@@ -22,7 +21,7 @@ When HP reaches 0, player dies, loses some inventory/coins based on depth, and r
 
 - `scripts/player/player.gd` - Add `play_death_animation()` method (HP system already exists with die(), revive(), player_died signal)
 - `scripts/autoload/game_manager.gd` - Coordinate death/respawn flow, death penalty calc, add GameState enum
-- `scripts/autoload/inventory_manager.gd` - Needs `get_total_item_count()` and `remove_random_item()` (separate task: GoDig-implement-inventorymanager-3439261e)
+- `scripts/autoload/inventory_manager.gd` - Uses `get_total_item_count()` and `remove_random_item()` (ALREADY IMPLEMENTED)
 - `scenes/ui/death_screen.tscn` - NEW: Death overlay scene
 - `scripts/ui/death_screen.gd` - NEW: Show death message and respawn
 
@@ -33,9 +32,10 @@ When HP reaches 0, player dies, loses some inventory/coins based on depth, and r
 - `take_damage()`, `die()`, `revive()` methods exist
 - `hp_changed`, `player_died` signals exist
 
-Before implementing, verify these methods exist in InventoryManager:
-- `get_total_item_count()` - Currently MISSING, must be added (see GoDig-implement-inventorymanager-3439261e)
-- `remove_random_item()` - Currently MISSING, must be added (see GoDig-implement-inventorymanager-3439261e)
+**InventoryManager Methods** - ALREADY IMPLEMENTED in `inventory_manager.gd`:
+- `get_total_item_count()` - Returns total count of all items
+- `remove_random_item()` - Removes one random item from inventory
+- `remove_random_items(count)` - Removes multiple random items
 
 GameManager also needs:
 - `GameState` enum (MENU, PLAYING, SHOPPING, PAUSED, DEAD)
@@ -109,45 +109,6 @@ func apply_inventory_loss(percent: float):
 
     for i in range(items_to_remove):
         InventoryManager.remove_random_item()
-```
-
-### NEW: Required InventoryManager Methods
-
-These methods need to be added to `inventory_manager.gd`:
-
-```gdscript
-## Get total count of all items across all slots
-func get_total_item_count() -> int:
-    var total := 0
-    for slot in slots:
-        if not slot.is_empty():
-            total += slot.quantity
-    return total
-
-
-## Remove one random item from inventory (for death penalty)
-## Removes from the slot with the lowest-value item first
-func remove_random_item() -> bool:
-    # Find all non-empty slots
-    var occupied: Array = []
-    for i in range(slots.size()):
-        if not slots[i].is_empty():
-            occupied.append(i)
-
-    if occupied.is_empty():
-        return false
-
-    # Pick a random slot
-    var target_idx: int = occupied[randi() % occupied.size()]
-    var slot = slots[target_idx]
-
-    # Remove one item
-    slot.quantity -= 1
-    if slot.quantity <= 0:
-        slot.clear()
-
-    inventory_changed.emit()
-    return true
 ```
 
 ### Death Animation (Simple)

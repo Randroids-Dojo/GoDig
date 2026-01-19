@@ -1,9 +1,11 @@
 ---
 title: "implement: Player state machine tests"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-18T23:33:11.237293-06:00"
+created-at: "\"2026-01-18T23:33:11.237293-06:00\""
+closed-at: "2026-01-19T11:38:45.295363-06:00"
+close-reason: Added 19 player state machine tests - CI passing
 ---
 
 ## Description

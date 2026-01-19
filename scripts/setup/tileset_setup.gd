@@ -2,53 +2,64 @@ class_name TileSetSetup
 ## Helper class to programmatically configure the terrain TileSet.
 ## Run this in the editor or during game initialization.
 
-## Tile atlas coordinates mapping to TileTypes.Type
-const ATLAS_COORDS := {
-	# Base terrain (Row 0)
-	TileTypes.Type.DIRT: Vector2i(0, 0),
-	TileTypes.Type.CLAY: Vector2i(1, 0),
-	TileTypes.Type.STONE: Vector2i(2, 0),
-	TileTypes.Type.GRANITE: Vector2i(3, 0),
-	TileTypes.Type.BASALT: Vector2i(4, 0),
-	TileTypes.Type.OBSIDIAN: Vector2i(5, 0),
+## Static dictionary for atlas coords - initialized lazily to avoid class load order issues
+static var _atlas_coords: Dictionary = {}
+static var _coords_to_type: Dictionary = {}
 
-	# Ores (Row 1)
-	TileTypes.Type.COAL: Vector2i(0, 1),
-	TileTypes.Type.COPPER: Vector2i(1, 1),
-	TileTypes.Type.IRON: Vector2i(2, 1),
-	TileTypes.Type.SILVER: Vector2i(3, 1),
-	TileTypes.Type.GOLD: Vector2i(4, 1),
-	TileTypes.Type.DIAMOND: Vector2i(5, 1),
 
-	# Special (Row 2)
-	TileTypes.Type.LADDER: Vector2i(0, 2),
-	# AIR has no tile (1, 2 is left empty)
-	TileTypes.Type.RUBY: Vector2i(2, 2),
-	TileTypes.Type.EMERALD: Vector2i(3, 2),
-	TileTypes.Type.SAPPHIRE: Vector2i(4, 2),
-	TileTypes.Type.AMETHYST: Vector2i(5, 2),
-}
+## Get the atlas coords dictionary (initializes on first access)
+static func get_atlas_coords_map() -> Dictionary:
+	if _atlas_coords.is_empty():
+		_init_atlas_coords()
+	return _atlas_coords
 
-## Reverse lookup: atlas coords to tile type
-static var coords_to_type: Dictionary = {}
+
+## Initialize atlas coordinates mapping
+static func _init_atlas_coords() -> void:
+	_atlas_coords = {
+		# Base terrain (Row 0)
+		TileTypes.Type.DIRT: Vector2i(0, 0),
+		TileTypes.Type.CLAY: Vector2i(1, 0),
+		TileTypes.Type.STONE: Vector2i(2, 0),
+		TileTypes.Type.GRANITE: Vector2i(3, 0),
+		TileTypes.Type.BASALT: Vector2i(4, 0),
+		TileTypes.Type.OBSIDIAN: Vector2i(5, 0),
+
+		# Ores (Row 1)
+		TileTypes.Type.COAL: Vector2i(0, 1),
+		TileTypes.Type.COPPER: Vector2i(1, 1),
+		TileTypes.Type.IRON: Vector2i(2, 1),
+		TileTypes.Type.SILVER: Vector2i(3, 1),
+		TileTypes.Type.GOLD: Vector2i(4, 1),
+		TileTypes.Type.DIAMOND: Vector2i(5, 1),
+
+		# Special (Row 2)
+		TileTypes.Type.LADDER: Vector2i(0, 2),
+		# AIR has no tile (1, 2 is left empty)
+		TileTypes.Type.RUBY: Vector2i(2, 2),
+		TileTypes.Type.EMERALD: Vector2i(3, 2),
+		TileTypes.Type.SAPPHIRE: Vector2i(4, 2),
+		TileTypes.Type.AMETHYST: Vector2i(5, 2),
+	}
 
 
 ## Initialize the reverse lookup table
 static func _init_coords_lookup() -> void:
-	if coords_to_type.is_empty():
-		for tile_type in ATLAS_COORDS:
-			coords_to_type[ATLAS_COORDS[tile_type]] = tile_type
+	if _coords_to_type.is_empty():
+		var atlas_coords := get_atlas_coords_map()
+		for tile_type in atlas_coords:
+			_coords_to_type[atlas_coords[tile_type]] = tile_type
 
 
 ## Get atlas coordinates for a tile type
 static func get_atlas_coords(tile_type: int) -> Vector2i:
-	return ATLAS_COORDS.get(tile_type, Vector2i(0, 0))
+	return get_atlas_coords_map().get(tile_type, Vector2i(0, 0))
 
 
 ## Get tile type from atlas coordinates
 static func get_tile_type(coords: Vector2i) -> int:
 	_init_coords_lookup()
-	return coords_to_type.get(coords, TileTypes.Type.DIRT)
+	return _coords_to_type.get(coords, TileTypes.Type.DIRT)
 
 
 ## Create and configure a new TileSet resource
@@ -83,11 +94,12 @@ static func create_tileset() -> TileSet:
 	var source_id := tileset.add_source(atlas)
 
 	# Configure each tile
-	for tile_type in ATLAS_COORDS:
-		var coords := ATLAS_COORDS[tile_type]
+	var atlas_coords := get_atlas_coords_map()
+	for tile_type in atlas_coords:
+		var coords: Vector2i = atlas_coords[tile_type]
 		_setup_tile(atlas, coords, tile_type)
 
-	print("TileSet created with ", ATLAS_COORDS.size(), " tiles")
+	print("TileSet created with ", atlas_coords.size(), " tiles")
 	return tileset
 
 

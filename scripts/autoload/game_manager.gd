@@ -9,6 +9,7 @@ const TileSetSetupScript = preload("res://scripts/setup/tileset_setup.gd")
 signal game_started
 signal game_over
 signal depth_updated(depth: int)
+signal depth_milestone_reached(depth: int)
 signal coins_changed(new_amount: int)
 signal coins_added(amount: int)
 signal coins_spent(amount: int)
@@ -26,6 +27,12 @@ const GRID_WIDTH := 999999
 var is_running: bool = false
 var current_depth: int = 0
 var coins: int = 0
+
+## Track reached depth milestones for one-time triggers
+var _reached_milestones: Array[int] = []
+
+## Depth milestones that trigger auto-save (first time only)
+const DEPTH_MILESTONES := [10, 25, 50, 100, 150, 200, 300, 500, 750, 1000]
 
 ## Cached terrain tileset (loaded on ready)
 var terrain_tileset: TileSet = null
@@ -47,6 +54,7 @@ func start_game() -> void:
 	is_running = true
 	current_depth = 0
 	coins = 0
+	reset_milestones()
 	game_started.emit()
 	coins_changed.emit(coins)
 	print("[GameManager] Game started")
@@ -59,8 +67,13 @@ func end_game() -> void:
 
 
 func update_depth(depth: int) -> void:
+	var old_depth := current_depth
 	current_depth = depth
 	depth_updated.emit(depth)
+
+	# Check for depth milestones (only trigger once per milestone)
+	if depth > old_depth:
+		_check_depth_milestones(depth)
 
 
 # Utility functions for grid coordinate conversion
@@ -128,3 +141,36 @@ func get_terrain_tileset() -> TileSet:
 	if terrain_tileset == null:
 		_init_tileset()
 	return terrain_tileset
+
+
+# ============================================
+# DEPTH MILESTONES
+# ============================================
+
+## Check if player has reached a new depth milestone
+func _check_depth_milestones(depth: int) -> void:
+	for milestone in DEPTH_MILESTONES:
+		if depth >= milestone and milestone not in _reached_milestones:
+			_reached_milestones.append(milestone)
+			depth_milestone_reached.emit(milestone)
+			print("[GameManager] Depth milestone reached: %dm" % milestone)
+			# Auto-save on milestone
+			SaveManager.save_game()
+
+
+## Reset milestones (for new game)
+func reset_milestones() -> void:
+	_reached_milestones.clear()
+
+
+## Set reached milestones (for save/load)
+func set_reached_milestones(milestones: Array) -> void:
+	_reached_milestones.clear()
+	for m in milestones:
+		if m is int:
+			_reached_milestones.append(m)
+
+
+## Get reached milestones (for save/load)
+func get_reached_milestones() -> Array[int]:
+	return _reached_milestones

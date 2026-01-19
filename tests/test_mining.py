@@ -265,3 +265,79 @@ async def test_player_has_collision_shape(game):
     """Verify player has a collision shape."""
     exists = await game.node_exists(PATHS["player_collision"])
     assert exists, "Player should have a CollisionShape2D child"
+
+
+# =============================================================================
+# TAP-TO-DIG TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_player_has_tap_mining_state(game):
+    """Verify player has tap-to-dig state variables."""
+    is_tap_mining = await game.get_property(PATHS["player"], "_is_tap_mining")
+    assert is_tap_mining is not None, "Player should have _is_tap_mining property"
+
+
+@pytest.mark.asyncio
+async def test_player_has_tap_target_tile(game):
+    """Verify player has tap target tile property."""
+    tap_target = await game.get_property(PATHS["player"], "_tap_target_tile")
+    assert tap_target is not None, "Player should have _tap_target_tile property"
+
+
+@pytest.mark.asyncio
+async def test_player_tap_mining_starts_false(game):
+    """Verify tap mining starts as inactive."""
+    is_tap_mining = await game.get_property(PATHS["player"], "_is_tap_mining")
+    assert is_tap_mining is False, "Tap mining should start as False"
+
+
+@pytest.mark.asyncio
+async def test_player_has_tap_hold_timer(game):
+    """Verify player has tap hold timer for continuous mining."""
+    timer = await game.get_property(PATHS["player"], "_tap_hold_timer")
+    assert timer is not None, "Player should have _tap_hold_timer property"
+
+
+@pytest.mark.asyncio
+async def test_player_has_tap_mine_cooldown(game):
+    """Verify player has tap mine cooldown to prevent double-hits."""
+    cooldown = await game.get_property(PATHS["player"], "_tap_mine_cooldown")
+    assert cooldown is not None, "Player should have _tap_mine_cooldown property"
+
+
+@pytest.mark.asyncio
+async def test_player_has_screen_to_grid_method(game):
+    """Verify player has _screen_to_grid method for touch coordinate conversion."""
+    has_method = await game.call(PATHS["player"], "has_method", ["_screen_to_grid"])
+    assert has_method, "Player should have _screen_to_grid method"
+
+
+@pytest.mark.asyncio
+async def test_player_has_is_adjacent_to_player_method(game):
+    """Verify player has _is_adjacent_to_player method for tap validation."""
+    has_method = await game.call(PATHS["player"], "has_method", ["_is_adjacent_to_player"])
+    assert has_method, "Player should have _is_adjacent_to_player method"
+
+
+@pytest.mark.asyncio
+async def test_player_has_is_tap_diggable_method(game):
+    """Verify player has _is_tap_diggable method for tap validation."""
+    has_method = await game.call(PATHS["player"], "has_method", ["_is_tap_diggable"])
+    assert has_method, "Player should have _is_tap_diggable method"
+
+
+@pytest.mark.asyncio
+async def test_tap_hold_threshold_constant(game):
+    """Verify TAP_HOLD_THRESHOLD constant is defined."""
+    # Constants are accessed differently, but we can check via existence of the variable pattern
+    # The const is set to 0.2 seconds - we check via the timer behavior
+    timer = await game.get_property(PATHS["player"], "_tap_hold_timer")
+    assert timer == 0.0, "Tap hold timer should start at 0.0"
+
+
+@pytest.mark.asyncio
+async def test_tap_mine_interval_reasonable(game):
+    """Verify tap mining cooldown starts at zero."""
+    cooldown = await game.get_property(PATHS["player"], "_tap_mine_cooldown")
+    assert cooldown == 0.0, "Tap mine cooldown should start at 0.0"

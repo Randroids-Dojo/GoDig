@@ -1,9 +1,16 @@
 ---
 title: "research: Mobile idle game patterns"
-status: open
+status: done
 priority: 2
 issue-type: task
 created-at: "2026-01-18T23:42:37.017157-06:00"
+completed-at: "2026-01-19T00:31:11-06:00"
 ---
 
-Research successful mobile idle/incremental games. Look at: progression hooks, session length design, retention mechanics, satisfying feedback loops. What makes players return? How do they handle AFK progress? Check game design blogs, GDC talks, mobile game postmortems. Apply learnings to GoDig's loop.
+**COMPLETED** - See archived version for full findings.
+
+Created implementation specs for:
+- Offline income system with cap (GoDig-implement-offline-income-0e47c928)
+- Next upgrade goal HUD display (GoDig-implement-next-upgrade-9b11f5f1)
+
+Key findings: Session hooks, AFK progress caps, positive framing for return rewards.

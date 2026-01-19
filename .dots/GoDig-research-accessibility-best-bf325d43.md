@@ -1,9 +1,14 @@
 ---
 title: "research: Accessibility best practices"
-status: open
+status: done
 priority: 3
 issue-type: task
 created-at: "2026-01-18T23:42:37.855494-06:00"
+completed-at: "2026-01-19T04:00:00-06:00"
 ---
 
-Research accessibility in mobile games. Colorblind modes, text sizing, one-handed play, reduced motion options. What do Apple/Google require? What do players appreciate? Check Game Accessibility Guidelines, Xbox accessibility features. Create tasks for accessibility improvements.
+**COMPLETED** - See archived version for full findings.
+
+Updated 4 existing specs: colorblind, one-hand, text size, haptics.
+Created 2 new tasks: SettingsManager singleton, reduced motion option.
+Documented key statistics and platform requirements.

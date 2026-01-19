@@ -5,7 +5,6 @@ priority: 3
 issue-type: task
 created-at: "2026-01-16T00:44:03.971404-06:00"
 after:
-  - GoDig-implement-player-hp-4f3e9af1
   - GoDig-dev-layer-depth-89c9d8ac
 ---
 

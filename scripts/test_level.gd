@@ -33,6 +33,9 @@ func _ready() -> void:
 	touch_controls.dig_released.connect(player.stop_dig)
 	touch_controls.inventory_pressed.connect(_on_inventory_pressed)
 
+	# Connect depth tracking
+	player.depth_changed.connect(_on_player_depth_changed)
+
 	# Connect coins display
 	GameManager.coins_changed.connect(_on_coins_changed)
 

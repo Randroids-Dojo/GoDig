@@ -1,11 +1,11 @@
 ---
 title: "implement: 2-3 tool upgrade tiers"
-status: open
+status: closed
 priority: 0
 issue-type: task
-created-at: "2026-01-16T00:34:25.414805-06:00"
-after:
-  - GoDig-mvp-single-shop-b97d367d
+created-at: "\"2026-01-16T00:34:25.414805-06:00\""
+closed-at: "2026-01-19T11:50:39.934508-06:00"
+close-reason: "Fully implemented: ToolData resource class, 3 pickaxe tiers (Rusty/Copper/Iron), DataRegistry loading, PlayerData tracking"
 ---
 
 ## Description

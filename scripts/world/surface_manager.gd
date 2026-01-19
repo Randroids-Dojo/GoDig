@@ -21,12 +21,18 @@ var _player: Node2D = null
 
 
 func _ready() -> void:
-	# Player starts at chunk 0 (mine entrance)
-	_update_chunks_around(0)
+	# Wait for player to be initialized via initialize() call
+	pass
 
 
 func initialize(player: Node2D) -> void:
 	_player = player
+	# Now load initial chunks around player
+	if _player != null:
+		var world_x := _player.position.x
+		var chunk_x := int(world_x / (CHUNK_WIDTH * TILE_SIZE))
+		_player_chunk_x = chunk_x
+		_update_chunks_around(chunk_x)
 
 
 func _process(_delta: float) -> void:
@@ -127,7 +133,7 @@ func get_building_slot_for_chunk(chunk_x: int) -> int:
 
 	# Buildings at every BUILDING_INTERVAL chunks
 	if chunk_x % BUILDING_INTERVAL == 0:
-		return chunk_x / BUILDING_INTERVAL
+		return chunk_x // BUILDING_INTERVAL
 
 	return -1  # No building slot in this chunk
 

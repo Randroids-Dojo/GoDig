@@ -1,34 +1,63 @@
 extends Control
 ## Touch controls UI for mobile devices.
-## Provides virtual joystick for movement and jump button.
+## Provides virtual joystick for movement and touch screen action buttons.
+## Supports multitouch for simultaneous movement and actions.
 ## Automatically shows/hides based on platform detection.
-## Tap-to-dig is handled by the Player script directly.
 
 signal direction_pressed(direction: Vector2i)
 signal direction_released()
 signal jump_pressed()
+signal dig_pressed()
+signal dig_released()
+signal inventory_pressed()
 
 ## Reference to the virtual joystick
 @onready var joystick: Control = $VirtualJoystick
 
+## Reference to action buttons container
+@onready var action_buttons: Control = $ActionButtons
+
 ## Reference to the jump button
-@onready var jump_button: Button = $JumpButton
+@onready var jump_button: TouchScreenButton = $ActionButtons/JumpButton
+
+## Reference to the dig button
+@onready var dig_button: TouchScreenButton = $ActionButtons/DigButton
+
+## Reference to the inventory button
+@onready var inventory_button: TouchScreenButton = $ActionButtons/InventoryButton
 
 ## If true, ignore platform detection and always show controls
 @export var force_visible: bool = false
 
 
 func _ready() -> void:
+	# Ensure action buttons exist before connecting signals
+	_setup_action_buttons()
+
 	# Connect joystick direction changes
 	joystick.direction_changed.connect(_on_joystick_direction_changed)
-
-	# Connect jump button
-	jump_button.button_down.connect(_on_jump_pressed)
 
 	# Connect to platform detector for auto-show/hide
 	if PlatformDetector:
 		PlatformDetector.platform_changed.connect(_on_platform_changed)
 		_update_visibility()
+
+
+func _setup_action_buttons() -> void:
+	## Setup action buttons with proper signals and input mapping
+
+	# Connect jump button
+	if jump_button:
+		jump_button.pressed.connect(_on_jump_pressed)
+
+	# Connect dig button
+	if dig_button:
+		dig_button.pressed.connect(_on_dig_pressed)
+		dig_button.released.connect(_on_dig_released)
+
+	# Connect inventory button
+	if inventory_button:
+		inventory_button.pressed.connect(_on_inventory_pressed)
 
 
 func _update_visibility() -> void:
@@ -56,5 +85,24 @@ func _on_jump_pressed() -> void:
 	jump_pressed.emit()
 
 
+func _on_dig_pressed() -> void:
+	dig_pressed.emit()
+
+
+func _on_dig_released() -> void:
+	dig_released.emit()
+
+
+func _on_inventory_pressed() -> void:
+	inventory_pressed.emit()
+
+
 func get_direction() -> Vector2i:
 	return joystick.get_direction()
+
+
+func is_dig_held() -> bool:
+	## Returns true if the dig button is currently being held
+	if dig_button and dig_button is TouchScreenButton:
+		return dig_button.is_pressed()
+	return false

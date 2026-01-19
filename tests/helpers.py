@@ -29,7 +29,10 @@ PATHS = {
     "platform_detector": "/root/PlatformDetector",
     "touch_controls": "/root/Main/UI/TouchControls",
     "virtual_joystick": "/root/Main/UI/TouchControls/VirtualJoystick",
-    "jump_button": "/root/Main/UI/TouchControls/JumpButton",
+    "action_buttons": "/root/Main/UI/TouchControls/ActionButtons",
+    "jump_button": "/root/Main/UI/TouchControls/ActionButtons/JumpButton",
+    "dig_button": "/root/Main/UI/TouchControls/ActionButtons/DigButton",
+    "inventory_button": "/root/Main/UI/TouchControls/ActionButtons/InventoryButton",
     "player_sprite": "/root/Main/Player/AnimatedSprite2D",
     "player_collision": "/root/Main/Player/CollisionShape2D",
 }

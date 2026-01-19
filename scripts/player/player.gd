@@ -248,6 +248,23 @@ func trigger_jump() -> void:
 	wants_jump = true
 
 
+## Called by TouchControls when dig button is pressed
+## Starts mining in the current movement direction
+var wants_dig: bool = false
+
+func trigger_dig() -> void:
+	wants_dig = true
+	# If we have a direction, try to mine in that direction
+	var dir := _get_input_direction()
+	if dir != Vector2i.ZERO and current_state == State.IDLE:
+		_try_move_or_mine(dir)
+
+
+## Called by TouchControls when dig button is released
+func stop_dig() -> void:
+	wants_dig = false
+
+
 # ============================================
 # FALLING AND WALL-JUMP LOGIC
 # ============================================

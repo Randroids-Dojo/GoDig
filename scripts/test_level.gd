@@ -26,6 +26,9 @@ func _ready() -> void:
 	touch_controls.direction_pressed.connect(player.set_touch_direction)
 	touch_controls.direction_released.connect(player.clear_touch_direction)
 	touch_controls.jump_pressed.connect(player.trigger_jump)
+	touch_controls.dig_pressed.connect(player.trigger_dig)
+	touch_controls.dig_released.connect(player.stop_dig)
+	touch_controls.inventory_pressed.connect(_on_inventory_pressed)
 
 	# Connect coins display
 	GameManager.coins_changed.connect(_on_coins_changed)
@@ -73,3 +76,13 @@ func _on_shop_button_pressed() -> void:
 func _on_shop_closed() -> void:
 	# Shop was closed, resume game if needed
 	pass
+
+
+func _on_inventory_pressed() -> void:
+	# Toggle inventory UI (placeholder - will be implemented with inventory UI)
+	print("[TestLevel] Inventory button pressed")
+	# For now, just toggle shop as a placeholder
+	if shop.visible:
+		shop.close()
+	else:
+		shop.open()

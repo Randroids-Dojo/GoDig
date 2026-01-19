@@ -32,6 +32,8 @@ PATHS = {
     "right_button": "/root/Main/UI/TouchControls/RightButton",
     "down_button": "/root/Main/UI/TouchControls/DownButton",
     "jump_button": "/root/Main/UI/TouchControls/JumpButton",
+    "player_sprite": "/root/Main/Player/AnimatedSprite2D",
+    "player_collision": "/root/Main/Player/CollisionShape2D",
 }
 
 

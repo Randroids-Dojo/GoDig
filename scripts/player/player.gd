@@ -2,6 +2,7 @@ extends CharacterBody2D
 ## Player controller with grid-based movement, mining, and wall-jump.
 ## Uses a state machine: IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING.
 ## Player is 128x128 (same size as one dirt block).
+## Supports tap-to-dig: tap or hold on adjacent blocks to mine them.
 
 signal block_destroyed(grid_pos: Vector2i)
 signal depth_changed(depth: int)
@@ -19,6 +20,10 @@ const WALL_JUMP_FORCE_X: float = 200.0
 const WALL_JUMP_FORCE_Y: float = 450.0
 const WALL_JUMP_COOLDOWN: float = 0.2  # Prevent instant re-grab
 
+# Tap-to-dig constants
+const TAP_HOLD_THRESHOLD: float = 0.2  # Seconds before continuous mining starts
+const TAP_MINE_INTERVAL: float = 0.15  # Time between hits when holding
+
 var dirt_grid: Node2D  # Set by test_level.gd
 var touch_direction: Vector2i = Vector2i.ZERO  # Direction from touch controls
 var wants_jump: bool = false  # Set by touch controls or keyboard
@@ -34,6 +39,12 @@ var _move_tween: Tween
 var _wall_direction: int = 0  # -1 = wall on left, 1 = wall on right, 0 = no wall
 var _wall_jump_timer: float = 0.0  # Cooldown after wall-jump
 
+# Tap-to-dig state
+var _tap_target_tile: Vector2i = Vector2i(-999, -999)  # Invalid default
+var _tap_hold_timer: float = 0.0
+var _is_tap_mining: bool = false
+var _tap_mine_cooldown: float = 0.0  # Prevent double-hits
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
@@ -42,10 +53,38 @@ func _ready() -> void:
 	sprite.animation_finished.connect(_on_animation_finished)
 
 
+func _input(event: InputEvent) -> void:
+	# Handle tap-to-dig via touch or mouse
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			_on_tap_start(event.position)
+		else:
+			_on_tap_end()
+	elif event is InputEventScreenDrag:
+		_on_tap_drag(event.position)
+	elif event is InputEventMouseButton:
+		# Support mouse for desktop testing
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				_on_tap_start(event.position)
+			else:
+				_on_tap_end()
+	elif event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		# Mouse drag while holding button
+		_on_tap_drag(event.position)
+
+
 func _process(delta: float) -> void:
 	# Update wall-jump cooldown timer
 	if _wall_jump_timer > 0:
 		_wall_jump_timer -= delta
+
+	# Update tap-to-dig mining cooldown
+	if _tap_mine_cooldown > 0:
+		_tap_mine_cooldown -= delta
+
+	# Handle tap-to-dig hold mining
+	_process_tap_mining(delta)
 
 	match current_state:
 		State.IDLE:
@@ -376,3 +415,141 @@ func _land_on_grid(landing_grid: Vector2i) -> void:
 	velocity = Vector2.ZERO
 	current_state = State.IDLE
 	_update_depth()
+
+
+# ============================================
+# TAP-TO-DIG LOGIC
+# ============================================
+
+func _on_tap_start(screen_pos: Vector2) -> void:
+	## Called when player taps/clicks on the screen
+	var tile_pos := _screen_to_grid(screen_pos)
+
+	# Check if this is a valid diggable target
+	if _is_tap_diggable(tile_pos):
+		_tap_target_tile = tile_pos
+		_tap_hold_timer = 0.0
+		_is_tap_mining = true
+
+		# Immediate first hit on tap
+		_hit_tap_target()
+
+
+func _on_tap_end() -> void:
+	## Called when player releases tap/click
+	_is_tap_mining = false
+	_tap_target_tile = Vector2i(-999, -999)
+	_tap_hold_timer = 0.0
+
+
+func _on_tap_drag(screen_pos: Vector2) -> void:
+	## Called when player drags while touching
+	if not _is_tap_mining:
+		return
+
+	var tile_pos := _screen_to_grid(screen_pos)
+
+	# If dragged to a different tile, check if new tile is valid
+	if tile_pos != _tap_target_tile:
+		if _is_tap_diggable(tile_pos):
+			# Switch to new target
+			_tap_target_tile = tile_pos
+			_tap_hold_timer = 0.0
+			_hit_tap_target()
+		else:
+			# Dragged to invalid position, stop mining
+			_on_tap_end()
+
+
+func _process_tap_mining(delta: float) -> void:
+	## Process continuous mining while holding tap
+	if not _is_tap_mining:
+		return
+
+	if _tap_target_tile == Vector2i(-999, -999):
+		return
+
+	# Verify the target is still valid (player might have moved)
+	if not _is_tap_diggable(_tap_target_tile):
+		_on_tap_end()
+		return
+
+	# Accumulate hold time
+	_tap_hold_timer += delta
+
+	# After threshold, start continuous mining
+	if _tap_hold_timer >= TAP_HOLD_THRESHOLD and _tap_mine_cooldown <= 0:
+		_hit_tap_target()
+		_tap_mine_cooldown = TAP_MINE_INTERVAL
+
+
+func _hit_tap_target() -> void:
+	## Hit the current tap target tile
+	if dirt_grid == null or _tap_target_tile == Vector2i(-999, -999):
+		return
+
+	if not dirt_grid.has_block(_tap_target_tile):
+		# Block already destroyed, stop mining
+		_on_tap_end()
+		return
+
+	var destroyed: bool = dirt_grid.hit_block(_tap_target_tile)
+
+	if destroyed:
+		block_destroyed.emit(_tap_target_tile)
+
+		# Check if we should move into the space (if it was adjacent and in a movable direction)
+		var diff := _tap_target_tile - grid_position
+		if current_state == State.IDLE and abs(diff.x) + abs(diff.y) == 1:
+			# Adjacent and we can move there
+			if diff.y >= 0:  # Down, left, or right (not up)
+				_start_move(_tap_target_tile)
+
+		_on_tap_end()
+
+
+func _is_tap_diggable(tile_pos: Vector2i) -> bool:
+	## Check if the tile can be dug via tap
+	## Must be adjacent to player and contain a block
+
+	# Must have a dirt grid
+	if dirt_grid == null:
+		return false
+
+	# Must have a block there
+	if not dirt_grid.has_block(tile_pos):
+		return false
+
+	# Must be adjacent to player (not diagonal)
+	if not _is_adjacent_to_player(tile_pos):
+		return false
+
+	# Player must be in a state that allows mining
+	if current_state not in [State.IDLE, State.WALL_SLIDING]:
+		return false
+
+	return true
+
+
+func _is_adjacent_to_player(tile_pos: Vector2i) -> bool:
+	## Check if tile is adjacent (not diagonal) to player
+	var diff := tile_pos - grid_position
+
+	# Must be exactly 1 tile away in one direction (not diagonal)
+	if abs(diff.x) + abs(diff.y) != 1:
+		return false
+
+	# MVP: Don't allow digging upward
+	if diff.y < 0:
+		return false
+
+	return true
+
+
+func _screen_to_grid(screen_pos: Vector2) -> Vector2i:
+	## Convert screen coordinates to grid position
+	# Get the canvas transform to convert screen to world coordinates
+	var canvas_transform := get_viewport().canvas_transform
+	var world_pos := canvas_transform.affine_inverse() * screen_pos
+
+	return _world_to_grid(world_pos)

@@ -284,3 +284,64 @@ func get_tools_at_depth(depth: int) -> Array:
 		if tool.unlock_depth <= depth:
 			result.append(tool)
 	return result
+
+
+# ============================================
+# TEST HELPER METHODS (for PlayGodot tests)
+# ============================================
+# These methods return primitive types (strings, ints, floats)
+# since Resource objects can't be serialized over RPC.
+
+## Check if a layer ID exists
+func has_layer(layer_id: String) -> bool:
+	return _layers_by_id.has(layer_id)
+
+
+## Get layer ID at a specific depth
+func get_layer_id_at_depth(depth: int) -> String:
+	var layer := get_layer_at_depth(depth)
+	if layer == null:
+		return ""
+	return layer.id
+
+
+## Get layer display name by ID
+func get_layer_display_name(layer_id: String) -> String:
+	var layer := get_layer(layer_id)
+	if layer == null:
+		return ""
+	return layer.display_name
+
+
+## Get layer min_depth by ID
+func get_layer_min_depth(layer_id: String) -> int:
+	var layer := get_layer(layer_id)
+	if layer == null:
+		return -1
+	return layer.min_depth
+
+
+## Get layer max_depth by ID
+func get_layer_max_depth(layer_id: String) -> int:
+	var layer := get_layer(layer_id)
+	if layer == null:
+		return -1
+	return layer.max_depth
+
+
+## Get layer base_hardness by ID
+func get_layer_base_hardness(layer_id: String) -> float:
+	var layer := get_layer(layer_id)
+	if layer == null:
+		return -1.0
+	return layer.base_hardness
+
+
+## Get the number of loaded layers
+func get_layer_count() -> int:
+	return layers.size()
+
+
+## Get all layer IDs
+func get_all_layer_ids() -> Array:
+	return _layers_by_id.keys()

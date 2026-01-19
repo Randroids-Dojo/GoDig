@@ -34,8 +34,7 @@ func _on_depth_updated(depth: int) -> void:
 
 
 ## Get the currently equipped tool resource
-func get_equipped_tool():
-	## Returns ToolData or null
+func get_equipped_tool() -> ToolData:
 	if DataRegistry == null:
 		return null
 	return DataRegistry.get_tool(equipped_tool_id)
@@ -43,10 +42,10 @@ func get_equipped_tool():
 
 ## Get the effective damage of the equipped tool
 func get_tool_damage() -> float:
-	var tool = get_equipped_tool()
-	if tool == null:
+	var tool_data: ToolData = get_equipped_tool()
+	if tool_data == null:
 		return 10.0  # Default damage
-	return tool.damage * tool.speed_multiplier
+	return tool_data.damage * tool_data.speed_multiplier
 
 
 ## Equip a new tool by ID
@@ -54,47 +53,45 @@ func equip_tool(tool_id: String) -> bool:
 	if DataRegistry == null:
 		push_warning("[PlayerData] DataRegistry not available")
 		return false
-	var tool = DataRegistry.get_tool(tool_id)
-	if tool == null:
+	var tool_data: ToolData = DataRegistry.get_tool(tool_id)
+	if tool_data == null:
 		push_warning("[PlayerData] Cannot equip unknown tool: %s" % tool_id)
 		return false
 
 	equipped_tool_id = tool_id
-	tool_changed.emit(tool)
-	print("[PlayerData] Equipped: %s (Damage: %.1f)" % [tool.display_name, tool.damage])
+	tool_changed.emit(tool_data)
+	print("[PlayerData] Equipped: %s (Damage: %.1f)" % [tool_data.display_name, tool_data.damage])
 	return true
 
 
 ## Check if a tool can be purchased (depth requirement and not already owned)
-func can_unlock_tool(tool) -> bool:
-	## tool: ToolData or null
-	if tool == null:
+func can_unlock_tool(tool_data: ToolData) -> bool:
+	if tool_data == null:
 		return false
 	# Check depth requirement
-	if tool.unlock_depth > max_depth_reached:
+	if tool_data.unlock_depth > max_depth_reached:
 		return false
 	# Check if better than current tool (can only upgrade, not downgrade)
-	var current = get_equipped_tool()
-	if current != null and tool.tier <= current.tier:
+	var current: ToolData = get_equipped_tool()
+	if current != null and tool_data.tier <= current.tier:
 		return false
 	return true
 
 
 ## Get the next available tool upgrade (null if at max tier)
-func get_next_tool_upgrade():
-	## Returns ToolData or null
+func get_next_tool_upgrade() -> ToolData:
 	if DataRegistry == null:
 		return null
-	var current = get_equipped_tool()
+	var current: ToolData = get_equipped_tool()
 	if current == null:
 		return DataRegistry.get_tool("rusty_pickaxe")
 
 	var next_tier: int = current.tier + 1
-	var all_tools = DataRegistry.get_all_tools()
+	var all_tools: Array = DataRegistry.get_all_tools()
 
-	for tool in all_tools:
-		if tool.tier == next_tier:
-			return tool
+	for tool_data: ToolData in all_tools:
+		if tool_data.tier == next_tier:
+			return tool_data
 
 	return null
 

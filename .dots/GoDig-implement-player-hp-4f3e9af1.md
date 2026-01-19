@@ -1,9 +1,9 @@
 ---
 title: "implement: Player HP system"
-status: open
+status: active
 priority: 1
 issue-type: task
-created-at: "2026-01-19T00:52:14.726848-06:00"
+created-at: "\"2026-01-19T00:52:14.726848-06:00\""
 ---
 
 ## Description

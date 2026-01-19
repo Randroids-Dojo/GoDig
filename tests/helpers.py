@@ -44,6 +44,10 @@ PATHS = {
     "pause_menu_reload": "/root/Main/PauseMenu/Panel/VBox/ReloadButton",
     "pause_menu_quit": "/root/Main/PauseMenu/Panel/VBox/QuitButton",
     "pause_menu_confirm_dialog": "/root/Main/PauseMenu/ConfirmDialog",
+    "hud": "/root/Main/UI/HUD",
+    "health_bar": "/root/Main/UI/HUD/HealthBar",
+    "health_label": "/root/Main/UI/HUD/HealthBar/HealthLabel",
+    "low_health_vignette": "/root/Main/UI/HUD/LowHealthVignette",
 }
 
 

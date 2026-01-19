@@ -12,6 +12,7 @@ extends Node2D
 @onready var shop: Control = $UI/Shop
 @onready var pause_button: Button = $UI/PauseButton
 @onready var pause_menu: CanvasLayer = $PauseMenu
+@onready var hud: Control = $UI/HUD
 
 
 func _ready() -> void:
@@ -34,6 +35,12 @@ func _ready() -> void:
 
 	# Connect coins display
 	GameManager.coins_changed.connect(_on_coins_changed)
+
+	# Connect HUD to player HP
+	if hud:
+		hud.connect_to_player(player)
+		# Connect death signal for game over handling
+		player.player_died.connect(_on_player_died)
 
 	# Start the game
 	GameManager.start_game()
@@ -143,3 +150,13 @@ func _on_pause_menu_quit() -> void:
 	# For now, just quit the game
 	# TODO: Return to main menu when implemented
 	get_tree().quit()
+
+
+# ============================================
+# PLAYER DEATH HANDLER
+# ============================================
+
+func _on_player_died(cause: String) -> void:
+	## Handle player death - will be expanded by death/respawn system
+	print("[TestLevel] Player died from: %s" % cause)
+	# For now, just log it - full death/respawn system will handle this later

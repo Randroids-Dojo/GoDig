@@ -25,6 +25,7 @@ PATHS = {
     "game_manager": "/root/GameManager",
     "data_registry": "/root/DataRegistry",
     "inventory_manager": "/root/InventoryManager",
+    "save_manager": "/root/SaveManager",
     "touch_controls": "/root/Main/UI/TouchControls",
     "left_button": "/root/Main/UI/TouchControls/LeftButton",
     "right_button": "/root/Main/UI/TouchControls/RightButton",

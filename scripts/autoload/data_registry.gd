@@ -7,6 +7,7 @@ extends Node
 const LayerData = preload("res://resources/layers/layer_data.gd")
 const OreData = preload("res://resources/ores/ore_data.gd")
 const ItemData = preload("res://resources/items/item_data.gd")
+const ToolData = preload("res://resources/tools/tool_data.gd")
 
 ## All loaded layer definitions, sorted by min_depth
 var layers: Array[LayerData] = []
@@ -23,12 +24,19 @@ var _ores_by_depth: Array = []
 ## All loaded item definitions
 var items: Dictionary = {}
 
+## All loaded tool definitions
+var tools: Dictionary = {}
+
+## Tools sorted by tier for ordered display
+var _tools_by_tier: Array = []
+
 
 func _ready() -> void:
 	_load_all_layers()
 	_load_all_ores()
 	_load_all_items()
-	print("[DataRegistry] Loaded %d layers, %d ores, %d items" % [layers.size(), ores.size(), items.size()])
+	_load_all_tools()
+	print("[DataRegistry] Loaded %d layers, %d ores, %d items, %d tools" % [layers.size(), ores.size(), items.size(), tools.size()])
 
 
 func _load_all_layers() -> void:
@@ -219,3 +227,60 @@ func get_item(item_id: String) -> ItemData:
 ## Get all loaded item IDs
 func get_all_item_ids() -> Array:
 	return items.keys()
+
+
+# ============================================
+# TOOL DATA LOADING AND ACCESS
+# ============================================
+
+func _load_all_tools() -> void:
+	## Load all .tres files from tools directory
+	var tools_path := "res://resources/tools/"
+	var dir := DirAccess.open(tools_path)
+
+	if dir == null:
+		push_warning("[DataRegistry] Cannot open tools directory: %s" % tools_path)
+		return
+
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+
+	while file_name != "":
+		if file_name.ends_with(".tres"):
+			var resource_path := tools_path + file_name
+			var resource = load(resource_path)
+			if resource is ToolData:
+				tools[resource.id] = resource
+		file_name = dir.get_next()
+
+	dir.list_dir_end()
+
+	# Sort tools by tier for ordered display
+	_tools_by_tier = tools.values()
+	_tools_by_tier.sort_custom(func(a, b): return a.tier < b.tier)
+
+
+## Get a tool by its ID
+func get_tool(tool_id: String) -> ToolData:
+	if tools.has(tool_id):
+		return tools[tool_id]
+	return null
+
+
+## Get all tools sorted by tier
+func get_all_tools() -> Array:
+	return _tools_by_tier.duplicate()
+
+
+## Get all tool IDs
+func get_all_tool_ids() -> Array:
+	return tools.keys()
+
+
+## Get tools available at a given depth (unlocked but not necessarily owned)
+func get_tools_at_depth(depth: int) -> Array:
+	var result := []
+	for tool in _tools_by_tier:
+		if tool.unlock_depth <= depth:
+			result.append(tool)
+	return result

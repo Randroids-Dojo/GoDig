@@ -4,7 +4,7 @@ Tests for floating text pickup feedback.
 Verifies that the floating text system exists and is set up correctly.
 """
 import pytest
-from tests.helpers import PATHS
+from helpers import PATHS
 
 
 # =============================================================================

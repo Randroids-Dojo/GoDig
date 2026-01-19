@@ -408,3 +408,23 @@ func get_player_position() -> Vector2i:
 func set_player_position(pos: Vector2i) -> void:
 	if current_save != null:
 		current_save.player_grid_position = pos
+
+
+## Get seconds since last save (for UI display)
+func get_seconds_since_last_save() -> int:
+	if current_save == null or current_save.last_save_time <= 0:
+		return -1  # No save exists
+	return int(Time.get_unix_time_from_system()) - current_save.last_save_time
+
+
+## Get human-readable string for time since last save
+func get_time_since_save_text() -> String:
+	var seconds := get_seconds_since_last_save()
+	if seconds < 0:
+		return "no save"
+	elif seconds < 60:
+		return "just now"
+	elif seconds < 120:
+		return "1 minute ago"
+	else:
+		return "%d minutes ago" % (seconds / 60)

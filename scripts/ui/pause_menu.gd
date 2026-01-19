@@ -20,6 +20,10 @@ signal quit_requested
 @onready var reload_btn: Button = $Panel/VBox/ReloadButton
 @onready var quit_btn: Button = $Panel/VBox/QuitButton
 
+## Confirmation dialog for dangerous actions
+var _confirm_dialog: ConfirmationDialog = null
+var _pending_action: String = ""
+
 
 func _ready() -> void:
 	# Set process mode so we can receive input while paused
@@ -32,8 +36,21 @@ func _ready() -> void:
 	reload_btn.pressed.connect(_on_reload)
 	quit_btn.pressed.connect(_on_quit)
 
+	# Create confirmation dialog
+	_create_confirm_dialog()
+
 	visible = false
 	print("[PauseMenu] Ready")
+
+
+func _create_confirm_dialog() -> void:
+	"""Create a reusable confirmation dialog for dangerous actions."""
+	_confirm_dialog = ConfirmationDialog.new()
+	_confirm_dialog.name = "ConfirmDialog"
+	_confirm_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+	_confirm_dialog.confirmed.connect(_on_confirm_dialog_confirmed)
+	_confirm_dialog.canceled.connect(_on_confirm_dialog_canceled)
+	add_child(_confirm_dialog)
 
 
 func _input(event: InputEvent) -> void:
@@ -85,6 +102,13 @@ func _update_button_states() -> void:
 		can_reload = SaveManager.has_save(SaveManager.current_slot)
 	reload_btn.disabled = not can_reload
 
+	# Update reload button text with time since save
+	if can_reload:
+		var time_text := SaveManager.get_time_since_save_text()
+		reload_btn.text = "Reload Save (%s)" % time_text
+	else:
+		reload_btn.text = "Reload Save (no save)"
+
 
 func _on_resume() -> void:
 	hide_menu()
@@ -97,16 +121,43 @@ func _on_settings() -> void:
 
 
 func _on_rescue() -> void:
-	# Show confirmation before rescuing
-	# For now, emit signal directly (confirmation dialog can be added later)
-	rescue_requested.emit()
-	hide_menu()
+	"""Show confirmation dialog before emergency rescue."""
+	_pending_action = "rescue"
+	_confirm_dialog.title = "Call for Rescue?"
+	_confirm_dialog.dialog_text = "A rescue team will bring you to the surface,\nbut your cargo will be left behind."
+	_confirm_dialog.ok_button_text = "Rescue Me"
+	_confirm_dialog.cancel_button_text = "Cancel"
+	_confirm_dialog.popup_centered()
 
 
 func _on_reload() -> void:
-	# Show confirmation before reloading
-	# For now, emit signal directly (confirmation dialog can be added later)
-	reload_requested.emit()
+	"""Show confirmation dialog before reloading save."""
+	_pending_action = "reload"
+	_confirm_dialog.title = "Reload Last Save?"
+	var time_text := SaveManager.get_time_since_save_text()
+	_confirm_dialog.dialog_text = "All progress since your last save (%s) will be lost.\nThis cannot be undone." % time_text
+	_confirm_dialog.ok_button_text = "Reload"
+	_confirm_dialog.cancel_button_text = "Cancel"
+	_confirm_dialog.popup_centered()
+
+
+func _on_confirm_dialog_confirmed() -> void:
+	"""Handle confirmation of dangerous action."""
+	match _pending_action:
+		"rescue":
+			# Clear inventory (cargo) before rescue
+			InventoryManager.clear_all()
+			rescue_requested.emit()
+			hide_menu()
+		"reload":
+			reload_requested.emit()
+			# Don't hide menu - reload will reset scene
+	_pending_action = ""
+
+
+func _on_confirm_dialog_canceled() -> void:
+	"""Handle cancellation of dangerous action."""
+	_pending_action = ""
 
 
 func _on_quit() -> void:

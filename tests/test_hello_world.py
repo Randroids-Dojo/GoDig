@@ -510,6 +510,32 @@ async def test_pause_menu_process_mode(game):
     process_mode = await game.get_property(PATHS["pause_menu"], "process_mode")
     assert process_mode == 3, f"PauseMenu process_mode should be PROCESS_MODE_ALWAYS (3), got {process_mode}"
 
+# =============================================================================
+# PAUSE MENU HAS CONFIRM DIALOG
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_has_confirm_dialog(game):
+    """Verify the pause menu has a confirmation dialog for dangerous actions."""
+    exists = await game.node_exists(PATHS["pause_menu_confirm_dialog"])
+    assert exists, "PauseMenu should have a confirmation dialog"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_confirm_dialog_process_mode(game):
+    """Verify the confirmation dialog runs while game is paused."""
+    # PROCESS_MODE_ALWAYS = 3
+    process_mode = await game.get_property(PATHS["pause_menu_confirm_dialog"], "process_mode")
+    assert process_mode == 3, f"Confirmation dialog process_mode should be PROCESS_MODE_ALWAYS (3), got {process_mode}"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_has_pending_action(game):
+    """Verify the pause menu tracks pending confirmation actions."""
+    pending = await game.get_property(PATHS["pause_menu"], "_pending_action")
+    assert pending == "", f"Pending action should start empty, got '{pending}'"
+
 <<<<<<< HEAD
 
 

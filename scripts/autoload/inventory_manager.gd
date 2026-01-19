@@ -278,3 +278,40 @@ func load_from_dict(data: Dictionary) -> void:
 			add_item(item, quantity)
 		else:
 			push_warning("[InventoryManager] Unknown item ID in save: %s" % item_id)
+
+
+# ============================================
+# TEST HELPER METHODS (ID-based for PlayGodot)
+# ============================================
+
+## Add item by ID - test helper for PlayGodot (returns remaining count)
+func add_item_by_id(item_id: String, amount: int = 1) -> int:
+	var item = DataRegistry.get_item(item_id)
+	if item == null:
+		push_warning("[InventoryManager] Unknown item ID: %s" % item_id)
+		return amount
+	return add_item(item, amount)
+
+
+## Remove item by ID - test helper for PlayGodot (returns true if successful)
+func remove_item_by_id(item_id: String, amount: int = 1) -> bool:
+	var item = DataRegistry.get_item(item_id)
+	if item == null:
+		return false
+	return remove_item(item, amount)
+
+
+## Get item count by ID - test helper for PlayGodot
+func get_item_count_by_id(item_id: String) -> int:
+	var item = DataRegistry.get_item(item_id)
+	if item == null:
+		return 0
+	return get_item_count(item)
+
+
+## Remove all of item by ID - test helper for PlayGodot
+func remove_all_of_item_by_id(item_id: String) -> int:
+	var item = DataRegistry.get_item(item_id)
+	if item == null:
+		return 0
+	return remove_all_of_item(item)

@@ -10,6 +10,8 @@ extends Node2D
 @onready var coins_label: Label = $UI/CoinsLabel
 @onready var shop_button: Button = $UI/ShopButton
 @onready var shop: Control = $UI/Shop
+@onready var pause_button: Button = $UI/PauseButton
+@onready var pause_menu: CanvasLayer = $PauseMenu
 
 
 func _ready() -> void:
@@ -86,3 +88,58 @@ func _on_inventory_pressed() -> void:
 		shop.close()
 	else:
 		shop.open()
+
+
+# ============================================
+# PAUSE MENU HANDLERS
+# ============================================
+
+func _on_pause_button_pressed() -> void:
+	pause_menu.show_menu()
+
+
+func _on_pause_menu_resumed() -> void:
+	print("[TestLevel] Game resumed from pause")
+
+
+func _on_pause_menu_rescue() -> void:
+	## Emergency rescue: teleport player back to surface
+	print("[TestLevel] Emergency rescue requested")
+
+	# Teleport player to starting position
+	var surface_y := GameManager.SURFACE_ROW * 128 - 128  # One row above dirt
+	var center_x := GameManager.GRID_WIDTH / 2
+	var spawn_pos := GameManager.grid_to_world(Vector2i(center_x, GameManager.SURFACE_ROW - 1))
+	player.position = spawn_pos
+	player.grid_position = GameManager.world_to_grid(spawn_pos)
+	player.current_state = player.State.IDLE
+	player.velocity = Vector2.ZERO
+
+	# Update depth display
+	GameManager.update_depth(0)
+
+	print("[TestLevel] Player rescued to surface")
+
+
+func _on_pause_menu_reload() -> void:
+	## Reload the last save
+	print("[TestLevel] Reload save requested")
+
+	if SaveManager.current_slot >= 0:
+		# Load the save which will reset player position, inventory, etc.
+		var success := SaveManager.load_game(SaveManager.current_slot)
+		if success:
+			print("[TestLevel] Save reloaded")
+		else:
+			push_warning("[TestLevel] Failed to reload save")
+	else:
+		push_warning("[TestLevel] No save slot to reload from")
+
+
+func _on_pause_menu_quit() -> void:
+	## Quit to main menu (or quit game if no main menu)
+	print("[TestLevel] Quit requested")
+
+	# For now, just quit the game
+	# TODO: Return to main menu when implemented
+	get_tree().quit()

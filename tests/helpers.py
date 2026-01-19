@@ -36,6 +36,13 @@ PATHS = {
     "inventory_button": "/root/Main/UI/TouchControls/ActionButtons/InventoryButton",
     "player_sprite": "/root/Main/Player/AnimatedSprite2D",
     "player_collision": "/root/Main/Player/CollisionShape2D",
+    "pause_button": "/root/Main/UI/PauseButton",
+    "pause_menu": "/root/Main/PauseMenu",
+    "pause_menu_resume": "/root/Main/PauseMenu/Panel/VBox/ResumeButton",
+    "pause_menu_settings": "/root/Main/PauseMenu/Panel/VBox/SettingsButton",
+    "pause_menu_rescue": "/root/Main/PauseMenu/Panel/VBox/RescueButton",
+    "pause_menu_reload": "/root/Main/PauseMenu/Panel/VBox/ReloadButton",
+    "pause_menu_quit": "/root/Main/PauseMenu/Panel/VBox/QuitButton",
 }
 
 

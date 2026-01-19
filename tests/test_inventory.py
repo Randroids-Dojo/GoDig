@@ -362,3 +362,153 @@ async def test_clear_all(game):
 
     has_space = await game.call(PATHS["inventory_manager"], "has_space")
     assert has_space is True, "Should have space after clear_all"
+
+
+# =============================================================================
+# DEATH PENALTY HELPER TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_get_total_item_count_empty(game):
+    """get_total_item_count returns 0 for empty inventory."""
+    # Clear inventory
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Get total count
+    total = await game.call(PATHS["inventory_manager"], "get_total_item_count")
+    assert total == 0, f"Empty inventory should have 0 total items, got {total}"
+
+
+@pytest.mark.asyncio
+async def test_get_total_item_count_single_type(game):
+    """get_total_item_count returns correct sum for single item type."""
+    # Clear inventory
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Add 50 coal
+    await game.call(PATHS["inventory_manager"], "add_item_by_id", ["coal", 50])
+
+    # Get total count
+    total = await game.call(PATHS["inventory_manager"], "get_total_item_count")
+    assert total == 50, f"Should have 50 total items, got {total}"
+
+
+@pytest.mark.asyncio
+async def test_get_total_item_count_multiple_types(game):
+    """get_total_item_count returns correct sum across multiple item types."""
+    # Clear inventory
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Add various items
+    await game.call(PATHS["inventory_manager"], "add_item_by_id", ["coal", 25])
+    await game.call(PATHS["inventory_manager"], "add_item_by_id", ["copper", 30])
+    await game.call(PATHS["inventory_manager"], "add_item_by_id", ["iron", 15])
+
+    # Get total count (25 + 30 + 15 = 70)
+    total = await game.call(PATHS["inventory_manager"], "get_total_item_count")
+    assert total == 70, f"Should have 70 total items (25+30+15), got {total}"
+
+
+@pytest.mark.asyncio
+async def test_get_total_item_count_multiple_slots_same_type(game):
+    """get_total_item_count counts across multiple slots of same item."""
+    # Clear inventory
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Add 200 copper (should span 3 slots: 99 + 99 + 2)
+    await game.call(PATHS["inventory_manager"], "add_item_by_id", ["copper", 200])
+
+    # Get total count
+    total = await game.call(PATHS["inventory_manager"], "get_total_item_count")
+    assert total == 200, f"Should have 200 total items across 3 slots, got {total}"
+
+
+@pytest.mark.asyncio
+async def test_remove_random_item_empty_inventory(game):
+    """remove_random_item returns False for empty inventory."""
+    # Clear inventory
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Try to remove random item
+    removed = await game.call(PATHS["inventory_manager"], "remove_random_item")
+    assert removed is False, "remove_random_item should return False on empty inventory"
+
+
+@pytest.mark.asyncio
+async def test_remove_random_item_decrements_count(game):
+    """remove_random_item decrements total item count by 1."""
+    # Clear inventory
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Add 10 items
+    await game.call(PATHS["inventory_manager"], "add_item_by_id", ["coal", 10])
+
+    # Get initial count
+    before = await game.call(PATHS["inventory_manager"], "get_total_item_count")
+    assert before == 10, f"Should start with 10 items, got {before}"
+
+    # Remove random item
+    removed = await game.call(PATHS["inventory_manager"], "remove_random_item")
+    assert removed is True, "remove_random_item should return True"
+
+    # Verify count decreased by 1
+    after = await game.call(PATHS["inventory_manager"], "get_total_item_count")
+    assert after == 9, f"Should have 9 items after removing 1, got {after}"
+
+
+@pytest.mark.asyncio
+async def test_remove_random_item_clears_slot_when_empty(game):
+    """remove_random_item clears slot when last item is removed."""
+    # Clear inventory
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Add just 1 item
+    await game.call(PATHS["inventory_manager"], "add_item_by_id", ["gold", 1])
+
+    # Verify 1 slot used
+    used = await game.call(PATHS["inventory_manager"], "get_used_slots")
+    assert used == 1, f"Should have 1 slot used, got {used}"
+
+    # Remove the single item
+    removed = await game.call(PATHS["inventory_manager"], "remove_random_item")
+    assert removed is True, "Should successfully remove item"
+
+    # Verify slot is now empty
+    used = await game.call(PATHS["inventory_manager"], "get_used_slots")
+    assert used == 0, f"Slot should be cleared, got {used} used"
+
+
+@pytest.mark.asyncio
+async def test_remove_random_items_multiple(game):
+    """remove_random_items removes multiple items correctly."""
+    # Clear inventory
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Add 20 items
+    await game.call(PATHS["inventory_manager"], "add_item_by_id", ["iron", 20])
+
+    # Remove 5 random items
+    removed_count = await game.call(PATHS["inventory_manager"], "remove_random_items", [5])
+    assert removed_count == 5, f"Should have removed 5 items, got {removed_count}"
+
+    # Verify 15 remain
+    total = await game.call(PATHS["inventory_manager"], "get_total_item_count")
+    assert total == 15, f"Should have 15 items remaining, got {total}"
+
+
+@pytest.mark.asyncio
+async def test_remove_random_items_stops_when_empty(game):
+    """remove_random_items stops early if inventory empties."""
+    # Clear inventory
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Add only 3 items
+    await game.call(PATHS["inventory_manager"], "add_item_by_id", ["ruby", 3])
+
+    # Try to remove 10 items (more than available)
+    removed_count = await game.call(PATHS["inventory_manager"], "remove_random_items", [10])
+    assert removed_count == 3, f"Should have removed only 3 items, got {removed_count}"
+
+    # Verify inventory is empty
+    total = await game.call(PATHS["inventory_manager"], "get_total_item_count")
+    assert total == 0, f"Inventory should be empty, got {total}"

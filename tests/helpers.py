@@ -13,6 +13,19 @@ WAIT_TIMEOUT = 5.0
 # =============================================================================
 # NODE PATHS
 # =============================================================================
+
+# Main Menu paths (when on main menu scene)
+MAIN_MENU_PATHS = {
+    "main_menu": "/root/MainMenu",
+    "main_menu_new_game": "/root/MainMenu/CenterContainer/VBox/ButtonContainer/NewGameButton",
+    "main_menu_continue": "/root/MainMenu/CenterContainer/VBox/ButtonContainer/ContinueButton",
+    "main_menu_settings": "/root/MainMenu/CenterContainer/VBox/ButtonContainer/SettingsButton",
+    "main_menu_version": "/root/MainMenu/VersionLabel",
+    "main_menu_title": "/root/MainMenu/CenterContainer/VBox/TitleContainer/TitleLabel",
+    "main_menu_subtitle": "/root/MainMenu/CenterContainer/VBox/TitleContainer/SubtitleLabel",
+}
+
+# Game scene paths (after navigating from main menu)
 PATHS = {
     "main": "/root/Main",
     "player": "/root/Main/Player",

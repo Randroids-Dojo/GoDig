@@ -7,6 +7,9 @@ extends Node2D
 @onready var player: CharacterBody2D = $Player
 @onready var depth_label: Label = $UI/DepthLabel
 @onready var touch_controls: Control = $UI/TouchControls
+@onready var coins_label: Label = $UI/CoinsLabel
+@onready var shop_button: Button = $UI/ShopButton
+@onready var shop: Control = $UI/Shop
 
 
 func _ready() -> void:
@@ -24,8 +27,14 @@ func _ready() -> void:
 	touch_controls.direction_released.connect(player.clear_touch_direction)
 	touch_controls.jump_pressed.connect(player.trigger_jump)
 
+	# Connect coins display
+	GameManager.coins_changed.connect(_on_coins_changed)
+
 	# Start the game
 	GameManager.start_game()
+
+	# Update initial coins display
+	_on_coins_changed(GameManager.get_coins())
 
 	print("[TestLevel] Level initialized")
 
@@ -51,3 +60,16 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 		print("[TestLevel] Inventory full, could not add %s" % item.display_name)
 	else:
 		print("[TestLevel] Added %s to inventory" % item.display_name)
+
+
+func _on_coins_changed(new_amount: int) -> void:
+	coins_label.text = "$%d" % new_amount
+
+
+func _on_shop_button_pressed() -> void:
+	shop.open()
+
+
+func _on_shop_closed() -> void:
+	# Shop was closed, resume game if needed
+	pass

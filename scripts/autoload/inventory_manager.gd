@@ -183,6 +183,23 @@ func clear_all() -> void:
 	inventory_changed.emit()
 
 
+## Remove all instances of a specific item from inventory
+func remove_all_of_item(item: ItemData) -> int:
+	if item == null:
+		return 0
+
+	var total_removed := 0
+	for slot in slots:
+		if slot.item != null and slot.item.id == item.id:
+			total_removed += slot.quantity
+			slot.clear()
+
+	if total_removed > 0:
+		inventory_changed.emit()
+
+	return total_removed
+
+
 ## Get all non-empty slots (for UI display or saving)
 func get_occupied_slots() -> Array:
 	var occupied := []

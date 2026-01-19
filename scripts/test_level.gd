@@ -1,6 +1,7 @@
 extends Node2D
 ## Test level scene controller.
 ## Initializes the dirt grid and handles UI updates.
+## Connects mining drops to inventory system.
 
 @onready var dirt_grid: Node2D = $DirtGrid
 @onready var player: CharacterBody2D = $Player
@@ -14,6 +15,9 @@ func _ready() -> void:
 
 	# Initialize the dirt grid with the player reference
 	dirt_grid.initialize(player, GameManager.SURFACE_ROW)
+
+	# Connect mining drops to inventory
+	dirt_grid.block_dropped.connect(_on_block_dropped)
 
 	# Connect touch controls to player
 	touch_controls.direction_pressed.connect(player.set_touch_direction)
@@ -29,3 +33,21 @@ func _ready() -> void:
 func _on_player_depth_changed(depth: int) -> void:
 	depth_label.text = "Depth: %d" % depth
 	GameManager.update_depth(depth)
+
+
+func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
+	## Handle block destruction drops - add to inventory if ore
+	if item_id.is_empty():
+		return  # Plain dirt, no drop
+
+	var item = DataRegistry.get_item(item_id)
+	if item == null:
+		push_warning("[TestLevel] Unknown item dropped: %s" % item_id)
+		return
+
+	var leftover := InventoryManager.add_item(item, 1)
+	if leftover > 0:
+		# Inventory full - item was not fully added
+		print("[TestLevel] Inventory full, could not add %s" % item.display_name)
+	else:
+		print("[TestLevel] Added %s to inventory" % item.display_name)

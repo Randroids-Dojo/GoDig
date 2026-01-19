@@ -192,10 +192,10 @@ func _refresh_upgrades_tab() -> void:
 
 func _get_current_tool_level() -> int:
 	## Get current tool tier from PlayerData
-	var tool := PlayerData.get_equipped_tool()
-	if tool == null:
+	var tool_data: ToolData = PlayerData.get_equipped_tool()
+	if tool_data == null:
 		return 1
-	return tool.tier
+	return tool_data.tier
 
 
 func _get_current_backpack_level() -> int:
@@ -234,15 +234,15 @@ func _create_upgrade_section(title: String, current_level: int, upgrades: Array,
 		var next: Dictionary = upgrades[next_idx]
 		var next_info := Label.new()
 		if next.has("damage"):
-			next_info.text = "→ Level %d: %s (Damage: %.1f)" % [next_idx + 1, next.get("name", ""), next.damage]
+			next_info.text = "-> Level %d: %s (Damage: %.1f)" % [next_idx + 1, next.get("name", ""), next.damage]
 		else:
-			next_info.text = "→ Level %d: %d slots" % [next_idx + 1, next.slots]
+			next_info.text = "-> Level %d: %d slots" % [next_idx + 1, next.slots]
 		vbox.add_child(next_info)
 
 		var cost: int = next.cost
-		var can_afford := GameManager.can_afford(cost)
+		var can_afford: bool = GameManager.can_afford(cost)
 		var min_depth: int = next.get("min_depth", 0)
-		var depth_ok := GameManager.current_depth >= min_depth
+		var depth_ok: bool = GameManager.current_depth >= min_depth
 
 		var upgrade_btn := Button.new()
 		if not depth_ok:
@@ -278,23 +278,23 @@ func _create_tool_upgrade_section() -> Control:
 	vbox.add_child(title_label)
 
 	# Get current tool info
-	var current_tool := PlayerData.get_equipped_tool()
+	var current_tool: ToolData = PlayerData.get_equipped_tool()
 	if current_tool != null:
 		var current_info := Label.new()
-		var effective_dmg := current_tool.damage * current_tool.speed_multiplier
+		var effective_dmg: float = current_tool.damage * current_tool.speed_multiplier
 		current_info.text = "Level %d: %s (Damage: %.1f)" % [current_tool.tier, current_tool.display_name, effective_dmg]
 		vbox.add_child(current_info)
 
 	# Get next upgrade
-	var next_tool := PlayerData.get_next_tool_upgrade()
+	var next_tool: ToolData = PlayerData.get_next_tool_upgrade()
 	if next_tool != null:
 		var next_info := Label.new()
-		var next_effective_dmg := next_tool.damage * next_tool.speed_multiplier
+		var next_effective_dmg: float = next_tool.damage * next_tool.speed_multiplier
 		next_info.text = "-> Level %d: %s (Damage: %.1f)" % [next_tool.tier, next_tool.display_name, next_effective_dmg]
 		vbox.add_child(next_info)
 
-		var can_afford := GameManager.can_afford(next_tool.cost)
-		var depth_ok := PlayerData.max_depth_reached >= next_tool.unlock_depth
+		var can_afford: bool = GameManager.can_afford(next_tool.cost)
+		var depth_ok: bool = PlayerData.max_depth_reached >= next_tool.unlock_depth
 
 		var upgrade_btn := Button.new()
 		if not depth_ok:
@@ -319,7 +319,7 @@ func _create_tool_upgrade_section() -> Control:
 
 func _on_tool_upgrade() -> void:
 	## Purchase the next tool upgrade
-	var next_tool := PlayerData.get_next_tool_upgrade()
+	var next_tool: ToolData = PlayerData.get_next_tool_upgrade()
 	if next_tool == null:
 		return
 

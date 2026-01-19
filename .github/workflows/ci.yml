@@ -53,9 +53,20 @@ jobs:
         run: |
           echo "=== Importing Godot Project ==="
           # Use Xvfb for headless display
+          # Run import twice to ensure all global classes are resolved
           xvfb-run --auto-servernum ./godot-automation/godot.linuxbsd.editor.x86_64.mono \
-            --headless --import . --quit 2>&1 || true
+            --headless --path . --import 2>&1 || true
+          echo "First import pass complete, running second pass..."
+          xvfb-run --auto-servernum ./godot-automation/godot.linuxbsd.editor.x86_64.mono \
+            --headless --path . --import 2>&1 || true
           echo "Import complete"
+          # Verify global class cache was created
+          if [ -f ".godot/global_script_class_cache.cfg" ]; then
+            echo "Global class cache created successfully:"
+            cat .godot/global_script_class_cache.cfg
+          else
+            echo "WARNING: Global class cache not found!"
+          fi
 
       - name: Run PlayGodot Tests
         run: |

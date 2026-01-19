@@ -1,9 +1,11 @@
 ---
 title: "implement: Basic inventory system"
-status: open
+status: closed
 priority: 0
 issue-type: task
-created-at: "2026-01-16T00:34:24.016141-06:00"
+created-at: "\"\\\"2026-01-16T00:34:24.016141-06:00\\\"\""
+closed-at: "2026-01-18T23:25:34.618593-06:00"
+close-reason: InventoryManager autoload with slot-based storage, stacking, add/remove logic. 19 tests passing.
 ---
 
 ## Description

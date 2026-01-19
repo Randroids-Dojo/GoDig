@@ -425,6 +425,91 @@ async def test_settings_manager_has_settings_path(game):
     assert settings_path is not None, "SettingsManager should have SETTINGS_PATH constant"
     assert settings_path == "user://settings.cfg", f"SETTINGS_PATH should be 'user://settings.cfg', got '{settings_path}'"
 
+
+# =============================================================================
+# PAUSE MENU TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_pause_button_exists(game):
+    """Verify the pause button exists in the UI."""
+    exists = await game.node_exists(PATHS["pause_button"])
+    assert exists, "Pause button should exist in UI"
+
+
+@pytest.mark.asyncio
+async def test_pause_button_has_text(game):
+    """Verify the pause button has the pause icon text."""
+    text = await game.get_property(PATHS["pause_button"], "text")
+    assert text == "||", f"Pause button should show '||', got '{text}'"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_exists(game):
+    """Verify the pause menu node exists."""
+    exists = await game.node_exists(PATHS["pause_menu"])
+    assert exists, "PauseMenu should exist"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_starts_hidden(game):
+    """Verify the pause menu starts hidden."""
+    visible = await game.get_property(PATHS["pause_menu"], "visible")
+    assert visible is False, "PauseMenu should start hidden"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_has_resume_button(game):
+    """Verify the pause menu has a resume button."""
+    exists = await game.node_exists(PATHS["pause_menu_resume"])
+    assert exists, "PauseMenu should have Resume button"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_has_settings_button(game):
+    """Verify the pause menu has a settings button."""
+    exists = await game.node_exists(PATHS["pause_menu_settings"])
+    assert exists, "PauseMenu should have Settings button"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_has_rescue_button(game):
+    """Verify the pause menu has a rescue button."""
+    exists = await game.node_exists(PATHS["pause_menu_rescue"])
+    assert exists, "PauseMenu should have Rescue button"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_has_reload_button(game):
+    """Verify the pause menu has a reload button."""
+    exists = await game.node_exists(PATHS["pause_menu_reload"])
+    assert exists, "PauseMenu should have Reload button"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_has_quit_button(game):
+    """Verify the pause menu has a quit button."""
+    exists = await game.node_exists(PATHS["pause_menu_quit"])
+    assert exists, "PauseMenu should have Quit button"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_is_canvas_layer(game):
+    """Verify the pause menu is a CanvasLayer for proper rendering."""
+    # CanvasLayer has a 'layer' property
+    layer = await game.get_property(PATHS["pause_menu"], "layer")
+    assert layer is not None, "PauseMenu should have layer property (CanvasLayer)"
+    assert layer == 100, f"PauseMenu layer should be 100 (above everything), got {layer}"
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_process_mode(game):
+    """Verify the pause menu runs while game is paused."""
+    # PROCESS_MODE_ALWAYS = 3
+    process_mode = await game.get_property(PATHS["pause_menu"], "process_mode")
+    assert process_mode == 3, f"PauseMenu process_mode should be PROCESS_MODE_ALWAYS (3), got {process_mode}"
+
 <<<<<<< HEAD
 
 

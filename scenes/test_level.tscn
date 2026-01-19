@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://test_level_001"]
+[gd_scene load_steps=10 format=3 uid="uid://test_level_001"]
 
 [ext_resource type="Script" path="res://scripts/test_level.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/world/dirt_grid.gd" id="2_grid"]
@@ -7,6 +7,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprites/miner_animation.tres" id="5_anim"]
 [ext_resource type="PackedScene" uid="uid://cw5k8h7j3m8yq" path="res://scenes/ui/touch_controls.tscn" id="6_touch"]
 [ext_resource type="PackedScene" uid="uid://shop_ui_001" path="res://scenes/ui/shop.tscn" id="7_shop"]
+[ext_resource type="PackedScene" uid="uid://pause_menu_001" path="res://scenes/ui/pause_menu.tscn" id="8_pause"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(120, 120)
@@ -80,6 +81,26 @@ text = "SHOP"
 [node name="Shop" parent="UI" instance=ExtResource("7_shop")]
 visible = false
 
+[node name="PauseButton" type="Button" parent="UI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -70.0
+offset_top = 120.0
+offset_right = -20.0
+offset_bottom = 170.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 24
+text = "||"
+
+[node name="PauseMenu" parent="." instance=ExtResource("8_pause")]
+visible = false
+
 [connection signal="depth_changed" from="Player" to="." method="_on_player_depth_changed"]
 [connection signal="pressed" from="UI/ShopButton" to="." method="_on_shop_button_pressed"]
 [connection signal="closed" from="UI/Shop" to="." method="_on_shop_closed"]
+[connection signal="pressed" from="UI/PauseButton" to="." method="_on_pause_button_pressed"]
+[connection signal="resumed" from="PauseMenu" to="." method="_on_pause_menu_resumed"]
+[connection signal="rescue_requested" from="PauseMenu" to="." method="_on_pause_menu_rescue"]
+[connection signal="reload_requested" from="PauseMenu" to="." method="_on_pause_menu_reload"]
+[connection signal="quit_requested" from="PauseMenu" to="." method="_on_pause_menu_quit"]

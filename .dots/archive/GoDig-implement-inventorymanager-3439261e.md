@@ -1,9 +1,11 @@
 ---
 title: "implement: InventoryManager death penalty helpers"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-19T10:52:39.950447-06:00"
+created-at: "\"\\\"2026-01-19T10:52:39.950447-06:00\\\"\""
+closed-at: "2026-01-19T11:45:53.600112-06:00"
+close-reason: Added get_total_item_count(), remove_random_item(), and remove_random_items() methods with 9 passing tests
 blocks:
   - GoDig-implement-death-and-fd4aaba6
 ---

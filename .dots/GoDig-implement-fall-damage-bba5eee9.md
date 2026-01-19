@@ -4,7 +4,7 @@ status: open
 priority: 1
 issue-type: task
 created-at: "2026-01-19T00:52:30.847520-06:00"
-blocks:
+after:
   - GoDig-implement-player-hp-4f3e9af1
 ---
 
@@ -24,36 +24,49 @@ Fall damage is the core hazard that creates risk when going deep. Players must m
 ## Implementation Notes
 
 ### Fall Tracking
+
+**IMPORTANT**: This game uses 128x128 pixel blocks (BLOCK_SIZE), not 16x16 tiles. The existing player.gd already uses grid-based movement with BLOCK_SIZE = 128.
+
 ```gdscript
-# player.gd
-const TILE_SIZE: int = 16
-const FALL_DAMAGE_THRESHOLD: int = 3  # tiles
-const DAMAGE_PER_TILE: float = 10.0
+# player.gd (add to existing constants section)
+const FALL_DAMAGE_THRESHOLD: int = 3  # blocks
+const DAMAGE_PER_BLOCK: float = 10.0
 const MAX_FALL_DAMAGE: float = 100.0
 
 var fall_start_y: float = 0.0
 var is_tracking_fall: bool = false
 
-func _physics_process(delta):
-    # Start tracking when leaving ground and moving down
-    if not is_on_floor() and velocity.y > 0:
-        if not is_tracking_fall:
-            is_tracking_fall = true
-            fall_start_y = position.y
+# Integrate into existing _start_falling() and _check_landing() methods
+func _start_falling() -> void:
+    current_state = State.FALLING
+    velocity = Vector2.ZERO
+    # Start tracking fall from current position
+    if not is_tracking_fall:
+        is_tracking_fall = true
+        fall_start_y = position.y
 
-    # Calculate damage on landing
-    elif is_on_floor() and is_tracking_fall:
+# Modify existing _land_on_grid() to include fall damage
+func _land_on_grid(landing_grid: Vector2i) -> void:
+    # Calculate and apply fall damage before snapping
+    if is_tracking_fall:
         is_tracking_fall = false
         var fall_distance_px = position.y - fall_start_y
-        var fall_tiles = int(fall_distance_px / TILE_SIZE)
-        apply_fall_damage(fall_tiles)
+        var fall_blocks = int(fall_distance_px / BLOCK_SIZE)
+        apply_fall_damage(fall_blocks)
 
-func apply_fall_damage(fall_tiles: int):
-    if fall_tiles <= FALL_DAMAGE_THRESHOLD:
+    # Existing landing logic
+    grid_position = landing_grid
+    position = _grid_to_world(grid_position)
+    velocity = Vector2.ZERO
+    current_state = State.IDLE
+    _update_depth()
+
+func apply_fall_damage(fall_blocks: int):
+    if fall_blocks <= FALL_DAMAGE_THRESHOLD:
         return
 
-    var excess_tiles = fall_tiles - FALL_DAMAGE_THRESHOLD
-    var damage = excess_tiles * DAMAGE_PER_TILE
+    var excess_blocks = fall_blocks - FALL_DAMAGE_THRESHOLD
+    var damage = excess_blocks * DAMAGE_PER_BLOCK
 
     # Apply modifiers (future: boots, surface)
     # damage *= (1.0 - boots_reduction)
@@ -76,8 +89,8 @@ func get_surface_hardness_multiplier() -> float:
 ```
 
 ### Fall Damage Table
-| Tiles Fallen | Damage (no boots) |
-|--------------|-------------------|
+| Blocks Fallen | Damage (no boots) |
+|---------------|-------------------|
 | 0-3 | 0 |
 | 4 | 10 |
 | 5 | 20 |
@@ -86,6 +99,8 @@ func get_surface_hardness_multiplier() -> float:
 | 8 | 50 |
 | 10 | 70 |
 | 13+ | 100 (lethal) |
+
+Note: Each block is 128x128 pixels, so falling 4 blocks = 512 pixels.
 
 ## Edge Cases
 
@@ -96,10 +111,10 @@ func get_surface_hardness_multiplier() -> float:
 ## Verify
 
 - [ ] Build succeeds
-- [ ] Falling 3 tiles or less does no damage
-- [ ] Falling 4 tiles does 10 damage
-- [ ] Falling 10 tiles does 70 damage
-- [ ] Falling 13+ tiles is lethal (100 damage)
-- [ ] Wall-sliding/jumping resets fall tracking
-- [ ] Ladder climbing resets fall tracking
-- [ ] Visual/audio feedback on fall damage
+- [ ] Falling 3 blocks or less does no damage
+- [ ] Falling 4 blocks does 10 damage
+- [ ] Falling 10 blocks does 70 damage
+- [ ] Falling 13+ blocks is lethal (100 damage)
+- [ ] Wall-sliding/jumping resets fall tracking (set is_tracking_fall = false in _start_wall_slide)
+- [ ] Ladder climbing resets fall tracking (future: when ladder system implemented)
+- [ ] Visual/audio feedback on fall damage (player flash red)

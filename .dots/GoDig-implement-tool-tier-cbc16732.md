@@ -93,15 +93,15 @@ func _show_blocked_feedback(target: Vector2i) -> void:
     pass
 ```
 
-### Required Tool Tiers (Current)
+### Required Tool Tiers (Verified from .tres files)
 
 From ore .tres files:
 - coal: required_tool_tier = 0 (starter pickaxe)
 - copper: required_tool_tier = 0
 - iron: required_tool_tier = 0
 - silver: required_tool_tier = 0
-- gold: required_tool_tier = 1 (need copper pickaxe)
-- ruby: required_tool_tier = 1 (assumed)
+- gold: required_tool_tier = 1 (need upgraded pickaxe)
+- ruby: required_tool_tier = 2 (need further upgraded pickaxe)
 
 ## Verify
 

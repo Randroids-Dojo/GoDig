@@ -43,6 +43,7 @@ PATHS = {
     "pause_menu_rescue": "/root/Main/PauseMenu/Panel/VBox/RescueButton",
     "pause_menu_reload": "/root/Main/PauseMenu/Panel/VBox/ReloadButton",
     "pause_menu_quit": "/root/Main/PauseMenu/Panel/VBox/QuitButton",
+    "pause_menu_confirm_dialog": "/root/Main/PauseMenu/ConfirmDialog",
 }
 
 

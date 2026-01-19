@@ -1,9 +1,11 @@
 ---
 title: "implement: Wall-jump ability"
-status: open
+status: closed
 priority: 0
 issue-type: task
-created-at: "2026-01-16T00:34:23.291608-06:00"
+created-at: "\"2026-01-16T00:34:23.291608-06:00\""
+closed-at: "2026-01-18T23:11:48.321544-06:00"
+close-reason: Implemented wall-jump with grid-based wall detection, FALLING/WALL_SLIDING/WALL_JUMPING states, touch controls JUMP button, and keyboard space key. All 16 tests pass.
 ---
 
 ## Description

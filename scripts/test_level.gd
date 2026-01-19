@@ -18,6 +18,7 @@ func _ready() -> void:
 	# Connect touch controls to player
 	touch_controls.direction_pressed.connect(player.set_touch_direction)
 	touch_controls.direction_released.connect(player.clear_touch_direction)
+	touch_controls.jump_pressed.connect(player.trigger_jump)
 
 	# Start the game
 	GameManager.start_game()

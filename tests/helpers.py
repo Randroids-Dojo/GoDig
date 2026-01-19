@@ -24,6 +24,7 @@ PATHS = {
     "left_button": "/root/Main/UI/TouchControls/LeftButton",
     "right_button": "/root/Main/UI/TouchControls/RightButton",
     "down_button": "/root/Main/UI/TouchControls/DownButton",
+    "jump_button": "/root/Main/UI/TouchControls/JumpButton",
 }
 
 

@@ -48,6 +48,7 @@ PATHS = {
     "health_bar": "/root/Main/UI/HUD/HealthBar",
     "health_label": "/root/Main/UI/HUD/HealthBar/HealthLabel",
     "low_health_vignette": "/root/Main/UI/HUD/LowHealthVignette",
+    "floating_text_layer": "/root/Main/FloatingTextLayer",
 }
 
 

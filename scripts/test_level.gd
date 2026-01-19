@@ -3,6 +3,8 @@ extends Node2D
 ## Initializes the dirt grid and handles UI updates.
 ## Connects mining drops to inventory system.
 
+const FloatingTextScene := preload("res://scenes/ui/floating_text.tscn")
+
 @onready var dirt_grid: Node2D = $DirtGrid
 @onready var player: CharacterBody2D = $Player
 @onready var depth_label: Label = $UI/DepthLabel
@@ -13,6 +15,7 @@ extends Node2D
 @onready var pause_button: Button = $UI/PauseButton
 @onready var pause_menu: CanvasLayer = $PauseMenu
 @onready var hud: Control = $UI/HUD
+@onready var floating_text_layer: CanvasLayer = $FloatingTextLayer
 
 
 func _ready() -> void:
@@ -45,6 +48,9 @@ func _ready() -> void:
 		# Connect death signal for game over handling
 		player.player_died.connect(_on_player_died)
 
+	# Connect item pickup for floating text
+	InventoryManager.item_added.connect(_on_item_added)
+
 	# Start the game
 	GameManager.start_game()
 
@@ -75,6 +81,33 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 		print("[TestLevel] Inventory full, could not add %s" % item.display_name)
 	else:
 		print("[TestLevel] Added %s to inventory" % item.display_name)
+
+
+func _on_item_added(item, amount: int) -> void:
+	## Show floating text when items are added to inventory
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Get screen position from player world position
+	var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+	# Offset slightly upward from player center
+	screen_pos.y -= 64.0
+
+	# Get color from ore data if available, otherwise use white
+	var color := Color.WHITE
+	var ore = DataRegistry.get_ore(item.id)
+	if ore != null:
+		color = ore.color
+		# Ensure the color is visible (lighten very dark colors)
+		if color.v < 0.3:
+			color = color.lightened(0.4)
+
+	# Format the text
+	var text := "+%d %s" % [amount, item.display_name]
+	floating.show_pickup(text, color, screen_pos)
 
 
 func _on_coins_changed(new_amount: int) -> void:

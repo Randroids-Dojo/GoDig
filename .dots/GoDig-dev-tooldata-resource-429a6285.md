@@ -21,24 +21,33 @@ The ToolData class already exists at `resources/tools/tool_data.gd` with all req
 
 ## Affected Files
 
-- `resources/tools/pickaxe_wood.tres` - NEW: Starter tool (tier 1)
-- `resources/tools/pickaxe_stone.tres` - NEW: Early upgrade (tier 2)
-- `resources/tools/pickaxe_iron.tres` - NEW: Mid-game tool (tier 3)
-- `resources/tools/pickaxe_steel.tres` - NEW: Late tool (tier 4)
-- `resources/tools/pickaxe_diamond.tres` - NEW: End-game tool (tier 5)
+- `resources/tools/rusty_pickaxe.tres` - NEW: Starter tool (tier 1)
+- `resources/tools/copper_pickaxe.tres` - NEW: Early upgrade (tier 2)
+- `resources/tools/iron_pickaxe.tres` - NEW: Mid-game tool (tier 3)
 - `scripts/autoload/data_registry.gd` - Add tool loading and lookup
 
 ## Implementation Notes
 
-### Tool Tier Definitions
+### Tool Tier Definitions (MVP - First 3 Tiers)
+
+From GAME_DESIGN_SUMMARY.md:
 
 | Tier | Name | Damage | Speed | Cost | Unlock Depth |
 |------|------|--------|-------|------|--------------|
-| 1 | Wooden Pickaxe | 10 | 1.0 | 0 | 0 |
-| 2 | Stone Pickaxe | 20 | 1.1 | 100 | 25 |
-| 3 | Iron Pickaxe | 35 | 1.25 | 500 | 100 |
-| 4 | Steel Pickaxe | 60 | 1.5 | 2000 | 300 |
-| 5 | Diamond Pickaxe | 100 | 2.0 | 10000 | 750 |
+| 1 | Rusty Pickaxe | 10 | 1.0 | 0 | 0 |
+| 2 | Copper Pickaxe | 20 | 1.0 | 500 | 25 |
+| 3 | Iron Pickaxe | 35 | 1.0 | 2000 | 100 |
+
+### Future Tiers (post-MVP)
+
+| Tier | Name | Damage | Speed | Cost | Unlock Depth |
+|------|------|--------|-------|------|--------------|
+| 4 | Steel Pickaxe | 55 | 1.1 | 8000 | 250 |
+| 5 | Silver Pickaxe | 75 | 1.0 | 25000 | 400 |
+| 6 | Gold Pickaxe | 80 | 0.9 | 50000 | 500 |
+| 7 | Mythril Pickaxe | 120 | 1.0 | 100000 | 700 |
+| 8 | Diamond Pickaxe | 180 | 1.2 | 300000 | 1000 |
+| 9 | Void Pickaxe | 250 | 1.3 | 1000000 | 2000 |
 
 ### DataRegistry Tool Methods
 
@@ -77,8 +86,11 @@ func get_tools_available_at_depth(depth: int) -> Array[ToolData]:
 ## Verify
 
 - [ ] Build succeeds
-- [ ] All 5 tool .tres files load without errors
-- [ ] `DataRegistry.get_tool("pickaxe_wood")` returns ToolData
-- [ ] `DataRegistry.get_tools_available_at_depth(0)` returns only wooden pickaxe
-- [ ] `DataRegistry.get_tools_available_at_depth(100)` returns wood, stone, iron
-- [ ] Each tier has higher damage and speed than the previous
+- [ ] All 3 MVP tool .tres files load without errors
+- [ ] `DataRegistry.get_tool("rusty_pickaxe")` returns ToolData
+- [ ] `DataRegistry.get_tool("copper_pickaxe")` returns ToolData
+- [ ] `DataRegistry.get_tool("iron_pickaxe")` returns ToolData
+- [ ] `DataRegistry.get_tools_available_at_depth(0)` returns only rusty pickaxe
+- [ ] `DataRegistry.get_tools_available_at_depth(100)` returns all 3 MVP tools
+- [ ] Each tier has higher damage than the previous
+- [ ] Tool costs match design spec (0, 500, 2000)

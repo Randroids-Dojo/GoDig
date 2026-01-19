@@ -1,9 +1,11 @@
 ---
 title: "implement: Touch screen action buttons"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T00:32:03.631279-06:00"
+created-at: "\"2026-01-16T00:32:03.631279-06:00\""
+closed-at: "2026-01-19T10:22:42.294773-06:00"
+close-reason: Implemented TouchScreenButton for dig, jump, inventory with multitouch and input action mapping
 ---
 
 ## Description

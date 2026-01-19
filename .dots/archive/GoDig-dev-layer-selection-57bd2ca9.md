@@ -1,9 +1,11 @@
 ---
 title: "implement: Layer selection by depth"
-status: open
+status: closed
 priority: 0
 issue-type: task
-created-at: "2026-01-16T00:44:09.736706-06:00"
+created-at: "\"2026-01-16T00:44:09.736706-06:00\""
+closed-at: "2026-01-19T11:25:08.878947-06:00"
+close-reason: "Already implemented: get_layer_at_depth(), get_block_color() with transitions, LayerData.is_transition_zone()"
 ---
 
 ## Description
@@ -13,6 +15,14 @@ Implement `get_layer_at_depth(y)` in DataRegistry to return the appropriate Laye
 ## Context
 
 LayerData resources define underground layers (topsoil, subsoil, stone, deep_stone). Currently 4 layers exist in `resources/layers/*.tres`. DataRegistry already has `get_layer_at_depth()` but transition zone handling needs refinement.
+
+**Status Update:** Core functionality is IMPLEMENTED:
+- `DataRegistry.get_layer_at_depth(depth)` - returns appropriate LayerData
+- `DataRegistry.get_block_color(grid_pos)` - handles transition zones using `layer.is_transition_zone()`
+- `LayerData.is_transition_zone(depth)` - returns true for last 10 tiles of layer
+- Block colors include 30% accent color chance in transition zones
+
+The implementation uses a different approach (LayerData handles its own transitions) but achieves the same result.
 
 Existing layers:
 - topsoil (0-50m): Easy digging, coal/copper

@@ -1,11 +1,11 @@
 ---
 title: "implement: Single shop (buy/sell)"
-status: open
+status: closed
 priority: 0
 issue-type: task
-created-at: "2026-01-16T00:34:24.664393-06:00"
-after:
-  - GoDig-mvp-basic-inventory-851ca931
+created-at: "\"2026-01-16T00:34:24.664393-06:00\""
+closed-at: "2026-01-19T11:51:20.871259-06:00"
+close-reason: "Fully implemented: Shop UI with Sell tab (sell ores/gems), Upgrades tab (tools from ToolData, backpack), coin transactions, auto-save on purchase"
 ---
 
 ## Description

@@ -4,13 +4,18 @@ status: open
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:43:21.057626-06:00"
-after:
-  - GoDig-dev-equipped-tool-71c36858
 ---
 
 ## Description
 
 Implement a consistent formula for calculating how long it takes to break a block, based on block hardness, tool damage, and tool speed modifier. This creates predictable progression feel.
+
+**Status Update:** Core system is already implemented:
+- DirtBlock has health-based system with `take_hit()` and visual feedback (darkening)
+- ToolData has `damage` and `speed_multiplier` properties
+- Dependency `GoDig-dev-equipped-tool-71c36858` was completed (tool damage flows through PlayerData)
+
+Remaining work: Speed modifier integration with animation, optional crack overlay.
 
 ## Context
 

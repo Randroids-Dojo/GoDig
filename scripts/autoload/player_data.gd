@@ -15,9 +15,15 @@ var max_depth_reached: int = 0
 
 
 func _ready() -> void:
-	# Connect to GameManager depth updates
-	GameManager.depth_updated.connect(_on_depth_updated)
+	# Defer connection to allow other autoloads to initialize first
+	call_deferred("_connect_signals")
 	print("[PlayerData] Ready with tool: %s" % equipped_tool_id)
+
+
+func _connect_signals() -> void:
+	# Connect to GameManager depth updates
+	if GameManager != null and GameManager.has_signal("depth_updated"):
+		GameManager.depth_updated.connect(_on_depth_updated)
 
 
 func _on_depth_updated(depth: int) -> void:

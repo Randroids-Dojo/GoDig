@@ -315,3 +315,55 @@ func remove_all_of_item_by_id(item_id: String) -> int:
 	if item == null:
 		return 0
 	return remove_all_of_item(item)
+
+
+# ============================================
+# DEATH PENALTY HELPER METHODS
+# ============================================
+
+## Get total count of ALL items across ALL slots (for death penalty calculation)
+## Unlike get_item_count(item) which counts specific items, this counts everything.
+func get_total_item_count() -> int:
+	var total := 0
+	for slot in slots:
+		if not slot.is_empty():
+			total += slot.quantity
+	return total
+
+
+## Remove one random item from inventory (for death penalty)
+## Picks a random occupied slot and removes 1 item from it.
+## Returns true if an item was removed, false if inventory was empty.
+func remove_random_item() -> bool:
+	# Find all non-empty slots
+	var occupied: Array[int] = []
+	for i in range(slots.size()):
+		if not slots[i].is_empty():
+			occupied.append(i)
+
+	if occupied.is_empty():
+		return false
+
+	# Pick a random slot
+	var target_idx: int = occupied[randi() % occupied.size()]
+	var slot = slots[target_idx]
+
+	# Remove one item
+	slot.quantity -= 1
+	if slot.quantity <= 0:
+		slot.clear()
+
+	inventory_changed.emit()
+	return true
+
+
+## Remove multiple random items (convenience for death penalty)
+## Returns the number of items actually removed.
+func remove_random_items(count: int) -> int:
+	var removed := 0
+	for i in range(count):
+		if remove_random_item():
+			removed += 1
+		else:
+			break  # Inventory is empty
+	return removed

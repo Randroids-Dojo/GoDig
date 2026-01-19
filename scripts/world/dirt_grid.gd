@@ -117,7 +117,10 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 	# Get tool damage from PlayerData if not specified
 	var damage := tool_damage
 	if damage < 0:
-		damage = PlayerData.get_tool_damage()
+		if PlayerData != null:
+			damage = PlayerData.get_tool_damage()
+		else:
+			damage = 10.0  # Default fallback
 
 	var destroyed: bool = block.take_hit(damage)
 

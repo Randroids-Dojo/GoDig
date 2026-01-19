@@ -161,6 +161,19 @@ async def test_inventory_has_slots(game):
 
 
 # =============================================================================
+# COINS PROPERTY EXISTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_coins_property_exists(game):
+    """Verify the GameManager has a coins property."""
+    coins = await game.get_property(PATHS["game_manager"], "coins")
+    assert coins is not None, "GameManager should have coins property"
+    assert isinstance(coins, int), f"Coins should be an int, got {type(coins)}"
+
+
+
+# =============================================================================
 # INFINITE TERRAIN TESTS
 # =============================================================================
 

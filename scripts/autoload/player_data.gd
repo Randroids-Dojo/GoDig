@@ -36,6 +36,8 @@ func _on_depth_updated(depth: int) -> void:
 ## Get the currently equipped tool resource
 func get_equipped_tool():
 	## Returns ToolData or null
+	if DataRegistry == null:
+		return null
 	return DataRegistry.get_tool(equipped_tool_id)
 
 
@@ -49,6 +51,9 @@ func get_tool_damage() -> float:
 
 ## Equip a new tool by ID
 func equip_tool(tool_id: String) -> bool:
+	if DataRegistry == null:
+		push_warning("[PlayerData] DataRegistry not available")
+		return false
 	var tool = DataRegistry.get_tool(tool_id)
 	if tool == null:
 		push_warning("[PlayerData] Cannot equip unknown tool: %s" % tool_id)
@@ -78,6 +83,8 @@ func can_unlock_tool(tool) -> bool:
 ## Get the next available tool upgrade (null if at max tier)
 func get_next_tool_upgrade():
 	## Returns ToolData or null
+	if DataRegistry == null:
+		return null
 	var current = get_equipped_tool()
 	if current == null:
 		return DataRegistry.get_tool("rusty_pickaxe")

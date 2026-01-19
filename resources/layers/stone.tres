@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LayerData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/layers/layer_data.gd" id="1_layer"]
+
+[resource]
+script = ExtResource("1_layer")
+id = "stone"
+display_name = "Stone"
+min_depth = 200
+max_depth = 500
+base_hardness = 40.0
+color_primary = Color(0.5, 0.5, 0.5, 1)
+color_accent = Color(0.4, 0.4, 0.45, 1)
+tile_atlas_coords = Vector2i(2, 0)

@@ -125,3 +125,12 @@ async def test_player_has_wall_jump_states(game):
     assert current_state is not None, "Player should have current_state property"
     # State.IDLE = 0
     assert current_state == 0, f"Player should start in IDLE state (0), got {current_state}"
+
+
+@pytest.mark.asyncio
+async def test_data_registry_exists(game):
+    """Verify the DataRegistry autoload exists."""
+    exists = await game.node_exists(PATHS["data_registry"])
+    assert exists, "DataRegistry autoload should exist"
+
+

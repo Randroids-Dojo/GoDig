@@ -1,25 +1,33 @@
 extends ColorRect
 ## A single dirt block that can be mined.
 ## Managed by DirtGrid via object pooling.
+## Supports multiple layer types with different hardness and colors.
 
-const DIRT_COLOR := Color(0.545, 0.353, 0.169)  # Brown
 const BLOCK_SIZE := 128
-const MAX_HITS := 4
+const DEFAULT_TOOL_DAMAGE := 5.0  # Base tool damage (tier 1 pickaxe)
 
 var grid_position: Vector2i = Vector2i.ZERO
-var hits_remaining: int = MAX_HITS
+var max_health: float = 10.0
+var current_health: float = 10.0
+var base_color: Color = Color.BROWN
 
 
 func _init() -> void:
 	size = Vector2(BLOCK_SIZE, BLOCK_SIZE)
-	color = DIRT_COLOR
 
 
 func activate(pos: Vector2i) -> void:
 	grid_position = pos
-	hits_remaining = MAX_HITS
 	position = _grid_to_world(pos)
 	visible = true
+
+	# Get hardness and color from DataRegistry based on depth
+	max_health = DataRegistry.get_block_hardness(pos)
+	current_health = max_health
+	base_color = DataRegistry.get_block_color(pos)
+
+	# Set initial visual
+	color = base_color
 	modulate = Color.WHITE
 
 
@@ -27,13 +35,24 @@ func deactivate() -> void:
 	visible = false
 
 
-func take_hit() -> bool:
-	## Returns true if block was destroyed
-	hits_remaining -= 1
-	# Visual feedback - darken on hit
-	var damage_ratio := (MAX_HITS - hits_remaining) / float(MAX_HITS)
-	modulate = Color.WHITE.lerp(Color(0.3, 0.2, 0.1), damage_ratio)
-	return hits_remaining <= 0
+func take_hit(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> bool:
+	## Hit the block with a tool. Returns true if block was destroyed.
+	## tool_damage: damage dealt by the equipped tool
+	current_health -= tool_damage
+
+	# Visual feedback - darken based on damage
+	var damage_ratio := 1.0 - (current_health / max_health)
+	damage_ratio = clamp(damage_ratio, 0.0, 1.0)
+	modulate = Color.WHITE.lerp(Color(0.3, 0.3, 0.3), damage_ratio)
+
+	return current_health <= 0
+
+
+func get_hits_remaining(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> int:
+	## Calculate how many more hits needed to break this block
+	if current_health <= 0:
+		return 0
+	return ceili(current_health / tool_damage)
 
 
 func _grid_to_world(grid_pos: Vector2i) -> Vector2:

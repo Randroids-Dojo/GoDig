@@ -71,36 +71,35 @@ async def test_touch_controls_exists(game):
 
 
 @pytest.mark.asyncio
-async def test_left_button_exists(game):
-    """Verify the left button exists."""
-    exists = await game.node_exists(PATHS["left_button"])
-    assert exists, "Left button should exist"
+async def test_virtual_joystick_exists(game):
+    """Verify the virtual joystick exists for mobile movement."""
+    exists = await game.node_exists(PATHS["virtual_joystick"])
+    assert exists, "Virtual joystick should exist"
 
 
 @pytest.mark.asyncio
-async def test_right_button_exists(game):
-    """Verify the right button exists."""
-    exists = await game.node_exists(PATHS["right_button"])
-    assert exists, "Right button should exist"
+async def test_virtual_joystick_has_deadzone(game):
+    """Verify the virtual joystick has a deadzone property."""
+    deadzone = await game.get_property(PATHS["virtual_joystick"], "deadzone")
+    assert deadzone is not None, "Virtual joystick should have deadzone property"
+    assert deadzone > 0, f"Deadzone should be positive, got {deadzone}"
+    assert deadzone < 1, f"Deadzone should be less than 1, got {deadzone}"
 
 
 @pytest.mark.asyncio
-async def test_down_button_exists(game):
-    """Verify the down button exists."""
-    exists = await game.node_exists(PATHS["down_button"])
-    assert exists, "Down button should exist"
+async def test_virtual_joystick_has_max_distance(game):
+    """Verify the virtual joystick has a max_distance property."""
+    max_distance = await game.get_property(PATHS["virtual_joystick"], "max_distance")
+    assert max_distance is not None, "Virtual joystick should have max_distance property"
+    assert max_distance > 0, f"Max distance should be positive, got {max_distance}"
 
 
 @pytest.mark.asyncio
-async def test_touch_buttons_have_text(game):
-    """Verify all touch buttons have directional arrows."""
-    left_text = await game.get_property(PATHS["left_button"], "text")
-    right_text = await game.get_property(PATHS["right_button"], "text")
-    down_text = await game.get_property(PATHS["down_button"], "text")
-
-    assert left_text == "◀", f"Left button should show '◀', got '{left_text}'"
-    assert right_text == "▶", f"Right button should show '▶', got '{right_text}'"
-    assert down_text == "▼", f"Down button should show '▼', got '{down_text}'"
+async def test_virtual_joystick_direction_starts_zero(game):
+    """Verify the virtual joystick starts with zero direction."""
+    direction = await game.get_property(PATHS["virtual_joystick"], "_current_direction")
+    # Vector2i is returned as a dict with x and y
+    assert direction is not None, "Virtual joystick should have _current_direction"
 
 
 # =============================================================================

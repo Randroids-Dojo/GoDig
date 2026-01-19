@@ -6,6 +6,8 @@ issue-type: task
 created-at: "2026-01-16T00:39:15.599486-06:00"
 ---
 
+**STATUS: IMPLEMENTED** - See `scripts/ui/virtual_joystick.gd`
+
 ## Description
 
 Implement a fixed-position virtual joystick on the left side of the screen for player movement on mobile devices.

@@ -98,6 +98,9 @@ text = "||"
 [node name="PauseMenu" parent="." instance=ExtResource("8_pause")]
 visible = false
 
+[node name="FloatingTextLayer" type="CanvasLayer" parent="."]
+layer = 10
+
 [connection signal="depth_changed" from="Player" to="." method="_on_player_depth_changed"]
 [connection signal="pressed" from="UI/ShopButton" to="." method="_on_shop_button_pressed"]
 [connection signal="closed" from="UI/Shop" to="." method="_on_shop_closed"]

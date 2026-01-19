@@ -21,6 +21,7 @@ PATHS = {
     "depth_label": "/root/Main/UI/DepthLabel",
     "game_manager": "/root/GameManager",
     "data_registry": "/root/DataRegistry",
+    "inventory_manager": "/root/InventoryManager",
     "touch_controls": "/root/Main/UI/TouchControls",
     "left_button": "/root/Main/UI/TouchControls/LeftButton",
     "right_button": "/root/Main/UI/TouchControls/RightButton",

@@ -143,6 +143,24 @@ async def test_data_registry_exists(game):
 
 
 # =============================================================================
+# INVENTORY TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_inventory_manager_exists(game):
+    """Verify the InventoryManager autoload exists."""
+    exists = await game.node_exists(PATHS["inventory_manager"])
+    assert exists, "InventoryManager autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_inventory_has_slots(game):
+    """Verify the InventoryManager has the correct number of starting slots."""
+    max_slots = await game.get_property(PATHS["inventory_manager"], "max_slots")
+    assert max_slots == 8, f"Inventory should start with 8 slots, got {max_slots}"
+
+
+# =============================================================================
 # INFINITE TERRAIN TESTS
 # =============================================================================
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://test_level_001"]
+[gd_scene load_steps=11 format=3 uid="uid://test_level_001"]
 
 [ext_resource type="Script" path="res://scripts/test_level.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/world/dirt_grid.gd" id="2_grid"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://cw5k8h7j3m8yq" path="res://scenes/ui/touch_controls.tscn" id="6_touch"]
 [ext_resource type="PackedScene" uid="uid://shop_ui_001" path="res://scenes/ui/shop.tscn" id="7_shop"]
 [ext_resource type="PackedScene" uid="uid://pause_menu_001" path="res://scenes/ui/pause_menu.tscn" id="8_pause"]
+[ext_resource type="PackedScene" uid="uid://hud_ui_001" path="res://scenes/ui/hud.tscn" id="9_hud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(120, 120)
@@ -79,6 +80,8 @@ text = "SHOP"
 
 [node name="Shop" parent="UI" instance=ExtResource("7_shop")]
 visible = false
+
+[node name="HUD" parent="UI" instance=ExtResource("9_hud")]
 
 [node name="PauseButton" type="Button" parent="UI"]
 anchors_preset = 1

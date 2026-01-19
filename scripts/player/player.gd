@@ -7,6 +7,8 @@ extends CharacterBody2D
 signal block_destroyed(grid_pos: Vector2i)
 signal depth_changed(depth: int)
 signal jump_pressed  # Emitted when player wants to jump (for wall-jump)
+signal hp_changed(current_hp: int, max_hp: int)
+signal player_died(cause: String)
 
 enum State { IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING }
 
@@ -23,6 +25,10 @@ const WALL_JUMP_COOLDOWN: float = 0.2  # Prevent instant re-grab
 # Tap-to-dig constants
 const TAP_HOLD_THRESHOLD: float = 0.2  # Seconds before continuous mining starts
 const TAP_MINE_INTERVAL: float = 0.15  # Time between hits when holding
+
+# HP constants
+const MAX_HP: int = 100
+const LOW_HP_THRESHOLD: float = 0.25  # 25% = low health warning
 
 var dirt_grid: Node2D  # Set by test_level.gd
 var touch_direction: Vector2i = Vector2i.ZERO  # Direction from touch controls
@@ -45,12 +51,20 @@ var _tap_hold_timer: float = 0.0
 var _is_tap_mining: bool = false
 var _tap_mine_cooldown: float = 0.0  # Prevent double-hits
 
+# HP state
+var current_hp: int = MAX_HP
+var is_dead: bool = false
+var _damage_flash_timer: float = 0.0
+const DAMAGE_FLASH_DURATION: float = 0.1
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
 func _ready() -> void:
 	grid_position = _world_to_grid(position)
 	sprite.animation_finished.connect(_on_animation_finished)
+	# Emit initial HP state
+	hp_changed.emit(current_hp, MAX_HP)
 
 
 func _input(event: InputEvent) -> void:
@@ -75,6 +89,10 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	# Don't process if dead
+	if is_dead:
+		return
+
 	# Update wall-jump cooldown timer
 	if _wall_jump_timer > 0:
 		_wall_jump_timer -= delta
@@ -82,6 +100,12 @@ func _process(delta: float) -> void:
 	# Update tap-to-dig mining cooldown
 	if _tap_mine_cooldown > 0:
 		_tap_mine_cooldown -= delta
+
+	# Update damage flash
+	if _damage_flash_timer > 0:
+		_damage_flash_timer -= delta
+		if _damage_flash_timer <= 0:
+			modulate = Color.WHITE
 
 	# Handle tap-to-dig hold mining
 	_process_tap_mining(delta)
@@ -571,3 +595,120 @@ func _screen_to_grid(screen_pos: Vector2) -> Vector2i:
 	var world_pos := canvas_transform.affine_inverse() * screen_pos
 
 	return _world_to_grid(world_pos)
+
+
+# ============================================
+# HP SYSTEM
+# ============================================
+
+## Take damage from a source. Returns the actual damage taken.
+func take_damage(amount: int, source: String = "unknown") -> int:
+	if is_dead:
+		return 0
+	if amount <= 0:
+		return 0
+
+	var actual_damage := mini(amount, current_hp)
+	current_hp = maxi(0, current_hp - amount)
+	hp_changed.emit(current_hp, MAX_HP)
+
+	# Visual feedback: flash red
+	_start_damage_flash()
+
+	print("[Player] Took %d damage from %s (HP: %d/%d)" % [actual_damage, source, current_hp, MAX_HP])
+
+	if current_hp <= 0:
+		die(source)
+
+	return actual_damage
+
+
+## Heal the player. Returns the actual amount healed.
+func heal(amount: int) -> int:
+	if is_dead:
+		return 0
+	if amount <= 0:
+		return 0
+
+	var old_hp := current_hp
+	current_hp = mini(MAX_HP, current_hp + amount)
+	var actual_heal := current_hp - old_hp
+	hp_changed.emit(current_hp, MAX_HP)
+
+	if actual_heal > 0:
+		print("[Player] Healed %d HP (HP: %d/%d)" % [actual_heal, current_hp, MAX_HP])
+
+	return actual_heal
+
+
+## Fully heal the player
+func full_heal() -> void:
+	if is_dead:
+		return
+	current_hp = MAX_HP
+	hp_changed.emit(current_hp, MAX_HP)
+	print("[Player] Fully healed (HP: %d/%d)" % [current_hp, MAX_HP])
+
+
+## Kill the player
+func die(cause: String = "unknown") -> void:
+	if is_dead:
+		return
+
+	is_dead = true
+	current_hp = 0
+	hp_changed.emit(current_hp, MAX_HP)
+	player_died.emit(cause)
+	print("[Player] Died from: %s" % cause)
+
+
+## Revive the player with specified HP (defaults to full)
+func revive(hp_amount: int = MAX_HP) -> void:
+	is_dead = false
+	current_hp = clampi(hp_amount, 1, MAX_HP)
+	modulate = Color.WHITE
+	hp_changed.emit(current_hp, MAX_HP)
+	print("[Player] Revived with %d HP" % current_hp)
+
+
+## Check if player is at low health (below threshold)
+func is_low_health() -> bool:
+	return float(current_hp) / float(MAX_HP) <= LOW_HP_THRESHOLD
+
+
+## Get HP as a percentage (0.0 to 1.0)
+func get_hp_percent() -> float:
+	return float(current_hp) / float(MAX_HP)
+
+
+## Start the damage flash effect
+func _start_damage_flash() -> void:
+	modulate = Color.RED
+	_damage_flash_timer = DAMAGE_FLASH_DURATION
+
+
+## Reset HP to full (for new game)
+func reset_hp() -> void:
+	is_dead = false
+	current_hp = MAX_HP
+	modulate = Color.WHITE
+	hp_changed.emit(current_hp, MAX_HP)
+
+
+## Get save data for HP
+func get_hp_save_data() -> Dictionary:
+	return {
+		"current_hp": current_hp,
+		"is_dead": is_dead,
+	}
+
+
+## Load HP from save data
+func load_hp_save_data(data: Dictionary) -> void:
+	current_hp = data.get("current_hp", MAX_HP)
+	is_dead = data.get("is_dead", false)
+	if is_dead:
+		current_hp = 0
+	current_hp = clampi(current_hp, 0, MAX_HP)
+	modulate = Color.WHITE
+	hp_changed.emit(current_hp, MAX_HP)

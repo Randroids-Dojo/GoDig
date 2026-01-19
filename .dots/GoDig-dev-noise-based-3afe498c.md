@@ -99,22 +99,27 @@ static func get_tile_at(world_pos: Vector2i) -> int:
 
 
 ## Determine base terrain type by depth
+## Uses DataRegistry.get_layer_at_depth() for layer boundaries (defined in LayerData resources)
 static func _get_layer_tile(depth: int, world_pos: Vector2i) -> int:
     # Add noise variation to layer boundaries
     var noise_offset := int(_terrain_noise.get_noise_2d(world_pos.x, 0) * 15)
+    var adjusted_depth := depth - noise_offset
 
-    if depth < 50 + noise_offset:
-        return TileTypes.Type.DIRT
-    elif depth < 100 + noise_offset:
-        return TileTypes.Type.CLAY
-    elif depth < 300 + noise_offset * 2:
-        return TileTypes.Type.STONE
-    elif depth < 700 + noise_offset * 3:
-        return TileTypes.Type.GRANITE
-    elif depth < 1500 + noise_offset * 4:
-        return TileTypes.Type.BASALT
-    else:
-        return TileTypes.Type.OBSIDIAN
+    # Use DataRegistry for data-driven layer lookup
+    var layer := DataRegistry.get_layer_at_depth(adjusted_depth)
+    if layer == null:
+        return TileTypes.Type.DIRT  # Fallback
+
+    # Map layer ID to tile type
+    match layer.id:
+        "topsoil": return TileTypes.Type.DIRT
+        "subsoil": return TileTypes.Type.CLAY
+        "stone": return TileTypes.Type.STONE
+        "deep_stone": return TileTypes.Type.GRANITE
+        # Future layers:
+        # "basalt": return TileTypes.Type.BASALT
+        # "obsidian": return TileTypes.Type.OBSIDIAN
+        _: return TileTypes.Type.DIRT
 
 
 ## Check if position should be a cave (empty)
@@ -175,36 +180,25 @@ static func _check_ore_at(world_pos: Vector2i, depth: int) -> int:
 
 
 ## Get the layer name for display (depth indicator, achievements)
+## Uses DataRegistry for data-driven layer names
 static func get_layer_name(depth: int) -> String:
-    if depth < 50:
-        return "Topsoil"
-    elif depth < 100:
-        return "Clay Layer"
-    elif depth < 300:
-        return "Stone Layer"
-    elif depth < 700:
-        return "Deep Stone"
-    elif depth < 1500:
-        return "Crystal Caves"
-    else:
-        return "Magma Zone"
+    var layer := DataRegistry.get_layer_at_depth(depth)
+    if layer:
+        return layer.display_name
+    return "Unknown Depths"
 ```
 
-### Layer Depth Constants
+### Layer Depth Configuration
 
-For reference elsewhere in the codebase:
+Layer boundaries are now defined in LayerData resources (`resources/layers/*.tres`) and loaded by DataRegistry. This allows data-driven configuration without code changes.
 
-```gdscript
-# scripts/world/layer_depths.gd
-class_name LayerDepths
+See existing layer files:
+- `resources/layers/topsoil.tres` - 0-50m
+- `resources/layers/subsoil.tres` - 50-200m
+- `resources/layers/stone.tres` - 200-500m
+- `resources/layers/deep_stone.tres` - 500m+
 
-const TOPSOIL_END := 50
-const CLAY_END := 100
-const STONE_END := 300
-const GRANITE_END := 700
-const BASALT_END := 1500
-# Below is Obsidian/Magma
-```
+To add new layers (e.g., basalt, obsidian), create new `.tres` files with appropriate `min_depth`/`max_depth` values.
 
 ### Ore Spawn Data
 

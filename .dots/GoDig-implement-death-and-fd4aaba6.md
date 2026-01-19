@@ -19,11 +19,11 @@ When HP reaches 0, player dies, loses some inventory/coins based on depth, and r
 
 ## Affected Files
 
-- `scripts/player/player.gd` - Connect to death signal
-- `scripts/autoload/game_manager.gd` - Coordinate death/respawn flow
-- `scripts/autoload/inventory_manager.gd` - Apply inventory loss penalty
-- `scenes/ui/death_screen.tscn` - Create death overlay (optional)
-- `scripts/ui/death_screen.gd` - Show death message
+- `scripts/player/player.gd` - Add death signal, death animation method
+- `scripts/autoload/game_manager.gd` - Coordinate death/respawn flow, death penalty calc
+- `scripts/autoload/inventory_manager.gd` - Add `get_total_item_count()` and `remove_random_item()` methods
+- `scenes/ui/death_screen.tscn` - NEW: Death overlay scene
+- `scripts/ui/death_screen.gd` - NEW: Show death message and respawn
 
 ## Implementation Notes
 
@@ -92,6 +92,45 @@ func apply_inventory_loss(percent: float):
 
     for i in range(items_to_remove):
         InventoryManager.remove_random_item()
+```
+
+### NEW: Required InventoryManager Methods
+
+These methods need to be added to `inventory_manager.gd`:
+
+```gdscript
+## Get total count of all items across all slots
+func get_total_item_count() -> int:
+    var total := 0
+    for slot in slots:
+        if not slot.is_empty():
+            total += slot.quantity
+    return total
+
+
+## Remove one random item from inventory (for death penalty)
+## Removes from the slot with the lowest-value item first
+func remove_random_item() -> bool:
+    # Find all non-empty slots
+    var occupied: Array = []
+    for i in range(slots.size()):
+        if not slots[i].is_empty():
+            occupied.append(i)
+
+    if occupied.is_empty():
+        return false
+
+    # Pick a random slot
+    var target_idx: int = occupied[randi() % occupied.size()]
+    var slot = slots[target_idx]
+
+    # Remove one item
+    slot.quantity -= 1
+    if slot.quantity <= 0:
+        slot.clear()
+
+    inventory_changed.emit()
+    return true
 ```
 
 ### Death Animation (Simple)

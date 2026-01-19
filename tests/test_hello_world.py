@@ -238,3 +238,34 @@ async def test_touch_controls_has_force_visible(game):
     """Verify touch controls has force_visible export property."""
     force_visible = await game.get_property(PATHS["touch_controls"], "force_visible")
     assert force_visible is not None, "TouchControls should have force_visible property"
+
+
+@pytest.mark.asyncio
+async def test_save_manager_has_auto_save_enabled(game):
+    """Verify SaveManager has auto_save_enabled property."""
+    auto_save_enabled = await game.get_property(PATHS["save_manager"], "auto_save_enabled")
+    assert auto_save_enabled is True, "SaveManager auto_save_enabled should be True by default"
+
+
+@pytest.mark.asyncio
+async def test_save_manager_has_auto_save_interval(game):
+    """Verify SaveManager has AUTO_SAVE_INTERVAL constant."""
+    interval = await game.get_property(PATHS["save_manager"], "AUTO_SAVE_INTERVAL")
+    assert interval == 60.0, f"AUTO_SAVE_INTERVAL should be 60.0 seconds, got {interval}"
+
+
+@pytest.mark.asyncio
+async def test_save_manager_has_debounce_interval(game):
+    """Verify SaveManager has MIN_SAVE_INTERVAL_MS constant for debouncing."""
+    interval = await game.get_property(PATHS["save_manager"], "MIN_SAVE_INTERVAL_MS")
+    assert interval == 5000, f"MIN_SAVE_INTERVAL_MS should be 5000ms, got {interval}"
+
+
+@pytest.mark.asyncio
+async def test_game_manager_has_depth_milestones(game):
+    """Verify GameManager has DEPTH_MILESTONES constant."""
+    milestones = await game.get_property(PATHS["game_manager"], "DEPTH_MILESTONES")
+    assert milestones is not None, "GameManager should have DEPTH_MILESTONES"
+    assert len(milestones) > 0, "DEPTH_MILESTONES should not be empty"
+    assert 10 in milestones, "DEPTH_MILESTONES should include 10m"
+    assert 100 in milestones, "DEPTH_MILESTONES should include 100m"

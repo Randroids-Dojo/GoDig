@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://test_level_001"]
+[gd_scene load_steps=9 format=3 uid="uid://test_level_001"]
 
 [ext_resource type="Script" path="res://scripts/test_level.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/world/dirt_grid.gd" id="2_grid"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/camera/game_camera.gd" id="4_camera"]
 [ext_resource type="SpriteFrames" path="res://resources/sprites/miner_animation.tres" id="5_anim"]
 [ext_resource type="PackedScene" uid="uid://cw5k8h7j3m8yq" path="res://scenes/ui/touch_controls.tscn" id="6_touch"]
+[ext_resource type="PackedScene" uid="uid://shop_ui_001" path="res://scenes/ui/shop.tscn" id="7_shop"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(120, 120)
@@ -51,4 +52,34 @@ text = "Depth: 0"
 
 [node name="TouchControls" parent="UI" instance=ExtResource("6_touch")]
 
+[node name="CoinsLabel" type="Label" parent="UI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 24
+text = "$0"
+horizontal_alignment = 2
+
+[node name="ShopButton" type="Button" parent="UI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -150.0
+offset_top = 60.0
+offset_right = -20.0
+offset_bottom = 110.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 20
+text = "SHOP"
+
+[node name="Shop" parent="UI" instance=ExtResource("7_shop")]
+visible = false
+
 [connection signal="depth_changed" from="Player" to="." method="_on_player_depth_changed"]
+[connection signal="pressed" from="UI/ShopButton" to="." method="_on_shop_button_pressed"]
+[connection signal="closed" from="UI/Shop" to="." method="_on_shop_closed"]

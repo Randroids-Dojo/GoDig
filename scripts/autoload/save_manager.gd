@@ -28,6 +28,9 @@ var auto_save_enabled: bool = true
 var _is_saving: bool = false
 var _auto_save_timer: float = 0.0
 var _session_start_time: int = 0
+var _last_save_time_ms: int = 0
+
+const MIN_SAVE_INTERVAL_MS := 5000  # 5 seconds minimum between saves (debounce)
 
 
 func _ready() -> void:
@@ -56,11 +59,15 @@ func _notification(what: int) -> void:
 	# Emergency save on mobile when app is paused/backgrounded
 	if what == NOTIFICATION_APPLICATION_PAUSED:
 		print("[SaveManager] App paused - emergency save")
-		save_game()
+		save_game(true)  # Force save, bypass debounce
 	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		# Also save on focus loss (desktop)
 		if current_save != null:
-			save_game()
+			save_game(true)  # Force save, bypass debounce
+	elif what == NOTIFICATION_WM_CLOSE_REQUEST:
+		# Window closing - force save
+		if current_save != null:
+			save_game(true)
 
 
 ## Get file path for a save slot
@@ -103,8 +110,8 @@ func get_all_slot_summaries() -> Array:
 	return summaries
 
 
-## Save the current game state
-func save_game() -> bool:
+## Save the current game state (with optional debounce bypass for critical saves)
+func save_game(force: bool = false) -> bool:
 	if _is_saving:
 		push_warning("[SaveManager] Save already in progress")
 		return false
@@ -117,7 +124,13 @@ func save_game() -> bool:
 		push_error("[SaveManager] Invalid slot: %d" % current_slot)
 		return false
 
+	# Debounce: skip if too soon after last save (unless forced)
+	var current_time_ms := Time.get_ticks_msec()
+	if not force and (current_time_ms - _last_save_time_ms) < MIN_SAVE_INTERVAL_MS:
+		return false  # Skip, too soon
+
 	_is_saving = true
+	_last_save_time_ms = current_time_ms
 	save_started.emit()
 
 	# Update save metadata
@@ -230,6 +243,10 @@ func _collect_game_state() -> void:
 	if GameManager:
 		current_save.coins = GameManager.coins
 		current_save.current_depth = GameManager.current_depth
+		# Save depth milestones
+		current_save.depth_milestones_reached.clear()
+		for milestone in GameManager.get_reached_milestones():
+			current_save.depth_milestones_reached.append(milestone)
 
 	# Collect from InventoryManager
 	if InventoryManager:
@@ -246,6 +263,8 @@ func _apply_game_state() -> void:
 	if GameManager:
 		GameManager.set_coins(current_save.coins)
 		GameManager.current_depth = current_save.current_depth
+		# Restore depth milestones
+		GameManager.set_reached_milestones(current_save.depth_milestones_reached)
 
 	# Apply to InventoryManager
 	if InventoryManager:

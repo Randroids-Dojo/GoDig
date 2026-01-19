@@ -29,6 +29,7 @@ const CURRENT_VERSION := 1
 
 ## Progression tracking
 @export var max_depth_reached: int = 0
+@export var depth_milestones_reached: Array[int] = []
 @export var tools_unlocked: Array[String] = ["rusty_pickaxe"]
 @export var achievements: Array[String] = []
 @export var buildings_unlocked: Array[String] = []

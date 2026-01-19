@@ -7,6 +7,8 @@ created-at: "2026-01-19T00:52:47.235475-06:00"
 after:
   - GoDig-implement-player-hp-4f3e9af1
   - GoDig-dev-surface-area-379633b2
+  - GoDig-dev-player-spawn-b629056e
+  - GoDig-implement-inventorymanager-3439261e
 ---
 
 ## Description
@@ -20,10 +22,21 @@ When HP reaches 0, player dies, loses some inventory/coins based on depth, and r
 ## Affected Files
 
 - `scripts/player/player.gd` - Add death signal, death animation method
-- `scripts/autoload/game_manager.gd` - Coordinate death/respawn flow, death penalty calc
-- `scripts/autoload/inventory_manager.gd` - Add `get_total_item_count()` and `remove_random_item()` methods
+- `scripts/autoload/game_manager.gd` - Coordinate death/respawn flow, death penalty calc, add GameState enum
+- `scripts/autoload/inventory_manager.gd` - Add `get_total_item_count()` and `remove_random_item()` methods (see Implementation Notes)
 - `scenes/ui/death_screen.tscn` - NEW: Death overlay scene
 - `scripts/ui/death_screen.gd` - NEW: Show death message and respawn
+
+## Prerequisites
+
+Before implementing, verify these methods exist in InventoryManager:
+- `get_total_item_count()` - Currently MISSING, must be added
+- `remove_random_item()` - Currently MISSING, must be added
+
+GameManager also needs:
+- `GameState` enum (MENU, PLAYING, SHOPPING, PAUSED, DEAD)
+- `change_state()` method
+- See `GoDig-dev-core-game-73ab4a77` for full GameState spec
 
 ## Implementation Notes
 

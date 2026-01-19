@@ -20,6 +20,7 @@ This is the primary stuck recovery mechanism. Players who find themselves in unw
 - `scripts/ui/pause_menu.gd` - Handle rescue action
 - `scripts/player/player.gd` - Add rescue teleport method
 - `scripts/autoload/game_manager.gd` - Coordinate rescue flow
+- `scripts/autoload/inventory_manager.gd` - Add `clear_cargo()` method (NEW)
 
 ## Implementation Notes
 
@@ -60,6 +61,24 @@ func execute_rescue():
 ### What to Clear
 - All inventory items (ore stacks, gems, consumables)
 - NOT ladders in quick-slot? (design decision - probably clear these too)
+
+### InventoryManager.clear_cargo() Implementation
+
+```gdscript
+# inventory_manager.gd
+func clear_cargo() -> void:
+    ## Clear all sellable items (ores, gems). Keep equipment slots if any.
+    ## Used by emergency rescue to penalize player while keeping permanent upgrades.
+    for slot in slots:
+        if slot.is_empty():
+            continue
+        # Only clear items in sellable categories
+        if slot.item.category in ["ore", "gem", "consumable"]:
+            slot.clear()
+    inventory_changed.emit()
+```
+
+Note: This uses the existing `clear_all()` pattern but filters by category. The current inventory system doesn't have equipment slots, so this clears everything. When equipment is added later, update the category filter.
 
 ## Verify
 

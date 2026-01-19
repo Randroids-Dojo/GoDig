@@ -1,10 +1,11 @@
 extends Node
 ## DataRegistry - Central repository for game data resources.
 ##
-## Loads and provides access to all layer definitions at startup.
-## Use DataRegistry.get_layer() and DataRegistry.get_layer_at_depth() to access.
+## Loads and provides access to all layer and ore definitions at startup.
+## Use DataRegistry.get_layer(), get_ore(), get_ores_at_depth() to access.
 
 const LayerData = preload("res://resources/layers/layer_data.gd")
+const OreData = preload("res://resources/ores/ore_data.gd")
 
 ## All loaded layer definitions, sorted by min_depth
 var layers: Array[LayerData] = []
@@ -12,10 +13,17 @@ var layers: Array[LayerData] = []
 ## Dictionary for quick ID-based lookup
 var _layers_by_id: Dictionary = {}
 
+## All loaded ore definitions
+var ores: Dictionary = {}
+
+## Ores sorted by min_depth for efficient depth queries
+var _ores_by_depth: Array = []
+
 
 func _ready() -> void:
 	_load_all_layers()
-	print("[DataRegistry] Loaded %d layer types" % layers.size())
+	_load_all_ores()
+	print("[DataRegistry] Loaded %d layer types, %d ore types" % [layers.size(), ores.size()])
 
 
 func _load_all_layers() -> void:
@@ -112,3 +120,58 @@ func is_transition_zone(grid_pos: Vector2i) -> bool:
 		return false
 
 	return layer.is_transition_zone(depth)
+
+
+# ============================================
+# ORE DATA LOADING AND ACCESS
+# ============================================
+
+func _load_all_ores() -> void:
+	## Load all .tres files from ores and gems directories
+	_load_ores_from_directory("res://resources/ores/")
+	_load_ores_from_directory("res://resources/gems/")
+
+	# Sort by min_depth for efficient depth queries
+	_ores_by_depth = ores.values()
+	_ores_by_depth.sort_custom(func(a, b): return a.min_depth < b.min_depth)
+
+
+func _load_ores_from_directory(path: String) -> void:
+	var dir := DirAccess.open(path)
+	if dir == null:
+		push_warning("[DataRegistry] Cannot open directory: %s" % path)
+		return
+
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+
+	while file_name != "":
+		if file_name.ends_with(".tres"):
+			var resource_path := path + file_name
+			var resource = load(resource_path)
+			if resource is OreData:
+				ores[resource.id] = resource
+		file_name = dir.get_next()
+
+	dir.list_dir_end()
+
+
+## Get an ore by its ID
+func get_ore(ore_id: String) -> OreData:
+	if ores.has(ore_id):
+		return ores[ore_id]
+	return null
+
+
+## Get all ores that can spawn at a given depth
+func get_ores_at_depth(depth: int) -> Array:
+	var result := []
+	for ore in _ores_by_depth:
+		if ore.can_spawn_at_depth(depth):
+			result.append(ore)
+	return result
+
+
+## Get all loaded ore IDs
+func get_all_ore_ids() -> Array:
+	return ores.keys()

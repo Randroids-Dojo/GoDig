@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/ores/ore_data.gd" id="1_ore_data"]
+
+[resource]
+script = ExtResource("1_ore_data")
+id = "silver"
+display_name = "Silver"
+color = Color(0.85, 0.85, 0.9, 1)
+tile_atlas_coords = Vector2i(3, 1)
+min_depth = 200
+max_depth = 800
+spawn_threshold = 0.88
+noise_frequency = 0.04
+vein_size_min = 2
+vein_size_max = 4
+sell_value = 25
+max_stack = 99
+tier = 3
+rarity = "rare"
+hardness = 4
+required_tool_tier = 1

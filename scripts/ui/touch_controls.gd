@@ -1,9 +1,10 @@
 extends Control
 ## Touch controls UI for mobile devices.
-## Provides on-screen buttons for directional movement.
+## Provides on-screen buttons for directional movement and jump.
 
 signal direction_pressed(direction: Vector2i)
 signal direction_released()
+signal jump_pressed()
 
 var current_direction: Vector2i = Vector2i.ZERO
 
@@ -16,6 +17,7 @@ func _ready() -> void:
 	$RightButton.button_up.connect(_on_button_released)
 	$DownButton.button_down.connect(_on_down_pressed)
 	$DownButton.button_up.connect(_on_button_released)
+	$JumpButton.button_down.connect(_on_jump_pressed)
 
 
 func _on_left_pressed() -> void:
@@ -40,3 +42,7 @@ func _on_button_released() -> void:
 
 func get_direction() -> Vector2i:
 	return current_direction
+
+
+func _on_jump_pressed() -> void:
+	jump_pressed.emit()

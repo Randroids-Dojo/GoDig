@@ -50,7 +50,9 @@ static func create_new(slot_name: String = ""):
 	save.world_seed = randi()
 	save.last_save_time = int(Time.get_unix_time_from_system())
 	save.equipped_tool = "rusty_pickaxe"
-	save.tools_unlocked = ["rusty_pickaxe"]
+	# Use typed array assignment - clear and append to avoid type mismatch
+	save.tools_unlocked.clear()
+	save.tools_unlocked.append("rusty_pickaxe")
 	return save
 
 

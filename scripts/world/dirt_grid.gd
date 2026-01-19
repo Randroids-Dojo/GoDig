@@ -1,6 +1,7 @@
 extends Node2D
 ## Manages the infinite dirt grid with object pooling.
 ## Generates chunks around the player in all directions.
+## Handles ore spawning and mining drops.
 
 const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 
@@ -9,11 +10,16 @@ const CHUNK_SIZE := 16  # 16x16 blocks per chunk
 const POOL_SIZE := 500  # Increased for horizontal generation
 const LOAD_RADIUS := 3  # Load chunks within 3 chunks of player
 
+## Emitted when a block drops ore/items. item_id is empty string for dirt-only blocks.
+signal block_dropped(grid_pos: Vector2i, item_id: String)
+
 var _pool: Array = []  # Array of DirtBlock nodes
 var _active: Dictionary = {}  # Dictionary[Vector2i, DirtBlock node]
 var _loaded_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] tracks loaded chunks
+var _ore_map: Dictionary = {}  # Dictionary[Vector2i, String ore_id] - what ore is in each block
 var _player: Node2D = null
 var _surface_row: int = 0
+var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 
 func _ready() -> void:
@@ -101,6 +107,7 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 			if grid_pos.y >= _surface_row:
 				if not _active.has(grid_pos):
 					_acquire(grid_pos)
+					_determine_ore_spawn(grid_pos)
 
 
 func _cleanup_distant_chunks(center_chunk: Vector2i) -> void:
@@ -150,6 +157,68 @@ func hit_block(pos: Vector2i) -> bool:
 	var destroyed: bool = block.take_hit()
 
 	if destroyed:
+		# Signal what dropped (ore or empty string for plain dirt)
+		var ore_id := _ore_map.get(pos, "") as String
+		block_dropped.emit(pos, ore_id)
+
+		# Clean up ore map entry
+		if _ore_map.has(pos):
+			_ore_map.erase(pos)
+
 		_release(pos)
 
 	return destroyed
+
+
+# ============================================
+# ORE SPAWNING LOGIC
+# ============================================
+
+func _determine_ore_spawn(pos: Vector2i) -> void:
+	## Determine if this position should contain ore based on depth and rarity
+	var depth := pos.y - GameManager.SURFACE_ROW
+	if depth < 0:
+		return  # No ores above surface
+
+	# Get all ores that can spawn at this depth
+	var available_ores := DataRegistry.get_ores_at_depth(depth)
+	if available_ores.is_empty():
+		return
+
+	# Use position-based seed for deterministic spawning
+	var seed_value := pos.x * 10000 + pos.y
+	_rng.seed = seed_value
+
+	# Check each ore (rarest first - they have highest thresholds)
+	# Sort by spawn_threshold descending so rarest are checked first
+	available_ores.sort_custom(func(a, b): return a.spawn_threshold > b.spawn_threshold)
+
+	for ore in available_ores:
+		# Generate noise-like value using position
+		var noise_val := _generate_ore_noise(pos, ore.noise_frequency)
+		if noise_val > ore.spawn_threshold:
+			_ore_map[pos] = ore.id
+			# Visually tint the block to show ore
+			_apply_ore_visual(pos, ore)
+			return  # Only one ore per block
+
+
+func _generate_ore_noise(pos: Vector2i, frequency: float) -> float:
+	## Generate a pseudo-noise value for ore spawning
+	## Using hash-based approach for deterministic results
+	var hash_val := (pos.x * 374761393 + pos.y * 668265263) % 1000000
+	var freq_adj := int(frequency * 1000)
+	hash_val = (hash_val * freq_adj) % 1000000
+	return float(hash_val) / 1000000.0
+
+
+func _apply_ore_visual(pos: Vector2i, ore) -> void:
+	## Apply ore color tint to block visual
+	if not _active.has(pos):
+		return
+
+	var block = _active[pos]
+	# Blend block's layer color with ore color
+	var ore_color: Color = ore.color
+	var base_color: Color = block.color
+	block.color = base_color.lerp(ore_color, 0.5)

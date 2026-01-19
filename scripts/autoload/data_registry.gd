@@ -6,6 +6,7 @@ extends Node
 
 const LayerData = preload("res://resources/layers/layer_data.gd")
 const OreData = preload("res://resources/ores/ore_data.gd")
+const ItemData = preload("res://resources/items/item_data.gd")
 
 ## All loaded layer definitions, sorted by min_depth
 var layers: Array[LayerData] = []
@@ -19,11 +20,15 @@ var ores: Dictionary = {}
 ## Ores sorted by min_depth for efficient depth queries
 var _ores_by_depth: Array = []
 
+## All loaded item definitions
+var items: Dictionary = {}
+
 
 func _ready() -> void:
 	_load_all_layers()
 	_load_all_ores()
-	print("[DataRegistry] Loaded %d layer types, %d ore types" % [layers.size(), ores.size()])
+	_load_all_items()
+	print("[DataRegistry] Loaded %d layers, %d ores, %d items" % [layers.size(), ores.size(), items.size()])
 
 
 func _load_all_layers() -> void:
@@ -175,3 +180,42 @@ func get_ores_at_depth(depth: int) -> Array:
 ## Get all loaded ore IDs
 func get_all_ore_ids() -> Array:
 	return ores.keys()
+
+
+# ============================================
+# ITEM DATA LOADING AND ACCESS
+# ============================================
+
+func _load_all_items() -> void:
+	## Load all .tres files from items directory
+	var items_path := "res://resources/items/"
+	var dir := DirAccess.open(items_path)
+
+	if dir == null:
+		push_warning("[DataRegistry] Cannot open items directory: %s" % items_path)
+		return
+
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+
+	while file_name != "":
+		if file_name.ends_with(".tres"):
+			var resource_path := items_path + file_name
+			var resource = load(resource_path)
+			if resource is ItemData:
+				items[resource.id] = resource
+		file_name = dir.get_next()
+
+	dir.list_dir_end()
+
+
+## Get an item by its ID
+func get_item(item_id: String) -> ItemData:
+	if items.has(item_id):
+		return items[item_id]
+	return null
+
+
+## Get all loaded item IDs
+func get_all_item_ids() -> Array:
+	return items.keys()

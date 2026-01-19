@@ -170,6 +170,7 @@ async def test_coins_property_exists(game):
     coins = await game.get_property(PATHS["game_manager"], "coins")
     assert coins is not None, "GameManager should have coins property"
     assert isinstance(coins, int), f"Coins should be an int, got {type(coins)}"
+<<<<<<< HEAD
 
 
 
@@ -287,3 +288,5 @@ async def test_player_starts_at_correct_position(game):
     assert grid_pos is not None, "Player should have a grid position"
     # Player should start above the surface (row 7)
     assert grid_pos["y"] <= 7, f"Player should start at or above surface row 7, got y={grid_pos['y']}"
+=======
+>>>>>>> 57a5e4a (feat: Add OreData resource class and ore definitions)

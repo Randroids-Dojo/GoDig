@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/ores/ore_data.gd" id="1_ore_data"]
+
+[resource]
+script = ExtResource("1_ore_data")
+id = "gold"
+display_name = "Gold"
+color = Color(1, 0.85, 0.2, 1)
+tile_atlas_coords = Vector2i(4, 1)
+min_depth = 300
+max_depth = 1000
+spawn_threshold = 0.92
+noise_frequency = 0.03
+vein_size_min = 1
+vein_size_max = 3
+sell_value = 100
+max_stack = 99
+tier = 3
+rarity = "rare"
+hardness = 5
+required_tool_tier = 1

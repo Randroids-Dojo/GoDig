@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/ores/ore_data.gd" id="1_ore_data"]
+
+[resource]
+script = ExtResource("1_ore_data")
+id = "coal"
+display_name = "Coal"
+color = Color(0.2, 0.2, 0.2, 1)
+tile_atlas_coords = Vector2i(0, 1)
+min_depth = 0
+max_depth = 500
+spawn_threshold = 0.75
+noise_frequency = 0.08
+vein_size_min = 3
+vein_size_max = 8
+sell_value = 1
+max_stack = 99
+tier = 1
+rarity = "common"
+hardness = 2
+required_tool_tier = 0

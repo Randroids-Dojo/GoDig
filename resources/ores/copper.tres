@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/ores/ore_data.gd" id="1_ore_data"]
+
+[resource]
+script = ExtResource("1_ore_data")
+id = "copper"
+display_name = "Copper"
+color = Color(0.8, 0.5, 0.2, 1)
+tile_atlas_coords = Vector2i(1, 1)
+min_depth = 10
+max_depth = 300
+spawn_threshold = 0.78
+noise_frequency = 0.06
+vein_size_min = 2
+vein_size_max = 6
+sell_value = 5
+max_stack = 99
+tier = 1
+rarity = "common"
+hardness = 3
+required_tool_tier = 0

@@ -4,8 +4,6 @@ status: open
 priority: 1
 issue-type: task
 created-at: "2026-01-16T00:37:35.694949-06:00"
-blocks:
-  - GoDig-dev-project-setup-46bd8c55
 ---
 
 ## Description
@@ -23,11 +21,16 @@ GameManager already exists with grid constants (BLOCK_SIZE, GRID_WIDTH) and basi
 
 ## Current Implementation
 
-The existing GameManager has:
-- Grid constants (BLOCK_SIZE=128, GRID_WIDTH=5, SURFACE_ROW=7)
-- Basic signals (game_started, game_over, depth_updated)
-- Coordinate conversion utilities
+**ALREADY IMPLEMENTED** in `scripts/autoload/game_manager.gd`:
+- Grid constants (BLOCK_SIZE=128, GRID_WIDTH=5, SURFACE_ROW=7, VIEWPORT dimensions)
+- Signals: game_started, game_over, depth_updated, depth_milestone_reached, coins_changed, coins_added, coins_spent
+- Coordinate conversion: grid_to_world(), world_to_grid()
 - is_running state
+- Currency system: add_coins(), spend_coins(), can_afford(), get_coins(), set_coins()
+- Depth milestones: tracking, auto-save on milestone
+- TileSet caching: terrain_tileset, get_terrain_tileset()
+
+**NOT YET IMPLEMENTED** (still needed):
 
 ## Implementation Notes - Additions Needed
 

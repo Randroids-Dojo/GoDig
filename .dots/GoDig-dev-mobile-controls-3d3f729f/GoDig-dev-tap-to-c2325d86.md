@@ -6,6 +6,8 @@ issue-type: task
 created-at: "2026-01-16T00:32:04.325708-06:00"
 ---
 
+**STATUS: IMPLEMENTED** - See `scripts/player/player.gd` lines 500-635
+
 Tap on adjacent blocks to dig them. World position to tile conversion. Adjacency check.
 
 ## Description

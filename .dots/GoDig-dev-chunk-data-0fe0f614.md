@@ -4,8 +4,6 @@ status: open
 priority: 1
 issue-type: task
 created-at: "2026-01-16T00:37:51.423895-06:00"
-blocks:
-  - GoDig-dev-savemanager-autoload-d6e0ad94
 ---
 
 ## Description
@@ -18,8 +16,8 @@ The infinite depth world is divided into chunks. ChunkData stores the state of e
 
 ## Affected Files
 
-- `resources/world/chunk_data.gd` - NEW: ChunkData resource class
-- `scripts/world/tile_types.gd` - NEW: Enum/constants for tile types
+- `resources/world/chunk_data.gd` - NEW: ChunkData resource class (NOT YET IMPLEMENTED)
+- `scripts/world/tile_types.gd` - **IMPLEMENTED**: Enum/constants for tile types
 
 ## Implementation Notes
 

@@ -1,9 +1,11 @@
 ---
 title: "implement: Fix depth signal connection bug"
-status: open
+status: closed
 priority: 0
 issue-type: task
-created-at: "2026-01-19T11:05:55.637320-06:00"
+created-at: "\"2026-01-19T11:05:55.637320-06:00\""
+closed-at: "2026-01-19T11:42:32.814657-06:00"
+close-reason: Bug already fixed - signal connection exists in both test_level.gd (line 40) and test_level.tscn scene file
 ---
 
 ## Description

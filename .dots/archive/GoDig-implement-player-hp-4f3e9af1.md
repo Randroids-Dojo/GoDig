@@ -1,9 +1,11 @@
 ---
 title: "implement: Player HP system"
-status: active
+status: closed
 priority: 1
 issue-type: task
-created-at: "\"2026-01-19T00:52:14.726848-06:00\""
+created-at: "\"\\\"\\\\\\\"2026-01-19T00:52:14.726848-06:00\\\\\\\"\\\"\""
+closed-at: "2026-01-19T11:42:07.197032-06:00"
+close-reason: Fully implemented with HP system, damage/heal methods, HUD health bar, low health warning, and 17 passing tests
 ---
 
 ## Description

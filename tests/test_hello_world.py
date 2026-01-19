@@ -154,3 +154,45 @@ async def test_coins_property_exists(game):
     coins = await game.get_property(PATHS["game_manager"], "coins")
     assert coins is not None, "GameManager should have coins property"
     assert isinstance(coins, int), f"Coins should be an int, got {type(coins)}"
+
+
+@pytest.mark.asyncio
+async def test_shop_button_exists(game):
+    """Verify the shop button exists in the UI."""
+    exists = await game.node_exists(PATHS["shop_button"])
+    assert exists, "Shop button should exist"
+
+
+@pytest.mark.asyncio
+async def test_shop_button_has_text(game):
+    """Verify the shop button has SHOP text."""
+    text = await game.get_property(PATHS["shop_button"], "text")
+    assert text == "SHOP", f"Shop button should show 'SHOP', got '{text}'"
+
+
+@pytest.mark.asyncio
+async def test_shop_ui_exists(game):
+    """Verify the Shop UI panel exists."""
+    exists = await game.node_exists(PATHS["shop"])
+    assert exists, "Shop UI should exist"
+
+
+@pytest.mark.asyncio
+async def test_shop_starts_hidden(game):
+    """Verify the shop starts hidden."""
+    visible = await game.get_property(PATHS["shop"], "visible")
+    assert visible is False, "Shop should start hidden"
+
+
+@pytest.mark.asyncio
+async def test_coins_label_exists(game):
+    """Verify the coins label exists in the HUD."""
+    exists = await game.node_exists(PATHS["coins_label"])
+    assert exists, "Coins label should exist"
+
+
+@pytest.mark.asyncio
+async def test_coins_label_shows_amount(game):
+    """Verify the coins label shows a dollar amount."""
+    text = await game.get_property(PATHS["coins_label"], "text")
+    assert text.startswith("$"), f"Coins label should start with '$', got '{text}'"

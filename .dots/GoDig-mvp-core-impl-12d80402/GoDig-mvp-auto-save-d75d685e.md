@@ -1,13 +1,11 @@
 ---
 title: "implement: Auto-save system"
-status: open
+status: closed
 priority: 0
 issue-type: task
-created-at: "2026-01-16T00:34:28.141025-06:00"
-after:
-  - GoDig-dev-savemanager-autoload-d6e0ad94
-  - GoDig-mvp-basic-inventory-851ca931
-  - GoDig-mvp-2-3-e92f5253
+created-at: "\"2026-01-16T00:34:28.141025-06:00\""
+closed-at: "2026-01-19T11:49:13.086975-06:00"
+close-reason: Already implemented in SaveManager with AUTO_SAVE_INTERVAL=60s, auto_save_enabled flag, timer in _process(), and auto_save_triggered signal
 ---
 
 ## Description

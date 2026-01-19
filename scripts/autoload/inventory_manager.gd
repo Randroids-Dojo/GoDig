@@ -247,3 +247,34 @@ func from_dict(data: Dictionary, item_registry: Dictionary) -> void:
 				slots[i].quantity = sdata.get("quantity", 0)
 
 	inventory_changed.emit()
+
+
+## Get simple inventory dictionary for SaveManager (item_id -> quantity)
+func get_inventory_dict() -> Dictionary:
+	var result := {}
+	for slot in slots:
+		if not slot.is_empty() and slot.item != null:
+			var item_id: String = slot.item.id
+			if result.has(item_id):
+				result[item_id] += slot.quantity
+			else:
+				result[item_id] = slot.quantity
+	return result
+
+
+## Load inventory from simple dictionary (item_id -> quantity)
+## Uses DataRegistry to look up items
+func load_from_dict(data: Dictionary) -> void:
+	clear_all()
+
+	for item_id: String in data.keys():
+		var quantity: int = data[item_id]
+		if quantity <= 0:
+			continue
+
+		# Look up item in DataRegistry
+		var item = DataRegistry.get_item(item_id)
+		if item != null:
+			add_item(item, quantity)
+		else:
+			push_warning("[InventoryManager] Unknown item ID in save: %s" % item_id)

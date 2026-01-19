@@ -219,6 +219,25 @@ async def test_coins_label_shows_amount(game):
     text = await game.get_property(PATHS["coins_label"], "text")
     assert text.startswith("$"), f"Coins label should start with '$', got '{text}'"
 
+# =============================================================================
+# SAVE MANAGER EXISTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_save_manager_exists(game):
+    """Verify the SaveManager autoload exists."""
+    exists = await game.node_exists(PATHS["save_manager"])
+    assert exists, "SaveManager autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_save_manager_has_slot(game):
+    """Verify the SaveManager has current_slot property."""
+    current_slot = await game.get_property(PATHS["save_manager"], "current_slot")
+    assert current_slot is not None, "SaveManager should have current_slot property"
+    assert current_slot == -1, f"SaveManager current_slot should be -1 (no save), got {current_slot}"
+
 <<<<<<< HEAD
 
 

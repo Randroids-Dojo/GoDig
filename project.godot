@@ -20,6 +20,7 @@ config/features=PackedStringArray("4.5", "GL Compatibility")
 GameManager="*res://scripts/autoload/game_manager.gd"
 DataRegistry="*res://scripts/autoload/data_registry.gd"
 InventoryManager="*res://scripts/autoload/inventory_manager.gd"
+SaveManager="*res://scripts/autoload/save_manager.gd"
 PlayGodotServer="*res://addons/playgodot/server.gd"
 
 [display]

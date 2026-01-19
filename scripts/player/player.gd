@@ -26,6 +26,11 @@ const WALL_JUMP_COOLDOWN: float = 0.2  # Prevent instant re-grab
 const TAP_HOLD_THRESHOLD: float = 0.2  # Seconds before continuous mining starts
 const TAP_MINE_INTERVAL: float = 0.15  # Time between hits when holding
 
+# Fall damage constants
+const FALL_DAMAGE_THRESHOLD: int = 3  # blocks (fall more than this to take damage)
+const DAMAGE_PER_BLOCK: float = 10.0
+const MAX_FALL_DAMAGE: float = 100.0
+
 # HP constants
 const MAX_HP: int = 100
 const LOW_HP_THRESHOLD: float = 0.25  # 25% = low health warning
@@ -44,6 +49,10 @@ var _move_tween: Tween
 # Wall-jump state
 var _wall_direction: int = 0  # -1 = wall on left, 1 = wall on right, 0 = no wall
 var _wall_jump_timer: float = 0.0  # Cooldown after wall-jump
+
+# Fall tracking state
+var _fall_start_y: float = 0.0
+var _is_tracking_fall: bool = false
 
 # Tap-to-dig state
 var _tap_target_tile: Vector2i = Vector2i(-999, -999)  # Invalid default
@@ -304,6 +313,10 @@ func _should_fall() -> bool:
 func _start_falling() -> void:
 	current_state = State.FALLING
 	velocity = Vector2.ZERO
+	# Start tracking fall from current position
+	if not _is_tracking_fall:
+		_is_tracking_fall = true
+		_fall_start_y = position.y
 
 
 func _handle_falling(delta: float) -> void:
@@ -352,6 +365,8 @@ func _update_wall_direction() -> void:
 func _start_wall_slide() -> void:
 	current_state = State.WALL_SLIDING
 	velocity.y = 0  # Reset vertical velocity when grabbing wall
+	# Reset fall tracking - grabbing wall cancels fall damage
+	_is_tracking_fall = false
 
 
 func _handle_wall_sliding(delta: float) -> void:
@@ -451,12 +466,35 @@ func _check_landing() -> void:
 
 func _land_on_grid(landing_grid: Vector2i) -> void:
 	## Snap player to grid position and return to IDLE state
+	# Calculate and apply fall damage before resetting state
+	if _is_tracking_fall:
+		_is_tracking_fall = false
+		var fall_distance_px := position.y - _fall_start_y
+		var fall_blocks := int(fall_distance_px / BLOCK_SIZE)
+		_apply_fall_damage(fall_blocks)
+
 	# Snap to proper grid position
 	grid_position = landing_grid
 	position = _grid_to_world(grid_position)
 	velocity = Vector2.ZERO
 	current_state = State.IDLE
 	_update_depth()
+
+
+func _apply_fall_damage(fall_blocks: int) -> void:
+	## Apply fall damage based on the number of blocks fallen
+	if fall_blocks <= FALL_DAMAGE_THRESHOLD:
+		return
+
+	var excess_blocks := fall_blocks - FALL_DAMAGE_THRESHOLD
+	var damage := excess_blocks * DAMAGE_PER_BLOCK
+
+	# Future: Apply modifiers (boots, surface type)
+	# damage *= (1.0 - boots_reduction)
+	# damage *= surface_hardness_multiplier
+
+	damage = minf(damage, MAX_FALL_DAMAGE)
+	take_damage(int(damage), "fall")
 
 
 # ============================================

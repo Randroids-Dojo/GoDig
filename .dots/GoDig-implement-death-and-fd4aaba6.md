@@ -5,7 +5,6 @@ priority: 1
 issue-type: task
 created-at: "2026-01-19T00:52:47.235475-06:00"
 after:
-  - GoDig-implement-player-hp-4f3e9af1
   - GoDig-dev-surface-area-379633b2
   - GoDig-dev-player-spawn-b629056e
   - GoDig-implement-inventorymanager-3439261e
@@ -21,17 +20,22 @@ When HP reaches 0, player dies, loses some inventory/coins based on depth, and r
 
 ## Affected Files
 
-- `scripts/player/player.gd` - Add death signal, death animation method
+- `scripts/player/player.gd` - Add `play_death_animation()` method (HP system already exists with die(), revive(), player_died signal)
 - `scripts/autoload/game_manager.gd` - Coordinate death/respawn flow, death penalty calc, add GameState enum
-- `scripts/autoload/inventory_manager.gd` - Add `get_total_item_count()` and `remove_random_item()` methods (see Implementation Notes)
+- `scripts/autoload/inventory_manager.gd` - Needs `get_total_item_count()` and `remove_random_item()` (separate task: GoDig-implement-inventorymanager-3439261e)
 - `scenes/ui/death_screen.tscn` - NEW: Death overlay scene
 - `scripts/ui/death_screen.gd` - NEW: Show death message and respawn
 
 ## Prerequisites
 
+**Player HP System** - ALREADY IMPLEMENTED in `player.gd`:
+- `current_hp`, `MAX_HP`, `is_dead` variables exist
+- `take_damage()`, `die()`, `revive()` methods exist
+- `hp_changed`, `player_died` signals exist
+
 Before implementing, verify these methods exist in InventoryManager:
-- `get_total_item_count()` - Currently MISSING, must be added
-- `remove_random_item()` - Currently MISSING, must be added
+- `get_total_item_count()` - Currently MISSING, must be added (see GoDig-implement-inventorymanager-3439261e)
+- `remove_random_item()` - Currently MISSING, must be added (see GoDig-implement-inventorymanager-3439261e)
 
 GameManager also needs:
 - `GameState` enum (MENU, PLAYING, SHOPPING, PAUSED, DEAD)

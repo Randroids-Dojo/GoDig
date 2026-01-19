@@ -4,8 +4,6 @@ status: open
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:45:21.949176-06:00"
-after:
-  - GoDig-dev-auto-pickup-9886859c
 ---
 
 ## Description

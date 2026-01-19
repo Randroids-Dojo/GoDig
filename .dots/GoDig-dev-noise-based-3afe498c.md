@@ -4,8 +4,6 @@ status: open
 priority: 1
 issue-type: task
 created-at: "2026-01-16T00:37:51.430503-06:00"
-after:
-  - GoDig-dev-chunk-data-0fe0f614
 ---
 
 ## Description

@@ -15,13 +15,7 @@ signal closed
 @onready var upgrades_container: VBoxContainer = $Panel/VBox/TabContainer/Upgrades/ScrollContainer/UpgradesVBox
 @onready var close_button: Button = $Panel/VBox/CloseButton
 
-## Upgrade definitions for MVP
-var tool_upgrades := [
-	{"level": 1, "damage": 1.0, "cost": 0, "name": "Rusty Pickaxe"},
-	{"level": 2, "damage": 2.0, "cost": 500, "name": "Copper Pickaxe"},
-	{"level": 3, "damage": 3.5, "cost": 2000, "name": "Iron Pickaxe"},
-	{"level": 4, "damage": 5.0, "cost": 5000, "name": "Steel Pickaxe"},
-]
+## Tool upgrades now loaded from DataRegistry (ToolData resources)
 
 var backpack_upgrades := [
 	{"level": 1, "slots": 8, "cost": 0, "min_depth": 0},
@@ -187,8 +181,8 @@ func _refresh_upgrades_tab() -> void:
 	for child in upgrades_container.get_children():
 		child.queue_free()
 
-	# Tool upgrade section
-	var tool_section := _create_upgrade_section("Pickaxe", _get_current_tool_level(), tool_upgrades, "_on_tool_upgrade")
+	# Tool upgrade section (using new ToolData system)
+	var tool_section := _create_tool_upgrade_section()
 	upgrades_container.add_child(tool_section)
 
 	# Backpack upgrade section
@@ -197,8 +191,11 @@ func _refresh_upgrades_tab() -> void:
 
 
 func _get_current_tool_level() -> int:
-	# TODO: Get from player equipment system when implemented
-	return 1
+	## Get current tool tier from PlayerData
+	var tool := PlayerData.get_equipped_tool()
+	if tool == null:
+		return 1
+	return tool.tier
 
 
 func _get_current_backpack_level() -> int:
@@ -268,14 +265,74 @@ func _create_upgrade_section(title: String, current_level: int, upgrades: Array,
 	return panel
 
 
+func _create_tool_upgrade_section() -> Control:
+	## Creates the tool upgrade UI section using ToolData resources
+	var panel := PanelContainer.new()
+	var vbox := VBoxContainer.new()
+	panel.add_child(vbox)
+
+	# Title
+	var title_label := Label.new()
+	title_label.text = "Pickaxe"
+	title_label.add_theme_font_size_override("font_size", 24)
+	vbox.add_child(title_label)
+
+	# Get current tool info
+	var current_tool := PlayerData.get_equipped_tool()
+	if current_tool != null:
+		var current_info := Label.new()
+		var effective_dmg := current_tool.damage * current_tool.speed_multiplier
+		current_info.text = "Level %d: %s (Damage: %.1f)" % [current_tool.tier, current_tool.display_name, effective_dmg]
+		vbox.add_child(current_info)
+
+	# Get next upgrade
+	var next_tool := PlayerData.get_next_tool_upgrade()
+	if next_tool != null:
+		var next_info := Label.new()
+		var next_effective_dmg := next_tool.damage * next_tool.speed_multiplier
+		next_info.text = "-> Level %d: %s (Damage: %.1f)" % [next_tool.tier, next_tool.display_name, next_effective_dmg]
+		vbox.add_child(next_info)
+
+		var can_afford := GameManager.can_afford(next_tool.cost)
+		var depth_ok := PlayerData.max_depth_reached >= next_tool.unlock_depth
+
+		var upgrade_btn := Button.new()
+		if not depth_ok:
+			upgrade_btn.text = "LOCKED - Reach %dm" % next_tool.unlock_depth
+			upgrade_btn.disabled = true
+		elif not can_afford:
+			upgrade_btn.text = "UPGRADE - $%d (Need $%d more)" % [next_tool.cost, next_tool.cost - GameManager.get_coins()]
+			upgrade_btn.disabled = true
+		else:
+			upgrade_btn.text = "UPGRADE - $%d" % next_tool.cost
+			upgrade_btn.pressed.connect(_on_tool_upgrade)
+
+		vbox.add_child(upgrade_btn)
+	else:
+		var max_label := Label.new()
+		max_label.text = "MAX LEVEL"
+		max_label.add_theme_color_override("font_color", Color.GOLD)
+		vbox.add_child(max_label)
+
+	return panel
+
+
 func _on_tool_upgrade() -> void:
-	var current_level := _get_current_tool_level()
-	if current_level < tool_upgrades.size():
-		var next: Dictionary = tool_upgrades[current_level]
-		if GameManager.spend_coins(next.cost):
-			# TODO: Apply tool upgrade to player
-			print("[Shop] Tool upgraded to level %d" % (current_level + 1))
-			_refresh_upgrades_tab()
+	## Purchase the next tool upgrade
+	var next_tool := PlayerData.get_next_tool_upgrade()
+	if next_tool == null:
+		return
+
+	# Verify player can afford and meets depth requirement
+	if not PlayerData.can_unlock_tool(next_tool):
+		return
+	if not GameManager.can_afford(next_tool.cost):
+		return
+
+	if GameManager.spend_coins(next_tool.cost):
+		PlayerData.equip_tool(next_tool.id)
+		print("[Shop] Tool upgraded to: %s" % next_tool.display_name)
+		_refresh_upgrades_tab()
 
 
 func _on_backpack_upgrade() -> void:

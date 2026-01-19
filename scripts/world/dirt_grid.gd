@@ -106,13 +106,20 @@ func get_block(pos: Vector2i):
 	return _active.get(pos)
 
 
-func hit_block(pos: Vector2i) -> bool:
-	## Hit a block, returns true if destroyed
+func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
+	## Hit a block with specified tool damage, returns true if destroyed
+	## If tool_damage is -1, uses PlayerData's equipped tool damage
 	if not _active.has(pos):
 		return true  # Already gone
 
 	var block = _active[pos]
-	var destroyed: bool = block.take_hit()
+
+	# Get tool damage from PlayerData if not specified
+	var damage := tool_damage
+	if damage < 0:
+		damage = PlayerData.get_tool_damage()
+
+	var destroyed: bool = block.take_hit(damage)
 
 	if destroyed:
 		# Signal what dropped (ore or empty string for plain dirt)

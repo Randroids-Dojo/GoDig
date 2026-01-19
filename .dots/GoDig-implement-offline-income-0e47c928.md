@@ -41,11 +41,16 @@ func _calculate_offline_earnings() -> int:
     return int(elapsed_minutes * passive_income_rate)
 ```
 
-### UI Popup
+### UI Popup - Positive Framing
+Research shows framing is critical. WoW's XP system was hated when "halved after limit" but loved when reframed as "bonus XP that drops to normal." Apply this:
+
 - "Welcome back!"
-- "Earned X coins while away"
-- If capped: "(max reached - check in more often!)"
+- "Your miners collected X coins!"
+- NO message about caps or "check in more often" - this feels punishing
+- If player was away a long time, add bonus message: "Great haul!"
 - Tap to dismiss and collect
+
+**Key Principle**: The cap exists to pace content, but players should NEVER feel punished for being away. The message is always positive.
 
 ## Verify
 

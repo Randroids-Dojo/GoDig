@@ -24,9 +24,20 @@ var is_running: bool = false
 var current_depth: int = 0
 var coins: int = 0
 
+## Cached terrain tileset (loaded on ready)
+var terrain_tileset: TileSet = null
+
 
 func _ready() -> void:
+	_init_tileset()
 	print("[GameManager] Ready")
+
+
+## Initialize the terrain TileSet (load or create)
+func _init_tileset() -> void:
+	terrain_tileset = TileSetSetup.get_or_create_tileset()
+	if terrain_tileset:
+		print("[GameManager] TileSet initialized with ", terrain_tileset.get_source_count(), " sources")
 
 
 func start_game() -> void:
@@ -103,3 +114,14 @@ func get_coins() -> int:
 func set_coins(amount: int) -> void:
 	coins = maxi(0, amount)
 	coins_changed.emit(coins)
+
+
+# ============================================
+# TILESET ACCESS
+# ============================================
+
+## Get the terrain TileSet (creates if not yet initialized)
+func get_terrain_tileset() -> TileSet:
+	if terrain_tileset == null:
+		_init_tileset()
+	return terrain_tileset

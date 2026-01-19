@@ -4,8 +4,6 @@ status: open
 priority: 1
 issue-type: task
 created-at: "2026-01-16T00:37:51.427311-06:00"
-blocks:
-  - GoDig-dev-create-tileset-b6659308
 after:
   - GoDig-dev-chunk-data-0fe0f614
   - GoDig-dev-noise-based-3afe498c

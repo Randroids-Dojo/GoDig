@@ -4,8 +4,6 @@ status: open
 priority: 1
 issue-type: task
 created-at: "2026-01-16T00:37:51.430503-06:00"
-blocks:
-  - GoDig-dev-create-tileset-b6659308
 after:
   - GoDig-dev-chunk-data-0fe0f614
 ---
@@ -13,6 +11,15 @@ after:
 ## Description
 
 Create a TerrainGenerator class that uses FastNoiseLite to generate terrain tiles based on depth and position. Handles layer transitions (dirt -> stone -> granite), ore placement, and cave generation. Used by ChunkManager to populate chunks.
+
+## Current State Note
+
+**The current codebase uses a different architecture:**
+- `DirtGrid` with ColorRect-based blocks (object pooling, not TileMap)
+- `DataRegistry` with OreData/LayerData resources for ore/layer properties
+- Ore spawning uses hash-based noise in `DirtGrid._determine_ore_spawn()`
+
+This spec describes a TileSet/TileMap approach that could replace the current system for better performance with very large worlds. Consider this a future refactor or alternative implementation. The current DirtGrid approach works for MVP.
 
 ## Context
 

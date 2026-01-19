@@ -176,9 +176,8 @@ func _check_jump_input() -> bool:
 func _try_move_or_mine(direction: Vector2i) -> void:
 	var target := grid_position + direction
 
-	# Check bounds (don't go off left/right edges)
-	if target.x < 0 or target.x >= GameManager.GRID_WIDTH:
-		return
+	# No horizontal bounds - infinite horizontal space!
+	# (Vertical bounds are still enforced by surface row)
 
 	# Check if target cell has a block
 	if dirt_grid and dirt_grid.has_block(target):
@@ -350,15 +349,15 @@ func _update_wall_direction() -> void:
 	# Get current grid position from world position
 	var current_grid := _world_to_grid(position)
 
-	# Check left wall
+	# Check left wall (no bounds check - infinite horizontal space)
 	var left_pos := current_grid + Vector2i(-1, 0)
-	if left_pos.x >= 0 and dirt_grid.has_block(left_pos):
+	if dirt_grid.has_block(left_pos):
 		_wall_direction = -1
 		return
 
-	# Check right wall
+	# Check right wall (no bounds check - infinite horizontal space)
 	var right_pos := current_grid + Vector2i(1, 0)
-	if right_pos.x < GameManager.GRID_WIDTH and dirt_grid.has_block(right_pos):
+	if dirt_grid.has_block(right_pos):
 		_wall_direction = 1
 
 
@@ -419,10 +418,7 @@ func _handle_wall_jumping(delta: float) -> void:
 	position.x += velocity.x * delta
 	position.y += velocity.y * delta
 
-	# Clamp to world bounds
-	var min_x := float(GameManager.GRID_OFFSET_X)
-	var max_x := float(GameManager.GRID_OFFSET_X + (GameManager.GRID_WIDTH - 1) * BLOCK_SIZE)
-	position.x = clamp(position.x, min_x, max_x)
+	# No horizontal bounds - infinite horizontal space!
 
 	# Transition to falling after horizontal velocity dies down or we start falling
 	if velocity.y > 0:

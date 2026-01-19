@@ -1,14 +1,18 @@
 extends Node2D
 ## Manages the infinite dirt grid with object pooling.
-## Generates rows ahead of the player and cleans up rows behind.
+## Generates blocks in a rectangular area around the player.
+## Supports infinite horizontal and vertical expansion.
 ## Handles ore spawning and mining drops.
 
 const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 
 const BLOCK_SIZE := 128
-const POOL_SIZE := 100  # Fewer blocks needed with larger size
+const POOL_SIZE := 200  # Increased for horizontal expansion
 const ROWS_AHEAD := 10
 const ROWS_BEHIND := 5
+const COLS_LEFT := 8   # Load 8 columns to the left of player
+const COLS_RIGHT := 8  # Load 8 columns to the right of player
+const CLEANUP_DISTANCE := 15  # Unload blocks beyond this distance
 
 ## Emitted when a block drops ore/items. item_id is empty string for dirt-only blocks.
 signal block_dropped(grid_pos: Vector2i, item_id: String)
@@ -16,8 +20,8 @@ signal block_dropped(grid_pos: Vector2i, item_id: String)
 var _pool: Array = []  # Array of DirtBlock nodes
 var _active: Dictionary = {}  # Dictionary[Vector2i, DirtBlock node]
 var _ore_map: Dictionary = {}  # Dictionary[Vector2i, String ore_id] - what ore is in each block
-var _lowest_generated_row: int = 0
 var _player: Node2D = null
+var _player_grid_pos: Vector2i = Vector2i.ZERO
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 
@@ -27,19 +31,30 @@ func _ready() -> void:
 
 func initialize(player: Node2D, surface_row: int) -> void:
 	_player = player
-	_lowest_generated_row = surface_row
-	# Generate initial rows (surface + some below)
-	for row in range(surface_row, surface_row + ROWS_AHEAD):
-		_generate_row(row)
+	# Convert player position to grid coordinates
+	_player_grid_pos = Vector2i(
+		int(_player.position.x / BLOCK_SIZE),
+		int(_player.position.y / BLOCK_SIZE)
+	)
+	# Generate initial area around player
+	_generate_blocks_around_player()
 
 
 func _process(_delta: float) -> void:
 	if _player == null:
 		return
 
-	var player_row := int(_player.position.y / BLOCK_SIZE)
-	_generate_rows_below(player_row + ROWS_AHEAD)
-	_cleanup_rows_above(player_row - ROWS_BEHIND)
+	# Update player grid position
+	var new_grid_pos := Vector2i(
+		int(_player.position.x / BLOCK_SIZE),
+		int(_player.position.y / BLOCK_SIZE)
+	)
+
+	# Only update if player moved to a new grid cell
+	if new_grid_pos != _player_grid_pos:
+		_player_grid_pos = new_grid_pos
+		_generate_blocks_around_player()
+		_cleanup_distant_blocks()
 
 
 func _preallocate_pool() -> void:
@@ -74,24 +89,33 @@ func _release(grid_pos: Vector2i) -> void:
 		_active.erase(grid_pos)
 
 
-func _generate_rows_below(target_row: int) -> void:
-	while _lowest_generated_row <= target_row:
-		_generate_row(_lowest_generated_row)
-		_lowest_generated_row += 1
+func _generate_blocks_around_player() -> void:
+	## Generate blocks in a rectangular area around the player
+	var min_col := _player_grid_pos.x - COLS_LEFT
+	var max_col := _player_grid_pos.x + COLS_RIGHT
+	var min_row := _player_grid_pos.y - ROWS_BEHIND
+	var max_row := _player_grid_pos.y + ROWS_AHEAD
+
+	# Generate all blocks in the rectangle
+	for row in range(min_row, max_row + 1):
+		# Skip rows above surface
+		if row < GameManager.SURFACE_ROW:
+			continue
+
+		for col in range(min_col, max_col + 1):
+			var pos := Vector2i(col, row)
+			if not _active.has(pos):
+				_acquire(pos)
+				_determine_ore_spawn(pos)
 
 
-func _generate_row(row: int) -> void:
-	for col in range(GameManager.GRID_WIDTH):
-		var pos := Vector2i(col, row)
-		if not _active.has(pos):
-			_acquire(pos)
-			_determine_ore_spawn(pos)
-
-
-func _cleanup_rows_above(min_row: int) -> void:
+func _cleanup_distant_blocks() -> void:
+	## Remove blocks that are too far from the player
 	var to_remove: Array[Vector2i] = []
+
 	for pos: Vector2i in _active.keys():
-		if pos.y < min_row:
+		var distance := (pos - _player_grid_pos).length()
+		if distance > CLEANUP_DISTANCE:
 			to_remove.append(pos)
 
 	for pos in to_remove:

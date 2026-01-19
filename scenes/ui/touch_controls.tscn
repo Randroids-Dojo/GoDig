@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cw5k8h7j3m8yq"]
+[gd_scene load_steps=3 format=3 uid="uid://cw5k8h7j3m8yq"]
 
 [ext_resource type="Script" path="res://scripts/ui/touch_controls.gd" id="1_x8k7j"]
+[ext_resource type="Script" path="res://scripts/ui/virtual_joystick.gd" id="2_joystick"]
 
 [node name="TouchControls" type="Control"]
 layout_mode = 3
@@ -12,54 +13,30 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_x8k7j")
 
-[node name="LeftButton" type="Button" parent="."]
+[node name="VirtualJoystick" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = -1
+anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 40.0
-offset_top = -180.0
+offset_top = -200.0
 offset_right = 200.0
 offset_bottom = -40.0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 48
-text = "◀"
-
-[node name="RightButton" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 520.0
-offset_top = -180.0
-offset_right = 680.0
-offset_bottom = -40.0
-grow_vertical = 0
-theme_override_font_sizes/font_size = 48
-text = "▶"
-
-[node name="DownButton" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 260.0
-offset_top = -180.0
-offset_right = 460.0
-offset_bottom = -40.0
-grow_vertical = 0
-theme_override_font_sizes/font_size = 48
-text = "▼"
+script = ExtResource("2_joystick")
 
 [node name="JumpButton" type="Button" parent="."]
 layout_mode = 1
-anchors_preset = -1
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 520.0
-offset_top = -340.0
-offset_right = 680.0
-offset_bottom = -200.0
+offset_left = -200.0
+offset_top = -200.0
+offset_right = -40.0
+offset_bottom = -40.0
+grow_horizontal = 0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 32
 text = "JUMP"

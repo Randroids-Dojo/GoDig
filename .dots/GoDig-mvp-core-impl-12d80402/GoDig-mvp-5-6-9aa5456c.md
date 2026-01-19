@@ -1,11 +1,11 @@
 ---
 title: "implement: 5-6 ore types with depth rarity"
-status: open
+status: closed
 priority: 0
 issue-type: task
-created-at: "2026-01-16T00:34:22.341291-06:00"
-after:
-  - GoDig-mvp-3-4-42c5e3a3
+created-at: "\"2026-01-16T00:34:22.341291-06:00\""
+closed-at: "2026-01-19T11:50:57.929421-06:00"
+close-reason: "Implemented: 5 ores (Coal/Copper/Iron/Silver/Gold) + 1 gem (Ruby), with depth rarity (min_depth/max_depth), spawn thresholds, and tier/hardness"
 ---
 
 ## Description

@@ -30,6 +30,8 @@ PATHS = {
     "main": "/root/Main",
     "player": "/root/Main/Player",
     "dirt_grid": "/root/Main/DirtGrid",
+    "surface_area": "/root/Main/SurfaceArea",
+    "surface_tilemap": "/root/Main/SurfaceArea/GroundTileMap",
     "camera": "/root/Main/Player/Camera2D",
     "depth_label": "/root/Main/UI/DepthLabel",
     "coins_label": "/root/Main/UI/CoinsLabel",

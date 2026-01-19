@@ -6,6 +6,7 @@ extends Node2D
 const FloatingTextScene := preload("res://scenes/ui/floating_text.tscn")
 
 @onready var dirt_grid: Node2D = $DirtGrid
+@onready var surface_area: Node2D = $SurfaceArea
 @onready var player: CharacterBody2D = $Player
 @onready var depth_label: Label = $UI/DepthLabel
 @onready var touch_controls: Control = $UI/TouchControls
@@ -24,6 +25,9 @@ func _ready() -> void:
 
 	# Initialize the dirt grid with the player reference
 	dirt_grid.initialize(player, GameManager.SURFACE_ROW)
+
+	# Initialize the surface area with the player reference
+	surface_area.initialize(player)
 
 	# Connect mining drops to inventory
 	dirt_grid.block_dropped.connect(_on_block_dropped)

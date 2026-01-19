@@ -9,11 +9,12 @@ enum Type {
 
 	# Base terrain types (0-9)
 	DIRT = 0,
-	CLAY = 1,
-	STONE = 2,
-	GRANITE = 3,
-	BASALT = 4,
-	OBSIDIAN = 5,
+	GRASS = 1,
+	CLAY = 2,
+	STONE = 3,
+	GRANITE = 4,
+	BASALT = 5,
+	OBSIDIAN = 6,
 
 	# Ore types (10-29)
 	COAL = 10,
@@ -37,6 +38,7 @@ enum Type {
 const HARDNESS := {
 	# Terrain - scales with depth
 	Type.DIRT: 1.0,
+	Type.GRASS: 1.0,
 	Type.CLAY: 2.0,
 	Type.STONE: 3.0,
 	Type.GRANITE: 5.0,
@@ -66,6 +68,7 @@ const COLORS := {
 	Type.AIR: Color.TRANSPARENT,
 
 	Type.DIRT: Color(0.545, 0.353, 0.169),  # Brown
+	Type.GRASS: Color(0.298, 0.686, 0.314),  # Green
 	Type.CLAY: Color(0.698, 0.467, 0.329),  # Light brown
 	Type.STONE: Color(0.502, 0.502, 0.502),  # Gray
 	Type.GRANITE: Color(0.376, 0.376, 0.376),  # Dark gray

@@ -3,6 +3,9 @@ extends Node
 ##
 ## Central game state manager with grid constants and utilities.
 
+# Preload TileSetSetup to avoid class_name resolution issues during autoload init
+const TileSetSetupScript = preload("res://scripts/setup/tileset_setup.gd")
+
 signal game_started
 signal game_over
 signal depth_updated(depth: int)
@@ -33,7 +36,7 @@ func _ready() -> void:
 
 ## Initialize the terrain TileSet (load or create)
 func _init_tileset() -> void:
-	terrain_tileset = TileSetSetup.get_or_create_tileset()
+	terrain_tileset = TileSetSetupScript.get_or_create_tileset()
 	if terrain_tileset:
 		print("[GameManager] TileSet initialized with ", terrain_tileset.get_source_count(), " sources")
 

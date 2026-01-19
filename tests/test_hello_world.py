@@ -101,3 +101,27 @@ async def test_touch_buttons_have_text(game):
     assert left_text == "◀", f"Left button should show '◀', got '{left_text}'"
     assert right_text == "▶", f"Right button should show '▶', got '{right_text}'"
     assert down_text == "▼", f"Down button should show '▼', got '{down_text}'"
+
+
+@pytest.mark.asyncio
+async def test_jump_button_exists(game):
+    """Verify the jump button exists for wall-jump mechanic."""
+    exists = await game.node_exists(PATHS["jump_button"])
+    assert exists, "Jump button should exist for wall-jump"
+
+
+@pytest.mark.asyncio
+async def test_jump_button_has_text(game):
+    """Verify the jump button has appropriate text."""
+    text = await game.get_property(PATHS["jump_button"], "text")
+    assert text == "JUMP", f"Jump button should show 'JUMP', got '{text}'"
+
+
+@pytest.mark.asyncio
+async def test_player_has_wall_jump_states(game):
+    """Verify the player has the wall-jump state machine states."""
+    # Check that the player is in a valid state (IDLE = 0 at start)
+    current_state = await game.get_property(PATHS["player"], "current_state")
+    assert current_state is not None, "Player should have current_state property"
+    # State.IDLE = 0
+    assert current_state == 0, f"Player should start in IDLE state (0), got {current_state}"

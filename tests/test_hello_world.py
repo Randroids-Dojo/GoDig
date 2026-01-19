@@ -107,17 +107,52 @@ async def test_virtual_joystick_direction_starts_zero(game):
 # =============================================================================
 
 @pytest.mark.asyncio
+async def test_action_buttons_container_exists(game):
+    """Verify the action buttons container exists for touch controls."""
+    exists = await game.node_exists(PATHS["action_buttons"])
+    assert exists, "Action buttons container should exist"
+
+
+@pytest.mark.asyncio
 async def test_jump_button_exists(game):
-    """Verify the jump button exists for wall-jump mechanic."""
+    """Verify the jump TouchScreenButton exists for wall-jump mechanic."""
     exists = await game.node_exists(PATHS["jump_button"])
     assert exists, "Jump button should exist for wall-jump"
 
 
 @pytest.mark.asyncio
-async def test_jump_button_has_text(game):
-    """Verify the jump button has appropriate text."""
-    text = await game.get_property(PATHS["jump_button"], "text")
-    assert text == "JUMP", f"Jump button should show 'JUMP', got '{text}'"
+async def test_jump_button_has_action(game):
+    """Verify the jump button has the correct input action mapped."""
+    action = await game.get_property(PATHS["jump_button"], "action")
+    assert action == "jump", f"Jump button should have action 'jump', got '{action}'"
+
+
+@pytest.mark.asyncio
+async def test_dig_button_exists(game):
+    """Verify the dig TouchScreenButton exists for touch digging."""
+    exists = await game.node_exists(PATHS["dig_button"])
+    assert exists, "Dig button should exist for touch controls"
+
+
+@pytest.mark.asyncio
+async def test_dig_button_has_action(game):
+    """Verify the dig button has the correct input action mapped."""
+    action = await game.get_property(PATHS["dig_button"], "action")
+    assert action == "dig", f"Dig button should have action 'dig', got '{action}'"
+
+
+@pytest.mark.asyncio
+async def test_inventory_button_exists(game):
+    """Verify the inventory TouchScreenButton exists."""
+    exists = await game.node_exists(PATHS["inventory_button"])
+    assert exists, "Inventory button should exist for touch controls"
+
+
+@pytest.mark.asyncio
+async def test_inventory_button_has_action(game):
+    """Verify the inventory button has the correct input action mapped."""
+    action = await game.get_property(PATHS["inventory_button"], "action")
+    assert action == "inventory", f"Inventory button should have action 'inventory', got '{action}'"
 
 
 @pytest.mark.asyncio

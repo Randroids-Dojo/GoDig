@@ -25,18 +25,86 @@ offset_bottom = -40.0
 grow_vertical = 0
 script = ExtResource("2_joystick")
 
-[node name="JumpButton" type="Button" parent="."]
+[node name="ActionButtons" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -200.0
-offset_top = -200.0
-offset_right = -40.0
-offset_bottom = -40.0
+offset_left = -220.0
+offset_top = -280.0
+offset_right = -20.0
+offset_bottom = -20.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 32
+mouse_filter = 2
+
+[node name="JumpButton" type="TouchScreenButton" parent="ActionButtons"]
+position = Vector2(100, 80)
+visibility_mode = 1
+action = "jump"
+
+[node name="JumpVisual" type="ColorRect" parent="ActionButtons/JumpButton"]
+offset_right = 80.0
+offset_bottom = 80.0
+mouse_filter = 2
+color = Color(0.2, 0.5, 0.8, 0.7)
+
+[node name="JumpLabel" type="Label" parent="ActionButtons/JumpButton/JumpVisual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 18
 text = "JUMP"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DigButton" type="TouchScreenButton" parent="ActionButtons"]
+position = Vector2(0, 80)
+visibility_mode = 1
+action = "dig"
+
+[node name="DigVisual" type="ColorRect" parent="ActionButtons/DigButton"]
+offset_right = 80.0
+offset_bottom = 80.0
+mouse_filter = 2
+color = Color(0.8, 0.5, 0.2, 0.7)
+
+[node name="DigLabel" type="Label" parent="ActionButtons/DigButton/DigVisual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 18
+text = "DIG"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InventoryButton" type="TouchScreenButton" parent="ActionButtons"]
+position = Vector2(100, 180)
+visibility_mode = 1
+action = "inventory"
+
+[node name="InventoryVisual" type="ColorRect" parent="ActionButtons/InventoryButton"]
+offset_right = 80.0
+offset_bottom = 60.0
+mouse_filter = 2
+color = Color(0.4, 0.7, 0.4, 0.7)
+
+[node name="InventoryLabel" type="Label" parent="ActionButtons/InventoryButton/InventoryVisual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 14
+text = "INV"
+horizontal_alignment = 1
+vertical_alignment = 1

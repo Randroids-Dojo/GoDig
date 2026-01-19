@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/ores/ore_data.gd" id="1_ore_data"]
+
+[resource]
+script = ExtResource("1_ore_data")
+id = "ruby"
+display_name = "Ruby"
+color = Color(0.9, 0.1, 0.2, 1)
+tile_atlas_coords = Vector2i(5, 1)
+min_depth = 500
+max_depth = -1
+spawn_threshold = 0.97
+noise_frequency = 0.02
+vein_size_min = 1
+vein_size_max = 2
+sell_value = 500
+max_stack = 99
+tier = 5
+rarity = "legendary"
+hardness = 6
+required_tool_tier = 2

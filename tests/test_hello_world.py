@@ -211,3 +211,30 @@ async def test_save_manager_has_slot(game):
     current_slot = await game.get_property(PATHS["save_manager"], "current_slot")
     assert current_slot is not None, "SaveManager should have current_slot property"
     assert current_slot == -1, f"SaveManager current_slot should be -1 (no save), got {current_slot}"
+
+
+@pytest.mark.asyncio
+async def test_platform_detector_exists(game):
+    """Verify the PlatformDetector autoload exists."""
+    exists = await game.node_exists(PATHS["platform_detector"])
+    assert exists, "PlatformDetector autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_platform_detector_has_properties(game):
+    """Verify the PlatformDetector has required properties."""
+    is_mobile = await game.get_property(PATHS["platform_detector"], "is_mobile_platform")
+    assert is_mobile is not None, "PlatformDetector should have is_mobile_platform property"
+
+    is_using_touch = await game.get_property(PATHS["platform_detector"], "is_using_touch")
+    assert is_using_touch is not None, "PlatformDetector should have is_using_touch property"
+
+    manual_override = await game.get_property(PATHS["platform_detector"], "manual_override")
+    assert manual_override is not None, "PlatformDetector should have manual_override property"
+
+
+@pytest.mark.asyncio
+async def test_touch_controls_has_force_visible(game):
+    """Verify touch controls has force_visible export property."""
+    force_visible = await game.get_property(PATHS["touch_controls"], "force_visible")
+    assert force_visible is not None, "TouchControls should have force_visible property"

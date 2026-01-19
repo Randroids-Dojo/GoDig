@@ -132,6 +132,17 @@ async def test_player_has_wall_jump_states(game):
 
 
 # =============================================================================
+# DATA REGISTRY TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_data_registry_exists(game):
+    """Verify the DataRegistry autoload exists."""
+    exists = await game.node_exists(PATHS["data_registry"])
+    assert exists, "DataRegistry autoload should exist"
+
+
+# =============================================================================
 # INFINITE TERRAIN TESTS
 # =============================================================================
 

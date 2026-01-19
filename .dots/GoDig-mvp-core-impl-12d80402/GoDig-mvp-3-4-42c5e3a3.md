@@ -1,9 +1,11 @@
 ---
 title: "implement: 3-4 layer types with hardness"
-status: open
+status: closed
 priority: 0
 issue-type: task
-created-at: "2026-01-16T00:34:21.393081-06:00"
+created-at: "\"\\\"2026-01-16T00:34:21.393081-06:00\\\"\""
+closed-at: "2026-01-18T23:18:55.149632-06:00"
+close-reason: Implemented 4 layer types (topsoil/subsoil/stone/deep_stone) with depth-based hardness and colors. Created LayerData resource, DataRegistry autoload, 4 .tres definitions. All 17 tests pass.
 ---
 
 ## Description

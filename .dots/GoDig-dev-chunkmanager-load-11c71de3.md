@@ -1,13 +1,15 @@
 ---
-title: "implement: ChunkManager - load/unload around player"
+title: "v1.0: ChunkManager - load/unload around player"
 status: open
-priority: 1
+priority: 3
 issue-type: task
 created-at: "2026-01-16T00:37:51.427311-06:00"
 after:
   - GoDig-dev-chunk-data-0fe0f614
   - GoDig-dev-noise-based-3afe498c
 ---
+
+> **Scope: v1.0 Enhancement** - MVP uses DirtGrid for simplicity. ChunkManager will replace it in v1.0 for horizontal expansion and better persistence. See research: GoDig-research-assess-dirtgrid-1f19fea7
 
 ## Description
 

@@ -1,0 +1,148 @@
+---
+title: "implement: Death and respawn system"
+status: closed
+priority: 1
+issue-type: task
+created-at: "\"2026-01-19T00:52:47.235475-06:00\""
+closed-at: "2026-01-19T19:35:43.573417-06:00"
+close-reason: Death/respawn system exists
+---
+
+## Description
+
+Handle player death: animation, penalty calculation, and respawn at surface.
+
+## Context
+
+When HP reaches 0, player dies, loses some inventory/coins based on depth, and respawns at surface. Should feel consequential but not frustrating.
+
+## Affected Files
+
+- `scripts/player/player.gd` - Add `play_death_animation()` method (HP system already exists with die(), revive(), player_died signal)
+- `scripts/autoload/game_manager.gd` - Coordinate death/respawn flow, death penalty calc, add GameState enum
+- `scripts/autoload/inventory_manager.gd` - Uses `get_total_item_count()` and `remove_random_item()` (ALREADY IMPLEMENTED)
+- `scenes/ui/death_screen.tscn` - NEW: Death overlay scene
+- `scripts/ui/death_screen.gd` - NEW: Show death message and respawn
+
+## Prerequisites
+
+**Player HP System** - ALREADY IMPLEMENTED in `player.gd`:
+- `current_hp`, `MAX_HP`, `is_dead` variables exist
+- `take_damage()`, `die()`, `revive()` methods exist
+- `hp_changed`, `player_died` signals exist
+
+**InventoryManager Methods** - ALREADY IMPLEMENTED in `inventory_manager.gd`:
+- `get_total_item_count()` - Returns total count of all items
+- `remove_random_item()` - Removes one random item from inventory
+- `remove_random_items(count)` - Removes multiple random items
+
+GameManager also needs:
+- `GameState` enum (MENU, PLAYING, SHOPPING, PAUSED, DEAD)
+- `change_state()` method
+- See `GoDig-dev-core-game-73ab4a77` for full GameState spec
+
+## Implementation Notes
+
+### Death Flow in GameManager
+```gdscript
+# game_manager.gd
+func _ready():
+    player.player_died.connect(_on_player_died)
+
+func _on_player_died():
+    # 1. Pause game
+    get_tree().paused = true
+
+    # 2. Play death animation
+    player.play_death_animation()
+    await player.animation_finished
+
+    # 3. Calculate penalty based on depth
+    var penalty = calculate_death_penalty(player.current_depth)
+
+    # 4. Apply penalty
+    apply_death_penalty(penalty)
+
+    # 5. Fade to black
+    await screen_fade.fade_out()
+
+    # 6. Respawn
+    player.position = surface_spawn_position
+    player.current_hp = player.MAX_HP
+
+    # 7. Show death message
+    show_death_message(penalty)
+
+    # 8. Fade in and resume
+    await screen_fade.fade_in()
+    get_tree().paused = false
+```
+
+### Death Penalty Calculation
+```gdscript
+func calculate_death_penalty(depth: int) -> Dictionary:
+    var penalty = {
+        'inventory_loss': 0.1,
+        'coin_loss': 0.0,
+        'equipment_damage': 0.05
+    }
+
+    if depth >= 500:
+        penalty.inventory_loss = 0.2
+        penalty.coin_loss = 0.05
+        penalty.equipment_damage = 0.15
+
+    if depth >= 2000:
+        penalty.inventory_loss = 0.3
+        penalty.coin_loss = 0.10
+        penalty.equipment_damage = 0.25
+
+    return penalty
+```
+
+### Apply Inventory Loss
+```gdscript
+func apply_inventory_loss(percent: float):
+    var total_items = InventoryManager.get_total_item_count()
+    var items_to_remove = int(total_items * percent)
+
+    for i in range(items_to_remove):
+        InventoryManager.remove_random_item()
+```
+
+### Death Animation (Simple)
+```gdscript
+# player.gd
+func play_death_animation():
+    # Flash red
+    for i in range(3):
+        modulate = Color.RED
+        await get_tree().create_timer(0.1).timeout
+        modulate = Color.WHITE
+        await get_tree().create_timer(0.1).timeout
+
+    # Collapse/poof
+    animation_player.play('death')
+```
+
+### Death Messages
+```gdscript
+const DEATH_MESSAGES = [
+    'You blacked out and woke up on the surface.',
+    'The rescue team found you. Some cargo was lost.',
+    'You barely escaped with your life.',
+    'The depths nearly claimed you...'
+]
+```
+
+## Verify
+
+- [ ] Build succeeds
+- [ ] Player death triggers on HP reaching 0
+- [ ] Death animation plays before respawn
+- [ ] Inventory loss is applied (10-30% based on depth)
+- [ ] Coin loss is applied for deep deaths
+- [ ] Player respawns at surface spawn point
+- [ ] Player HP is restored to full
+- [ ] Death message is shown
+- [ ] Game unpauses after respawn

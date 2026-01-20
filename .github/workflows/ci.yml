@@ -49,15 +49,6 @@ jobs:
           pip install -e .
           pip install pytest pytest-asyncio pytest-xdist
 
-      - name: Configure for CI Testing
-        run: |
-          echo "=== Configuring project for CI tests ==="
-          # Change main scene to test_level for direct game testing (like GoPit approach)
-          # This must be done BEFORE import so Godot uses the correct main scene
-          sed -i 's|run/main_scene="res://scenes/main_menu.tscn"|run/main_scene="res://scenes/test_level.tscn"|' project.godot
-          echo "Main scene changed to test_level.tscn for testing"
-          grep "run/main_scene" project.godot
-
       - name: Import Godot Project
         run: |
           echo "=== Importing Godot Project ==="
@@ -82,9 +73,8 @@ jobs:
           echo "=== Running PlayGodot Integration Tests ==="
           export GODOT_PATH="${{ github.workspace }}/godot-automation/godot.linuxbsd.editor.x86_64.mono"
           # Run with xvfb for headless display support
-          # Headless mode automatically triggers test mode in DirtGrid (reduced chunks)
-          # Use 4 workers with loadscope distribution for better fixture reuse
-          xvfb-run --auto-servernum pytest tests/ -v --tb=short -n 4 --dist=loadscope
+          # Run with single worker to debug CI issues
+          xvfb-run --auto-servernum pytest tests/test_main_menu.py -v --tb=short
           echo "PlayGodot tests completed"
 
       - name: Upload Screenshots

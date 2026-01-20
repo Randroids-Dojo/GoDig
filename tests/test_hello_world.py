@@ -204,12 +204,11 @@ async def test_coins_property_exists(game):
     coins = await game.get_property(PATHS["game_manager"], "coins")
     assert coins is not None, "GameManager should have coins property"
     assert isinstance(coins, int), f"Coins should be an int, got {type(coins)}"
+
+
 # =============================================================================
 # SHOP BUTTON EXISTS
 # =============================================================================
-
->>>>>>> 57a5e4a (feat: Add OreData resource class and ore definitions)
-=======
 
 
 @pytest.mark.asyncio

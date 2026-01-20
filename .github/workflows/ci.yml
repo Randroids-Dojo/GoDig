@@ -49,6 +49,15 @@ jobs:
           pip install -e .
           pip install pytest pytest-asyncio pytest-xdist
 
+      - name: Configure for CI Testing
+        run: |
+          echo "=== Configuring project for CI tests ==="
+          # Change main scene to test_level for direct game testing (like GoPit approach)
+          # This must be done BEFORE import so Godot uses the correct main scene
+          sed -i 's|run/main_scene="res://scenes/main_menu.tscn"|run/main_scene="res://scenes/test_level.tscn"|' project.godot
+          echo "Main scene changed to test_level.tscn for testing"
+          grep "run/main_scene" project.godot
+
       - name: Import Godot Project
         run: |
           echo "=== Importing Godot Project ==="
@@ -67,15 +76,6 @@ jobs:
           else
             echo "WARNING: Global class cache not found!"
           fi
-
-      - name: Configure for CI Testing
-        run: |
-          echo "=== Configuring project for CI tests ==="
-          # Change main scene to test_level for direct game testing (like GoPit approach)
-          # This avoids scene changes in fixtures which can timeout
-          sed -i 's|run/main_scene="res://scenes/main_menu.tscn"|run/main_scene="res://scenes/test_level.tscn"|' project.godot
-          echo "Main scene changed to test_level.tscn for testing"
-          grep "run/main_scene" project.godot
 
       - name: Run PlayGodot Tests
         run: |

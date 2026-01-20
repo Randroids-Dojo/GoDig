@@ -8,24 +8,25 @@ const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
 
-# CI mode detection - reduce load for faster test initialization
-# Set GODIG_CI=1 environment variable to enable
-static var _ci_mode_checked := false
-static var _is_ci_mode := false
+# Test mode detection - reduce load for faster test initialization
+# Detects headless mode which is used by CI and PlayGodot tests
+static var _test_mode_checked := false
+static var _is_test_mode := false
 
-static func _check_ci_mode() -> bool:
-	if not _ci_mode_checked:
-		_ci_mode_checked = true
-		# Check for CI environment variable
+static func _check_test_mode() -> bool:
+	if not _test_mode_checked:
+		_test_mode_checked = true
+		# Detect headless mode (used by CI/tests) - more reliable than env vars
+		var is_headless := DisplayServer.get_name() == "headless"
+		# Also check environment variables as backup
 		var ci_env := OS.get_environment("CI")
 		var godig_ci_env := OS.get_environment("GODIG_CI")
-		print("[DirtGrid] Checking CI mode - CI='%s', GODIG_CI='%s'" % [ci_env, godig_ci_env])
-		_is_ci_mode = ci_env != "" or godig_ci_env != ""
-		if _is_ci_mode:
-			print("[DirtGrid] CI mode ENABLED - using reduced chunk radius (LOAD_RADIUS=1)")
+		_is_test_mode = is_headless or ci_env != "" or godig_ci_env != ""
+		if _is_test_mode:
+			print("[DirtGrid] Test mode ENABLED (headless=%s) - using reduced chunk radius" % is_headless)
 		else:
-			print("[DirtGrid] Normal mode - using full chunk radius (LOAD_RADIUS=2)")
-	return _is_ci_mode
+			print("[DirtGrid] Normal mode - using full chunk radius")
+	return _is_test_mode
 
 # Pool size and load radius adjust based on CI mode
 const POOL_SIZE_NORMAL := 400  # Full pool for 5x5 chunk grid
@@ -34,10 +35,10 @@ const LOAD_RADIUS_NORMAL := 2  # Load chunks within 2 chunks of player (5x5 grid
 const LOAD_RADIUS_CI := 1  # Smaller radius for CI (3x3 grid)
 
 var POOL_SIZE: int:
-	get: return POOL_SIZE_CI if _check_ci_mode() else POOL_SIZE_NORMAL
+	get: return POOL_SIZE_CI if _check_test_mode() else POOL_SIZE_NORMAL
 
 var LOAD_RADIUS: int:
-	get: return LOAD_RADIUS_CI if _check_ci_mode() else LOAD_RADIUS_NORMAL
+	get: return LOAD_RADIUS_CI if _check_test_mode() else LOAD_RADIUS_NORMAL
 
 ## Emitted when a block drops ore/items. item_id is empty string for dirt-only blocks.
 signal block_dropped(grid_pos: Vector2i, item_id: String)

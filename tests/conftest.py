@@ -185,25 +185,25 @@ async def main_menu():
 
     async with Godot.launch(
         str(GODOT_PROJECT),
-        headless=True,
+        headless=True,  # This triggers test mode in DirtGrid (reduced chunks)
         resolution=(720, 1280),  # Match game's 9:16 portrait aspect ratio
-        timeout=120.0,  # Increased timeout for CI
+        timeout=30.0,
         godot_path=GODOT_PATH,
         port=port,
     ) as g:
-        # Give Godot time to start before querying
-        await asyncio.sleep(2.0)
+        # Small delay for scene to start initializing
+        await asyncio.sleep(0.5)
 
         # Try to wait for main menu directly (normal dev mode)
         try:
-            await g.wait_for_node("/root/MainMenu", timeout=30.0)
+            await g.wait_for_node("/root/MainMenu", timeout=15.0)
         except Exception:
             # In CI mode, main scene might be test_level
-            # Change to main menu scene
-            await g.wait_for_node("/root/Main", timeout=60.0)
-            await asyncio.sleep(0.5)
+            # Change to main menu scene (headless mode ensures reduced chunks)
+            await g.wait_for_node("/root/Main", timeout=20.0)
+            await asyncio.sleep(0.3)
             await g.change_scene("res://scenes/main_menu.tscn")
-            await g.wait_for_node("/root/MainMenu", timeout=30.0)
+            await g.wait_for_node("/root/MainMenu", timeout=15.0)
         yield g
 
 
@@ -229,25 +229,25 @@ async def game():
 
     async with Godot.launch(
         str(GODOT_PROJECT),
-        headless=True,
+        headless=True,  # This triggers test mode in DirtGrid (reduced chunks)
         resolution=(720, 1280),  # Match game's 9:16 portrait aspect ratio
-        timeout=120.0,  # Increased timeout for scene initialization
+        timeout=30.0,
         godot_path=GODOT_PATH,
         port=port,
     ) as g:
-        # Give Godot time to start the scene before querying
-        await asyncio.sleep(2.0)
+        # Small delay for scene to start initializing
+        await asyncio.sleep(0.5)
 
         # Try to wait for the game scene directly (CI configuration)
         # This is the GoPit approach - main scene is the game scene
-        # Increased timeout to allow for chunk generation
+        # Headless mode triggers reduced chunk generation for faster init
         try:
-            await g.wait_for_node("/root/Main", timeout=60.0)
+            await g.wait_for_node("/root/Main", timeout=20.0)
         except Exception:
             # Fallback: if Main doesn't exist, we're in main_menu mode
             # Wait for main menu and change scene (local dev mode)
-            await g.wait_for_node("/root/MainMenu", timeout=30.0)
-            await asyncio.sleep(0.5)
+            await g.wait_for_node("/root/MainMenu", timeout=15.0)
+            await asyncio.sleep(0.3)
             await g.change_scene("res://scenes/test_level.tscn")
-            await g.wait_for_node("/root/Main", timeout=60.0)
+            await g.wait_for_node("/root/Main", timeout=30.0)
         yield g

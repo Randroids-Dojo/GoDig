@@ -28,17 +28,17 @@ static func _check_test_mode() -> bool:
 			print("[DirtGrid] Normal mode - using full chunk radius")
 	return _is_test_mode
 
-# Pool size and load radius adjust based on CI mode
+# Pool size and load radius adjust based on test mode
 const POOL_SIZE_NORMAL := 400  # Full pool for 5x5 chunk grid
-const POOL_SIZE_CI := 100  # Reduced pool for 3x3 chunk grid
+const POOL_SIZE_TEST := 25  # Minimal pool for 1x1 chunk grid (single chunk)
 const LOAD_RADIUS_NORMAL := 2  # Load chunks within 2 chunks of player (5x5 grid)
-const LOAD_RADIUS_CI := 1  # Smaller radius for CI (3x3 grid)
+const LOAD_RADIUS_TEST := 0  # Load only the player's chunk (1x1 grid)
 
 var POOL_SIZE: int:
-	get: return POOL_SIZE_CI if _check_test_mode() else POOL_SIZE_NORMAL
+	get: return POOL_SIZE_TEST if _check_test_mode() else POOL_SIZE_NORMAL
 
 var LOAD_RADIUS: int:
-	get: return LOAD_RADIUS_CI if _check_test_mode() else LOAD_RADIUS_NORMAL
+	get: return LOAD_RADIUS_TEST if _check_test_mode() else LOAD_RADIUS_NORMAL
 
 ## Emitted when a block drops ore/items. item_id is empty string for dirt-only blocks.
 signal block_dropped(grid_pos: Vector2i, item_id: String)

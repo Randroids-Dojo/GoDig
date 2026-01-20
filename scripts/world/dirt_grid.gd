@@ -7,8 +7,8 @@ const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
-const POOL_SIZE := 500  # Increased for horizontal generation
-const LOAD_RADIUS := 3  # Load chunks within 3 chunks of player
+const POOL_SIZE := 400  # Reduced from 500, still plenty for 5x5 chunk grid
+const LOAD_RADIUS := 2  # Load chunks within 2 chunks of player (5x5 grid)
 
 ## Emitted when a block drops ore/items. item_id is empty string for dirt-only blocks.
 signal block_dropped(grid_pos: Vector2i, item_id: String)

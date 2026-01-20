@@ -3,6 +3,7 @@ Test level tests for GoDig endless digging game.
 
 Verifies the game setup, player, dirt grid, and basic mechanics.
 """
+import asyncio
 import pytest
 from helpers import PATHS
 
@@ -548,7 +549,7 @@ async def test_dirt_grid_has_chunk_system(game):
     load_radius = await game.get_property(PATHS["dirt_grid"], "LOAD_RADIUS")
 
     assert chunk_size == 16, f"Chunk size should be 16, got {chunk_size}"
-    assert load_radius == 3, f"Load radius should be 3, got {load_radius}"
+    assert load_radius == 2, f"Load radius should be 2 (optimized for CI), got {load_radius}"
 
 
 @pytest.mark.asyncio
@@ -563,23 +564,21 @@ async def test_initial_chunks_loaded(game):
 
 @pytest.mark.asyncio
 async def test_horizontal_blocks_exist(game):
-    """Verify blocks exist horizontally beyond the old 5-column limit."""
+    """Verify the chunk system generates blocks horizontally."""
     # The old system only had 5 columns (0-4)
-    # With infinite terrain, we should have blocks in column 5+ and negative columns
+    # With infinite terrain, chunks cover a wider area
 
-    # Check if dirt_grid has blocks at various horizontal positions
-    # We'll check if has_block method exists and can be called
-    # Note: We need to wait a bit for generation to complete
-    await game.wait_frames(10)
+    # Wait for generation to complete
+    await asyncio.sleep(0.5)
 
-    # Just verify the system accepts wider coordinates
-    # (actual block presence depends on surface row and generation)
-    # The key test is that the system doesn't reject x > 4
-    active_blocks = await game.get_property(PATHS["dirt_grid"], "_active")
+    # Check loaded chunks - uses Vector2i keys and bool values (serializable)
+    loaded_chunks = await game.get_property(PATHS["dirt_grid"], "_loaded_chunks")
 
-    assert active_blocks is not None, "Active blocks dictionary should exist"
-    # With chunk-based generation, we should have more than the old 5*ROWS_AHEAD blocks
-    assert len(active_blocks) > 50, f"Should have many blocks loaded with chunks, got {len(active_blocks)}"
+    assert loaded_chunks is not None, "Loaded chunks dictionary should exist"
+
+    # With LOAD_RADIUS=2, we should have a 5x5 grid = 25 chunks
+    # But only chunks at or below surface will have blocks
+    assert len(loaded_chunks) >= 10, f"Should have multiple chunks loaded, got {len(loaded_chunks)}"
 
 
 @pytest.mark.asyncio

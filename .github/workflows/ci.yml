@@ -70,10 +70,11 @@ jobs:
 
       - name: Run PlayGodot Tests
         run: |
-          echo "=== Running PlayGodot Integration Tests (4 parallel workers) ==="
+          echo "=== Running PlayGodot Integration Tests (2 parallel workers) ==="
           export GODOT_PATH="${{ github.workspace }}/godot-automation/godot.linuxbsd.editor.x86_64.mono"
-          # Run with xvfb for headless display support, 4 parallel workers
-          xvfb-run --auto-servernum pytest tests/ -v --tb=short -n 4
+          # Run with xvfb for headless display support
+          # Reduced to 2 workers due to chunk-based terrain generation overhead
+          xvfb-run --auto-servernum pytest tests/ -v --tb=short -n 2
           echo "PlayGodot tests completed"
 
       - name: Upload Screenshots

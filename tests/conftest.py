@@ -169,7 +169,13 @@ def get_playgodot_port() -> int:
 
 @pytest_asyncio.fixture
 async def main_menu():
-    """Launch the game on the main menu and yield the Godot connection."""
+    """Launch the game on the main menu and yield the Godot connection.
+
+    In CI, project.godot may use test_level.tscn as main scene for faster
+    game fixture tests. This fixture handles that by changing to main_menu
+    if needed.
+    """
+    import asyncio
     port = get_playgodot_port()
 
     async with Godot.launch(
@@ -180,17 +186,27 @@ async def main_menu():
         godot_path=GODOT_PATH,
         port=port,
     ) as g:
-        # Wait for the main menu to be ready
-        await g.wait_for_node("/root/MainMenu")
+        # Try to wait for main menu directly (normal dev mode)
+        try:
+            await g.wait_for_node("/root/MainMenu", timeout=5.0)
+        except Exception:
+            # In CI mode, main scene might be test_level
+            # Change to main menu scene
+            await g.wait_for_node("/root/Main", timeout=15.0)
+            await asyncio.sleep(0.2)
+            await g.change_scene("res://scenes/main_menu.tscn")
+            await g.wait_for_node("/root/MainMenu", timeout=15.0)
         yield g
 
 
 @pytest_asyncio.fixture
 async def game():
-    """Launch the game and navigate directly to the game scene.
+    """Launch the game directly into the test level scene.
 
-    This fixture bypasses the main menu for faster test setup.
-    Main menu navigation is tested separately in test_main_menu.py.
+    In CI, project.godot is configured to use test_level.tscn as the main scene,
+    so we can wait for it directly without scene changes (like GoPit's approach).
+
+    For local testing, if the main scene is main_menu, we fall back to scene change.
 
     CI mode: When CI=true environment variable is set, the game uses
     reduced chunk generation (3x3 grid instead of 5x5) for faster initialization.
@@ -206,20 +222,19 @@ async def game():
         str(GODOT_PROJECT),
         headless=True,
         resolution=(720, 1280),  # Match game's 9:16 portrait aspect ratio
-        timeout=30.0,  # Reduced timeout - CI mode has smaller chunks
+        timeout=30.0,
         godot_path=GODOT_PATH,
         port=port,
     ) as g:
-        # Wait for the main menu to load first
-        await g.wait_for_node("/root/MainMenu", timeout=15.0)
-
-        # Small delay to ensure main menu is fully initialized
-        await asyncio.sleep(0.3)
-
-        # Change directly to the game scene for testing
-        await g.change_scene("res://scenes/test_level.tscn")
-
-        # Wait for the main game scene to load
-        # CI mode uses reduced chunk radius for faster initialization
-        await g.wait_for_node("/root/Main", timeout=30.0)
+        # Try to wait for the game scene directly (CI configuration)
+        # This is the GoPit approach - main scene is the game scene
+        try:
+            await g.wait_for_node("/root/Main", timeout=15.0)
+        except Exception:
+            # Fallback: if Main doesn't exist, we're in main_menu mode
+            # Wait for main menu and change scene (local dev mode)
+            await g.wait_for_node("/root/MainMenu", timeout=15.0)
+            await asyncio.sleep(0.3)
+            await g.change_scene("res://scenes/test_level.tscn")
+            await g.wait_for_node("/root/Main", timeout=30.0)
         yield g

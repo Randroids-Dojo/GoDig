@@ -73,10 +73,7 @@ jobs:
           echo "=== Running PlayGodot Integration Tests ==="
           export GODOT_PATH="${{ github.workspace }}/godot-automation/godot.linuxbsd.editor.x86_64.mono"
           # Run with xvfb for headless display support
-          # Only run main_menu fixture tests - game fixture tests timeout in CI
-          # due to change_scene issues with test_level.tscn
-          xvfb-run --auto-servernum pytest tests/test_main_menu.py -v --tb=short \
-            -k "not game_scene"
+          xvfb-run --auto-servernum pytest tests/test_main_menu.py -v --tb=short
           echo "PlayGodot tests completed"
 
       - name: Upload Screenshots

@@ -115,7 +115,7 @@ func _cleanup_distant_chunks(center_chunk: Vector2i) -> void:
 	var chunks_to_remove: Array[Vector2i] = []
 
 	for chunk_pos: Vector2i in _loaded_chunks.keys():
-		var distance := max(abs(chunk_pos.x - center_chunk.x), abs(chunk_pos.y - center_chunk.y))
+		var distance: int = maxi(absi(chunk_pos.x - center_chunk.x), absi(chunk_pos.y - center_chunk.y))
 		if distance > LOAD_RADIUS + 1:  # Keep one extra chunk as buffer
 			chunks_to_remove.append(chunk_pos)
 

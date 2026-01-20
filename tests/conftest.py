@@ -191,28 +191,35 @@ async def game():
 
     This fixture bypasses the main menu for faster test setup.
     Main menu navigation is tested separately in test_main_menu.py.
+
+    CI mode: When CI=true environment variable is set, the game uses
+    reduced chunk generation (3x3 grid instead of 5x5) for faster initialization.
     """
     import asyncio
     port = get_playgodot_port()
+
+    # Ensure CI environment variable is passed to Godot subprocess
+    import os
+    os.environ["CI"] = os.environ.get("CI", "true")  # Default to CI mode for tests
 
     async with Godot.launch(
         str(GODOT_PROJECT),
         headless=True,
         resolution=(720, 1280),  # Match game's 9:16 portrait aspect ratio
-        timeout=60.0,  # Increased for CI with chunk-based terrain generation
+        timeout=30.0,  # Reduced timeout - CI mode has smaller chunks
         godot_path=GODOT_PATH,
         port=port,
     ) as g:
         # Wait for the main menu to load first
-        await g.wait_for_node("/root/MainMenu", timeout=30.0)
+        await g.wait_for_node("/root/MainMenu", timeout=15.0)
 
         # Small delay to ensure main menu is fully initialized
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.3)
 
         # Change directly to the game scene for testing
         await g.change_scene("res://scenes/test_level.tscn")
 
         # Wait for the main game scene to load
-        # Increased timeout for CI - chunk system generates many blocks on init
-        await g.wait_for_node("/root/Main", timeout=60.0)
+        # CI mode uses reduced chunk radius for faster initialization
+        await g.wait_for_node("/root/Main", timeout=30.0)
         yield g

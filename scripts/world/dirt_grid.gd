@@ -7,8 +7,32 @@ const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
-const POOL_SIZE := 400  # Reduced from 500, still plenty for 5x5 chunk grid
-const LOAD_RADIUS := 2  # Load chunks within 2 chunks of player (5x5 grid)
+
+# CI mode detection - reduce load for faster test initialization
+# Set GODIG_CI=1 environment variable to enable
+static var _ci_mode_checked := false
+static var _is_ci_mode := false
+
+static func _check_ci_mode() -> bool:
+	if not _ci_mode_checked:
+		_ci_mode_checked = true
+		# Check for CI environment variable
+		_is_ci_mode = OS.get_environment("CI") != "" or OS.get_environment("GODIG_CI") != ""
+		if _is_ci_mode:
+			print("[DirtGrid] CI mode detected - using reduced chunk radius")
+	return _is_ci_mode
+
+# Pool size and load radius adjust based on CI mode
+const POOL_SIZE_NORMAL := 400  # Full pool for 5x5 chunk grid
+const POOL_SIZE_CI := 100  # Reduced pool for 3x3 chunk grid
+const LOAD_RADIUS_NORMAL := 2  # Load chunks within 2 chunks of player (5x5 grid)
+const LOAD_RADIUS_CI := 1  # Smaller radius for CI (3x3 grid)
+
+var POOL_SIZE: int:
+	get: return POOL_SIZE_CI if _check_ci_mode() else POOL_SIZE_NORMAL
+
+var LOAD_RADIUS: int:
+	get: return LOAD_RADIUS_CI if _check_ci_mode() else LOAD_RADIUS_NORMAL
 
 ## Emitted when a block drops ore/items. item_id is empty string for dirt-only blocks.
 signal block_dropped(grid_pos: Vector2i, item_id: String)

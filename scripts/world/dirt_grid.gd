@@ -7,8 +7,8 @@ const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
-const POOL_SIZE := 500  # Increased for horizontal generation
-const LOAD_RADIUS := 3  # Load chunks within 3 chunks of player
+const POOL_SIZE := 400  # Reduced from 500, still plenty for 5x5 chunk grid
+const LOAD_RADIUS := 2  # Load chunks within 2 chunks of player (5x5 grid)
 
 ## Emitted when a block drops ore/items. item_id is empty string for dirt-only blocks.
 signal block_dropped(grid_pos: Vector2i, item_id: String)
@@ -115,7 +115,7 @@ func _cleanup_distant_chunks(center_chunk: Vector2i) -> void:
 	var chunks_to_remove: Array[Vector2i] = []
 
 	for chunk_pos: Vector2i in _loaded_chunks.keys():
-		var distance := max(abs(chunk_pos.x - center_chunk.x), abs(chunk_pos.y - center_chunk.y))
+		var distance: int = max(abs(chunk_pos.x - center_chunk.x), abs(chunk_pos.y - center_chunk.y))
 		if distance > LOAD_RADIUS + 1:  # Keep one extra chunk as buffer
 			chunks_to_remove.append(chunk_pos)
 

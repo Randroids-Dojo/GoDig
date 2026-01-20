@@ -176,9 +176,8 @@ func _check_jump_input() -> bool:
 func _try_move_or_mine(direction: Vector2i) -> void:
 	var target := grid_position + direction
 
-	# Check bounds (don't go off left/right edges)
-	if target.x < 0 or target.x >= GameManager.GRID_WIDTH:
-		return
+	# No horizontal bounds - infinite terrain in all directions!
+	# Vertical movement is unrestricted too (can go up or down freely)
 
 	# Check if target cell has a block
 	if dirt_grid and dirt_grid.has_block(target):

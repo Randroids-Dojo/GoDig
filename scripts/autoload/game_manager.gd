@@ -16,11 +16,13 @@ signal coins_spent(amount: int)
 
 # Grid constants (128x128 blocks, same size as player)
 const BLOCK_SIZE := 128
-const GRID_WIDTH := 5  # 720 / 128 = 5.625, use 5 blocks centered
-const GRID_OFFSET_X := 40  # Center the grid: (720 - 5*128) / 2 = 40
+const GRID_OFFSET_X := 0  # No offset for infinite horizontal terrain
 const SURFACE_ROW := 7  # Dirt starts at row 7 (bottom quarter of 1280/128 = 10 rows)
 const VIEWPORT_WIDTH := 720
 const VIEWPORT_HEIGHT := 1280
+
+# Legacy constant kept for backwards compatibility (infinite terrain has no width limit)
+const GRID_WIDTH := 999999
 
 var is_running: bool = false
 var current_depth: int = 0

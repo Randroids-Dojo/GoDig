@@ -7,38 +7,8 @@ const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
-
-# Test mode detection - reduce load for faster test initialization
-# Detects headless mode which is used by CI and PlayGodot tests
-static var _test_mode_checked := false
-static var _is_test_mode := false
-
-static func _check_test_mode() -> bool:
-	if not _test_mode_checked:
-		_test_mode_checked = true
-		# Detect headless mode (used by CI/tests) - more reliable than env vars
-		var is_headless := DisplayServer.get_name() == "headless"
-		# Also check environment variables as backup
-		var ci_env := OS.get_environment("CI")
-		var godig_ci_env := OS.get_environment("GODIG_CI")
-		_is_test_mode = is_headless or ci_env != "" or godig_ci_env != ""
-		if _is_test_mode:
-			print("[DirtGrid] Test mode ENABLED (headless=%s) - using reduced chunk radius" % is_headless)
-		else:
-			print("[DirtGrid] Normal mode - using full chunk radius")
-	return _is_test_mode
-
-# Pool size and load radius adjust based on test mode
-const POOL_SIZE_NORMAL := 400  # Full pool for 5x5 chunk grid
-const POOL_SIZE_TEST := 25  # Minimal pool for 1x1 chunk grid (single chunk)
-const LOAD_RADIUS_NORMAL := 2  # Load chunks within 2 chunks of player (5x5 grid)
-const LOAD_RADIUS_TEST := 0  # Load only the player's chunk (1x1 grid)
-
-var POOL_SIZE: int:
-	get: return POOL_SIZE_TEST if _check_test_mode() else POOL_SIZE_NORMAL
-
-var LOAD_RADIUS: int:
-	get: return LOAD_RADIUS_TEST if _check_test_mode() else LOAD_RADIUS_NORMAL
+const POOL_SIZE := 400  # Pool size for chunks
+const LOAD_RADIUS := 2  # Load chunks within 2 chunks of player (5x5 grid)
 
 ## Emitted when a block drops ore/items. item_id is empty string for dirt-only blocks.
 signal block_dropped(grid_pos: Vector2i, item_id: String)

@@ -83,9 +83,10 @@ jobs:
           export GODOT_PATH="${{ github.workspace }}/godot-automation/godot.linuxbsd.editor.x86_64.mono"
           # Ensure CI mode is detected by Godot (reduces chunk generation for faster tests)
           export CI=true
+          export GODIG_CI=true
           # Run with xvfb for headless display support
-          # Use 4 workers with loadscope distribution for better fixture reuse
-          xvfb-run --auto-servernum pytest tests/ -v --tb=short -n 4 --dist=loadscope
+          # Run with 2 workers to reduce resource contention
+          xvfb-run --auto-servernum pytest tests/ -v --tb=short -n 2 --dist=loadscope
           echo "PlayGodot tests completed"
 
       - name: Upload Screenshots

@@ -17,9 +17,14 @@ static func _check_ci_mode() -> bool:
 	if not _ci_mode_checked:
 		_ci_mode_checked = true
 		# Check for CI environment variable
-		_is_ci_mode = OS.get_environment("CI") != "" or OS.get_environment("GODIG_CI") != ""
+		var ci_env := OS.get_environment("CI")
+		var godig_ci_env := OS.get_environment("GODIG_CI")
+		print("[DirtGrid] Checking CI mode - CI='%s', GODIG_CI='%s'" % [ci_env, godig_ci_env])
+		_is_ci_mode = ci_env != "" or godig_ci_env != ""
 		if _is_ci_mode:
-			print("[DirtGrid] CI mode detected - using reduced chunk radius")
+			print("[DirtGrid] CI mode ENABLED - using reduced chunk radius (LOAD_RADIUS=1)")
+		else:
+			print("[DirtGrid] Normal mode - using full chunk radius (LOAD_RADIUS=2)")
 	return _is_ci_mode
 
 # Pool size and load radius adjust based on CI mode

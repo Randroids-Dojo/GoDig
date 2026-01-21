@@ -9,7 +9,7 @@ set -e
 # Pinned version and checksums (update these when upgrading)
 DOTS_VERSION="0.6.4"
 CHECKSUM_LINUX_X86_64="2008db695f375ca29475b82250c5d71d51c8e3ed0f63ffcaf710a6628c5ce578"
-CHECKSUM_MACOS_ARM64=""  # TODO: Add when available
+CHECKSUM_MACOS_ARM64="a8f749aba34d90ada89e81a3b29096381361c410289f06c6e864db28825d1fbc"
 
 INSTALL_DIR="${HOME}/.local/bin"
 mkdir -p "$INSTALL_DIR"

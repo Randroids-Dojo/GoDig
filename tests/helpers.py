@@ -62,6 +62,12 @@ PATHS = {
     "health_label": "/root/Main/UI/HUD/HealthBar/HealthLabel",
     "low_health_vignette": "/root/Main/UI/HUD/LowHealthVignette",
     "floating_text_layer": "/root/Main/FloatingTextLayer",
+    "surface": "/root/Main/Surface",
+    "surface_sky": "/root/Main/Surface/Sky",
+    "surface_ground": "/root/Main/Surface/Ground",
+    "surface_spawn_point": "/root/Main/Surface/SpawnPoint",
+    "surface_shop_building": "/root/Main/Surface/ShopBuilding",
+    "surface_mine_entrance": "/root/Main/Surface/MineEntrance",
 }
 
 

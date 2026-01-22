@@ -5,6 +5,7 @@ extends Node2D
 
 const FloatingTextScene := preload("res://scenes/ui/floating_text.tscn")
 
+@onready var surface: Node2D = $Surface
 @onready var dirt_grid: Node2D = $DirtGrid
 @onready var player: CharacterBody2D = $Player
 @onready var depth_label: Label = $UI/DepthLabel
@@ -19,6 +20,11 @@ const FloatingTextScene := preload("res://scenes/ui/floating_text.tscn")
 
 
 func _ready() -> void:
+	# Position player at surface spawn point
+	if surface:
+		player.position = surface.get_spawn_position()
+		player.grid_position = GameManager.world_to_grid(player.position)
+
 	# Give player reference to dirt grid for mining
 	player.dirt_grid = dirt_grid
 
@@ -149,12 +155,18 @@ func _on_pause_menu_rescue() -> void:
 	## Emergency rescue: teleport player back to surface
 	print("[TestLevel] Emergency rescue requested")
 
-	# Teleport player to starting position
-	var surface_y := GameManager.SURFACE_ROW * 128 - 128  # One row above dirt
-	var center_x := GameManager.GRID_WIDTH / 2
-	var spawn_pos := GameManager.grid_to_world(Vector2i(center_x, GameManager.SURFACE_ROW - 1))
-	player.position = spawn_pos
-	player.grid_position = GameManager.world_to_grid(spawn_pos)
+	# Teleport player to surface spawn point
+	if surface:
+		player.position = surface.get_spawn_position()
+		player.grid_position = GameManager.world_to_grid(player.position)
+	else:
+		# Fallback if surface scene is not available
+		var surface_y := GameManager.SURFACE_ROW * 128 - 128  # One row above dirt
+		var center_x := GameManager.GRID_WIDTH / 2
+		var spawn_pos := GameManager.grid_to_world(Vector2i(center_x, GameManager.SURFACE_ROW - 1))
+		player.position = spawn_pos
+		player.grid_position = GameManager.world_to_grid(spawn_pos)
+
 	player.current_state = player.State.IDLE
 	player.velocity = Vector2.ZERO
 

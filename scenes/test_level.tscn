@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://test_level_001"]
+[gd_scene load_steps=12 format=3 uid="uid://test_level_001"]
 
 [ext_resource type="Script" path="res://scripts/test_level.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/world/dirt_grid.gd" id="2_grid"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://shop_ui_001" path="res://scenes/ui/shop.tscn" id="7_shop"]
 [ext_resource type="PackedScene" uid="uid://pause_menu_001" path="res://scenes/ui/pause_menu.tscn" id="8_pause"]
 [ext_resource type="PackedScene" uid="uid://hud_ui_001" path="res://scenes/ui/hud.tscn" id="9_hud"]
+[ext_resource type="PackedScene" uid="uid://surface_001" path="res://scenes/surface.tscn" id="10_surface"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(120, 120)
@@ -16,11 +17,15 @@ size = Vector2(120, 120)
 [node name="Main" type="Node2D"]
 script = ExtResource("1_level")
 
+[node name="Surface" parent="." instance=ExtResource("10_surface")]
+
 [node name="Background" type="ColorRect" parent="."]
 offset_left = -50000.0
+offset_top = 896.0
 offset_right = 50000.0
 offset_bottom = 10000.0
-color = Color(0.529, 0.808, 0.922, 1)
+color = Color(0.35, 0.35, 0.35, 1)
+z_index = -1
 
 [node name="DirtGrid" type="Node2D" parent="."]
 script = ExtResource("2_grid")

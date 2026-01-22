@@ -39,6 +39,7 @@ PATHS = {
     "data_registry": "/root/DataRegistry",
     "inventory_manager": "/root/InventoryManager",
     "save_manager": "/root/SaveManager",
+    "player_data": "/root/PlayerData",
     "settings_manager": "/root/SettingsManager",
     "platform_detector": "/root/PlatformDetector",
     "touch_controls": "/root/Main/UI/TouchControls",

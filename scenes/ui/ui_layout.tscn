@@ -1,0 +1,79 @@
+[gd_scene load_steps=2 format=3 uid="uid://ui_layout_001"]
+
+[ext_resource type="Script" path="res://scripts/ui/ui_layout.gd" id="1_layout"]
+
+[node name="UILayout" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_layout")
+
+[node name="SafeAreaContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 40
+
+[node name="TopHUD" type="Control" parent="SafeAreaContainer"]
+layout_mode = 2
+anchor_top = 0.0
+anchor_bottom = 0.0
+offset_bottom = 120.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="LeftInfo" type="HBoxContainer" parent="SafeAreaContainer/TopHUD"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 16.0
+offset_top = -30.0
+offset_right = 316.0
+offset_bottom = 30.0
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="RightButtons" type="HBoxContainer" parent="SafeAreaContainer/TopHUD"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -216.0
+offset_top = -30.0
+offset_right = -16.0
+offset_bottom = 30.0
+grow_horizontal = 0
+grow_vertical = 2
+alignment = 2
+mouse_filter = 2
+
+[node name="BottomControls" type="Control" parent="SafeAreaContainer"]
+layout_mode = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -220.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="FullscreenOverlays" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

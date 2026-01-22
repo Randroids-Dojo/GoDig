@@ -1,9 +1,11 @@
 ---
 title: "implement: Portrait UI layout system"
-status: open
+status: closed
 priority: 0
 issue-type: task
-created-at: "2026-01-16T00:39:26.014782-06:00"
+created-at: "\"\\\"2026-01-16T00:39:26.014782-06:00\\\"\""
+closed-at: "2026-01-22T05:28:49.247683+00:00"
+close-reason: Implemented portrait UI layout system with safe area handling, updated HUD and touch controls, added comprehensive tests
 ---
 
 Design all UI for portrait orientation. HUD at top, controls at bottom. Inventory grid in portrait format. Touch-friendly button sizes.

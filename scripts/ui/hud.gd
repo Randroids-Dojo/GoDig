@@ -8,6 +8,13 @@ extends Control
 @onready var health_bar: ProgressBar = $HealthBar
 @onready var health_label: Label = $HealthBar/HealthLabel
 
+## Reference to coins and depth displays
+@onready var coins_label: Label = $CoinsLabel
+@onready var depth_label: Label = $DepthLabel
+
+## Reference to pause button
+@onready var pause_button: Button = $PauseButton
+
 ## Reference to low health warning overlay
 @onready var low_health_vignette: ColorRect = $LowHealthVignette
 
@@ -26,6 +33,17 @@ func _ready() -> void:
 	# Initialize display
 	_update_health_display(100, 100)
 	low_health_vignette.visible = false
+
+	# Connect to GameManager signals
+	if GameManager:
+		GameManager.coins_changed.connect(_on_coins_changed)
+		GameManager.depth_updated.connect(_on_depth_updated)
+		_update_coins_display(GameManager.get_coins())
+		_update_depth_display(0)
+
+	# Connect pause button
+	if pause_button:
+		pause_button.pressed.connect(_on_pause_pressed)
 
 
 func _process(delta: float) -> void:
@@ -102,3 +120,26 @@ func _update_health_display(current_hp: int, max_hp: int) -> void:
 func refresh() -> void:
 	if _last_hp >= 0 and _last_max_hp > 0:
 		_update_health_display(_last_hp, _last_max_hp)
+
+
+func _on_coins_changed(new_amount: int) -> void:
+	_update_coins_display(new_amount)
+
+
+func _on_depth_updated(depth_meters: int) -> void:
+	_update_depth_display(depth_meters)
+
+
+func _update_coins_display(amount: int) -> void:
+	if coins_label:
+		coins_label.text = "Coins: %d" % amount
+
+
+func _update_depth_display(depth: int) -> void:
+	if depth_label:
+		depth_label.text = "%dm" % depth
+
+
+func _on_pause_pressed() -> void:
+	if GameManager:
+		GameManager.pause_game()

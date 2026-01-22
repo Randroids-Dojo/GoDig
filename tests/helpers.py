@@ -31,8 +31,6 @@ PATHS = {
     "player": "/root/Main/Player",
     "dirt_grid": "/root/Main/DirtGrid",
     "camera": "/root/Main/Player/Camera2D",
-    "depth_label": "/root/Main/UI/DepthLabel",
-    "coins_label": "/root/Main/UI/CoinsLabel",
     "shop_button": "/root/Main/UI/ShopButton",
     "shop": "/root/Main/UI/Shop",
     "game_manager": "/root/GameManager",
@@ -49,7 +47,6 @@ PATHS = {
     "inventory_button": "/root/Main/UI/TouchControls/ActionButtons/InventoryButton",
     "player_sprite": "/root/Main/Player/AnimatedSprite2D",
     "player_collision": "/root/Main/Player/CollisionShape2D",
-    "pause_button": "/root/Main/UI/PauseButton",
     "pause_menu": "/root/Main/PauseMenu",
     "pause_menu_resume": "/root/Main/PauseMenu/Panel/VBox/ResumeButton",
     "pause_menu_settings": "/root/Main/PauseMenu/Panel/VBox/SettingsButton",
@@ -61,6 +58,9 @@ PATHS = {
     "health_bar": "/root/Main/UI/HUD/HealthBar",
     "health_label": "/root/Main/UI/HUD/HealthBar/HealthLabel",
     "low_health_vignette": "/root/Main/UI/HUD/LowHealthVignette",
+    "hud_coins_label": "/root/Main/UI/HUD/CoinsLabel",
+    "hud_depth_label": "/root/Main/UI/HUD/DepthLabel",
+    "hud_pause_button": "/root/Main/UI/HUD/PauseButton",
     "floating_text_layer": "/root/Main/FloatingTextLayer",
 }
 

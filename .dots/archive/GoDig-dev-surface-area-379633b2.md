@@ -1,9 +1,11 @@
 ---
 title: "implement: Surface area scene"
-status: active
+status: closed
 priority: 0
 issue-type: task
-created-at: "\"2026-01-16T00:47:11.629318-06:00\""
+created-at: "\"\\\"2026-01-16T00:47:11.629318-06:00\\\"\""
+closed-at: "2026-01-22T05:35:10.890831+00:00"
+close-reason: Surface area scene implemented with sky, ground, shop building, mine entrance, and spawn point. Integrated into test_level. Tests written and pushed to branch claude/surface-area-scene-hRxHD
 ---
 
 The above-ground area where player starts, returns to sell, and accesses shops. Safe zone (no digging). Shop interaction points. Initial spawn point.

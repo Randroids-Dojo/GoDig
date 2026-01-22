@@ -180,19 +180,66 @@ func _on_pause_menu_reload() -> void:
 
 
 func _on_pause_menu_quit() -> void:
-	## Quit to main menu (or quit game if no main menu)
-	print("[TestLevel] Quit requested")
+	## Return to main menu
+	print("[TestLevel] Quit to main menu requested")
 
-	# For now, just quit the game
-	# TODO: Return to main menu when implemented
-	get_tree().quit()
+	# Save before quitting
+	if SaveManager.is_game_loaded():
+		SaveManager.save_game()
+
+	# End the game session
+	GameManager.end_game()
+
+	# Return to main menu
+	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 
 # ============================================
 # PLAYER DEATH HANDLER
 # ============================================
 
+func _respawn_player() -> void:
+	## Respawn player at surface with full health
+	print("[TestLevel] Respawning player at surface")
+
+	# Revive the player with full HP
+	player.revive(player.MAX_HP)
+
+	# Teleport to surface spawn position
+	var center_x := GameManager.GRID_WIDTH / 2
+	var spawn_pos := GameManager.grid_to_world(Vector2i(center_x, GameManager.SURFACE_ROW - 1))
+	player.position = spawn_pos
+	player.grid_position = GameManager.world_to_grid(spawn_pos)
+	player.current_state = player.State.IDLE
+	player.velocity = Vector2.ZERO
+
+	# Reset depth
+	GameManager.update_depth(0)
+
+	# Save the respawn
+	if SaveManager.is_game_loaded():
+		SaveManager.save_game()
+
+	print("[TestLevel] Player respawned successfully")
+
+
 func _on_player_died(cause: String) -> void:
-	## Handle player death - will be expanded by death/respawn system
+	## Handle player death - respawn at surface after delay
 	print("[TestLevel] Player died from: %s" % cause)
-	# For now, just log it - full death/respawn system will handle this later
+
+	# Record death in save data
+	if SaveManager.current_save:
+		SaveManager.current_save.increment_deaths()
+
+	# Pause game temporarily
+	get_tree().paused = true
+
+	# Show death message and wait before respawning
+	print("[TestLevel] Respawning in 2 seconds...")
+	await get_tree().create_timer(2.0, true, false, true).timeout
+
+	# Respawn player at surface
+	_respawn_player()
+
+	# Unpause game
+	get_tree().paused = false

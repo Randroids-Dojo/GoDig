@@ -201,6 +201,12 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 	current_slot = slot
 	current_save = SaveDataClass.create_new(slot_name)
 
+	# Reset all game state for new game
+	if InventoryManager:
+		InventoryManager.clear_inventory()
+	if PlayerData:
+		PlayerData.reset()
+
 	# Initial save
 	var success := save_game()
 
@@ -253,6 +259,12 @@ func _collect_game_state() -> void:
 		current_save.inventory = InventoryManager.get_inventory_dict()
 		current_save.max_slots = InventoryManager.max_slots
 
+	# Collect from PlayerData
+	if PlayerData:
+		var player_data = PlayerData.get_save_data()
+		current_save.equipped_tool = player_data.get("equipped_tool_id", "rusty_pickaxe")
+		current_save.max_depth_reached = player_data.get("max_depth_reached", 0)
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -270,6 +282,14 @@ func _apply_game_state() -> void:
 	if InventoryManager:
 		InventoryManager.load_from_dict(current_save.inventory)
 		InventoryManager.max_slots = current_save.max_slots
+
+	# Apply to PlayerData
+	if PlayerData:
+		var player_data = {
+			"equipped_tool_id": current_save.equipped_tool,
+			"max_depth_reached": current_save.max_depth_reached,
+		}
+		PlayerData.load_save_data(player_data)
 
 
 ## Run migration if save version is old

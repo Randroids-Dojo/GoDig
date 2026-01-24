@@ -1,9 +1,11 @@
 ---
 title: "implement: Block break particle effect"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T01:01:24.194011-06:00"
+created-at: "\"2026-01-16T01:01:24.194011-06:00\""
+closed-at: "2026-01-24T21:25:03.646013+00:00"
+close-reason: "Implemented: block_particles.tscn exists with particle effects"
 ---
 
 Particle burst when block is destroyed. Color matches block type (brown for dirt, gray for stone). Core MVP feedback.

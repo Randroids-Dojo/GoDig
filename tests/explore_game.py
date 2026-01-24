@@ -15,8 +15,8 @@ Or import and use programmatically:
         await explorer.walk_around()
 
 Connection Method:
-    Uses WebSocket (ws://localhost:9999) to communicate with the PlayGodot addon's
-    server, which is registered as an autoload in the Godot project.
+    Uses PlayGodot's native RemoteDebugger protocol to communicate directly
+    with the Godot automation fork. No addon required in the game.
 
 Available Controls:
     - Movement: move_left(), move_right(), move_up(), move_down()
@@ -33,30 +33,30 @@ Headless Mode:
     - Uses test helper methods for mining (bypasses animation system)
     - Animation-based digging doesn't work in headless mode (no textures)
     - All core mechanics (movement, mining, state queries) work correctly
+
+Known Limitations:
+    - The Godot mono build pauses execution when resource loading errors occur
+      during scene transitions (sends debug_enter message). The game scene has
+      missing sprite resources in headless mode which triggers this.
+    - For reliable testing, use the pytest tests which work with main menu scene.
 """
 import asyncio
 import argparse
 import sys
 import os
-import json
 import socket
-import subprocess
 from pathlib import Path
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any, Tuple
 from datetime import datetime
 
-try:
-    import websockets
-except ImportError:
-    print("Installing websockets...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "websockets", "-q"])
-    import websockets
-
 # Project paths - resolved relative to this file
 SCRIPT_DIR = Path(__file__).parent
 GODOT_PROJECT = SCRIPT_DIR.parent
+
+# Import PlayGodot native client
+from playgodot import Godot
 
 # Import helpers from the same directory
 sys.path.insert(0, str(SCRIPT_DIR))
@@ -84,95 +84,15 @@ def find_godot_path() -> str:
     raise RuntimeError("Could not find Godot automation binary. Set GODOT_PATH environment variable.")
 
 
+def get_free_port() -> int:
+    """Find an available port by binding to port 0."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('127.0.0.1', 0))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return s.getsockname()[1]
+
+
 GODOT_PATH = find_godot_path()
-
-
-class WebSocketGameClient:
-    """WebSocket client for PlayGodot server communication."""
-
-    def __init__(self, host: str = "localhost", port: int = 9999):
-        self.host = host
-        self.port = port
-        self.ws = None
-        self._request_id = 0
-
-    async def connect(self, timeout: float = 30.0):
-        """Connect to the PlayGodot WebSocket server."""
-        uri = f"ws://{self.host}:{self.port}"
-        print(f"[WSClient] Connecting to {uri}...")
-        self.ws = await asyncio.wait_for(
-            websockets.connect(uri),
-            timeout=timeout
-        )
-        print("[WSClient] Connected")
-
-    async def disconnect(self):
-        """Disconnect from the server."""
-        if self.ws:
-            await self.ws.close()
-            self.ws = None
-
-    async def call(self, method: str, params: Dict[str, Any] = None) -> Any:
-        """Call a JSON-RPC method on the server."""
-        if not self.ws:
-            raise RuntimeError("Not connected")
-
-        self._request_id += 1
-        request = {
-            "jsonrpc": "2.0",
-            "id": self._request_id,
-            "method": method,
-            "params": params or {}
-        }
-
-        await self.ws.send(json.dumps(request))
-        response_text = await self.ws.recv()
-        response = json.loads(response_text)
-
-        if "error" in response:
-            raise RuntimeError(f"RPC error: {response['error']}")
-
-        return response.get("result")
-
-    async def node_exists(self, path: str) -> bool:
-        """Check if a node exists at the given path."""
-        result = await self.call("node_exists", {"path": path})
-        return result.get("exists", False) if isinstance(result, dict) else bool(result)
-
-    async def get_property(self, path: str, property_name: str) -> Any:
-        """Get a property from a node."""
-        result = await self.call("get_property", {"path": path, "property": property_name})
-        return result.get("value") if isinstance(result, dict) else result
-
-    async def set_property(self, path: str, property_name: str, value: Any) -> bool:
-        """Set a property on a node."""
-        result = await self.call("set_property", {"path": path, "property": property_name, "value": value})
-        return result.get("success", False) if isinstance(result, dict) else bool(result)
-
-    async def call_method(self, path: str, method: str, args: List[Any] = None) -> Any:
-        """Call a method on a node."""
-        result = await self.call("call_method", {"path": path, "method": method, "args": args or []})
-        return result.get("value") if isinstance(result, dict) else result
-
-    async def press_action(self, action: str):
-        """Press an input action (press and release)."""
-        await self.call("press_action", {"action": action})
-
-    async def hold_action(self, action: str, duration: float):
-        """Hold an input action for a duration (in seconds)."""
-        await self.call("hold_action", {"action": action, "duration": duration})
-
-    async def release_action(self, action: str):
-        """Release an input action."""
-        await self.call("release_action", {"action": action})
-
-    async def change_scene(self, scene_path: str):
-        """Change to a different scene."""
-        return await self.call("change_scene", {"path": scene_path})
-
-    async def get_node(self, path: str) -> Any:
-        """Get a node at the given path."""
-        return await self.call("get_node", {"path": path})
 
 
 # =============================================================================
@@ -288,9 +208,8 @@ class GameExplorer:
             feedback = await explorer.full_exploration()
     """
 
-    def __init__(self, game: WebSocketGameClient, process: subprocess.Popen = None):
+    def __init__(self, game: Godot):
         self.game = game
-        self._process = process
         self.feedback = GameplayFeedback()
         self._state_history: List[GameState] = []
         self._action_log: List[str] = []
@@ -305,86 +224,59 @@ class GameExplorer:
             async with GameExplorer.create() as explorer:
                 ...
         """
-        # Build command to launch Godot
-        cmd = [GODOT_PATH, "--path", str(GODOT_PROJECT)]
-        if headless:
-            cmd.append("--headless")
-        cmd.extend(["--resolution", f"{resolution[0]}x{resolution[1]}"])
+        port = get_free_port()
 
-        print(f"[Explorer] Launching Godot: {' '.join(cmd)}")
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
+        print(f"[Explorer] Launching Godot with native protocol on port {port}")
 
-        # Give time for Godot and WebSocket server to start
-        print("[Explorer] Waiting for Godot to initialize...")
-        await asyncio.sleep(3.0)
+        print(f"[Explorer] Launching Godot with native protocol on port {port}")
 
-        # Connect to WebSocket server
-        game = WebSocketGameClient(port=9999)
-        try:
-            await game.connect(timeout=30.0)
-        except Exception as e:
-            process.terminate()
-            raise RuntimeError(f"Failed to connect to PlayGodot WebSocket server: {e}")
+        async with Godot.launch(
+            str(GODOT_PROJECT),
+            headless=headless,
+            resolution=resolution,
+            timeout=60.0,
+            godot_path=GODOT_PATH,
+            port=port,
+        ) as g:
+            # Wait for main menu to load
+            print("[Explorer] Waiting for main menu...")
+            await g.wait_for_node("/root/MainMenu", timeout=30.0)
+            print("[Explorer] Main menu found")
 
-        # Wait for main menu to be ready
-        print("[Explorer] Waiting for main menu...")
-        for attempt in range(30):
-            try:
-                exists = await game.node_exists("/root/MainMenu")
-                if exists:
-                    print(f"[Explorer] Main menu found on attempt {attempt + 1}")
-                    break
-            except Exception:
-                pass
             await asyncio.sleep(0.5)
-        else:
-            await game.disconnect()
-            process.terminate()
-            raise RuntimeError("Main menu never loaded")
 
-        # Change to test level scene
-        print("[Explorer] Changing to test level scene...")
-        try:
-            await game.change_scene("res://scenes/test_level.tscn")
-            await asyncio.sleep(1.0)
-        except Exception as e:
-            print(f"[Explorer] Scene change note: {e}")
-
-        # Wait for game scene
-        print("[Explorer] Waiting for game scene to load...")
-        for attempt in range(30):
+            # Try to change to test level scene
+            # Note: This may fail in headless mode due to resource loading errors
+            # causing the Godot debugger to pause (debug_enter)
+            print("[Explorer] Attempting to change to test level scene...")
             try:
-                exists = await game.node_exists("/root/Main")
-                if exists:
-                    print(f"[Explorer] Game scene loaded on attempt {attempt + 1}")
-                    break
-            except Exception:
-                pass
+                await g.change_scene("res://scenes/test_level.tscn")
+                await asyncio.sleep(1.0)
+            except Exception as e:
+                print(f"[Explorer] Scene change error (expected in headless): {e}")
+
+            # Wait for game scene to load - this may timeout if debugger pauses
+            print("[Explorer] Waiting for game scene to load...")
+            try:
+                await g.wait_for_node("/root/Main", timeout=30.0)
+                print("[Explorer] Game scene loaded")
+            except Exception as e:
+                print(f"[Explorer] Could not load game scene: {e}")
+                print("[Explorer] Note: In headless mode, missing resources cause debugger to pause")
+                raise RuntimeError(
+                    "Game scene failed to load. This is a known limitation in headless mode "
+                    "due to missing sprite resources causing the Godot debugger to pause. "
+                    "Run with a display (xvfb-run or native) and ensure all resources exist."
+                )
+
             await asyncio.sleep(0.5)
-        else:
-            await game.disconnect()
-            process.terminate()
-            raise RuntimeError("Game scene never loaded")
 
-        await asyncio.sleep(0.5)
+            explorer = cls(g)
+            await explorer._log_action("Game launched and ready")
 
-        explorer = cls(game, process)
-        await explorer._log_action("Game launched and ready")
-
-        try:
             yield explorer
-        finally:
-            await game.disconnect()
-            process.terminate()
-            try:
-                process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                process.kill()
-            print("[Explorer] Godot process terminated")
+
+        print("[Explorer] Godot process terminated")
 
     async def close(self):
         """Close is handled by context manager - no-op for backwards compatibility."""
@@ -474,13 +366,13 @@ class GameExplorer:
 
     async def get_block_at(self, grid_x: int, grid_y: int) -> bool:
         """Check if a block exists at the given grid position."""
-        result = await self.game.call_method(PATHS["dirt_grid"], "has_block_at", [grid_x, grid_y])
+        result = await self.game.call(PATHS["dirt_grid"], "has_block_at", [grid_x, grid_y])
         return result is True
 
     async def get_grid_position(self) -> Tuple[int, int]:
         """Get player grid position using test helpers (more reliable in headless mode)."""
-        x = await self.game.call_method(PATHS["player"], "test_get_grid_x", [])
-        y = await self.game.call_method(PATHS["player"], "test_get_grid_y", [])
+        x = await self.game.call(PATHS["player"], "test_get_grid_x", [])
+        y = await self.game.call(PATHS["player"], "test_get_grid_y", [])
         return (int(x) if x is not None else 0, int(y) if y is not None else 0)
 
     # =========================================================================
@@ -554,7 +446,7 @@ class GameExplorer:
         Returns True if block was destroyed and player moved.
         """
         for _ in range(max_hits):
-            result = await self.game.call_method(
+            result = await self.game.call(
                 PATHS["player"], "test_mine_direction", [dir_x, dir_y]
             )
             if result is True:

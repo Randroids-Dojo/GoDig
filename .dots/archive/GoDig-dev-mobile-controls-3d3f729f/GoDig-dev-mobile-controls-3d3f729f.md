@@ -1,9 +1,11 @@
 ---
 title: "DEV: Mobile Controls System"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T00:31:53.863236-06:00"
+created-at: "\"2026-01-16T00:31:53.863236-06:00\""
+closed-at: "2026-01-24T21:31:08.555252+00:00"
+close-reason: Touch controls with virtual joystick, action buttons implemented
 ---
 
 Epic for touch controls implementation based on mobile-controls.md

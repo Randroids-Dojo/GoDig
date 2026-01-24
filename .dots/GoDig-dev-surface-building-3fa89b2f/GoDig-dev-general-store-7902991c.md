@@ -1,9 +1,11 @@
 ---
 title: "implement: General Store (sell resources)"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T00:28:41.710193-06:00"
+created-at: "\"2026-01-16T00:28:41.710193-06:00\""
+closed-at: "2026-01-24T21:50:52.866512+00:00"
+close-reason: "Implemented: shop.gd has Sell tab for selling ores and gems for coins"
 ---
 
 First shop: sell raw ores/gems for coins. Basic UI with tabs: Buy/Sell/Upgrade. Always available. Based on surface-shops.md.

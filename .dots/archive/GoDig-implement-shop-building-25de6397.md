@@ -1,11 +1,11 @@
 ---
 title: "implement: Shop building on surface with interaction"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-18T23:49:26.149740-06:00"
-after:
-  - GoDig-dev-surface-area-379633b2
+created-at: "\"2026-01-18T23:49:26.149740-06:00\""
+closed-at: "2026-01-24T05:39:14.907415+00:00"
+close-reason: Shop button now shows/hides based on player proximity to shop building
 ---
 
 Create shop_building.tscn with Area2D for player detection. When player enters, emit signal to show 'Shop' button in HUD. When player exits, hide button. Requires surface scene to exist first.

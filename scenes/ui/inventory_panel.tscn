@@ -1,0 +1,45 @@
+[gd_scene load_steps=2 format=3 uid="uid://inventory_panel_001"]
+
+[ext_resource type="Script" path="res://scripts/ui/inventory_panel.gd" id="1_panel"]
+
+[node name="InventoryPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_panel")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 100.0
+offset_right = -20.0
+offset_bottom = -200.0
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Panel/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "INVENTORY"
+
+[node name="SlotCountLabel" type="Label" parent="Panel/VBox/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "0/8"
+horizontal_alignment = 2
+
+[node name="GridContainer" type="GridContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+columns = 4

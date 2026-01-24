@@ -57,6 +57,9 @@ func _ready() -> void:
 	# Connect item pickup for floating text
 	InventoryManager.item_added.connect(_on_item_added)
 
+	# Connect shop building proximity signals
+	_connect_shop_building()
+
 	# Start the game
 	GameManager.start_game()
 
@@ -122,11 +125,41 @@ func _on_coins_changed(new_amount: int) -> void:
 
 func _on_shop_button_pressed() -> void:
 	shop.open()
+	shop_button.visible = false  # Hide button while shop is open
 
 
 func _on_shop_closed() -> void:
-	# Shop was closed, resume game if needed
-	pass
+	# Shop was closed, check if player is still near shop building
+	var shop_building := surface.get_node_or_null("ShopBuilding")
+	if shop_building and shop_building.is_player_nearby():
+		shop_button.visible = true
+
+
+# ============================================
+# SHOP BUILDING INTERACTION
+# ============================================
+
+func _connect_shop_building() -> void:
+	## Connect shop building proximity signals to show/hide shop button
+	if not surface:
+		return
+
+	var shop_building := surface.get_node_or_null("ShopBuilding")
+	if shop_building:
+		shop_building.player_entered.connect(_on_shop_building_entered)
+		shop_building.player_exited.connect(_on_shop_building_exited)
+		print("[TestLevel] Shop building signals connected")
+
+
+func _on_shop_building_entered() -> void:
+	## Player entered shop area - show the shop button
+	if not shop.visible:  # Only show if shop UI isn't already open
+		shop_button.visible = true
+
+
+func _on_shop_building_exited() -> void:
+	## Player left shop area - hide the shop button
+	shop_button.visible = false
 
 
 func _on_inventory_pressed() -> void:

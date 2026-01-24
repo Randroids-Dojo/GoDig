@@ -29,11 +29,10 @@ Feedback Collection:
     The GameplayFeedback class collects issues, observations, and metrics during
     exploration. Call full_exploration() for automated testing.
 
-Known Issues:
-    - In headless mode with mono build, some scripts fail to compile due to
-      class_name resolution issues (TileTypes, ToolData)
-    - This may prevent dirt grid initialization and digging mechanics
-    - Movement works correctly in all modes
+Headless Mode:
+    - Uses test helper methods for mining (bypasses animation system)
+    - Animation-based digging doesn't work in headless mode (no textures)
+    - All core mechanics (movement, mining, state queries) work correctly
 """
 import asyncio
 import argparse
@@ -429,8 +428,10 @@ class GameExplorer:
             max_hp_result = await self.game.get_property(PATHS["player"], "MAX_HP")
 
             # Get game manager data
-            depth_result = await self.game.get_property(PATHS["game_manager"], "current_depth")
             coins_result = await self.game.get_property(PATHS["game_manager"], "coins")
+
+            # Calculate depth from grid position (more reliable than GameManager signal)
+            calculated_depth = max(0, grid_pos[1] - SURFACE_ROW)
 
             state_obj = GameState(
                 player_position=position,
@@ -438,7 +439,7 @@ class GameExplorer:
                 player_state=state,
                 player_hp=float(hp_result) if hp_result else 100.0,
                 player_max_hp=float(max_hp_result) if max_hp_result else 100.0,
-                depth=int(depth_result) if depth_result else 0,
+                depth=calculated_depth,
                 coins=int(coins_result) if coins_result else 0,
                 is_on_surface=grid_pos[1] <= SURFACE_ROW,
             )
@@ -473,8 +474,14 @@ class GameExplorer:
 
     async def get_block_at(self, grid_x: int, grid_y: int) -> bool:
         """Check if a block exists at the given grid position."""
-        result = await self.game.call_method(PATHS["dirt_grid"], "has_block", [[grid_x, grid_y]])
+        result = await self.game.call_method(PATHS["dirt_grid"], "has_block_at", [grid_x, grid_y])
         return result is True
+
+    async def get_grid_position(self) -> Tuple[int, int]:
+        """Get player grid position using test helpers (more reliable in headless mode)."""
+        x = await self.game.call_method(PATHS["player"], "test_get_grid_x", [])
+        y = await self.game.call_method(PATHS["player"], "test_get_grid_y", [])
+        return (int(x) if x is not None else 0, int(y) if y is not None else 0)
 
     # =========================================================================
     # MOVEMENT
@@ -537,32 +544,50 @@ class GameExplorer:
         return landed
 
     # =========================================================================
-    # DIGGING
+    # DIGGING (using test helpers for headless mode compatibility)
     # =========================================================================
 
-    async def dig_left(self):
-        """Dig one block to the left."""
+    async def _mine_direction(self, dir_x: int, dir_y: int, max_hits: int = 5) -> bool:
+        """Mine in a direction until block is destroyed or max hits reached.
+
+        Uses test_mine_direction helper which bypasses animations.
+        Returns True if block was destroyed and player moved.
+        """
+        for _ in range(max_hits):
+            result = await self.game.call_method(
+                PATHS["player"], "test_mine_direction", [dir_x, dir_y]
+            )
+            if result is True:
+                # Block destroyed, wait for move to complete
+                await asyncio.sleep(MOVE_DURATION + 0.1)
+                return True
+            elif result is False:
+                # Block still there, continue hitting
+                await asyncio.sleep(0.05)
+            else:
+                # No block in that direction
+                return False
+        return False
+
+    async def dig_left(self) -> bool:
+        """Dig one block to the left. Returns True if successful."""
         await self._log_action("Digging left")
-        await self.game.hold_action("move_left", DIG_DURATION + MOVE_DURATION)
-        await asyncio.sleep(0.1)
+        return await self._mine_direction(-1, 0)
 
-    async def dig_right(self):
-        """Dig one block to the right."""
+    async def dig_right(self) -> bool:
+        """Dig one block to the right. Returns True if successful."""
         await self._log_action("Digging right")
-        await self.game.hold_action("move_right", DIG_DURATION + MOVE_DURATION)
-        await asyncio.sleep(0.1)
+        return await self._mine_direction(1, 0)
 
-    async def dig_down(self):
-        """Dig one block downward."""
+    async def dig_down(self) -> bool:
+        """Dig one block downward. Returns True if successful."""
         await self._log_action("Digging down")
-        await self.game.hold_action("move_down", DIG_DURATION + MOVE_DURATION)
-        await asyncio.sleep(0.1)
+        return await self._mine_direction(0, 1)
 
-    async def dig_up(self):
-        """Dig one block upward."""
+    async def dig_up(self) -> bool:
+        """Dig one block upward. Returns True if successful."""
         await self._log_action("Digging up")
-        await self.game.hold_action("move_up", DIG_DURATION + MOVE_DURATION)
-        await asyncio.sleep(0.1)
+        return await self._mine_direction(0, -1)
 
     async def mine_shaft(self, depth: int = 5):
         """Dig a vertical shaft downward by the specified depth."""

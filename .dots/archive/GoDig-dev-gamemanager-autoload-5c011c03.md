@@ -1,9 +1,11 @@
 ---
 title: "implement: GameManager autoload singleton"
-status: active
+status: closed
 priority: 1
 issue-type: task
-created-at: "\"2026-01-16T00:37:35.694949-06:00\""
+created-at: "\"\\\"2026-01-16T00:37:35.694949-06:00\\\"\""
+closed-at: "2026-01-24T16:00:20.827970+00:00"
+close-reason: Implemented GameState enum, state management, scene navigation, player reference, shop integration, pause system, and mobile lifecycle
 ---
 
 ## Description

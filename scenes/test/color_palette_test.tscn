@@ -1,0 +1,583 @@
+[gd_scene load_steps=1 format=3 uid="uid://cpalette_test_scifi"]
+
+[node name="ColorPaletteTest" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.04, 0.06, 1)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainVBox" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "SciFi Color Palette Test"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 16
+text = "Visual validation for GoDig redesign"
+horizontal_alignment = 1
+
+[node name="HSeparator1" type="HSeparator" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+
+[node name="PrimaryColorsLabel" type="Label" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Primary Colors (Backgrounds)"
+
+[node name="PrimaryColorsGrid" type="GridContainer" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+columns = 4
+
+[node name="VoidBlack" type="VBoxContainer" parent="ScrollContainer/MainVBox/PrimaryColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/PrimaryColorsGrid/VoidBlack"]
+custom_minimum_size = Vector2(150, 80)
+layout_mode = 2
+color = Color(0.04, 0.04, 0.06, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/PrimaryColorsGrid/VoidBlack"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Void Black
+#0a0a0f"
+horizontal_alignment = 1
+
+[node name="SteelBlue" type="VBoxContainer" parent="ScrollContainer/MainVBox/PrimaryColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/PrimaryColorsGrid/SteelBlue"]
+custom_minimum_size = Vector2(150, 80)
+layout_mode = 2
+color = Color(0.102, 0.165, 0.227, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/PrimaryColorsGrid/SteelBlue"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Steel Blue
+#1a2a3a"
+horizontal_alignment = 1
+
+[node name="AlienPurple" type="VBoxContainer" parent="ScrollContainer/MainVBox/PrimaryColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/PrimaryColorsGrid/AlienPurple"]
+custom_minimum_size = Vector2(150, 80)
+layout_mode = 2
+color = Color(0.176, 0.106, 0.306, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/PrimaryColorsGrid/AlienPurple"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Alien Purple
+#2d1b4e"
+horizontal_alignment = 1
+
+[node name="ToxicGreen" type="VBoxContainer" parent="ScrollContainer/MainVBox/PrimaryColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/PrimaryColorsGrid/ToxicGreen"]
+custom_minimum_size = Vector2(150, 80)
+layout_mode = 2
+color = Color(0.102, 0.227, 0.102, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/PrimaryColorsGrid/ToxicGreen"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Toxic Green
+#1a3a1a"
+horizontal_alignment = 1
+
+[node name="HSeparator2" type="HSeparator" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+
+[node name="AccentColorsLabel" type="Label" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Accent Colors (Neon/Glow)"
+
+[node name="AccentColorsGrid" type="GridContainer" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+columns = 4
+
+[node name="CyanGlow" type="VBoxContainer" parent="ScrollContainer/MainVBox/AccentColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/AccentColorsGrid/CyanGlow"]
+custom_minimum_size = Vector2(150, 80)
+layout_mode = 2
+color = Color(0, 1, 1, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/AccentColorsGrid/CyanGlow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Cyan Glow
+#00ffff"
+horizontal_alignment = 1
+
+[node name="MagentaPulse" type="VBoxContainer" parent="ScrollContainer/MainVBox/AccentColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/AccentColorsGrid/MagentaPulse"]
+custom_minimum_size = Vector2(150, 80)
+layout_mode = 2
+color = Color(1, 0, 1, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/AccentColorsGrid/MagentaPulse"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Magenta Pulse
+#ff00ff"
+horizontal_alignment = 1
+
+[node name="WarningOrange" type="VBoxContainer" parent="ScrollContainer/MainVBox/AccentColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/AccentColorsGrid/WarningOrange"]
+custom_minimum_size = Vector2(150, 80)
+layout_mode = 2
+color = Color(1, 0.4, 0, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/AccentColorsGrid/WarningOrange"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Warning Orange
+#ff6600"
+horizontal_alignment = 1
+
+[node name="DataGreen" type="VBoxContainer" parent="ScrollContainer/MainVBox/AccentColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/AccentColorsGrid/DataGreen"]
+custom_minimum_size = Vector2(150, 80)
+layout_mode = 2
+color = Color(0, 1, 0.533, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/AccentColorsGrid/DataGreen"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Data Green
+#00ff88"
+horizontal_alignment = 1
+
+[node name="HSeparator3" type="HSeparator" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+
+[node name="LayerColorsLabel" type="Label" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Layer Colors (Depth Progression)"
+
+[node name="LayerColorsHBox" type="HBoxContainer" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Regolith" type="VBoxContainer" parent="ScrollContainer/MainVBox/LayerColorsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Primary" type="ColorRect" parent="ScrollContainer/MainVBox/LayerColorsHBox/Regolith"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.2, 0.15, 0.25, 1)
+
+[node name="Accent" type="ColorRect" parent="ScrollContainer/MainVBox/LayerColorsHBox/Regolith"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.3, 0.2, 0.35, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/LayerColorsHBox/Regolith"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Regolith
+0-50m"
+horizontal_alignment = 1
+
+[node name="Substrate" type="VBoxContainer" parent="ScrollContainer/MainVBox/LayerColorsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Primary" type="ColorRect" parent="ScrollContainer/MainVBox/LayerColorsHBox/Substrate"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.15, 0.2, 0.25, 1)
+
+[node name="Accent" type="ColorRect" parent="ScrollContainer/MainVBox/LayerColorsHBox/Substrate"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.2, 0.25, 0.3, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/LayerColorsHBox/Substrate"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Substrate
+50-200m"
+horizontal_alignment = 1
+
+[node name="Xenolite" type="VBoxContainer" parent="ScrollContainer/MainVBox/LayerColorsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Primary" type="ColorRect" parent="ScrollContainer/MainVBox/LayerColorsHBox/Xenolite"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.2, 0.25, 0.35, 1)
+
+[node name="Accent" type="ColorRect" parent="ScrollContainer/MainVBox/LayerColorsHBox/Xenolite"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.25, 0.3, 0.4, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/LayerColorsHBox/Xenolite"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Xenolite
+200-500m"
+horizontal_alignment = 1
+
+[node name="CoreMantle" type="VBoxContainer" parent="ScrollContainer/MainVBox/LayerColorsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Primary" type="ColorRect" parent="ScrollContainer/MainVBox/LayerColorsHBox/CoreMantle"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="Accent" type="ColorRect" parent="ScrollContainer/MainVBox/LayerColorsHBox/CoreMantle"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.15, 0.1, 0.2, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/LayerColorsHBox/CoreMantle"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Core Mantle
+500m+"
+horizontal_alignment = 1
+
+[node name="HSeparator4" type="HSeparator" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+
+[node name="OreColorsLabel" type="Label" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Ore Colors (SciFi Renamed)"
+
+[node name="OreColorsGrid" type="GridContainer" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+columns = 6
+
+[node name="CarbonNodules" type="VBoxContainer" parent="ScrollContainer/MainVBox/OreColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/OreColorsGrid/CarbonNodules"]
+custom_minimum_size = Vector2(100, 60)
+layout_mode = 2
+color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/OreColorsGrid/CarbonNodules"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Carbon
+Nodules"
+horizontal_alignment = 1
+
+[node name="Xenocopper" type="VBoxContainer" parent="ScrollContainer/MainVBox/OreColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/OreColorsGrid/Xenocopper"]
+custom_minimum_size = Vector2(100, 60)
+layout_mode = 2
+color = Color(0.2, 0.8, 0.8, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/OreColorsGrid/Xenocopper"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Xeno-
+copper"
+horizontal_alignment = 1
+
+[node name="Ferrosteel" type="VBoxContainer" parent="ScrollContainer/MainVBox/OreColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/OreColorsGrid/Ferrosteel"]
+custom_minimum_size = Vector2(100, 60)
+layout_mode = 2
+color = Color(0.4, 0.5, 0.6, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/OreColorsGrid/Ferrosteel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Ferro-
+steel"
+horizontal_alignment = 1
+
+[node name="Argentium" type="VBoxContainer" parent="ScrollContainer/MainVBox/OreColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/OreColorsGrid/Argentium"]
+custom_minimum_size = Vector2(100, 60)
+layout_mode = 2
+color = Color(0.7, 0.8, 0.9, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/OreColorsGrid/Argentium"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Argen-
+tium"
+horizontal_alignment = 1
+
+[node name="Aurium7" type="VBoxContainer" parent="ScrollContainer/MainVBox/OreColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/OreColorsGrid/Aurium7"]
+custom_minimum_size = Vector2(100, 60)
+layout_mode = 2
+color = Color(0.9, 0.7, 0.1, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/OreColorsGrid/Aurium7"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Aurium-7"
+horizontal_alignment = 1
+
+[node name="PlasmaCrystal" type="VBoxContainer" parent="ScrollContainer/MainVBox/OreColorsGrid"]
+layout_mode = 2
+
+[node name="Swatch" type="ColorRect" parent="ScrollContainer/MainVBox/OreColorsGrid/PlasmaCrystal"]
+custom_minimum_size = Vector2(100, 60)
+layout_mode = 2
+color = Color(0.9, 0.1, 0.4, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/OreColorsGrid/PlasmaCrystal"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Plasma
+Crystal"
+horizontal_alignment = 1
+
+[node name="HSeparator5" type="HSeparator" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+
+[node name="UIColorsLabel" type="Label" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "UI Panel Demo"
+
+[node name="UIPanelDemo" type="PanelContainer" parent="ScrollContainer/MainVBox"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+
+[node name="Panel" type="ColorRect" parent="ScrollContainer/MainVBox/UIPanelDemo"]
+layout_mode = 2
+color = Color(0.05, 0.08, 0.12, 0.85)
+
+[node name="Border" type="ColorRect" parent="ScrollContainer/MainVBox/UIPanelDemo"]
+layout_mode = 2
+offset_right = 4.0
+color = Color(0, 0.8, 0.9, 0.9)
+
+[node name="Content" type="VBoxContainer" parent="ScrollContainer/MainVBox/UIPanelDemo"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PanelTitle" type="Label" parent="ScrollContainer/MainVBox/UIPanelDemo/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "EQUIPMENT BAY"
+horizontal_alignment = 1
+
+[node name="HBox" type="HBoxContainer" parent="ScrollContainer/MainVBox/UIPanelDemo/Content"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Button1" type="Button" parent="ScrollContainer/MainVBox/UIPanelDemo/Content/HBox"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "SALVAGE"
+
+[node name="Button2" type="Button" parent="ScrollContainer/MainVBox/UIPanelDemo/Content/HBox"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0.533, 1)
+theme_override_font_sizes/font_size = 14
+text = "MODULES"
+
+[node name="Button3" type="Button" parent="ScrollContainer/MainVBox/UIPanelDemo/Content/HBox"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "CLOSE"
+
+[node name="HSeparator6" type="HSeparator" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+
+[node name="MockupLabel" type="Label" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Layer Depth Mockup"
+
+[node name="DepthMockup" type="VBoxContainer" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Surface" type="ColorRect" parent="ScrollContainer/MainVBox/DepthMockup"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+color = Color(0.102, 0.165, 0.227, 1)
+
+[node name="SurfaceLabel" type="Label" parent="ScrollContainer/MainVBox/DepthMockup/Surface"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -10.0
+offset_right = 50.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "SURFACE"
+horizontal_alignment = 1
+
+[node name="Layer1" type="ColorRect" parent="ScrollContainer/MainVBox/DepthMockup"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+color = Color(0.2, 0.15, 0.25, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/DepthMockup/Layer1"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -10.0
+offset_right = 80.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.7, 0.6, 0.8, 1)
+text = "REGOLITH (0-50m)"
+horizontal_alignment = 1
+
+[node name="Layer2" type="ColorRect" parent="ScrollContainer/MainVBox/DepthMockup"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+color = Color(0.15, 0.2, 0.25, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/DepthMockup/Layer2"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -10.0
+offset_right = 80.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.6, 0.7, 0.8, 1)
+text = "SUBSTRATE (50-200m)"
+horizontal_alignment = 1
+
+[node name="Layer3" type="ColorRect" parent="ScrollContainer/MainVBox/DepthMockup"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+color = Color(0.2, 0.25, 0.35, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/DepthMockup/Layer3"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -10.0
+offset_right = 80.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.6, 0.7, 0.9, 1)
+text = "XENOLITE (200-500m)"
+horizontal_alignment = 1
+
+[node name="Layer4" type="ColorRect" parent="ScrollContainer/MainVBox/DepthMockup"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="Label" type="Label" parent="ScrollContainer/MainVBox/DepthMockup/Layer4"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -10.0
+offset_right = 80.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.5, 0.4, 0.6, 1)
+text = "CORE MANTLE (500m+)"
+horizontal_alignment = 1
+
+[node name="HSeparator7" type="HSeparator" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+
+[node name="Footer" type="Label" parent="ScrollContainer/MainVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "Run this scene to preview SciFi color palette
+Press ESC or click anywhere to close"
+horizontal_alignment = 1

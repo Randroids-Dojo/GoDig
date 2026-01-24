@@ -1,9 +1,11 @@
 ---
 title: "implement: Continue game (load save)"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:47:37.930451-06:00"
+created-at: "\"2026-01-16T00:47:37.930451-06:00\""
+closed-at: "2026-01-24T21:19:56.267615+00:00"
+close-reason: SaveManager.load_game() handles continue game with full state restoration
 ---
 
 ## Description

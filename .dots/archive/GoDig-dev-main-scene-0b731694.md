@@ -1,9 +1,11 @@
 ---
 title: "DEV: Main scene setup"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:48:18.005789-06:00"
+created-at: "\"2026-01-16T00:48:18.005789-06:00\""
+closed-at: "2026-01-24T21:18:49.182999+00:00"
+close-reason: test_level.tscn is the main game scene with player, dirt grid, HUD, and camera
 ---
 
 ## Description

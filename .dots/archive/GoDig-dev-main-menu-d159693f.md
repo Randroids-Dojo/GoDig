@@ -1,12 +1,11 @@
 ---
 title: "implement: Main menu scene"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:47:34.656713-06:00"
-after:
-  - GoDig-dev-new-game-f211e62a
-  - GoDig-dev-cont-game-0c1ce7fb
+created-at: "\"2026-01-16T00:47:34.656713-06:00\""
+closed-at: "2026-01-24T21:19:38.343888+00:00"
+close-reason: main_menu.tscn exists with new game, continue, settings buttons
 ---
 
 ## Description

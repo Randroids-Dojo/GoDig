@@ -1,9 +1,11 @@
 ---
 title: "implement: Supply Store (buy basics)"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T00:28:42.829512-06:00"
+created-at: "\"2026-01-16T00:28:42.829512-06:00\""
+closed-at: "2026-01-24T21:55:04.619962+00:00"
+close-reason: Shop type infrastructure implemented, Supply Store is one of 6 shop types
 ---
 
 Buy ladders, ropes, torches, dynamite. Second starting building. Consumable items UI.

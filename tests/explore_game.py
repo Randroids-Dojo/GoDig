@@ -33,12 +33,7 @@ Headless Mode:
     - Uses test helper methods for mining (bypasses animation system)
     - Animation-based digging doesn't work in headless mode (no textures)
     - All core mechanics (movement, mining, state queries) work correctly
-
-Known Limitations:
-    - The Godot mono build pauses execution when resource loading errors occur
-      during scene transitions (sends debug_enter message). The game scene has
-      missing sprite resources in headless mode which triggers this.
-    - For reliable testing, use the pytest tests which work with main menu scene.
+    - Uses --ignore-error-breaks flag to prevent debugger pausing on resource errors
 """
 import asyncio
 import argparse
@@ -224,20 +219,46 @@ class GameExplorer:
             async with GameExplorer.create() as explorer:
                 ...
         """
+        import subprocess
+        from playgodot.native_client import NativeClient
+
         port = get_free_port()
 
-        print(f"[Explorer] Launching Godot with native protocol on port {port}")
+        # Build custom command with --ignore-error-breaks to prevent debugger pausing
+        cmd = [
+            GODOT_PATH,
+            "--path", str(GODOT_PROJECT),
+            "--ignore-error-breaks",  # Critical: prevents debugger pause on resource errors
+            "--remote-debug", f"tcp://127.0.0.1:{port}",
+        ]
+
+        if headless:
+            cmd.append("--headless")
+
+        if resolution:
+            cmd.extend(["--resolution", f"{resolution[0]}x{resolution[1]}"])
 
         print(f"[Explorer] Launching Godot with native protocol on port {port}")
+        print(f"[Explorer] Command: {' '.join(cmd)}")
 
-        async with Godot.launch(
-            str(GODOT_PROJECT),
-            headless=headless,
-            resolution=resolution,
-            timeout=60.0,
-            godot_path=GODOT_PATH,
-            port=port,
-        ) as g:
+        client = NativeClient(host="127.0.0.1", port=port)
+        process = None
+
+        try:
+            # Start listening before Godot launches
+            await client._start_server()
+
+            # Launch Godot
+            process = subprocess.Popen(cmd)
+
+            # Wait for Godot to connect
+            print("[Explorer] Waiting for Godot to connect...")
+            await client.connect(timeout=60.0)
+            print("[Explorer] Godot connected")
+
+            # Create Godot wrapper
+            g = Godot(client, process)
+
             # Wait for main menu to load
             print("[Explorer] Waiting for main menu...")
             await g.wait_for_node("/root/MainMenu", timeout=30.0)
@@ -245,36 +266,40 @@ class GameExplorer:
 
             await asyncio.sleep(0.5)
 
-            # Try to change to test level scene
-            # Note: This may fail in headless mode due to resource loading errors
-            # causing the Godot debugger to pause (debug_enter)
-            print("[Explorer] Attempting to change to test level scene...")
+            # Change to test level scene
+            print("[Explorer] Changing to test level scene...")
             try:
                 await g.change_scene("res://scenes/test_level.tscn")
                 await asyncio.sleep(1.0)
             except Exception as e:
-                print(f"[Explorer] Scene change error (expected in headless): {e}")
+                print(f"[Explorer] Scene change note: {e}")
 
-            # Wait for game scene to load - this may timeout if debugger pauses
+            # Wait for game scene to load
             print("[Explorer] Waiting for game scene to load...")
-            try:
-                await g.wait_for_node("/root/Main", timeout=30.0)
-                print("[Explorer] Game scene loaded")
-            except Exception as e:
-                print(f"[Explorer] Could not load game scene: {e}")
-                print("[Explorer] Note: In headless mode, missing resources cause debugger to pause")
-                raise RuntimeError(
-                    "Game scene failed to load. This is a known limitation in headless mode "
-                    "due to missing sprite resources causing the Godot debugger to pause. "
-                    "Run with a display (xvfb-run or native) and ensure all resources exist."
-                )
+            await g.wait_for_node("/root/Main", timeout=60.0)
+            print("[Explorer] Game scene loaded")
 
             await asyncio.sleep(0.5)
 
             explorer = cls(g)
             await explorer._log_action("Game launched and ready")
 
-            yield explorer
+            try:
+                yield explorer
+            finally:
+                await client.disconnect()
+                if process and process.poll() is None:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+
+        except Exception:
+            await client.disconnect()
+            if process and process.poll() is None:
+                process.terminate()
+            raise
 
         print("[Explorer] Godot process terminated")
 

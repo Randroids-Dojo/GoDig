@@ -112,3 +112,45 @@ The Ralph loop file at `.claude/ralph-loop.local.md` controls iterative improvem
 5. Do NOT run `/ralph-wiggum:cancel-ralph` unless the user explicitly requests it
 
 The Ralph loop is designed to run autonomously. Completion of work within an iteration does not mean the loop should stop.
+
+## Asset Generation Pipeline
+
+**Use the established procedural/composable pipelines for art assets.**
+
+### Key Principle: Procedural > AI for Game Assets
+
+| Asset Type | Tool | Location |
+|------------|------|----------|
+| **Terrain Tiles** | Procedural Generator | `scripts/tools/generate_dirt_textures.py` |
+| **Character Animation** | Composable Sprite Builder | `scripts/tools/improved_sprite_builder_v4.py` |
+| **Validation** | Texture/Component Validators | `scripts/tools/*_validator.py` |
+
+### Quick Commands
+
+```bash
+# Generate terrain atlas
+python scripts/tools/generate_dirt_textures.py --seed 42
+
+# Validate terrain textures
+python scripts/tools/texture_validator.py
+
+# Generate single tile for testing
+python scripts/tools/generate_dirt_textures.py --single dirt --seed 123
+
+# Run all asset validators
+python scripts/tools/validate_all.py
+```
+
+### Important Notes
+
+1. **Procedural generation is preferred** for terrain tiles - it's faster, deterministic, and cross-platform
+2. **MFLUX is macOS-only** - don't try to use it on Linux; use procedural generation instead
+3. **Always validate** after generating assets - target score is 0.90+
+4. **Document learnings** in `Docs/ASSET_GENERATION_LEARNINGS.md`
+5. **Update quality report** in `Docs/ASSET_QUALITY_REPORT.md` after improvements
+
+### Documentation
+
+- `Docs/GAME_ART_ASSET_GENERATION.md` - Full pipeline documentation
+- `Docs/ASSET_GENERATION_LEARNINGS.md` - Techniques and iteration insights
+- `Docs/ASSET_QUALITY_REPORT.md` - Current quality metrics

@@ -1,9 +1,11 @@
 ---
 title: "implement: Reload last save from pause menu"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-19T00:50:45.631885-06:00"
+created-at: "\"2026-01-19T00:50:45.631885-06:00\""
+closed-at: "2026-01-24T07:19:04.839687+00:00"
+close-reason: Reload last save implemented in pause_menu.gd with confirmation dialog
 ---
 
 ## Description

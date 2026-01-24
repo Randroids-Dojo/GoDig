@@ -55,6 +55,12 @@ func get_hits_remaining(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> int:
 	return ceili(current_health / tool_damage)
 
 
+func apply_ore_hardness(ore_hardness: float) -> void:
+	## Add ore hardness bonus to block health. Makes ore blocks harder to mine.
+	max_health += ore_hardness
+	current_health = max_health
+
+
 func _grid_to_world(grid_pos: Vector2i) -> Vector2:
 	return Vector2(
 		grid_pos.x * BLOCK_SIZE + GameManager.GRID_OFFSET_X,

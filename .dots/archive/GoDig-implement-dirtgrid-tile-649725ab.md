@@ -1,9 +1,11 @@
 ---
 title: "implement: DirtGrid tile persistence for save/load"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-19T12:07:08.803843-06:00"
+created-at: "\"\\\"2026-01-19T12:07:08.803843-06:00\\\"\""
+closed-at: "2026-01-24T07:32:02.307894+00:00"
+close-reason: Implemented tile persistence with _dug_tiles tracking, SaveManager integration, and tests
 ---
 
 Add dug tile tracking to DirtGrid that integrates with SaveManager.

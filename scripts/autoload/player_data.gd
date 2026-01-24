@@ -51,6 +51,14 @@ func get_tool_damage() -> float:
 	return tool_data.damage * tool_data.speed_multiplier
 
 
+## Get the tier of the equipped tool (for ore gating)
+func get_tool_tier() -> int:
+	var tool_data: ToolDataClass = get_equipped_tool()
+	if tool_data == null:
+		return 0  # Default tier
+	return tool_data.tier
+
+
 ## Equip a new tool by ID
 func equip_tool(tool_id: String) -> bool:
 	if DataRegistry == null:

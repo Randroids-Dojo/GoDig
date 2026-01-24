@@ -1,9 +1,11 @@
 ---
 title: "implement: Emergency rescue from pause menu"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-19T00:50:31.953043-06:00"
+created-at: "\"2026-01-19T00:50:31.953043-06:00\""
+closed-at: "2026-01-24T07:19:00.602060+00:00"
+close-reason: Emergency rescue implemented in pause_menu.gd with confirmation dialog
 ---
 
 ## Description

@@ -208,6 +208,20 @@ async def test_new_gems_spawn_at_correct_depth(game):
     assert emerald_ores is not None, "get_ores_at_depth(350) should return a list"
 
 
+@pytest.mark.asyncio
+async def test_dirt_grid_has_vein_expansion(game):
+    """Verify DirtGrid has vein expansion methods for ore generation."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_expand_ore_vein"])
+    assert has_method, "DirtGrid should have _expand_ore_vein method for vein expansion"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_place_ore_method(game):
+    """Verify DirtGrid has _place_ore_at method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_place_ore_at"])
+    assert has_method, "DirtGrid should have _place_ore_at method"
+
+
 # =============================================================================
 # BLOCK INTERACTION TESTS
 # =============================================================================

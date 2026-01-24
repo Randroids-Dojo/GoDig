@@ -261,9 +261,14 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 
 func _determine_ore_spawn(pos: Vector2i) -> void:
 	## Determine if this position should contain ore based on depth and rarity
+	## Uses vein expansion (random walk) to create ore clusters
 	var depth := pos.y - GameManager.SURFACE_ROW
 	if depth < 0:
 		return  # No ores above surface
+
+	# Skip if already has ore (from vein expansion)
+	if _ore_map.has(pos):
+		return
 
 	# Get all ores that can spawn at this depth
 	var available_ores := DataRegistry.get_ores_at_depth(depth)
@@ -282,12 +287,77 @@ func _determine_ore_spawn(pos: Vector2i) -> void:
 		# Generate noise-like value using position
 		var noise_val := _generate_ore_noise(pos, ore.noise_frequency)
 		if noise_val > ore.spawn_threshold:
-			_ore_map[pos] = ore.id
-			# Visually tint the block to show ore
-			_apply_ore_visual(pos, ore)
-			# Apply ore hardness bonus to make ore blocks harder to mine
-			_apply_ore_hardness(pos, ore)
-			return  # Only one ore per block
+			# This is a vein seed - expand using random walk
+			_expand_ore_vein(pos, ore)
+			return  # Only one ore type per seed position
+
+
+func _expand_ore_vein(seed_pos: Vector2i, ore) -> void:
+	## Expand ore from seed position using random walk algorithm
+	## Creates natural-looking ore veins based on ore's vein_size_min/max
+
+	# Get vein size from ore data
+	var vein_seed := seed_pos.x * 73856093 + seed_pos.y * 19349663
+	_rng.seed = vein_seed
+	var vein_size: int = ore.get_random_vein_size(_rng)
+
+	# Place ore at seed position first
+	_place_ore_at(seed_pos, ore)
+
+	if vein_size <= 1:
+		return  # Single block vein
+
+	# Random walk expansion
+	var current_pos := seed_pos
+	var placed_count := 1
+	var attempts := 0
+	var max_attempts := vein_size * 4  # Limit attempts to prevent infinite loops
+
+	# Cardinal directions for random walk
+	var directions := [
+		Vector2i(1, 0),   # Right
+		Vector2i(-1, 0),  # Left
+		Vector2i(0, 1),   # Down
+		Vector2i(0, -1),  # Up
+	]
+
+	while placed_count < vein_size and attempts < max_attempts:
+		attempts += 1
+
+		# Pick random direction
+		var dir: Vector2i = directions[_rng.randi() % 4]
+		var next_pos := current_pos + dir
+
+		# Check if valid position for ore
+		var next_depth := next_pos.y - GameManager.SURFACE_ROW
+		if next_depth < 0:
+			continue  # Don't place above surface
+
+		if not ore.can_spawn_at_depth(next_depth):
+			continue  # Outside ore's depth range
+
+		if _ore_map.has(next_pos):
+			# Position already has ore, but we can still walk through it
+			current_pos = next_pos
+			continue
+
+		if _dug_tiles.has(next_pos):
+			continue  # Don't place ore in dug tiles
+
+		# Place ore at this position
+		_place_ore_at(next_pos, ore)
+		placed_count += 1
+		current_pos = next_pos
+
+
+func _place_ore_at(pos: Vector2i, ore) -> void:
+	## Place ore at a specific position and apply visuals
+	_ore_map[pos] = ore.id
+
+	# Apply visual if block is active (loaded)
+	if _active.has(pos):
+		_apply_ore_visual(pos, ore)
+		_apply_ore_hardness(pos, ore)
 
 
 func _generate_ore_noise(pos: Vector2i, frequency: float) -> float:

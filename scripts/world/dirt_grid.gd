@@ -235,3 +235,32 @@ func _apply_ore_visual(pos: Vector2i, ore) -> void:
 	var ore_color: Color = ore.color
 	var base_color: Color = block.color
 	block.color = base_color.lerp(ore_color, 0.5)
+
+
+# ============================================
+# TESTING HELPERS (for PlayGodot automation)
+# ============================================
+
+func has_block_at(x: int, y: int) -> bool:
+	## Check if block exists at position (x, y) - separate args for JSON-RPC calls
+	return _active.has(Vector2i(x, y))
+
+
+func get_block_at(x: int, y: int):
+	## Get block at position (x, y) - separate args for JSON-RPC calls
+	return _active.get(Vector2i(x, y))
+
+
+func debug_active_count() -> int:
+	## Get count of active blocks for debugging
+	return _active.size()
+
+
+func debug_surface_row() -> int:
+	## Get surface row for debugging
+	return _surface_row
+
+
+func debug_chunk_count() -> int:
+	## Get count of loaded chunks for debugging
+	return _loaded_chunks.size()

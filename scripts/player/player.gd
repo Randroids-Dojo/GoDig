@@ -749,3 +749,44 @@ func load_hp_save_data(data: Dictionary) -> void:
 	current_hp = clampi(current_hp, 0, MAX_HP)
 	modulate = Color.WHITE
 	hp_changed.emit(current_hp, MAX_HP)
+
+
+# ============================================
+# TESTING HELPERS (for PlayGodot automation)
+# ============================================
+
+## Directly hit the block in the specified direction (x, y integers)
+## Used for automated testing when animations don't work in headless mode
+func test_mine_direction(dir_x: int, dir_y: int) -> bool:
+	if dirt_grid == null:
+		return false
+
+	var direction := Vector2i(dir_x, dir_y)
+	var target := grid_position + direction
+
+	if not dirt_grid.has_block(target):
+		return false
+
+	var destroyed: bool = dirt_grid.hit_block(target)
+
+	if destroyed:
+		block_destroyed.emit(target)
+		# Move into the space
+		_start_move(target)
+
+	return destroyed
+
+
+## Get current grid position as separate x, y values for JSON serialization
+func test_get_grid_x() -> int:
+	return grid_position.x
+
+
+func test_get_grid_y() -> int:
+	return grid_position.y
+
+
+## Force move to a grid position (for testing)
+func test_force_move(x: int, y: int) -> void:
+	var target := Vector2i(x, y)
+	_start_move(target)

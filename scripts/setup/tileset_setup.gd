@@ -2,6 +2,9 @@ class_name TileSetSetup
 ## Helper class to programmatically configure the terrain TileSet.
 ## Run this in the editor or during game initialization.
 
+# Explicit preload to ensure TileTypes is available before class_name resolution
+const TileTypesRef = preload("res://scripts/world/tile_types.gd")
+
 ## Static dictionary for atlas coords - initialized lazily to avoid class load order issues
 static var _atlas_coords: Dictionary = {}
 static var _coords_to_type: Dictionary = {}
@@ -18,28 +21,28 @@ static func get_atlas_coords_map() -> Dictionary:
 static func _init_atlas_coords() -> void:
 	_atlas_coords = {
 		# Base terrain (Row 0)
-		TileTypes.Type.DIRT: Vector2i(0, 0),
-		TileTypes.Type.CLAY: Vector2i(1, 0),
-		TileTypes.Type.STONE: Vector2i(2, 0),
-		TileTypes.Type.GRANITE: Vector2i(3, 0),
-		TileTypes.Type.BASALT: Vector2i(4, 0),
-		TileTypes.Type.OBSIDIAN: Vector2i(5, 0),
+		TileTypesRef.Type.DIRT: Vector2i(0, 0),
+		TileTypesRef.Type.CLAY: Vector2i(1, 0),
+		TileTypesRef.Type.STONE: Vector2i(2, 0),
+		TileTypesRef.Type.GRANITE: Vector2i(3, 0),
+		TileTypesRef.Type.BASALT: Vector2i(4, 0),
+		TileTypesRef.Type.OBSIDIAN: Vector2i(5, 0),
 
 		# Ores (Row 1)
-		TileTypes.Type.COAL: Vector2i(0, 1),
-		TileTypes.Type.COPPER: Vector2i(1, 1),
-		TileTypes.Type.IRON: Vector2i(2, 1),
-		TileTypes.Type.SILVER: Vector2i(3, 1),
-		TileTypes.Type.GOLD: Vector2i(4, 1),
-		TileTypes.Type.DIAMOND: Vector2i(5, 1),
+		TileTypesRef.Type.COAL: Vector2i(0, 1),
+		TileTypesRef.Type.COPPER: Vector2i(1, 1),
+		TileTypesRef.Type.IRON: Vector2i(2, 1),
+		TileTypesRef.Type.SILVER: Vector2i(3, 1),
+		TileTypesRef.Type.GOLD: Vector2i(4, 1),
+		TileTypesRef.Type.DIAMOND: Vector2i(5, 1),
 
 		# Special (Row 2)
-		TileTypes.Type.LADDER: Vector2i(0, 2),
+		TileTypesRef.Type.LADDER: Vector2i(0, 2),
 		# AIR has no tile (1, 2 is left empty)
-		TileTypes.Type.RUBY: Vector2i(2, 2),
-		TileTypes.Type.EMERALD: Vector2i(3, 2),
-		TileTypes.Type.SAPPHIRE: Vector2i(4, 2),
-		TileTypes.Type.AMETHYST: Vector2i(5, 2),
+		TileTypesRef.Type.RUBY: Vector2i(2, 2),
+		TileTypesRef.Type.EMERALD: Vector2i(3, 2),
+		TileTypesRef.Type.SAPPHIRE: Vector2i(4, 2),
+		TileTypesRef.Type.AMETHYST: Vector2i(5, 2),
 	}
 
 
@@ -59,7 +62,7 @@ static func get_atlas_coords(tile_type: int) -> Vector2i:
 ## Get tile type from atlas coordinates
 static func get_tile_type(coords: Vector2i) -> int:
 	_init_coords_lookup()
-	return _coords_to_type.get(coords, TileTypes.Type.DIRT)
+	return _coords_to_type.get(coords, TileTypesRef.Type.DIRT)
 
 
 ## Create and configure a new TileSet resource
@@ -115,10 +118,10 @@ static func _setup_tile(atlas: TileSetAtlasSource, coords: Vector2i, tile_type: 
 
 	# Set custom data
 	tile_data.set_custom_data("tile_type", tile_type)
-	tile_data.set_custom_data("hardness", TileTypes.get_hardness(tile_type))
+	tile_data.set_custom_data("hardness", TileTypesRef.get_hardness(tile_type))
 
 	# Set up physics collision for solid tiles
-	if TileTypes.is_solid(tile_type):
+	if TileTypesRef.is_solid(tile_type):
 		# Create a rectangular collision polygon
 		var collision_points := PackedVector2Array([
 			Vector2(0, 0),
@@ -130,7 +133,7 @@ static func _setup_tile(atlas: TileSetAtlasSource, coords: Vector2i, tile_type: 
 		tile_data.set_collision_polygon_points(0, 0, collision_points)
 
 	# Ladder tiles need special collision (climbable, not solid wall)
-	if tile_type == TileTypes.Type.LADDER:
+	if tile_type == TileTypesRef.Type.LADDER:
 		# Remove any existing collision and set up ladder-specific
 		tile_data.set_collision_polygons_count(0, 0)
 		# Ladders have no collision - player can pass through but climb

@@ -203,7 +203,7 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 
 	# Reset all game state for new game
 	if InventoryManager:
-		InventoryManager.clear_inventory()
+		InventoryManager.clear_all()
 	if PlayerData:
 		PlayerData.reset()
 

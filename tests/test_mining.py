@@ -442,3 +442,49 @@ async def test_dirt_grid_has_chunks_loaded(game):
     """Verify DirtGrid has loaded chunks around player."""
     count = await game.call(PATHS["dirt_grid"], "debug_chunk_count")
     assert count > 0, f"DirtGrid should have loaded chunks, got {count}"
+
+
+# =============================================================================
+# LADDER PLACEMENT TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_place_ladder_method(game):
+    """Verify DirtGrid has place_ladder method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["place_ladder"])
+    assert has_method, "DirtGrid should have place_ladder method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_remove_ladder_method(game):
+    """Verify DirtGrid has remove_ladder method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["remove_ladder"])
+    assert has_method, "DirtGrid should have remove_ladder method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_has_ladder_method(game):
+    """Verify DirtGrid has has_ladder method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["has_ladder"])
+    assert has_method, "DirtGrid should have has_ladder method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_get_tile_type_method(game):
+    """Verify DirtGrid has get_tile_type method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["get_tile_type"])
+    assert has_method, "DirtGrid should have get_tile_type method"
+
+
+@pytest.mark.asyncio
+async def test_player_has_climbing_state(game):
+    """Verify player has CLIMBING state for ladders."""
+    has_method = await game.call(PATHS["player"], "has_method", ["_handle_climbing"])
+    assert has_method, "Player should have _handle_climbing method for ladder climbing"
+
+
+@pytest.mark.asyncio
+async def test_player_has_is_on_ladder_method(game):
+    """Verify player has _is_on_ladder method."""
+    has_method = await game.call(PATHS["player"], "has_method", ["_is_on_ladder"])
+    assert has_method, "Player should have _is_on_ladder method"

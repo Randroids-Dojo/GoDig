@@ -10,7 +10,7 @@ signal jump_pressed  # Emitted when player wants to jump (for wall-jump)
 signal hp_changed(current_hp: int, max_hp: int)
 signal player_died(cause: String)
 
-enum State { IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING }
+enum State { IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING, CLIMBING }
 
 const BLOCK_SIZE := 128
 const MOVE_DURATION := 0.15  # Seconds to move one block
@@ -136,6 +136,8 @@ func _process(delta: float) -> void:
 			_handle_wall_sliding(delta)
 		State.WALL_JUMPING:
 			_handle_wall_jumping(delta)
+		State.CLIMBING:
+			_handle_climbing(delta)
 
 
 func _handle_idle_input() -> void:
@@ -352,6 +354,11 @@ func _handle_falling(delta: float) -> void:
 	# Apply gravity
 	velocity.y += GRAVITY * delta
 
+	# Check for ladder - can grab while falling
+	if _is_on_ladder():
+		_check_ladder()
+		return
+
 	# Check for walls on either side for potential wall-slide
 	_update_wall_direction()
 
@@ -468,6 +475,108 @@ func _handle_wall_jumping(delta: float) -> void:
 
 	# Check if we landed on a block
 	_check_landing()
+
+
+# ============================================
+# CLIMBING STATE (LADDERS)
+# ============================================
+
+func _handle_climbing(delta: float) -> void:
+	## Handle movement while on a ladder
+	var input_dir := _get_input_direction()
+
+	# Check if still on ladder
+	if not _is_on_ladder():
+		# Left the ladder - start falling
+		current_state = State.FALLING
+		_start_fall_tracking()
+		return
+
+	# Vertical movement on ladder
+	if input_dir.y != 0:
+		var target := grid_position + Vector2i(0, input_dir.y)
+		# Can only move to empty tiles or other ladders
+		if not dirt_grid.has_block(target) or _has_ladder_at(target):
+			_start_climb_move(target)
+			return
+
+	# Horizontal movement off ladder
+	if input_dir.x != 0:
+		var target := grid_position + Vector2i(input_dir.x, 0)
+		if not dirt_grid.has_block(target):
+			_start_move_off_ladder(target)
+			return
+
+	# Jump off ladder
+	if wants_jump:
+		wants_jump = false
+		current_state = State.FALLING
+		_start_fall_tracking()
+		return
+
+
+func _start_climb_move(target: Vector2i) -> void:
+	## Start moving to target position while climbing
+	target_grid_position = target
+	current_state = State.MOVING
+
+	var target_pos := _grid_to_world(target)
+	if _move_tween:
+		_move_tween.kill()
+	_move_tween = create_tween()
+	_move_tween.tween_property(self, "position", target_pos, MOVE_DURATION)
+	_move_tween.tween_callback(_on_climb_move_complete)
+
+
+func _on_climb_move_complete() -> void:
+	## Called when a climbing move completes
+	grid_position = target_grid_position
+	_update_depth()
+
+	# Return to climbing state if still on ladder
+	if _is_on_ladder():
+		current_state = State.CLIMBING
+	else:
+		# Moved off ladder - check if should fall
+		if _should_fall():
+			current_state = State.FALLING
+			_start_fall_tracking()
+		else:
+			current_state = State.IDLE
+
+
+func _start_move_off_ladder(target: Vector2i) -> void:
+	## Start moving off ladder to an adjacent tile
+	target_grid_position = target
+	current_state = State.MOVING
+
+	var target_pos := _grid_to_world(target)
+	if _move_tween:
+		_move_tween.kill()
+	_move_tween = create_tween()
+	_move_tween.tween_property(self, "position", target_pos, MOVE_DURATION)
+	_move_tween.tween_callback(_on_move_complete)
+
+
+func _is_on_ladder() -> bool:
+	## Check if current position has a ladder
+	return _has_ladder_at(grid_position)
+
+
+func _has_ladder_at(pos: Vector2i) -> bool:
+	## Check if a position has a ladder placed
+	if dirt_grid == null:
+		return false
+	# Check if tile type is LADDER
+	return dirt_grid.get_tile_type(pos) == TileTypes.Type.LADDER
+
+
+func _check_ladder() -> void:
+	## Check if player should start climbing (standing on ladder)
+	if _is_on_ladder():
+		current_state = State.CLIMBING
+		velocity = Vector2.ZERO
+		_is_tracking_fall = false
 
 
 func _check_wall_grab() -> void:

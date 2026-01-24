@@ -21,6 +21,7 @@ var _active: Dictionary = {}  # Dictionary[Vector2i, DirtBlock node]
 var _loaded_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] tracks loaded chunks
 var _ore_map: Dictionary = {}  # Dictionary[Vector2i, String ore_id] - what ore is in each block
 var _dug_tiles: Dictionary = {}  # Dictionary[Vector2i, bool] - tiles that have been mined/dug
+var _placed_objects: Dictionary = {}  # Dictionary[Vector2i, int tile_type] - ladders, torches, etc.
 var _dirty_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] - chunks with unsaved changes
 var _player: Node2D = null
 var _surface_row: int = 0
@@ -209,6 +210,55 @@ func can_mine_block(pos: Vector2i, tool_tier: int = -1) -> bool:
 func get_ore_at(pos: Vector2i) -> String:
 	## Returns the ore ID at the position, or empty string if none
 	return _ore_map.get(pos, "")
+
+
+func get_tile_type(pos: Vector2i) -> int:
+	## Returns the tile type at the position
+	## Returns TileTypes.Type.AIR for empty, LADDER for ladders, etc.
+	if _placed_objects.has(pos):
+		return _placed_objects[pos]
+	if _active.has(pos):
+		return TileTypes.Type.DIRT  # Simplified - actual type would depend on depth
+	return TileTypes.Type.AIR
+
+
+func place_ladder(pos: Vector2i) -> bool:
+	## Place a ladder at the specified position
+	## Returns true if placed successfully, false if position is occupied
+	if _active.has(pos):
+		return false  # Can't place on solid block
+	if _placed_objects.has(pos):
+		return false  # Already has a placed object
+
+	_placed_objects[pos] = TileTypes.Type.LADDER
+
+	# Mark chunk as dirty for persistence
+	var chunk_pos := _grid_to_chunk(pos)
+	_dirty_chunks[chunk_pos] = true
+
+	return true
+
+
+func remove_ladder(pos: Vector2i) -> bool:
+	## Remove a ladder from the specified position
+	## Returns true if removed, false if no ladder there
+	if not _placed_objects.has(pos):
+		return false
+	if _placed_objects[pos] != TileTypes.Type.LADDER:
+		return false
+
+	_placed_objects.erase(pos)
+
+	# Mark chunk as dirty for persistence
+	var chunk_pos := _grid_to_chunk(pos)
+	_dirty_chunks[chunk_pos] = true
+
+	return true
+
+
+func has_ladder(pos: Vector2i) -> bool:
+	## Check if there's a ladder at the position
+	return _placed_objects.get(pos, TileTypes.Type.AIR) == TileTypes.Type.LADDER
 
 
 func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:

@@ -100,18 +100,18 @@ Use `-p` flag when creating dots:
 - **Dots**: Multi-step work, tasks that may span sessions, work with dependencies
 - **TodoWrite**: Simple single-session execution tracking visible to user
 
-## Ralph Loop Protection
+## Randroid Loop Protection
 
-**NEVER remove or cancel a Ralph loop without explicit user instruction.**
+**NEVER remove or cancel a Randroid loop without explicit user instruction.**
 
-The Ralph loop file at `.claude/ralph-loop.local.md` controls iterative improvement tasks. When a Ralph loop is active:
+The Randroid loop file at `.claude/randroid-loop.local.md` controls iterative improvement tasks. When a Randroid loop is active:
 1. Continue iterating until `max_iterations` is reached
 2. Always keep the primer version as the quality baseline
 3. Only update primer when improvements are validated
-4. Do NOT delete the ralph-loop.local.md file
-5. Do NOT run `/ralph-wiggum:cancel-ralph` unless the user explicitly requests it
+4. Do NOT delete the randroid-loop.local.md file
+5. Do NOT run `/randroid:cancel` unless the user explicitly requests it
 
-The Ralph loop is designed to run autonomously. Completion of work within an iteration does not mean the loop should stop.
+The Randroid loop is designed to run autonomously. Completion of work within an iteration does not mean the loop should stop.
 
 ## Asset Generation Pipeline
 

@@ -70,6 +70,7 @@ const DAMAGE_FLASH_DURATION: float = 0.1
 var _scale_tween: Tween
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var camera: Camera2D = $GameCamera
 
 
 func _ready() -> void:
@@ -519,6 +520,11 @@ func _land_on_grid(landing_grid: Vector2i) -> void:
 		0.03 + (0.02 * intensity),
 		0.1 + (0.05 * intensity)
 	)
+
+	# Screen shake on landing (if fall was significant)
+	if camera and fall_distance_px > BLOCK_SIZE * 2:
+		var shake_intensity := clampf(fall_distance_px / 200.0, 1.0, 6.0)
+		camera.shake(shake_intensity)
 
 	# Snap to proper grid position
 	grid_position = landing_grid

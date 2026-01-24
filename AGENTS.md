@@ -95,6 +95,17 @@ Use `-p` flag when creating dots:
 3. **Completing work**: Run `dot off <id>` when done
 4. **Creating subtasks**: Use `-P parent-id` for hierarchical organization
 
+### ALWAYS Update Dots After Changes
+
+**After implementing any feature or fix, immediately update the corresponding dot.**
+
+- When a task is complete: `dot off <id> -r "Brief description of what was done"`
+- When discovering a task is already implemented: Close it with evidence
+- When making partial progress: Add a note or create subtasks
+- Before committing: Ensure all related dots are updated
+
+This keeps the backlog accurate and prevents duplicate work across sessions.
+
 ### When to Use Dots vs TodoWrite
 
 - **Dots**: Multi-step work, tasks that may span sessions, work with dependencies

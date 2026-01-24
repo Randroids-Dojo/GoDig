@@ -17,6 +17,8 @@ var _pool: Array = []  # Array of DirtBlock nodes
 var _active: Dictionary = {}  # Dictionary[Vector2i, DirtBlock node]
 var _loaded_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] tracks loaded chunks
 var _ore_map: Dictionary = {}  # Dictionary[Vector2i, String ore_id] - what ore is in each block
+var _dug_tiles: Dictionary = {}  # Dictionary[Vector2i, bool] - tiles that have been mined/dug
+var _dirty_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] - chunks with unsaved changes
 var _player: Node2D = null
 var _surface_row: int = 0
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -24,6 +26,9 @@ var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 func _ready() -> void:
 	_preallocate_pool()
+	# Connect to SaveManager to save dirty chunks before game save
+	if SaveManager:
+		SaveManager.save_started.connect(_on_save_started)
 
 
 func initialize(player: Node2D, surface_row: int) -> void:
@@ -78,6 +83,11 @@ func _release(grid_pos: Vector2i) -> void:
 func _world_to_chunk(world_pos: Vector2) -> Vector2i:
 	## Convert world position to chunk coordinates
 	var grid_pos := GameManager.world_to_grid(world_pos)
+	return _grid_to_chunk(grid_pos)
+
+
+func _grid_to_chunk(grid_pos: Vector2i) -> Vector2i:
+	## Convert grid position to chunk coordinates
 	return Vector2i(
 		int(floor(float(grid_pos.x) / CHUNK_SIZE)),
 		int(floor(float(grid_pos.y) / CHUNK_SIZE))
@@ -96,12 +106,19 @@ func _generate_chunks_around(center_chunk: Vector2i) -> void:
 
 func _generate_chunk(chunk_pos: Vector2i) -> void:
 	## Generate a 16x16 chunk of blocks at the given chunk coordinates
+	# Load any previously dug tiles for this chunk
+	_load_chunk_dug_tiles(chunk_pos)
+
 	var start_x := chunk_pos.x * CHUNK_SIZE
 	var start_y := chunk_pos.y * CHUNK_SIZE
 
 	for local_x in range(CHUNK_SIZE):
 		for local_y in range(CHUNK_SIZE):
 			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
+
+			# Skip tiles that were previously dug
+			if _dug_tiles.has(grid_pos):
+				continue
 
 			# Only generate blocks at or below the surface
 			if grid_pos.y >= _surface_row:
@@ -126,6 +143,11 @@ func _cleanup_distant_chunks(center_chunk: Vector2i) -> void:
 
 func _unload_chunk(chunk_pos: Vector2i) -> void:
 	## Remove all blocks in the given chunk
+	# Save dug tiles for this chunk before unloading if dirty
+	if _dirty_chunks.has(chunk_pos):
+		_save_chunk_dug_tiles(chunk_pos)
+		_dirty_chunks.erase(chunk_pos)
+
 	var start_x := chunk_pos.x * CHUNK_SIZE
 	var start_y := chunk_pos.y * CHUNK_SIZE
 
@@ -141,6 +163,9 @@ func _unload_chunk(chunk_pos: Vector2i) -> void:
 		if _ore_map.has(pos):
 			_ore_map.erase(pos)
 		_release(pos)
+
+	# Clear dug tiles memory for this chunk (will reload from save when needed)
+	_clear_chunk_dug_tiles_memory(chunk_pos)
 
 
 func has_block(pos: Vector2i) -> bool:
@@ -177,6 +202,11 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		# Clean up ore map entry
 		if _ore_map.has(pos):
 			_ore_map.erase(pos)
+
+		# Mark tile as dug for persistence
+		_dug_tiles[pos] = true
+		var chunk_pos := _grid_to_chunk(pos)
+		_dirty_chunks[chunk_pos] = true
 
 		_release(pos)
 
@@ -235,6 +265,87 @@ func _apply_ore_visual(pos: Vector2i, ore) -> void:
 	var ore_color: Color = ore.color
 	var base_color: Color = block.color
 	block.color = base_color.lerp(ore_color, 0.5)
+
+
+# ============================================
+# TILE PERSISTENCE (Save/Load)
+# ============================================
+
+func _load_chunk_dug_tiles(chunk_pos: Vector2i) -> void:
+	## Load previously dug tiles for a chunk from SaveManager
+	if SaveManager == null or not SaveManager.is_game_loaded():
+		return
+
+	var chunk_data := SaveManager.load_chunk(chunk_pos)
+	if chunk_data.is_empty():
+		return
+
+	# chunk_data is Dictionary[String, bool] where key is "x,y" format
+	# (Vector2i keys don't serialize well to JSON/binary)
+	for key in chunk_data.keys():
+		if chunk_data[key] == true:
+			# Parse "x,y" string back to Vector2i
+			var parts := (key as String).split(",")
+			if parts.size() == 2:
+				var pos := Vector2i(int(parts[0]), int(parts[1]))
+				_dug_tiles[pos] = true
+
+
+func _save_chunk_dug_tiles(chunk_pos: Vector2i) -> void:
+	## Save dug tiles for a chunk to SaveManager
+	if SaveManager == null or not SaveManager.is_game_loaded():
+		return
+
+	var start_x := chunk_pos.x * CHUNK_SIZE
+	var start_y := chunk_pos.y * CHUNK_SIZE
+
+	# Collect dug tiles in this chunk, using string keys for serialization
+	var chunk_data := {}
+	for local_x in range(CHUNK_SIZE):
+		for local_y in range(CHUNK_SIZE):
+			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
+			if _dug_tiles.has(grid_pos):
+				var key := "%d,%d" % [grid_pos.x, grid_pos.y]
+				chunk_data[key] = true
+
+	SaveManager.save_chunk(chunk_pos, chunk_data)
+
+
+func _clear_chunk_dug_tiles_memory(chunk_pos: Vector2i) -> void:
+	## Clear in-memory dug tiles for a chunk (will reload from save when needed)
+	var start_x := chunk_pos.x * CHUNK_SIZE
+	var start_y := chunk_pos.y * CHUNK_SIZE
+
+	for local_x in range(CHUNK_SIZE):
+		for local_y in range(CHUNK_SIZE):
+			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
+			if _dug_tiles.has(grid_pos):
+				_dug_tiles.erase(grid_pos)
+
+
+func save_all_dirty_chunks() -> void:
+	## Save all chunks that have unsaved changes (call before game exit)
+	for chunk_pos in _dirty_chunks.keys():
+		_save_chunk_dug_tiles(chunk_pos)
+	_dirty_chunks.clear()
+	print("[DirtGrid] Saved all dirty chunks")
+
+
+func _on_save_started() -> void:
+	## Called when SaveManager is about to save - flush dirty chunks first
+	save_all_dirty_chunks()
+
+
+func clear_all_dug_tiles() -> void:
+	## Clear all dug tiles (for new game)
+	_dug_tiles.clear()
+	_dirty_chunks.clear()
+	print("[DirtGrid] Cleared all dug tiles")
+
+
+func get_dug_tile_count() -> int:
+	## Get count of dug tiles in memory (for debugging)
+	return _dug_tiles.size()
 
 
 # ============================================

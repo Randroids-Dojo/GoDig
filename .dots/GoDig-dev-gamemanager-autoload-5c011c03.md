@@ -1,9 +1,9 @@
 ---
 title: "implement: GameManager autoload singleton"
-status: open
+status: active
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:37:35.694949-06:00"
+created-at: "\"2026-01-16T00:37:35.694949-06:00\""
 ---
 
 ## Description

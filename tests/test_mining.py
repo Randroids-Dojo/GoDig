@@ -341,3 +341,63 @@ async def test_tap_mine_interval_reasonable(game):
     """Verify tap mining cooldown starts at zero."""
     cooldown = await game.get_property(PATHS["player"], "_tap_mine_cooldown")
     assert cooldown == 0.0, "Tap mine cooldown should start at 0.0"
+
+
+# =============================================================================
+# TILE PERSISTENCE TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_dug_tiles_tracking(game):
+    """Verify DirtGrid tracks dug tiles for persistence."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["get_dug_tile_count"])
+    assert has_method, "DirtGrid should have get_dug_tile_count method for persistence"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_dug_tiles_starts_zero(game):
+    """Verify no tiles are marked as dug at game start."""
+    count = await game.call(PATHS["dirt_grid"], "get_dug_tile_count")
+    assert count == 0, f"Dug tile count should start at 0, got {count}"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_save_dirty_chunks_method(game):
+    """Verify DirtGrid has method to save dirty chunks for persistence."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["save_all_dirty_chunks"])
+    assert has_method, "DirtGrid should have save_all_dirty_chunks method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_clear_dug_tiles_method(game):
+    """Verify DirtGrid has method to clear dug tiles for new game."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["clear_all_dug_tiles"])
+    assert has_method, "DirtGrid should have clear_all_dug_tiles method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_chunk_helper_exists(game):
+    """Verify DirtGrid has debug_chunk_count method for testing."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["debug_chunk_count"])
+    assert has_method, "DirtGrid should have debug_chunk_count method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_active_count_method(game):
+    """Verify DirtGrid has debug_active_count method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["debug_active_count"])
+    assert has_method, "DirtGrid should have debug_active_count method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_blocks_loaded(game):
+    """Verify DirtGrid has active blocks after initialization."""
+    count = await game.call(PATHS["dirt_grid"], "debug_active_count")
+    assert count > 0, f"DirtGrid should have active blocks, got {count}"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_chunks_loaded(game):
+    """Verify DirtGrid has loaded chunks around player."""
+    count = await game.call(PATHS["dirt_grid"], "debug_chunk_count")
+    assert count > 0, f"DirtGrid should have loaded chunks, got {count}"

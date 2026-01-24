@@ -177,3 +177,43 @@ async def test_shop_building_signals_include_type(game):
     """Verify shop building has player_entered signal with shop type."""
     has_signal = await game.call(PATHS["surface_shop_building"], "has_signal", ["player_entered"])
     assert has_signal, "Shop building should have player_entered signal"
+
+
+# =============================================================================
+# BUILDING SLOT SYSTEM TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_surface_has_get_building_slots_method(game):
+    """Verify surface has get_building_slots method."""
+    has_method = await game.call(PATHS["surface"], "has_method", ["get_building_slots"])
+    assert has_method, "Surface should have get_building_slots method"
+
+
+@pytest.mark.asyncio
+async def test_surface_has_get_unlocked_slots_method(game):
+    """Verify surface has get_unlocked_slots method."""
+    has_method = await game.call(PATHS["surface"], "has_method", ["get_unlocked_slots"])
+    assert has_method, "Surface should have get_unlocked_slots method"
+
+
+@pytest.mark.asyncio
+async def test_surface_has_is_slot_unlocked_method(game):
+    """Verify surface has is_slot_unlocked method."""
+    has_method = await game.call(PATHS["surface"], "has_method", ["is_slot_unlocked"])
+    assert has_method, "Surface should have is_slot_unlocked method"
+
+
+@pytest.mark.asyncio
+async def test_surface_has_get_slot_position_method(game):
+    """Verify surface has get_slot_position method."""
+    has_method = await game.call(PATHS["surface"], "has_method", ["get_slot_position"])
+    assert has_method, "Surface should have get_slot_position method"
+
+
+@pytest.mark.asyncio
+async def test_surface_building_slots_defined(game):
+    """Verify surface has building slots defined."""
+    slots = await game.call(PATHS["surface"], "get_building_slots")
+    assert slots is not None, "Building slots should be defined"
+    assert len(slots) >= 6, f"Should have at least 6 building slots, got {len(slots)}"

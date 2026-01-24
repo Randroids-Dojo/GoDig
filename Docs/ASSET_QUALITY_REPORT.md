@@ -1,5 +1,5 @@
 # Asset Quality Report
-Generated: 2026-01-13 04:49
+Generated: 2026-01-24
 
 ## Summary
 
@@ -8,6 +8,7 @@ Generated: 2026-01-13 04:49
 | Component Average | **0.92** |
 | Pickaxe Validator | **1.00** |
 | Animation Quality | **0.95** |
+| Terrain Atlas | **0.95** |
 
 ## Component Details
 
@@ -35,6 +36,27 @@ Generated: 2026-01-13 04:49
 - **Color Consistency**: 0.90
 - **Avg pixels/frame**: 3126
 
+## Terrain Texture Metrics
+
+| Tile | Score | Colors | Palette | Edge | Noise |
+|------|-------|--------|---------|------|-------|
+| Dirt | 0.94 | 20 | 0.79 | 13.3 | 19.1 |
+| Clay | 0.94 | 20 | 0.79 | 18.5 | 20.0 |
+| Stone | 0.95 | 18 | 0.80 | 19.5 | 25.2 |
+| Granite | 0.94 | 20 | 0.79 | 16.4 | 22.4 |
+| Basalt | 0.94 | 20 | 0.79 | 13.6 | 17.1 |
+| Obsidian | 0.95 | 15 | 0.80 | 10.9 | 12.0 |
+| Coal | 0.94 | 20 | 0.79 | 12.5 | 15.2 |
+| Copper | 0.94 | 19 | 0.79 | 14.7 | 23.4 |
+| Iron | 0.95 | 16 | 0.80 | 13.1 | 21.2 |
+| Silver | 0.84 | 18 | 0.79 | 23.6 | 29.5 |
+| Gold | 0.95 | 16 | 0.80 | 16.5 | 24.3 |
+| Diamond | 0.95 | 16 | 0.80 | 15.9 | 27.2 |
+| Ruby | 1.00 | 21 | 0.93 | 19.2 | 25.3 |
+| Emerald | 1.00 | 21 | 0.93 | 15.8 | 26.4 |
+| Sapphire | 1.00 | 21 | 0.94 | 16.2 | 29.3 |
+| Amethyst | 1.00 | 21 | 0.93 | 18.5 | 22.8 |
+
 ## Quality Targets
 
 | Target | Status |
@@ -43,3 +65,4 @@ Generated: 2026-01-13 04:49
 | Component avg ≥ 0.90 | ✅ Achieved |
 | All coherence = 1.00 | ✅ Achieved |
 | Animation quality ≥ 0.90 | ✅ Achieved |
+| Terrain atlas ≥ 0.90 | ✅ Achieved |

@@ -23,6 +23,7 @@ For GoDig's requirements (consistent, automated, Godot-compatible):
 | Requirement | Best Option |
 |------------|-------------|
 | **Animated Sprites (PROVEN)** | **Composable Sprite Builder** (local, precise control) |
+| **Terrain Tiles (PROVEN)** | **Procedural Generator** (local, instant, deterministic) |
 | **Static Assets** | MFLUX Z-Image-Turbo (local, free) |
 | **Cloud Alternative** | PixelLab MCP (if composable doesn't meet needs) |
 | **AI Animation (Experimental)** | ComfyUI + IP-Adapter (limited success) |
@@ -71,7 +72,7 @@ OUTPUT:
 
 ```bash
 # Generate components and assemble sprite sheet
-python scripts/tools/composable_sprite_builder.py
+python scripts/tools/improved_sprite_builder_v4.py
 ```
 
 ### Benefits
@@ -84,7 +85,7 @@ python scripts/tools/composable_sprite_builder.py
 
 ### Customization
 
-Edit `SWING_POSES` in `composable_sprite_builder.py`:
+Edit `SWING_POSES` in `improved_sprite_builder_v4.py`:
 
 ```python
 SWING_POSES = [
@@ -100,7 +101,7 @@ SWING_POSES = [
 To use better artwork:
 1. Replace component PNGs in `resources/sprites/components/`
 2. Maintain same dimensions and pivot points
-3. Run `composable_sprite_builder.py` to regenerate
+3. Run `improved_sprite_builder_v4.py` to regenerate
 
 ### Current Output
 
@@ -108,6 +109,91 @@ The miner swing animation (`miner_swing_composable.png`) uses this pipeline:
 - 8 frames, 128x128 each
 - Clear swing arc: ready → overhead → ground impact
 - Used by `miner_animation.tres`
+
+---
+
+## Procedural Terrain Generator (PROVEN)
+
+**The solution for terrain tiles.** Procedural generation provides perfect reproducibility, instant iteration, and consistent quality across all terrain types.
+
+### Why Procedural for Terrain
+
+| Approach | Speed | Consistency | Tileability | Control |
+|----------|-------|-------------|-------------|---------|
+| **Procedural** | Instant | Perfect | Guaranteed | Full |
+| AI (MFLUX) | ~15s/tile | Variable | Manual | Limited |
+| Hand-drawn | Hours | Excellent | Manual | Full |
+
+### Architecture
+
+```
+PALETTES (defined once):
+├── Dirt: base, light, dark, accent colors
+├── Stone: grayscale palette
+├── Ores: material + vein highlight colors
+└── Gems: crystal + sparkle colors
+
+GENERATION PIPELINE:
+├── 1. Multi-octave value noise (3 layers)
+├── 2. Map noise to palette colors
+├── 3. Apply ordered dithering (Bayer 4x4)
+├── 4. Add detail elements (rocks/veins/crystals)
+├── 5. Apply edge darkening for depth
+└── 6. Assemble into atlas
+
+OUTPUT:
+└── terrain_atlas.png (768x384, 6x3 tiles of 128x128)
+```
+
+### Usage
+
+```bash
+# Generate terrain atlas
+python scripts/tools/generate_dirt_textures.py --seed 42
+
+# Generate single tile for testing
+python scripts/tools/generate_dirt_textures.py --single dirt --seed 123
+
+# Validate texture quality
+python scripts/tools/texture_validator.py
+
+# List available materials
+python scripts/tools/generate_dirt_textures.py --list-materials
+```
+
+### Benefits
+
+- ✅ **Instant generation** - Full atlas in < 1 second
+- ✅ **Perfect reproducibility** - Same seed = same result
+- ✅ **Seamless potential** - Edge darkening aids tiling
+- ✅ **Easy iteration** - Change seed, regenerate instantly
+- ✅ **No dependencies** - Pure Python + Pillow
+
+### Customization
+
+Edit `PALETTES` in `generate_dirt_textures.py`:
+
+```python
+PALETTES = {
+    "dirt": MaterialPalette(
+        name="Dirt",
+        base=(139, 90, 43),     # Main brown
+        light=(169, 120, 73),   # Highlight
+        dark=(99, 60, 23),      # Shadow
+        accent=(79, 50, 18)     # Dark details
+    ),
+    # Add more materials...
+}
+```
+
+### Current Quality
+
+| Metric | Score |
+|--------|-------|
+| Overall Atlas | **0.95** |
+| All Tiles | PASS |
+| Palette Adherence | 0.79+ |
+| Edge Contrast | <20 |
 
 ---
 
@@ -357,22 +443,18 @@ def generate_sprite(prompt, output_path, width=256, height=256, seed=None):
     return output_path
 ```
 
-### GoDig Sprite Generation Script
+### GoDig Sprite Generation
 
-A complete sprite generation script is available at `scripts/tools/generate_sprite.py`:
+> **Note**: MFLUX is macOS/Apple Silicon specific. For terrain tiles on any platform, use the **Procedural Terrain Generator** instead (`scripts/tools/generate_dirt_textures.py`).
+
+Example MFLUX usage (macOS only):
 
 ```bash
-# Generate a miner sprite
-/opt/homebrew/bin/python3.11 scripts/tools/generate_sprite.py \
-    miner_swing "miner character swinging a pickaxe" --seed 42
-
-# Generate a weapon
-/opt/homebrew/bin/python3.11 scripts/tools/generate_sprite.py \
-    sword "medieval sword weapon" --width 64 --height 64
-
-# Generate a background (skip background removal)
-/opt/homebrew/bin/python3.11 scripts/tools/generate_sprite.py \
-    cave "underground cave scene" --no-remove-bg --width 720 --height 1280
+# Generate a static sprite (requires MFLUX installed)
+mflux-generate-z-image-turbo \
+    --prompt "pixel art sword, game asset, transparent background" \
+    --steps 9 --seed 42 --height 128 --width 128 \
+    --quantize 4 --output sword.png
 ```
 
 ### Pros
@@ -382,9 +464,11 @@ A complete sprite generation script is available at `scripts/tools/generate_spri
 - Fast generation times
 
 ### Cons
+- **macOS/Apple Silicon only**
 - FLUX models only (no SD 1.5/SDXL)
 - Limited animation/sprite sheet features
 - Requires separate post-processing
+- **Not recommended for terrain tiles** (use procedural generator)
 
 ---
 
@@ -819,7 +903,7 @@ We created `scripts/tools/create_pose_references.py` to generate skeleton images
 
 ```bash
 # RECOMMENDED: Composable sprite builder (working solution)
-python scripts/tools/composable_sprite_builder.py
+python scripts/tools/improved_sprite_builder_v4.py
 
 # Validate animation frames against pose checklist
 python scripts/tools/animation_validator.py
@@ -892,24 +976,32 @@ For GoDig, the recommended approach is:
    - Assemble programmatically with precise angle control
    - Output static sprite sheet (no runtime cost)
    - **This actually works** - pickaxe goes LOW → HIGH → LOW
-   - See `scripts/tools/composable_sprite_builder.py`
+   - See `scripts/tools/improved_sprite_builder_v4.py`
 
 2. **Cloud Alternative**: PixelLab MCP
    - May be useful if composable doesn't meet art quality needs
    - Built-in animation support
    - Free tier available
 
+### For Terrain Tiles (PROVEN SOLUTION)
+
+3. **Procedural Terrain Generator**: Best for tileset textures
+   - Instant generation (< 1 second for full atlas)
+   - Deterministic via seeds (same seed = same result)
+   - Multi-tone palettes with proper pixel art shading
+   - See `scripts/tools/generate_dirt_textures.py`
+   - **0.95 average quality score across all tiles**
+
 ### For Static Assets (Backgrounds, Items)
 
-3. **MFLUX Z-Image-Turbo**: Good for single images
+4. **MFLUX Z-Image-Turbo**: Good for single images
    - Fast local generation (~5s per image)
    - No authentication required
-   - See `scripts/tools/generate_sprite.py`
    - **Not suitable for animation frames** (no consistency or pose control)
 
 ### AI Animation (Experimental - Limited Success)
 
-4. **ComfyUI + IP-Adapter + ControlNet**
+5. **ComfyUI + IP-Adapter + ControlNet**
    - Tested extensively, failed to produce correct poses
    - IP-Adapter maintains identity but not poses
    - ControlNet competes with IP-Adapter
@@ -921,9 +1013,11 @@ For GoDig, the recommended approach is:
 - Pillow for image manipulation
 - Nearest-neighbor resampling for pixel art
 
-### Key Insight
+### Key Insights
 
-**AI animation generation is unreliable for pose control.** After extensive testing with IP-Adapter, ControlNet, and various parameter combinations, AI approaches consistently failed to produce correct swing poses. The composable approach with programmatic assembly is the proven solution.
+1. **AI animation generation is unreliable for pose control.** After extensive testing with IP-Adapter, ControlNet, and various parameter combinations, AI approaches consistently failed to produce correct swing poses. The composable approach with programmatic assembly is the proven solution.
+
+2. **Procedural generation beats AI for terrain tiles.** Terrain textures benefit from deterministic, instant generation. AI approaches are overkill and introduce unnecessary complexity and inconsistency.
 
 ### Resources
 

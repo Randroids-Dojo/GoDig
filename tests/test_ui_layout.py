@@ -5,7 +5,7 @@ Tests the UILayout scene, HUD positioning, touch controls layout,
 and safe area handling for portrait mode (720x1280).
 """
 import pytest
-from tests.helpers import PATHS
+from helpers import PATHS
 
 
 @pytest.mark.asyncio

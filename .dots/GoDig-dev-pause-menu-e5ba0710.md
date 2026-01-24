@@ -1,6 +1,6 @@
 ---
 title: "DEV: Pause menu"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T01:01:44.043469-06:00"

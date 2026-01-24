@@ -4,6 +4,11 @@ extends Node2D
 ## Connects mining drops to inventory system.
 
 const FloatingTextScene := preload("res://scenes/ui/floating_text.tscn")
+const BlockParticlesScene := preload("res://scenes/effects/block_particles.tscn")
+
+# Particle pool for block break effects
+const PARTICLE_POOL_SIZE := 12
+var _particle_pool: Array = []
 
 @onready var surface: Node2D = $Surface
 @onready var dirt_grid: Node2D = $DirtGrid
@@ -33,6 +38,10 @@ func _ready() -> void:
 
 	# Connect mining drops to inventory
 	dirt_grid.block_dropped.connect(_on_block_dropped)
+
+	# Connect block destroy for particle effects
+	dirt_grid.block_destroyed.connect(_on_block_destroyed)
+	_init_particle_pool()
 
 	# Connect touch controls to player
 	touch_controls.direction_pressed.connect(player.set_touch_direction)
@@ -288,3 +297,32 @@ func _on_player_died(cause: String) -> void:
 
 	# Unpause game
 	get_tree().paused = false
+
+
+# ============================================
+# PARTICLE EFFECTS
+# ============================================
+
+func _init_particle_pool() -> void:
+	## Initialize pool of particle emitters for block break effects
+	for i in PARTICLE_POOL_SIZE:
+		var p := BlockParticlesScene.instantiate()
+		p.visible = false
+		add_child(p)
+		_particle_pool.append(p)
+
+
+func _get_available_particle() -> CPUParticles2D:
+	## Get an available particle emitter from the pool
+	for p in _particle_pool:
+		if p.is_available():
+			return p
+	# All in use - return first (will interrupt its animation)
+	return _particle_pool[0] if not _particle_pool.is_empty() else null
+
+
+func _on_block_destroyed(world_pos: Vector2, color: Color) -> void:
+	## Spawn particle effect when a block is destroyed
+	var p := _get_available_particle()
+	if p:
+		p.burst(world_pos, color)

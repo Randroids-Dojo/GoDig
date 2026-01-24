@@ -66,7 +66,11 @@ var is_dead: bool = false
 var _damage_flash_timer: float = 0.0
 const DAMAGE_FLASH_DURATION: float = 0.1
 
+# Squash/stretch animation state
+var _scale_tween: Tween
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var camera: Camera2D = $GameCamera
 
 
 func _ready() -> void:
@@ -210,6 +214,11 @@ func _on_move_complete() -> void:
 
 
 func _start_mining(direction: Vector2i, target_block: Vector2i) -> void:
+	# Check if player's tool can mine this block
+	if dirt_grid and not dirt_grid.can_mine_block(target_block):
+		_show_blocked_feedback(target_block)
+		return
+
 	current_state = State.MINING
 	mining_direction = direction
 	mining_target = target_block
@@ -219,6 +228,27 @@ func _start_mining(direction: Vector2i, target_block: Vector2i) -> void:
 		sprite.flip_h = (direction.x < 0)
 
 	sprite.play("swing")
+
+
+func _show_blocked_feedback(target_block: Vector2i) -> void:
+	## Visual feedback when player tries to mine ore they can't break
+	# Flash block red briefly
+	if dirt_grid == null:
+		return
+	var block = dirt_grid.get_block(target_block)
+	if block == null:
+		return
+
+	# Store original modulate and flash red
+	var original_modulate: Color = block.modulate
+	block.modulate = Color.RED
+
+	# Create a timer to restore the color
+	var timer := get_tree().create_timer(0.15)
+	timer.timeout.connect(func():
+		if is_instance_valid(block):
+			block.modulate = original_modulate
+	)
 
 
 func _on_animation_finished() -> void:
@@ -409,6 +439,13 @@ func _do_wall_jump() -> void:
 	# Flip sprite to face jump direction
 	sprite.flip_h = (_wall_direction > 0)
 
+	# Stretch during jump - taller and thinner
+	_squash_stretch(
+		Vector2(0.8, 1.2),  # Stretch up
+		Vector2.ONE,
+		0.03, 0.2
+	)
+
 
 func _handle_wall_jumping(delta: float) -> void:
 	# Apply gravity
@@ -466,11 +503,28 @@ func _check_landing() -> void:
 func _land_on_grid(landing_grid: Vector2i) -> void:
 	## Snap player to grid position and return to IDLE state
 	# Calculate and apply fall damage before resetting state
+	var fall_distance_px := 0.0
 	if _is_tracking_fall:
 		_is_tracking_fall = false
-		var fall_distance_px := position.y - _fall_start_y
+		fall_distance_px = position.y - _fall_start_y
 		var fall_blocks := int(fall_distance_px / BLOCK_SIZE)
 		_apply_fall_damage(fall_blocks)
+
+	# Squash on landing - intensity scales with fall distance
+	var intensity := clampf(fall_distance_px / 500.0, 0.1, 1.0)
+	var squash_x := 1.0 + (0.25 * intensity)  # 1.0 to 1.25
+	var squash_y := 1.0 - (0.2 * intensity)   # 1.0 to 0.8
+	_squash_stretch(
+		Vector2(squash_x, squash_y),
+		Vector2.ONE,
+		0.03 + (0.02 * intensity),
+		0.1 + (0.05 * intensity)
+	)
+
+	# Screen shake on landing (if fall was significant)
+	if camera and fall_distance_px > BLOCK_SIZE * 2:
+		var shake_intensity := clampf(fall_distance_px / 200.0, 1.0, 6.0)
+		camera.shake(shake_intensity)
 
 	# Snap to proper grid position
 	grid_position = landing_grid
@@ -569,6 +623,12 @@ func _hit_tap_target() -> void:
 
 	if not dirt_grid.has_block(_tap_target_tile):
 		# Block already destroyed, stop mining
+		_on_tap_end()
+		return
+
+	# Check if player's tool can mine this block
+	if not dirt_grid.can_mine_block(_tap_target_tile):
+		_show_blocked_feedback(_tap_target_tile)
 		_on_tap_end()
 		return
 
@@ -752,11 +812,32 @@ func load_hp_save_data(data: Dictionary) -> void:
 
 
 # ============================================
+# SQUASH/STRETCH ANIMATION
+# ============================================
+
+func _squash_stretch(squash_scale: Vector2, stretch_scale: Vector2, squash_duration: float = 0.05, stretch_duration: float = 0.1) -> void:
+	## Apply squash then stretch animation to sprite for juicy feel
+	if _scale_tween:
+		_scale_tween.kill()
+
+	_scale_tween = create_tween()
+	# Squash first (e.g., on impact)
+	_scale_tween.tween_property(sprite, "scale", squash_scale, squash_duration) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	# Then stretch/recover
+	_scale_tween.tween_property(sprite, "scale", stretch_scale, stretch_duration) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
+	# Return to normal
+	_scale_tween.tween_property(sprite, "scale", Vector2.ONE, 0.1)
+
+
+# ============================================
 # TESTING HELPERS (for PlayGodot automation)
 # ============================================
 
 ## Directly hit the block in the specified direction (x, y integers)
 ## Used for automated testing when animations don't work in headless mode
+## Returns false if the block is not mineable with current tool
 func test_mine_direction(dir_x: int, dir_y: int) -> bool:
 	if dirt_grid == null:
 		return false
@@ -765,6 +846,10 @@ func test_mine_direction(dir_x: int, dir_y: int) -> bool:
 	var target := grid_position + direction
 
 	if not dirt_grid.has_block(target):
+		return false
+
+	# Check if tool can mine this block
+	if not dirt_grid.can_mine_block(target):
 		return false
 
 	var destroyed: bool = dirt_grid.hit_block(target)

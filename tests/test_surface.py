@@ -145,3 +145,35 @@ async def test_surface_elements_horizontal_spread(game):
         "Spawn point and shop should be separated horizontally"
     assert abs(spawn_pos["x"] - mine_pos["x"]) > 100, \
         "Spawn point and mine entrance should be separated horizontally"
+
+
+# =============================================================================
+# SHOP TYPE TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_shop_building_has_shop_type(game):
+    """Verify shop building has shop_type property."""
+    shop_type = await game.get_property(PATHS["surface_shop_building"], "shop_type")
+    assert shop_type is not None, "Shop building should have shop_type property"
+
+
+@pytest.mark.asyncio
+async def test_shop_building_has_get_shop_type_method(game):
+    """Verify shop building has get_shop_type method."""
+    has_method = await game.call(PATHS["surface_shop_building"], "has_method", ["get_shop_type"])
+    assert has_method, "Shop building should have get_shop_type method"
+
+
+@pytest.mark.asyncio
+async def test_shop_building_has_get_shop_type_name_method(game):
+    """Verify shop building has get_shop_type_name method."""
+    has_method = await game.call(PATHS["surface_shop_building"], "has_method", ["get_shop_type_name"])
+    assert has_method, "Shop building should have get_shop_type_name method"
+
+
+@pytest.mark.asyncio
+async def test_shop_building_signals_include_type(game):
+    """Verify shop building has player_entered signal with shop type."""
+    has_signal = await game.call(PATHS["surface_shop_building"], "has_signal", ["player_entered"])
+    assert has_signal, "Shop building should have player_entered signal"

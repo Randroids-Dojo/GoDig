@@ -133,7 +133,7 @@ func _on_coins_changed(new_amount: int) -> void:
 
 
 func _on_shop_button_pressed() -> void:
-	shop.open()
+	shop.open(_current_shop_type)
 	shop_button.visible = false  # Hide button while shop is open
 
 
@@ -148,27 +148,55 @@ func _on_shop_closed() -> void:
 # SHOP BUILDING INTERACTION
 # ============================================
 
+## Currently active shop type when player is near a shop
+var _current_shop_type: int = -1
+
 func _connect_shop_building() -> void:
 	## Connect shop building proximity signals to show/hide shop button
 	if not surface:
 		return
 
-	var shop_building := surface.get_node_or_null("ShopBuilding")
-	if shop_building:
-		shop_building.player_entered.connect(_on_shop_building_entered)
-		shop_building.player_exited.connect(_on_shop_building_exited)
-		print("[TestLevel] Shop building signals connected")
+	# Connect all shop buildings
+	for child in surface.get_children():
+		if child.has_method("get_shop_type"):
+			child.player_entered.connect(_on_shop_building_entered)
+			child.player_exited.connect(_on_shop_building_exited)
+			print("[TestLevel] Connected shop: %s" % child.get_shop_type_name())
 
 
-func _on_shop_building_entered() -> void:
-	## Player entered shop area - show the shop button
+func _on_shop_building_entered(shop_type: int) -> void:
+	## Player entered shop area - show the shop button and track shop type
+	_current_shop_type = shop_type
 	if not shop.visible:  # Only show if shop UI isn't already open
 		shop_button.visible = true
+		# Update button text to show shop name
+		var shop_name := _get_shop_display_name(shop_type)
+		shop_button.text = shop_name
 
 
-func _on_shop_building_exited() -> void:
+func _on_shop_building_exited(_shop_type: int) -> void:
 	## Player left shop area - hide the shop button
+	_current_shop_type = -1
 	shop_button.visible = false
+
+
+func _get_shop_display_name(shop_type: int) -> String:
+	## Get display name for shop type
+	const ShopType = preload("res://scripts/surface/shop_building.gd").ShopType
+	match shop_type:
+		ShopType.GENERAL_STORE:
+			return "General Store"
+		ShopType.SUPPLY_STORE:
+			return "Supply Store"
+		ShopType.BLACKSMITH:
+			return "Blacksmith"
+		ShopType.EQUIPMENT_SHOP:
+			return "Equipment"
+		ShopType.GEM_APPRAISER:
+			return "Appraiser"
+		ShopType.WAREHOUSE:
+			return "Warehouse"
+	return "Shop"
 
 
 func _on_inventory_pressed() -> void:

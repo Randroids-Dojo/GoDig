@@ -243,6 +243,8 @@ func _determine_ore_spawn(pos: Vector2i) -> void:
 			_ore_map[pos] = ore.id
 			# Visually tint the block to show ore
 			_apply_ore_visual(pos, ore)
+			# Apply ore hardness bonus to make ore blocks harder to mine
+			_apply_ore_hardness(pos, ore)
 			return  # Only one ore per block
 
 
@@ -265,6 +267,16 @@ func _apply_ore_visual(pos: Vector2i, ore) -> void:
 	var ore_color: Color = ore.color
 	var base_color: Color = block.color
 	block.color = base_color.lerp(ore_color, 0.5)
+
+
+func _apply_ore_hardness(pos: Vector2i, ore) -> void:
+	## Apply ore hardness bonus to block
+	if not _active.has(pos):
+		return
+
+	var block = _active[pos]
+	if ore.hardness > 0:
+		block.apply_ore_hardness(ore.hardness)
 
 
 # ============================================

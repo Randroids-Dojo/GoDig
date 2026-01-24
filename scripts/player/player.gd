@@ -66,6 +66,9 @@ var is_dead: bool = false
 var _damage_flash_timer: float = 0.0
 const DAMAGE_FLASH_DURATION: float = 0.1
 
+# Squash/stretch animation state
+var _scale_tween: Tween
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
@@ -435,6 +438,13 @@ func _do_wall_jump() -> void:
 	# Flip sprite to face jump direction
 	sprite.flip_h = (_wall_direction > 0)
 
+	# Stretch during jump - taller and thinner
+	_squash_stretch(
+		Vector2(0.8, 1.2),  # Stretch up
+		Vector2.ONE,
+		0.03, 0.2
+	)
+
 
 func _handle_wall_jumping(delta: float) -> void:
 	# Apply gravity
@@ -492,11 +502,23 @@ func _check_landing() -> void:
 func _land_on_grid(landing_grid: Vector2i) -> void:
 	## Snap player to grid position and return to IDLE state
 	# Calculate and apply fall damage before resetting state
+	var fall_distance_px := 0.0
 	if _is_tracking_fall:
 		_is_tracking_fall = false
-		var fall_distance_px := position.y - _fall_start_y
+		fall_distance_px = position.y - _fall_start_y
 		var fall_blocks := int(fall_distance_px / BLOCK_SIZE)
 		_apply_fall_damage(fall_blocks)
+
+	# Squash on landing - intensity scales with fall distance
+	var intensity := clampf(fall_distance_px / 500.0, 0.1, 1.0)
+	var squash_x := 1.0 + (0.25 * intensity)  # 1.0 to 1.25
+	var squash_y := 1.0 - (0.2 * intensity)   # 1.0 to 0.8
+	_squash_stretch(
+		Vector2(squash_x, squash_y),
+		Vector2.ONE,
+		0.03 + (0.02 * intensity),
+		0.1 + (0.05 * intensity)
+	)
 
 	# Snap to proper grid position
 	grid_position = landing_grid
@@ -781,6 +803,26 @@ func load_hp_save_data(data: Dictionary) -> void:
 	current_hp = clampi(current_hp, 0, MAX_HP)
 	modulate = Color.WHITE
 	hp_changed.emit(current_hp, MAX_HP)
+
+
+# ============================================
+# SQUASH/STRETCH ANIMATION
+# ============================================
+
+func _squash_stretch(squash_scale: Vector2, stretch_scale: Vector2, squash_duration: float = 0.05, stretch_duration: float = 0.1) -> void:
+	## Apply squash then stretch animation to sprite for juicy feel
+	if _scale_tween:
+		_scale_tween.kill()
+
+	_scale_tween = create_tween()
+	# Squash first (e.g., on impact)
+	_scale_tween.tween_property(sprite, "scale", squash_scale, squash_duration) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	# Then stretch/recover
+	_scale_tween.tween_property(sprite, "scale", stretch_scale, stretch_duration) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
+	# Return to normal
+	_scale_tween.tween_property(sprite, "scale", Vector2.ONE, 0.1)
 
 
 # ============================================

@@ -176,6 +176,38 @@ func get_block(pos: Vector2i):
 	return _active.get(pos)
 
 
+func can_mine_block(pos: Vector2i, tool_tier: int = -1) -> bool:
+	## Returns true if the player's tool can mine this block.
+	## Returns false if the ore requires a higher tool tier.
+	## If tool_tier is -1, uses PlayerData's equipped tool tier.
+	if not _active.has(pos):
+		return true  # Empty space is always "minable"
+
+	# Get tool tier from PlayerData if not specified
+	var tier := tool_tier
+	if tier < 0:
+		if PlayerData != null:
+			tier = PlayerData.get_tool_tier()
+		else:
+			tier = 0  # Default fallback
+
+	# Check if this block has ore with a tier requirement
+	if not _ore_map.has(pos):
+		return true  # Regular dirt is always minable
+
+	var ore_id: String = _ore_map[pos]
+	var ore = DataRegistry.get_ore(ore_id)
+	if ore == null:
+		return true
+
+	return tier >= ore.required_tool_tier
+
+
+func get_ore_at(pos: Vector2i) -> String:
+	## Returns the ore ID at the position, or empty string if none
+	return _ore_map.get(pos, "")
+
+
 func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 	## Hit a block with specified tool damage, returns true if destroyed
 	## If tool_damage is -1, uses PlayerData's equipped tool damage

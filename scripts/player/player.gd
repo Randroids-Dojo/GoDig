@@ -210,6 +210,11 @@ func _on_move_complete() -> void:
 
 
 func _start_mining(direction: Vector2i, target_block: Vector2i) -> void:
+	# Check if player's tool can mine this block
+	if dirt_grid and not dirt_grid.can_mine_block(target_block):
+		_show_blocked_feedback(target_block)
+		return
+
 	current_state = State.MINING
 	mining_direction = direction
 	mining_target = target_block
@@ -219,6 +224,27 @@ func _start_mining(direction: Vector2i, target_block: Vector2i) -> void:
 		sprite.flip_h = (direction.x < 0)
 
 	sprite.play("swing")
+
+
+func _show_blocked_feedback(target_block: Vector2i) -> void:
+	## Visual feedback when player tries to mine ore they can't break
+	# Flash block red briefly
+	if dirt_grid == null:
+		return
+	var block = dirt_grid.get_block(target_block)
+	if block == null:
+		return
+
+	# Store original modulate and flash red
+	var original_modulate: Color = block.modulate
+	block.modulate = Color.RED
+
+	# Create a timer to restore the color
+	var timer := get_tree().create_timer(0.15)
+	timer.timeout.connect(func():
+		if is_instance_valid(block):
+			block.modulate = original_modulate
+	)
 
 
 func _on_animation_finished() -> void:
@@ -572,6 +598,12 @@ func _hit_tap_target() -> void:
 		_on_tap_end()
 		return
 
+	# Check if player's tool can mine this block
+	if not dirt_grid.can_mine_block(_tap_target_tile):
+		_show_blocked_feedback(_tap_target_tile)
+		_on_tap_end()
+		return
+
 	var destroyed: bool = dirt_grid.hit_block(_tap_target_tile)
 
 	if destroyed:
@@ -757,6 +789,7 @@ func load_hp_save_data(data: Dictionary) -> void:
 
 ## Directly hit the block in the specified direction (x, y integers)
 ## Used for automated testing when animations don't work in headless mode
+## Returns false if the block is not mineable with current tool
 func test_mine_direction(dir_x: int, dir_y: int) -> bool:
 	if dirt_grid == null:
 		return false
@@ -765,6 +798,10 @@ func test_mine_direction(dir_x: int, dir_y: int) -> bool:
 	var target := grid_position + direction
 
 	if not dirt_grid.has_block(target):
+		return false
+
+	# Check if tool can mine this block
+	if not dirt_grid.can_mine_block(target):
 		return false
 
 	var destroyed: bool = dirt_grid.hit_block(target)

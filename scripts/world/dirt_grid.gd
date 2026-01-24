@@ -126,6 +126,10 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 
 			# Only generate blocks at or below the surface
 			if grid_pos.y >= _surface_row:
+				# Check if this should be a cave tile (empty)
+				if _is_cave_tile(grid_pos):
+					continue  # Leave as empty/air
+
 				if not _active.has(grid_pos):
 					_acquire(grid_pos)
 					_determine_ore_spawn(grid_pos)
@@ -303,6 +307,49 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		_release(pos)
 
 	return destroyed
+
+
+# ============================================
+# CAVE GENERATION
+# ============================================
+
+## Cave generation constants
+const CAVE_MIN_DEPTH := 20  # Caves start appearing 20 blocks below surface
+const CAVE_FREQUENCY := 0.05  # Lower = larger caves
+const CAVE_THRESHOLD := 0.85  # Higher = fewer caves (0.0-1.0)
+const CAVE_DEPTH_FACTOR := 0.001  # Caves get slightly more common with depth
+
+func _is_cave_tile(pos: Vector2i) -> bool:
+	## Determine if a position should be a cave (empty) using noise
+	var depth := pos.y - _surface_row
+	if depth < CAVE_MIN_DEPTH:
+		return false  # No caves in shallow layers
+
+	# Use position-based noise for deterministic cave shapes
+	var noise_val := _generate_cave_noise(pos)
+
+	# Adjust threshold based on depth - deeper = slightly more caves
+	var depth_bonus := minf(depth * CAVE_DEPTH_FACTOR, 0.1)
+	var adjusted_threshold := CAVE_THRESHOLD - depth_bonus
+
+	return noise_val > adjusted_threshold
+
+
+func _generate_cave_noise(pos: Vector2i) -> float:
+	## Generate cave noise value for a position
+	## Uses layered noise for more natural cave shapes
+	var freq := CAVE_FREQUENCY
+
+	# Primary noise layer
+	var hash1 := (pos.x * 198491317 + pos.y * 6542989) % 1000000
+	var noise1 := float(hash1) / 1000000.0
+
+	# Secondary layer for variation (different frequency)
+	var hash2 := (pos.x * 73856093 + pos.y * 19349663) % 1000000
+	var noise2 := float(hash2) / 1000000.0
+
+	# Combine layers (weighted average)
+	return noise1 * 0.7 + noise2 * 0.3
 
 
 # ============================================

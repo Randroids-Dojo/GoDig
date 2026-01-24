@@ -488,3 +488,21 @@ async def test_player_has_is_on_ladder_method(game):
     """Verify player has _is_on_ladder method."""
     has_method = await game.call(PATHS["player"], "has_method", ["_is_on_ladder"])
     assert has_method, "Player should have _is_on_ladder method"
+
+
+# =============================================================================
+# CAVE GENERATION TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_cave_generation(game):
+    """Verify DirtGrid has cave generation method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_is_cave_tile"])
+    assert has_method, "DirtGrid should have _is_cave_tile method for cave generation"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_cave_noise_method(game):
+    """Verify DirtGrid has _generate_cave_noise method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_generate_cave_noise"])
+    assert has_method, "DirtGrid should have _generate_cave_noise method"

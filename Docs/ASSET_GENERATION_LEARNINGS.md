@@ -140,9 +140,11 @@ scripts/tools/
 ├── component_validator.py       # General quality validator
 ├── pickaxe_validator.py         # Pickaxe-specific validator
 ├── animation_validator.py       # Animation frame validator
+├── texture_validator.py         # Terrain texture validator
 ├── primer_validator.py          # Regression prevention
 ├── validate_all.py              # Unified validation command
 ├── generate_asset_report.py     # Markdown report generator
+├── generate_dirt_textures.py    # Terrain atlas generator
 ├── improved_sprite_builder_v4.py # Main sprite assembly
 ├── pickaxe_perpendicular.py     # Pickaxe design generator
 └── archive/                     # Old iterations (30 files preserved)
@@ -158,6 +160,10 @@ resources/sprites/components/
     ├── body.png
     ├── head.png
     └── ...
+
+resources/tileset/
+├── terrain_atlas.png            # Generated terrain atlas (768x384)
+└── terrain.tres                 # Godot TileSet resource
 ```
 
 ## Metrics Summary
@@ -180,9 +186,117 @@ resources/sprites/components/
 | Vertical Extent | 1.00 |
 | **Overall** | **1.00** |
 
+## Terrain Texture Generation
+
+### Overview
+
+Terrain tiles (dirt, stone, ores, gems) use **procedural generation** rather than AI-based generation. This approach provides:
+- Perfect reproducibility via seeds
+- Fast iteration (< 1 second per atlas)
+- No external dependencies (pure Python + Pillow)
+- Consistent quality across all tiles
+
+### Key Techniques
+
+**1. Multi-Tone Palettes**
+Each material uses 3-4 colors for proper pixel art shading:
+```python
+MaterialPalette(
+    base=(139, 90, 43),    # Main color
+    light=(169, 120, 73),  # Highlight
+    dark=(99, 60, 23),     # Shadow
+    accent=(79, 50, 18)    # Optional detail
+)
+```
+
+**2. Layered Value Noise**
+Combine multiple octaves for natural-looking variation:
+- 3 octaves with decreasing amplitude (1.0, 0.5, 0.25)
+- Scale decreases per octave (16, 8, 4 pixels)
+- Smooth interpolation with cubic hermite
+
+**3. Ordered Dithering (Bayer 4x4)**
+Apply dithering for authentic pixel art aesthetic:
+```python
+bayer_4x4 = [
+    [0, 8, 2, 10],
+    [12, 4, 14, 6],
+    [3, 11, 1, 9],
+    [15, 7, 13, 5]
+]
+```
+
+**4. Edge Darkening**
+Darken pixels near tile edges for depth perception:
+- 4-pixel border gradient
+- Factor: 0.7 at edge → 1.0 at interior
+
+**5. Detail Elements**
+- **Terrain tiles**: Small rock details (3-8px ellipses)
+- **Ore tiles**: Vein patterns with bright highlights
+- **Gem tiles**: Hexagonal crystal formations with facets
+
+### Terrain Texture Validator
+
+The texture validator (`scripts/tools/texture_validator.py`) checks:
+
+| Metric | Target | Notes |
+|--------|--------|-------|
+| Unique Colors | 15-25 | Limited palette after dithering |
+| Palette Adherence | ≥0.70 | Top 4 colors cover 70%+ pixels |
+| Edge Contrast | <30 | Low contrast for seamless tiling |
+| Noise Variance | 10-50 | Good texture without chaos |
+
+### Current Terrain Scores
+
+| Tile | Score | Colors | Edge | Noise |
+|------|-------|--------|------|-------|
+| Dirt | 0.94 | 20 | 13.3 | 19.1 |
+| Clay | 0.94 | 20 | 18.5 | 20.0 |
+| Stone | 0.95 | 18 | 19.5 | 25.2 |
+| Granite | 0.94 | 20 | 16.4 | 22.4 |
+| Basalt | 0.94 | 20 | 13.6 | 17.1 |
+| Obsidian | 0.95 | 15 | 10.9 | 12.0 |
+| **Average** | **0.95** | - | - | - |
+
+### Iteration Workflow
+
+```bash
+# Generate with different seeds
+python scripts/tools/generate_dirt_textures.py --seed 42
+python scripts/tools/generate_dirt_textures.py --seed 777
+
+# Validate results
+python scripts/tools/texture_validator.py
+
+# Compare two atlases
+python scripts/tools/texture_validator.py --compare path/to/other_atlas.png
+
+# Generate single tile for testing
+python scripts/tools/generate_dirt_textures.py --single dirt --seed 123
+```
+
+### Why Procedural vs AI for Terrain
+
+| Approach | Terrain Tiles | Character Sprites |
+|----------|---------------|-------------------|
+| **Procedural** | ✅ Best choice | Limited use |
+| **Composable** | N/A | ✅ Best choice |
+| **AI (MFLUX)** | Overkill | Static assets only |
+
+Terrain tiles benefit from:
+- Seamless tiling (procedural guarantees this)
+- Consistent style across all tiles
+- Fast regeneration for iteration
+- Deterministic results for version control
+
+---
+
 ## Future Improvements
 
 - Add visual comparison tool that shows designs side-by-side with scores
 - Create automated A/B testing framework
 - Build parameter sweep optimizer for new assets
 - Add human preference validation (in-game testing)
+- Add seamless tiling validation for terrain textures
+- Create texture variation system (same material, different seed per instance)

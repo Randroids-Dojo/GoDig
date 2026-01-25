@@ -224,20 +224,13 @@ Look for `SCRIPT ERROR:` lines to identify compilation issues.
 
 **Common issues and fixes for PlayGodot integration tests.**
 
-### Timeout Issues
+### Scene Changes
 
-The default `change_scene` timeout is 30s, which may not be enough in CI:
+The `change_scene` method works reliably with the latest PlayGodot and Godot automation releases:
 
 ```python
-# BAD - Uses default 30s timeout
-await g.change_scene("res://scenes/test_level.tscn")
-
-# GOOD - Use explicit longer timeout for slow operations
-await g._client.send(
-    "change_scene",
-    {"path": "res://scenes/test_level.tscn"},
-    timeout=60.0
-)
+# Standard usage - works correctly
+await game.change_scene("res://scenes/test_level.tscn")
 ```
 
 ### Resource Import Errors

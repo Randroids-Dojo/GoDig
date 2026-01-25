@@ -187,12 +187,7 @@ async def main_menu():
 
 @pytest_asyncio.fixture
 async def game():
-    """Launch the game and navigate to the test level scene.
-
-    NOTE: The Godot automation fork sends error messages instead of
-    automation:scene_changed when change_scene is called. Tests using
-    this fixture are marked xfail until the Godot fork is fixed.
-    """
+    """Launch the game and navigate to the test level scene."""
     import asyncio
     port = get_playgodot_port()
 

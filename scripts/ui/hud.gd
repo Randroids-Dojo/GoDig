@@ -24,9 +24,11 @@ var quick_sell_button: Button = null
 ## Cached values for comparison
 var _last_hp: int = -1
 var _last_max_hp: int = -1
+var _last_coins: int = -1
 
 ## Animation state
 var _vignette_pulse_time: float = 0.0
+var _coins_tween: Tween = null
 const VIGNETTE_PULSE_SPEED: float = 3.0
 const VIGNETTE_MIN_ALPHA: float = 0.1
 const VIGNETTE_MAX_ALPHA: float = 0.4
@@ -143,6 +145,35 @@ func _on_depth_updated(depth_meters: int) -> void:
 func _update_coins_display(amount: int) -> void:
 	if coins_label:
 		coins_label.text = "Coins: %d" % amount
+
+		# Pulse animation when coins increase
+		if _last_coins >= 0 and amount > _last_coins:
+			_pulse_coins_label()
+		_last_coins = amount
+
+
+func _pulse_coins_label() -> void:
+	## Brief scale pulse on the coins label
+	if coins_label == null:
+		return
+
+	# Skip if reduced motion is enabled
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	# Cancel any existing animation
+	if _coins_tween and _coins_tween.is_valid():
+		_coins_tween.kill()
+
+	# Pulse up and back down
+	coins_label.pivot_offset = coins_label.size / 2
+	coins_label.scale = Vector2(1.0, 1.0)
+
+	_coins_tween = create_tween()
+	_coins_tween.tween_property(coins_label, "scale", Vector2(1.2, 1.2), 0.1) \
+		.set_ease(Tween.EASE_OUT)
+	_coins_tween.tween_property(coins_label, "scale", Vector2(1.0, 1.0), 0.15) \
+		.set_ease(Tween.EASE_IN_OUT)
 
 
 func _update_depth_display(depth: int) -> void:

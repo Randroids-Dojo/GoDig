@@ -21,6 +21,9 @@ extends Control
 ## Quick-sell button (created programmatically)
 var quick_sell_button: Button = null
 
+## Tool indicator label (created programmatically)
+var tool_label: Label = null
+
 ## Cached values for comparison
 var _last_hp: int = -1
 var _last_max_hp: int = -1
@@ -53,9 +56,17 @@ func _ready() -> void:
 	# Create quick-sell button
 	_setup_quick_sell_button()
 
+	# Create tool indicator
+	_setup_tool_indicator()
+
 	# Connect inventory changes to update quick-sell button
 	if InventoryManager:
 		InventoryManager.inventory_changed.connect(_update_quick_sell_button)
+
+	# Connect tool changes to update tool indicator
+	if PlayerData:
+		PlayerData.tool_changed.connect(_on_tool_changed)
+		_update_tool_indicator()
 
 
 func _process(delta: float) -> void:
@@ -276,3 +287,44 @@ func _on_quick_sell_pressed() -> void:
 		print("[HUD] Quick-sold items for $%d" % total)
 
 	_update_quick_sell_button()
+
+
+# ============================================
+# TOOL INDICATOR
+# ============================================
+
+func _setup_tool_indicator() -> void:
+	## Create and position the tool indicator label
+	tool_label = Label.new()
+	tool_label.name = "ToolLabel"
+
+	# Position below the depth label (right side)
+	tool_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	tool_label.position = Vector2(-200, 60)
+	tool_label.custom_minimum_size = Vector2(184, 30)
+
+	# Style the label
+	tool_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	tool_label.add_theme_font_size_override("font_size", 16)
+	tool_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+
+	add_child(tool_label)
+
+
+func _on_tool_changed(_tool_data) -> void:
+	_update_tool_indicator()
+
+
+func _update_tool_indicator() -> void:
+	## Update tool indicator with current equipped tool
+	if tool_label == null:
+		return
+	if PlayerData == null:
+		tool_label.text = ""
+		return
+
+	var tool_data = PlayerData.get_equipped_tool()
+	if tool_data != null:
+		tool_label.text = "Tool: %s" % tool_data.display_name
+	else:
+		tool_label.text = "Tool: None"

@@ -1,11 +1,11 @@
 ---
 title: "implement: Mine entrance on surface"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T01:02:14.671077-06:00"
-after:
-  - GoDig-dev-surface-area-379633b2
+created-at: "\"2026-01-16T01:02:14.671077-06:00\""
+closed-at: "2026-01-25T01:20:50.071933+00:00"
+close-reason: Mine entrance already exists on surface scene
 ---
 
 ## Description

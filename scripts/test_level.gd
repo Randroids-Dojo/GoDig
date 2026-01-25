@@ -79,6 +79,9 @@ func _ready() -> void:
 	# Connect depth milestone notifications
 	GameManager.depth_milestone_reached.connect(_on_depth_milestone_reached)
 
+	# Connect layer transition notifications
+	GameManager.layer_entered.connect(_on_layer_entered)
+
 	# Connect shop building proximity signals
 	_connect_shop_building()
 
@@ -165,6 +168,27 @@ func _on_depth_milestone_reached(depth: int) -> void:
 	var text := "DEPTH MILESTONE: %dm!" % depth
 	floating.show_pickup(text, color, screen_pos)
 	print("[TestLevel] Depth milestone notification shown: %dm" % depth)
+
+
+func _on_layer_entered(layer_name: String) -> void:
+	## Show floating notification when player enters a new layer
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Center the notification on screen
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 4.0)
+
+	# Cyan color for layer notifications
+	var color := Color.CYAN
+
+	# Format the layer message
+	var text := "Entering: %s" % layer_name
+	floating.show_pickup(text, color, screen_pos)
+	print("[TestLevel] Layer notification shown: %s" % layer_name)
 
 
 func _show_inventory_full_notification() -> void:

@@ -120,19 +120,21 @@ async def test_main_menu_buttons_are_visible(main_menu):
 
 # =============================================================================
 # GAME SCENE TESTS (verify game fixture properly loads scene)
+# These tests are xfail because the Godot automation fork's RemoteDebugger
+# protocol loses connection when scenes change. This is a known limitation
+# that requires fixing in the automation fork itself.
 # =============================================================================
 
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="change_scene automation command times out - automation fork issue")
+@pytest.mark.xfail(reason="Automation fork loses connection on scene change")
 async def test_game_scene_loads_via_change_scene(game):
     """Game scene loads when navigating from main menu."""
-    # The game fixture uses change_scene to load test_level.tscn
     exists = await game.node_exists("/root/Main")
     assert exists, "Game scene should load"
 
 
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="change_scene automation command times out - automation fork issue")
+@pytest.mark.xfail(reason="Automation fork loses connection on scene change")
 async def test_game_scene_has_player(game):
     """Game scene contains the player."""
     exists = await game.node_exists("/root/Main/Player")

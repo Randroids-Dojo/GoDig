@@ -10,6 +10,10 @@ const BlockParticlesScene := preload("res://scenes/effects/block_particles.tscn"
 const PARTICLE_POOL_SIZE := 12
 var _particle_pool: Array = []
 
+# Cooldown for inventory full notification (prevent spam)
+var _inventory_full_cooldown: float = 0.0
+const INVENTORY_FULL_COOLDOWN_DURATION := 2.0
+
 @onready var surface: Node2D = $Surface
 @onready var dirt_grid: Node2D = $DirtGrid
 @onready var player: CharacterBody2D = $Player
@@ -22,6 +26,12 @@ var _particle_pool: Array = []
 @onready var pause_menu: CanvasLayer = $PauseMenu
 @onready var hud: Control = $UI/HUD
 @onready var floating_text_layer: CanvasLayer = $FloatingTextLayer
+
+
+func _process(delta: float) -> void:
+	# Update cooldowns
+	if _inventory_full_cooldown > 0:
+		_inventory_full_cooldown -= delta
 
 
 func _ready() -> void:
@@ -100,6 +110,7 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 	if leftover > 0:
 		# Inventory full - item was not fully added
 		print("[TestLevel] Inventory full, could not add %s" % item.display_name)
+		_show_inventory_full_notification()
 	else:
 		print("[TestLevel] Added %s to inventory" % item.display_name)
 
@@ -154,6 +165,29 @@ func _on_depth_milestone_reached(depth: int) -> void:
 	var text := "DEPTH MILESTONE: %dm!" % depth
 	floating.show_pickup(text, color, screen_pos)
 	print("[TestLevel] Depth milestone notification shown: %dm" % depth)
+
+
+func _show_inventory_full_notification() -> void:
+	## Show floating notification when inventory is full (with cooldown)
+	if floating_text_layer == null:
+		return
+	if _inventory_full_cooldown > 0:
+		return  # Still in cooldown, don't spam
+
+	_inventory_full_cooldown = INVENTORY_FULL_COOLDOWN_DURATION
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Position above player
+	var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+	screen_pos.y -= 96.0
+
+	# Red color for warning
+	var color := Color.RED
+
+	var text := "INVENTORY FULL!"
+	floating.show_pickup(text, color, screen_pos)
 
 
 func _on_shop_button_pressed() -> void:

@@ -35,6 +35,10 @@ const MAX_FALL_DAMAGE: float = 100.0
 const MAX_HP: int = 100
 const LOW_HP_THRESHOLD: float = 0.25  # 25% = low health warning
 
+# Surface regeneration constants
+const REGEN_INTERVAL: float = 2.0  # Seconds between heals at surface
+const REGEN_AMOUNT: int = 5  # HP restored per tick
+
 # Hitstop constants (game feel)
 const HITSTOP_DURATION: float = 0.03  # Brief freeze on hit
 const HITSTOP_TIME_SCALE: float = 0.1  # Slow-mo instead of full stop
@@ -69,6 +73,9 @@ var current_hp: int = MAX_HP
 var is_dead: bool = false
 var _damage_flash_timer: float = 0.0
 const DAMAGE_FLASH_DURATION: float = 0.1
+
+# Surface regeneration state
+var _regen_timer: float = 0.0
 
 # Squash/stretch animation state
 var _scale_tween: Tween
@@ -123,6 +130,9 @@ func _process(delta: float) -> void:
 		_damage_flash_timer -= delta
 		if _damage_flash_timer <= 0:
 			modulate = Color.WHITE
+
+	# Surface regeneration: heal when at surface and not at full HP
+	_process_surface_regen(delta)
 
 	# Handle tap-to-dig hold mining
 	_process_tap_mining(delta)
@@ -891,6 +901,25 @@ func revive(hp_amount: int = MAX_HP) -> void:
 ## Check if player is at low health (below threshold)
 func is_low_health() -> bool:
 	return float(current_hp) / float(MAX_HP) <= LOW_HP_THRESHOLD
+
+
+## Process surface regeneration (called every frame)
+func _process_surface_regen(delta: float) -> void:
+	# Only regenerate at surface (depth 0 or above)
+	if grid_position.y > GameManager.SURFACE_ROW:
+		_regen_timer = 0.0
+		return
+
+	# Already at full HP
+	if current_hp >= MAX_HP:
+		_regen_timer = 0.0
+		return
+
+	# Accumulate regen timer
+	_regen_timer += delta
+	if _regen_timer >= REGEN_INTERVAL:
+		_regen_timer -= REGEN_INTERVAL
+		heal(REGEN_AMOUNT)
 
 
 ## Get HP as a percentage (0.0 to 1.0)

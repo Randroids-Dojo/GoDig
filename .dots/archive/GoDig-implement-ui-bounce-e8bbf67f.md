@@ -1,9 +1,11 @@
 ---
 title: "implement: UI bounce and pop effects"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-19T01:35:30.663386-06:00"
+created-at: "\"2026-01-19T01:35:30.663386-06:00\""
+closed-at: "2026-01-25T02:17:03.446183+00:00"
+close-reason: Implemented pop/bounce effect for floating text
 ---
 
 Button press feedback, coin counter animation, inventory icon bounce on pickup. Makes UI feel responsive and alive.

@@ -62,6 +62,10 @@ PATHS = {
     "hud_coins_label": "/root/Main/UI/HUD/CoinsLabel",
     "hud_depth_label": "/root/Main/UI/HUD/DepthLabel",
     "hud_pause_button": "/root/Main/UI/HUD/PauseButton",
+    # Aliases for backward compatibility
+    "coins_label": "/root/Main/UI/HUD/CoinsLabel",
+    "depth_label": "/root/Main/UI/HUD/DepthLabel",
+    "pause_button": "/root/Main/UI/HUD/PauseButton",
     "floating_text_layer": "/root/Main/FloatingTextLayer",
     "surface": "/root/Main/Surface",
     "surface_sky": "/root/Main/Surface/Sky",

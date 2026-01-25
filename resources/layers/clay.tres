@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_layer")
-id = "subsoil"
-display_name = "Subsoil"
-min_depth = 80
-max_depth = 180
-base_hardness = 20.0
-color_primary = Color(0.4, 0.25, 0.12, 1)
-color_accent = Color(0.35, 0.22, 0.1, 1)
+id = "clay"
+display_name = "Clay"
+min_depth = 30
+max_depth = 80
+base_hardness = 15.0
+color_primary = Color(0.698, 0.467, 0.329, 1)
+color_accent = Color(0.6, 0.38, 0.26, 1)
 tile_atlas_coords = Vector2i(1, 0)

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/items/item_data.gd" id="1_item_data"]
+
+[resource]
+script = ExtResource("1_item_data")
+id = "ladder"
+display_name = "Ladder"
+category = "placeable"
+max_stack = 99
+sell_value = 5
+rarity = "common"
+min_depth = 0
+description = "Place in empty tiles to climb up and down."

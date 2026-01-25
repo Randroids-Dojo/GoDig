@@ -1,9 +1,11 @@
 ---
 title: "implement: Equipment Shop (gear)"
-status: open
+status: closed
 priority: 3
 issue-type: task
-created-at: "2026-01-16T00:28:44.491311-06:00"
+created-at: "\"2026-01-16T00:28:44.491311-06:00\""
+closed-at: "2026-01-24T21:59:26.948502+00:00"
+close-reason: "Implemented: Equipment Shop is one of 6 shop types in shop_building.gd"
 ---
 
 Helmet (light), boots (speed), gloves (dig speed), backpack (inventory), armor (hazards). Unlocks 50-200m.

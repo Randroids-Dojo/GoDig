@@ -10,7 +10,7 @@ signal jump_pressed  # Emitted when player wants to jump (for wall-jump)
 signal hp_changed(current_hp: int, max_hp: int)
 signal player_died(cause: String)
 
-enum State { IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING }
+enum State { IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING, CLIMBING }
 
 const BLOCK_SIZE := 128
 const MOVE_DURATION := 0.15  # Seconds to move one block
@@ -34,6 +34,14 @@ const MAX_FALL_DAMAGE: float = 100.0
 # HP constants
 const MAX_HP: int = 100
 const LOW_HP_THRESHOLD: float = 0.25  # 25% = low health warning
+
+# Surface regeneration constants
+const REGEN_INTERVAL: float = 2.0  # Seconds between heals at surface
+const REGEN_AMOUNT: int = 5  # HP restored per tick
+
+# Hitstop constants (game feel)
+const HITSTOP_DURATION: float = 0.03  # Brief freeze on hit
+const HITSTOP_TIME_SCALE: float = 0.1  # Slow-mo instead of full stop
 
 var dirt_grid: Node2D  # Set by test_level.gd
 var touch_direction: Vector2i = Vector2i.ZERO  # Direction from touch controls
@@ -65,6 +73,9 @@ var current_hp: int = MAX_HP
 var is_dead: bool = false
 var _damage_flash_timer: float = 0.0
 const DAMAGE_FLASH_DURATION: float = 0.1
+
+# Surface regeneration state
+var _regen_timer: float = 0.0
 
 # Squash/stretch animation state
 var _scale_tween: Tween
@@ -120,6 +131,9 @@ func _process(delta: float) -> void:
 		if _damage_flash_timer <= 0:
 			modulate = Color.WHITE
 
+	# Surface regeneration: heal when at surface and not at full HP
+	_process_surface_regen(delta)
+
 	# Handle tap-to-dig hold mining
 	_process_tap_mining(delta)
 
@@ -136,6 +150,8 @@ func _process(delta: float) -> void:
 			_handle_wall_sliding(delta)
 		State.WALL_JUMPING:
 			_handle_wall_jumping(delta)
+		State.CLIMBING:
+			_handle_climbing(delta)
 
 
 func _handle_idle_input() -> void:
@@ -261,6 +277,9 @@ func _on_animation_finished() -> void:
 
 	var destroyed: bool = dirt_grid.hit_block(mining_target)
 
+	# Apply hitstop for game feel
+	_apply_hitstop()
+
 	if destroyed:
 		block_destroyed.emit(mining_target)
 		# Block destroyed, move into the space
@@ -351,6 +370,11 @@ func _start_falling() -> void:
 func _handle_falling(delta: float) -> void:
 	# Apply gravity
 	velocity.y += GRAVITY * delta
+
+	# Check for ladder - can grab while falling
+	if _is_on_ladder():
+		_check_ladder()
+		return
 
 	# Check for walls on either side for potential wall-slide
 	_update_wall_direction()
@@ -468,6 +492,108 @@ func _handle_wall_jumping(delta: float) -> void:
 
 	# Check if we landed on a block
 	_check_landing()
+
+
+# ============================================
+# CLIMBING STATE (LADDERS)
+# ============================================
+
+func _handle_climbing(delta: float) -> void:
+	## Handle movement while on a ladder
+	var input_dir := _get_input_direction()
+
+	# Check if still on ladder
+	if not _is_on_ladder():
+		# Left the ladder - start falling
+		current_state = State.FALLING
+		_start_fall_tracking()
+		return
+
+	# Vertical movement on ladder
+	if input_dir.y != 0:
+		var target := grid_position + Vector2i(0, input_dir.y)
+		# Can only move to empty tiles or other ladders
+		if not dirt_grid.has_block(target) or _has_ladder_at(target):
+			_start_climb_move(target)
+			return
+
+	# Horizontal movement off ladder
+	if input_dir.x != 0:
+		var target := grid_position + Vector2i(input_dir.x, 0)
+		if not dirt_grid.has_block(target):
+			_start_move_off_ladder(target)
+			return
+
+	# Jump off ladder
+	if wants_jump:
+		wants_jump = false
+		current_state = State.FALLING
+		_start_fall_tracking()
+		return
+
+
+func _start_climb_move(target: Vector2i) -> void:
+	## Start moving to target position while climbing
+	target_grid_position = target
+	current_state = State.MOVING
+
+	var target_pos := _grid_to_world(target)
+	if _move_tween:
+		_move_tween.kill()
+	_move_tween = create_tween()
+	_move_tween.tween_property(self, "position", target_pos, MOVE_DURATION)
+	_move_tween.tween_callback(_on_climb_move_complete)
+
+
+func _on_climb_move_complete() -> void:
+	## Called when a climbing move completes
+	grid_position = target_grid_position
+	_update_depth()
+
+	# Return to climbing state if still on ladder
+	if _is_on_ladder():
+		current_state = State.CLIMBING
+	else:
+		# Moved off ladder - check if should fall
+		if _should_fall():
+			current_state = State.FALLING
+			_start_fall_tracking()
+		else:
+			current_state = State.IDLE
+
+
+func _start_move_off_ladder(target: Vector2i) -> void:
+	## Start moving off ladder to an adjacent tile
+	target_grid_position = target
+	current_state = State.MOVING
+
+	var target_pos := _grid_to_world(target)
+	if _move_tween:
+		_move_tween.kill()
+	_move_tween = create_tween()
+	_move_tween.tween_property(self, "position", target_pos, MOVE_DURATION)
+	_move_tween.tween_callback(_on_move_complete)
+
+
+func _is_on_ladder() -> bool:
+	## Check if current position has a ladder
+	return _has_ladder_at(grid_position)
+
+
+func _has_ladder_at(pos: Vector2i) -> bool:
+	## Check if a position has a ladder placed
+	if dirt_grid == null:
+		return false
+	# Check if tile type is LADDER
+	return dirt_grid.get_tile_type(pos) == TileTypes.Type.LADDER
+
+
+func _check_ladder() -> void:
+	## Check if player should start climbing (standing on ladder)
+	if _is_on_ladder():
+		current_state = State.CLIMBING
+		velocity = Vector2.ZERO
+		_is_tracking_fall = false
 
 
 func _check_wall_grab() -> void:
@@ -634,6 +760,9 @@ func _hit_tap_target() -> void:
 
 	var destroyed: bool = dirt_grid.hit_block(_tap_target_tile)
 
+	# Apply hitstop for game feel
+	_apply_hitstop()
+
 	if destroyed:
 		block_destroyed.emit(_tap_target_tile)
 
@@ -709,8 +838,9 @@ func take_damage(amount: int, source: String = "unknown") -> int:
 	current_hp = maxi(0, current_hp - amount)
 	hp_changed.emit(current_hp, MAX_HP)
 
-	# Visual feedback: flash red
+	# Visual feedback: flash red and screen shake
 	_start_damage_flash()
+	_shake_camera_on_damage(actual_damage)
 
 	print("[Player] Took %d damage from %s (HP: %d/%d)" % [actual_damage, source, current_hp, MAX_HP])
 
@@ -773,6 +903,25 @@ func is_low_health() -> bool:
 	return float(current_hp) / float(MAX_HP) <= LOW_HP_THRESHOLD
 
 
+## Process surface regeneration (called every frame)
+func _process_surface_regen(delta: float) -> void:
+	# Only regenerate at surface (depth 0 or above)
+	if grid_position.y > GameManager.SURFACE_ROW:
+		_regen_timer = 0.0
+		return
+
+	# Already at full HP
+	if current_hp >= MAX_HP:
+		_regen_timer = 0.0
+		return
+
+	# Accumulate regen timer
+	_regen_timer += delta
+	if _regen_timer >= REGEN_INTERVAL:
+		_regen_timer -= REGEN_INTERVAL
+		heal(REGEN_AMOUNT)
+
+
 ## Get HP as a percentage (0.0 to 1.0)
 func get_hp_percent() -> float:
 	return float(current_hp) / float(MAX_HP)
@@ -782,6 +931,28 @@ func get_hp_percent() -> float:
 func _start_damage_flash() -> void:
 	modulate = Color.RED
 	_damage_flash_timer = DAMAGE_FLASH_DURATION
+
+
+## Apply brief hitstop for game feel on block hit
+func _apply_hitstop() -> void:
+	# Skip if reduced motion is enabled
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	# Brief time slowdown for impact feel
+	Engine.time_scale = HITSTOP_TIME_SCALE
+	await get_tree().create_timer(HITSTOP_DURATION, true, false, true).timeout
+	Engine.time_scale = 1.0
+
+
+## Shake camera when taking damage
+func _shake_camera_on_damage(damage_amount: int) -> void:
+	if camera == null:
+		return
+
+	# Scale shake intensity with damage (max around 25 damage)
+	var intensity := clampf(float(damage_amount) / 25.0, 0.5, 3.0)
+	camera.shake(intensity)
 
 
 ## Reset HP to full (for new game)

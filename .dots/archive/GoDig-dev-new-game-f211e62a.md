@@ -1,9 +1,11 @@
 ---
 title: "implement: New game initialization"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:47:36.553477-06:00"
+created-at: "\"2026-01-16T00:47:36.553477-06:00\""
+closed-at: "2026-01-24T21:19:51.030272+00:00"
+close-reason: GameManager.start_game() handles new game initialization with depth/coins reset
 ---
 
 ## Description

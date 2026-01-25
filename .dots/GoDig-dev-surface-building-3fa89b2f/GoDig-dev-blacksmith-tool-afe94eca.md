@@ -1,9 +1,11 @@
 ---
 title: "implement: Blacksmith (tool upgrades)"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T00:28:43.449894-06:00"
+created-at: "\"2026-01-16T00:28:43.449894-06:00\""
+closed-at: "2026-01-24T21:51:00.443177+00:00"
+close-reason: "Implemented: shop.gd Upgrades tab has tool upgrades from DataRegistry ToolData"
 ---
 
 Upgrade pickaxe damage/speed/durability. Progressive unlock display. Unlocks at depth 50-200m.

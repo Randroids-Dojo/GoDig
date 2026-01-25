@@ -69,15 +69,25 @@ func set_selected(selected: bool) -> void:
 		modulate = Color.WHITE
 
 
-func _get_rarity_color(rarity: int) -> Color:
-	## Get border color based on item rarity
-	match rarity:
-		0: return Color.GRAY       # Common
-		1: return Color.GREEN      # Uncommon
-		2: return Color.BLUE       # Rare
-		3: return Color.PURPLE     # Epic
-		4: return Color.ORANGE     # Legendary
-		_: return Color.WHITE
+func _get_rarity_color(rarity) -> Color:
+	## Get border color based on item rarity (supports string or int)
+	if rarity is String:
+		match rarity:
+			"common": return Color.GRAY
+			"uncommon": return Color.GREEN
+			"rare": return Color.BLUE
+			"epic": return Color.PURPLE
+			"legendary": return Color.ORANGE
+			_: return Color.WHITE
+	else:
+		# Legacy int support
+		match rarity:
+			0: return Color.GRAY       # Common
+			1: return Color.GREEN      # Uncommon
+			2: return Color.BLUE       # Rare
+			3: return Color.PURPLE     # Epic
+			4: return Color.ORANGE     # Legendary
+			_: return Color.WHITE
 
 
 func _on_pressed() -> void:

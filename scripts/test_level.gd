@@ -10,18 +10,28 @@ const BlockParticlesScene := preload("res://scenes/effects/block_particles.tscn"
 const PARTICLE_POOL_SIZE := 12
 var _particle_pool: Array = []
 
+# Cooldown for inventory full notification (prevent spam)
+var _inventory_full_cooldown: float = 0.0
+const INVENTORY_FULL_COOLDOWN_DURATION := 2.0
+
 @onready var surface: Node2D = $Surface
 @onready var dirt_grid: Node2D = $DirtGrid
 @onready var player: CharacterBody2D = $Player
-@onready var depth_label: Label = $UI/DepthLabel
+@onready var depth_label: Label = $UI/HUD/DepthLabel
 @onready var touch_controls: Control = $UI/TouchControls
-@onready var coins_label: Label = $UI/CoinsLabel
+@onready var coins_label: Label = $UI/HUD/CoinsLabel
 @onready var shop_button: Button = $UI/ShopButton
 @onready var shop: Control = $UI/Shop
-@onready var pause_button: Button = $UI/PauseButton
+@onready var pause_button: Button = $UI/HUD/PauseButton
 @onready var pause_menu: CanvasLayer = $PauseMenu
 @onready var hud: Control = $UI/HUD
 @onready var floating_text_layer: CanvasLayer = $FloatingTextLayer
+
+
+func _process(delta: float) -> void:
+	# Update cooldowns
+	if _inventory_full_cooldown > 0:
+		_inventory_full_cooldown -= delta
 
 
 func _ready() -> void:
@@ -66,6 +76,16 @@ func _ready() -> void:
 	# Connect item pickup for floating text
 	InventoryManager.item_added.connect(_on_item_added)
 
+	# Connect depth milestone notifications
+	GameManager.depth_milestone_reached.connect(_on_depth_milestone_reached)
+
+	# Connect layer transition notifications
+	GameManager.layer_entered.connect(_on_layer_entered)
+
+	# Connect achievement unlock notifications
+	if AchievementManager:
+		AchievementManager.achievement_unlocked.connect(_on_achievement_unlocked)
+
 	# Connect shop building proximity signals
 	_connect_shop_building()
 
@@ -75,7 +95,40 @@ func _ready() -> void:
 	# Update initial coins display
 	_on_coins_changed(GameManager.get_coins())
 
+	# Show control hint for new players
+	_show_first_time_hint()
+
 	print("[TestLevel] Level initialized")
+
+
+func _show_first_time_hint() -> void:
+	## Show a control hint for new players who haven't mined any blocks yet
+	if SaveManager.current_save == null:
+		return
+
+	# Only show hint if player hasn't mined anything yet
+	if SaveManager.current_save.blocks_mined > 0:
+		return
+
+	# Wait a moment before showing hint
+	await get_tree().create_timer(1.5).timeout
+
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Position at top of screen
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 4.0)
+
+	# Use a subtle color for hints
+	var color := Color(0.8, 0.9, 1.0)  # Light blue
+
+	var text := "TAP blocks to dig!"
+	floating.show_pickup(text, color, screen_pos)
+	print("[TestLevel] Showing first-time hint")
 
 
 func _on_player_depth_changed(depth: int) -> void:
@@ -97,6 +150,7 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 	if leftover > 0:
 		# Inventory full - item was not fully added
 		print("[TestLevel] Inventory full, could not add %s" % item.display_name)
+		_show_inventory_full_notification()
 	else:
 		print("[TestLevel] Added %s to inventory" % item.display_name)
 
@@ -123,8 +177,16 @@ func _on_item_added(item, amount: int) -> void:
 		if color.v < 0.3:
 			color = color.lightened(0.4)
 
-	# Format the text
-	var text := "+%d %s" % [amount, item.display_name]
+	# Format the text with rarity prefix for rare+ items
+	var text: String
+	var rarity_prefix := _get_rarity_prefix(item)
+	if rarity_prefix.is_empty():
+		text = "+%d %s" % [amount, item.display_name]
+	else:
+		text = "%s +%d %s" % [rarity_prefix, amount, item.display_name]
+		# Override color for rare+ items
+		color = _get_rarity_color(item)
+
 	floating.show_pickup(text, color, screen_pos)
 
 
@@ -132,8 +194,94 @@ func _on_coins_changed(new_amount: int) -> void:
 	coins_label.text = "$%d" % new_amount
 
 
+func _on_depth_milestone_reached(depth: int) -> void:
+	## Show floating notification when player reaches a depth milestone
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Center the notification on screen
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+
+	# Gold color for milestone notifications
+	var color := Color.GOLD
+
+	# Format the milestone message
+	var text := "DEPTH MILESTONE: %dm!" % depth
+	floating.show_pickup(text, color, screen_pos)
+	print("[TestLevel] Depth milestone notification shown: %dm" % depth)
+
+
+func _on_layer_entered(layer_name: String) -> void:
+	## Show floating notification when player enters a new layer
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Center the notification on screen
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 4.0)
+
+	# Cyan color for layer notifications
+	var color := Color.CYAN
+
+	# Format the layer message
+	var text := "Entering: %s" % layer_name
+	floating.show_pickup(text, color, screen_pos)
+	print("[TestLevel] Layer notification shown: %s" % layer_name)
+
+
+func _on_achievement_unlocked(achievement: Dictionary) -> void:
+	## Show floating notification when an achievement is unlocked
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Center the notification on screen, slightly higher than other notifications
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 5.0)
+
+	# Purple/magenta color for achievement notifications
+	var color := Color(0.9, 0.6, 1.0)  # Light purple
+
+	# Format the achievement message
+	var text := "ACHIEVEMENT: %s" % achievement.name
+	floating.show_pickup(text, color, screen_pos)
+	print("[TestLevel] Achievement unlocked: %s" % achievement.name)
+
+
+func _show_inventory_full_notification() -> void:
+	## Show floating notification when inventory is full (with cooldown)
+	if floating_text_layer == null:
+		return
+	if _inventory_full_cooldown > 0:
+		return  # Still in cooldown, don't spam
+
+	_inventory_full_cooldown = INVENTORY_FULL_COOLDOWN_DURATION
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Position above player
+	var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+	screen_pos.y -= 96.0
+
+	# Red color for warning
+	var color := Color.RED
+
+	var text := "INVENTORY FULL!"
+	floating.show_pickup(text, color, screen_pos)
+
+
 func _on_shop_button_pressed() -> void:
-	shop.open()
+	shop.open(_current_shop_type)
 	shop_button.visible = false  # Hide button while shop is open
 
 
@@ -148,27 +296,55 @@ func _on_shop_closed() -> void:
 # SHOP BUILDING INTERACTION
 # ============================================
 
+## Currently active shop type when player is near a shop
+var _current_shop_type: int = -1
+
 func _connect_shop_building() -> void:
 	## Connect shop building proximity signals to show/hide shop button
 	if not surface:
 		return
 
-	var shop_building := surface.get_node_or_null("ShopBuilding")
-	if shop_building:
-		shop_building.player_entered.connect(_on_shop_building_entered)
-		shop_building.player_exited.connect(_on_shop_building_exited)
-		print("[TestLevel] Shop building signals connected")
+	# Connect all shop buildings
+	for child in surface.get_children():
+		if child.has_method("get_shop_type"):
+			child.player_entered.connect(_on_shop_building_entered)
+			child.player_exited.connect(_on_shop_building_exited)
+			print("[TestLevel] Connected shop: %s" % child.get_shop_type_name())
 
 
-func _on_shop_building_entered() -> void:
-	## Player entered shop area - show the shop button
+func _on_shop_building_entered(shop_type: int) -> void:
+	## Player entered shop area - show the shop button and track shop type
+	_current_shop_type = shop_type
 	if not shop.visible:  # Only show if shop UI isn't already open
 		shop_button.visible = true
+		# Update button text to show shop name
+		var shop_name := _get_shop_display_name(shop_type)
+		shop_button.text = shop_name
 
 
-func _on_shop_building_exited() -> void:
+func _on_shop_building_exited(_shop_type: int) -> void:
 	## Player left shop area - hide the shop button
+	_current_shop_type = -1
 	shop_button.visible = false
+
+
+func _get_shop_display_name(shop_type: int) -> String:
+	## Get display name for shop type
+	const ShopType = preload("res://scripts/surface/shop_building.gd").ShopType
+	match shop_type:
+		ShopType.GENERAL_STORE:
+			return "General Store"
+		ShopType.SUPPLY_STORE:
+			return "Supply Store"
+		ShopType.BLACKSMITH:
+			return "Blacksmith"
+		ShopType.EQUIPMENT_SHOP:
+			return "Equipment"
+		ShopType.GEM_APPRAISER:
+			return "Appraiser"
+		ShopType.WAREHOUSE:
+			return "Warehouse"
+	return "Shop"
 
 
 func _on_inventory_pressed() -> void:
@@ -285,6 +461,13 @@ func _on_player_died(cause: String) -> void:
 	if SaveManager.current_save:
 		SaveManager.current_save.increment_deaths()
 
+	# Track for achievements
+	if AchievementManager:
+		AchievementManager.track_death()
+
+	# Apply death penalty: lose some random items
+	_apply_death_penalty()
+
 	# Pause game temporarily
 	get_tree().paused = true
 
@@ -297,6 +480,35 @@ func _on_player_died(cause: String) -> void:
 
 	# Unpause game
 	get_tree().paused = false
+
+
+func _apply_death_penalty() -> void:
+	## Apply death penalty: lose a portion of inventory items
+	if InventoryManager == null:
+		return
+
+	var total_items := InventoryManager.get_total_item_count()
+	if total_items == 0:
+		return  # Nothing to lose
+
+	# Lose 25% of items (minimum 1, rounded up)
+	var items_to_lose := maxi(1, ceili(float(total_items) * 0.25))
+
+	# Remove random items
+	var lost := InventoryManager.remove_random_items(items_to_lose)
+	if lost > 0:
+		print("[TestLevel] Death penalty: Lost %d item(s)" % lost)
+
+		# Show notification about lost items
+		if floating_text_layer:
+			var floating := FloatingTextScene.instantiate()
+			floating_text_layer.add_child(floating)
+
+			var viewport_size := get_viewport().get_visible_rect().size
+			var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 2.0)
+
+			var text := "Lost %d item(s)!" % lost
+			floating.show_pickup(text, Color.RED, screen_pos)
 
 
 # ============================================
@@ -326,3 +538,49 @@ func _on_block_destroyed(world_pos: Vector2, color: Color) -> void:
 	var p := _get_available_particle()
 	if p:
 		p.burst(world_pos, color)
+
+	# Track for statistics
+	if SaveManager.current_save:
+		SaveManager.current_save.increment_blocks_mined()
+
+	# Track for achievements
+	if AchievementManager:
+		AchievementManager.track_block_destroyed()
+
+
+# ============================================
+# RARITY HELPERS
+# ============================================
+
+func _get_rarity_prefix(item) -> String:
+	## Get a prefix string for rare+ item notifications
+	if item == null or not "rarity" in item:
+		return ""
+
+	var rarity: String = item.rarity if item.rarity is String else ""
+	match rarity:
+		"rare":
+			return "[RARE]"
+		"epic":
+			return "[EPIC]"
+		"legendary":
+			return "[LEGENDARY]"
+		_:
+			return ""
+
+
+func _get_rarity_color(item) -> Color:
+	## Get the display color for rare+ items
+	if item == null or not "rarity" in item:
+		return Color.WHITE
+
+	var rarity: String = item.rarity if item.rarity is String else ""
+	match rarity:
+		"rare":
+			return Color(0.3, 0.6, 1.0)  # Blue
+		"epic":
+			return Color(0.8, 0.4, 1.0)  # Purple
+		"legendary":
+			return Color(1.0, 0.7, 0.2)  # Orange/Gold
+		_:
+			return Color.WHITE

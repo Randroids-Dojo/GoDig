@@ -20,6 +20,9 @@ signal quit_requested
 @onready var reload_btn: Button = $Panel/VBox/ReloadButton
 @onready var quit_btn: Button = $Panel/VBox/QuitButton
 
+## Stats label (created programmatically)
+var stats_label: Label = null
+
 ## Confirmation dialog for dangerous actions
 var _confirm_dialog: ConfirmationDialog = null
 var _pending_action: String = ""
@@ -39,6 +42,9 @@ func _ready() -> void:
 	# Create confirmation dialog
 	_create_confirm_dialog()
 
+	# Create stats label
+	_create_stats_label()
+
 	visible = false
 	print("[PauseMenu] Ready")
 
@@ -51,6 +57,49 @@ func _create_confirm_dialog() -> void:
 	_confirm_dialog.confirmed.connect(_on_confirm_dialog_confirmed)
 	_confirm_dialog.canceled.connect(_on_confirm_dialog_canceled)
 	add_child(_confirm_dialog)
+
+
+func _create_stats_label() -> void:
+	"""Create a stats display label at the bottom of the pause menu."""
+	stats_label = Label.new()
+	stats_label.name = "StatsLabel"
+	stats_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stats_label.add_theme_font_size_override("font_size", 14)
+	stats_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+
+	# Get the VBox container and add the stats label at the bottom
+	var vbox := $Panel/VBox as VBoxContainer
+	if vbox:
+		# Add separator before stats
+		var separator := HSeparator.new()
+		separator.custom_minimum_size = Vector2(0, 10)
+		vbox.add_child(separator)
+		vbox.add_child(stats_label)
+
+
+func _update_stats_display() -> void:
+	"""Update the stats label with current player statistics."""
+	if stats_label == null:
+		return
+
+	var lines: Array[String] = []
+
+	# Add depth
+	if PlayerData:
+		lines.append("Max Depth: %dm" % PlayerData.max_depth_reached)
+
+	# Add deaths and coins from save data
+	if SaveManager.current_save:
+		lines.append("Coins: $%d | Deaths: %d" % [SaveManager.current_save.coins, SaveManager.current_save.deaths])
+		lines.append("Blocks Mined: %d" % SaveManager.current_save.blocks_mined)
+
+	# Add achievements
+	if AchievementManager:
+		var unlocked := AchievementManager.get_unlocked_count()
+		var total := AchievementManager.get_total_count()
+		lines.append("Achievements: %d/%d" % [unlocked, total])
+
+	stats_label.text = "\n".join(lines)
 
 
 func _input(event: InputEvent) -> void:
@@ -79,6 +128,9 @@ func show_menu() -> void:
 
 	# Update button states
 	_update_button_states()
+
+	# Update stats display
+	_update_stats_display()
 
 	print("[PauseMenu] Game paused")
 

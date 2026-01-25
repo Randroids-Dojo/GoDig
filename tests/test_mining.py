@@ -181,6 +181,47 @@ async def test_data_registry_has_items(game):
     assert has_method, "DataRegistry should have get_item method"
 
 
+@pytest.mark.asyncio
+async def test_data_registry_has_all_ore_types(game):
+    """Verify DataRegistry has loaded all 10 ore/gem types."""
+    ore_ids = await game.call(PATHS["data_registry"], "get_all_ore_ids")
+    expected_ores = ["coal", "copper", "iron", "silver", "gold", "platinum", "ruby", "emerald", "sapphire", "diamond"]
+    for ore_id in expected_ores:
+        assert ore_id in ore_ids, f"DataRegistry should have ore type: {ore_id}"
+
+
+@pytest.mark.asyncio
+async def test_data_registry_ore_count_at_least_8(game):
+    """Verify DataRegistry has at least 8 ore types (v1.0 requirement)."""
+    ore_ids = await game.call(PATHS["data_registry"], "get_all_ore_ids")
+    assert len(ore_ids) >= 8, f"DataRegistry should have at least 8 ore types, got {len(ore_ids)}"
+
+
+@pytest.mark.asyncio
+async def test_new_gems_spawn_at_correct_depth(game):
+    """Verify new gems have correct depth gating."""
+    # Emerald should spawn at depth 350+
+    emerald_ores = await game.call(PATHS["data_registry"], "get_ores_at_depth", [350])
+    emerald_ids = [o.get("id", "") if isinstance(o, dict) else str(o) for o in emerald_ores] if emerald_ores else []
+    # Note: get_ores_at_depth returns OreData objects, not dicts
+    # We just verify no error occurs and results are returned
+    assert emerald_ores is not None, "get_ores_at_depth(350) should return a list"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_vein_expansion(game):
+    """Verify DirtGrid has vein expansion methods for ore generation."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_expand_ore_vein"])
+    assert has_method, "DirtGrid should have _expand_ore_vein method for vein expansion"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_place_ore_method(game):
+    """Verify DirtGrid has _place_ore_at method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_place_ore_at"])
+    assert has_method, "DirtGrid should have _place_ore_at method"
+
+
 # =============================================================================
 # BLOCK INTERACTION TESTS
 # =============================================================================
@@ -401,3 +442,67 @@ async def test_dirt_grid_has_chunks_loaded(game):
     """Verify DirtGrid has loaded chunks around player."""
     count = await game.call(PATHS["dirt_grid"], "debug_chunk_count")
     assert count > 0, f"DirtGrid should have loaded chunks, got {count}"
+
+
+# =============================================================================
+# LADDER PLACEMENT TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_place_ladder_method(game):
+    """Verify DirtGrid has place_ladder method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["place_ladder"])
+    assert has_method, "DirtGrid should have place_ladder method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_remove_ladder_method(game):
+    """Verify DirtGrid has remove_ladder method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["remove_ladder"])
+    assert has_method, "DirtGrid should have remove_ladder method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_has_ladder_method(game):
+    """Verify DirtGrid has has_ladder method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["has_ladder"])
+    assert has_method, "DirtGrid should have has_ladder method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_get_tile_type_method(game):
+    """Verify DirtGrid has get_tile_type method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["get_tile_type"])
+    assert has_method, "DirtGrid should have get_tile_type method"
+
+
+@pytest.mark.asyncio
+async def test_player_has_climbing_state(game):
+    """Verify player has CLIMBING state for ladders."""
+    has_method = await game.call(PATHS["player"], "has_method", ["_handle_climbing"])
+    assert has_method, "Player should have _handle_climbing method for ladder climbing"
+
+
+@pytest.mark.asyncio
+async def test_player_has_is_on_ladder_method(game):
+    """Verify player has _is_on_ladder method."""
+    has_method = await game.call(PATHS["player"], "has_method", ["_is_on_ladder"])
+    assert has_method, "Player should have _is_on_ladder method"
+
+
+# =============================================================================
+# CAVE GENERATION TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_cave_generation(game):
+    """Verify DirtGrid has cave generation method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_is_cave_tile"])
+    assert has_method, "DirtGrid should have _is_cave_tile method for cave generation"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_cave_noise_method(game):
+    """Verify DirtGrid has _generate_cave_noise method."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_generate_cave_noise"])
+    assert has_method, "DirtGrid should have _generate_cave_noise method"

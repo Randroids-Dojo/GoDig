@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LayerData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/layers/layer_data.gd" id="1_layer"]
+
+[resource]
+script = ExtResource("1_layer")
+id = "granite"
+display_name = "Granite"
+min_depth = 350
+max_depth = 550
+base_hardness = 55.0
+color_primary = Color(0.376, 0.376, 0.376, 1)
+color_accent = Color(0.45, 0.42, 0.4, 1)
+tile_atlas_coords = Vector2i(4, 0)

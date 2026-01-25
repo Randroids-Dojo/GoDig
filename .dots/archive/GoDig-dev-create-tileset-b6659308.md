@@ -1,9 +1,11 @@
 ---
 title: "implement: Create TileSet with block types"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:37:43.113016-06:00"
+created-at: "\"2026-01-16T00:37:43.113016-06:00\""
+closed-at: "2026-01-24T21:54:50.796068+00:00"
+close-reason: "Implemented: terrain.tres TileSet exists, TileTypes.gd defines all block types"
 ---
 
 ## Description

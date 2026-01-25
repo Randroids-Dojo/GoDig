@@ -1,9 +1,11 @@
 ---
 title: "implement: Player grid-based digging"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:38:04.468055-06:00"
+created-at: "\"2026-01-16T00:38:04.468055-06:00\""
+closed-at: "2026-01-24T21:19:00.647747+00:00"
+close-reason: Player has grid-based digging with tap-to-dig support for adjacent blocks
 ---
 
 ## Description

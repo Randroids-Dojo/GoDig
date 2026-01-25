@@ -1,9 +1,11 @@
 ---
 title: "DEV: Player scene (CharacterBody2D)"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:38:04.464635-06:00"
+created-at: "\"2026-01-16T00:38:04.464635-06:00\""
+closed-at: "2026-01-24T21:18:54.737334+00:00"
+close-reason: "Player.gd is a full CharacterBody2D with state machine: IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING"
 ---
 
 ## Description

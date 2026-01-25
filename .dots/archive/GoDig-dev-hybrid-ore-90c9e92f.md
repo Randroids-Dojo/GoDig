@@ -1,12 +1,11 @@
 ---
 title: "implement: Hybrid ore generation (noise + walk)"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T00:42:53.971384-06:00"
-after:
-  - GoDig-dev-integrate-ores-3f8b9c4b
-  - GoDig-dev-vein-expansion-3cb3cd9f
+created-at: "\"2026-01-16T00:42:53.971384-06:00\""
+closed-at: "2026-01-25T01:21:00.735312+00:00"
+close-reason: Hybrid ore generation implemented with noise-based spawning + random walk vein expansion
 ---
 
 ## Description

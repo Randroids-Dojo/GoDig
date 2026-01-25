@@ -1,11 +1,11 @@
 ---
 title: "implement: Gem spawning system"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T00:38:22.817517-06:00"
-after:
-  - GoDig-dev-integrate-ores-3f8b9c4b
+created-at: "\"2026-01-16T00:38:22.817517-06:00\""
+closed-at: "2026-01-24T21:46:46.003795+00:00"
+close-reason: "Implemented: gems folder with ruby, emerald, sapphire, diamond resources"
 ---
 
 ## Description

@@ -1,9 +1,11 @@
 ---
 title: "implement: Squash/stretch on landing"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T01:50:04.302752-06:00"
+created-at: "\"2026-01-16T01:50:04.302752-06:00\""
+closed-at: "2026-01-24T21:20:58.664174+00:00"
+close-reason: Player has squash/stretch animation on landing in player.gd
 ---
 
 Player squash on land, stretch on jump, and squash during mining. Classic animation principle for satisfying movement.

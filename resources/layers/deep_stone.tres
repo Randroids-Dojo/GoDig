@@ -6,8 +6,8 @@
 script = ExtResource("1_layer")
 id = "deep_stone"
 display_name = "Deep Stone"
-min_depth = 500
-max_depth = 99999
+min_depth = 550
+max_depth = 800
 base_hardness = 65.0
 color_primary = Color(0.3, 0.3, 0.35, 1)
 color_accent = Color(0.25, 0.25, 0.3, 1)

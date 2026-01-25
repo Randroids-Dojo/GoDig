@@ -1,6 +1,6 @@
 ---
 title: "implement: Screen shake effects"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T01:01:24.199538-06:00"

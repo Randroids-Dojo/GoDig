@@ -35,6 +35,10 @@ const MAX_FALL_DAMAGE: float = 100.0
 const MAX_HP: int = 100
 const LOW_HP_THRESHOLD: float = 0.25  # 25% = low health warning
 
+# Hitstop constants (game feel)
+const HITSTOP_DURATION: float = 0.03  # Brief freeze on hit
+const HITSTOP_TIME_SCALE: float = 0.1  # Slow-mo instead of full stop
+
 var dirt_grid: Node2D  # Set by test_level.gd
 var touch_direction: Vector2i = Vector2i.ZERO  # Direction from touch controls
 var wants_jump: bool = false  # Set by touch controls or keyboard
@@ -262,6 +266,9 @@ func _on_animation_finished() -> void:
 		return
 
 	var destroyed: bool = dirt_grid.hit_block(mining_target)
+
+	# Apply hitstop for game feel
+	_apply_hitstop()
 
 	if destroyed:
 		block_destroyed.emit(mining_target)
@@ -743,6 +750,9 @@ func _hit_tap_target() -> void:
 
 	var destroyed: bool = dirt_grid.hit_block(_tap_target_tile)
 
+	# Apply hitstop for game feel
+	_apply_hitstop()
+
 	if destroyed:
 		block_destroyed.emit(_tap_target_tile)
 
@@ -891,6 +901,18 @@ func get_hp_percent() -> float:
 func _start_damage_flash() -> void:
 	modulate = Color.RED
 	_damage_flash_timer = DAMAGE_FLASH_DURATION
+
+
+## Apply brief hitstop for game feel on block hit
+func _apply_hitstop() -> void:
+	# Skip if reduced motion is enabled
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	# Brief time slowdown for impact feel
+	Engine.time_scale = HITSTOP_TIME_SCALE
+	await get_tree().create_timer(HITSTOP_DURATION, true, false, true).timeout
+	Engine.time_scale = 1.0
 
 
 ## Reset HP to full (for new game)

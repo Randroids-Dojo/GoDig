@@ -424,6 +424,9 @@ func _on_player_died(cause: String) -> void:
 	if AchievementManager:
 		AchievementManager.track_death()
 
+	# Apply death penalty: lose some random items
+	_apply_death_penalty()
+
 	# Pause game temporarily
 	get_tree().paused = true
 
@@ -436,6 +439,35 @@ func _on_player_died(cause: String) -> void:
 
 	# Unpause game
 	get_tree().paused = false
+
+
+func _apply_death_penalty() -> void:
+	## Apply death penalty: lose a portion of inventory items
+	if InventoryManager == null:
+		return
+
+	var total_items := InventoryManager.get_total_item_count()
+	if total_items == 0:
+		return  # Nothing to lose
+
+	# Lose 25% of items (minimum 1, rounded up)
+	var items_to_lose := maxi(1, ceili(float(total_items) * 0.25))
+
+	# Remove random items
+	var lost := InventoryManager.remove_random_items(items_to_lose)
+	if lost > 0:
+		print("[TestLevel] Death penalty: Lost %d item(s)" % lost)
+
+		# Show notification about lost items
+		if floating_text_layer:
+			var floating := FloatingTextScene.instantiate()
+			floating_text_layer.add_child(floating)
+
+			var viewport_size := get_viewport().get_visible_rect().size
+			var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 2.0)
+
+			var text := "Lost %d item(s)!" % lost
+			floating.show_pickup(text, Color.RED, screen_pos)
 
 
 # ============================================

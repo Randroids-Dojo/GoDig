@@ -828,8 +828,9 @@ func take_damage(amount: int, source: String = "unknown") -> int:
 	current_hp = maxi(0, current_hp - amount)
 	hp_changed.emit(current_hp, MAX_HP)
 
-	# Visual feedback: flash red
+	# Visual feedback: flash red and screen shake
 	_start_damage_flash()
+	_shake_camera_on_damage(actual_damage)
 
 	print("[Player] Took %d damage from %s (HP: %d/%d)" % [actual_damage, source, current_hp, MAX_HP])
 
@@ -913,6 +914,16 @@ func _apply_hitstop() -> void:
 	Engine.time_scale = HITSTOP_TIME_SCALE
 	await get_tree().create_timer(HITSTOP_DURATION, true, false, true).timeout
 	Engine.time_scale = 1.0
+
+
+## Shake camera when taking damage
+func _shake_camera_on_damage(damage_amount: int) -> void:
+	if camera == null:
+		return
+
+	# Scale shake intensity with damage (max around 25 damage)
+	var intensity := clampf(float(damage_amount) / 25.0, 0.5, 3.0)
+	camera.shake(intensity)
 
 
 ## Reset HP to full (for new game)

@@ -48,7 +48,15 @@ func get_tool_damage() -> float:
 	var tool_data: ToolDataClass = get_equipped_tool()
 	if tool_data == null:
 		return 10.0  # Default damage
-	return tool_data.damage * tool_data.speed_multiplier
+	return tool_data.damage
+
+
+## Get the speed multiplier of the equipped tool (affects mining animation speed)
+func get_tool_speed_multiplier() -> float:
+	var tool_data: ToolDataClass = get_equipped_tool()
+	if tool_data == null:
+		return 1.0  # Default speed
+	return tool_data.speed_multiplier
 
 
 ## Get the tier of the equipped tool (for ore gating)

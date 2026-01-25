@@ -170,6 +170,32 @@ python scripts/tools/validate_all.py
 
 **Avoid these common GDScript errors that cause test failures.**
 
+### Node Name Mismatches
+
+Script `@onready` references must match actual node names in scenes:
+
+```gdscript
+# In player.gd:
+@onready var camera: Camera2D = $GameCamera  # Expects node named "GameCamera"
+
+# In test_level.tscn - MUST match:
+[node name="GameCamera" type="Camera2D" parent="Player"]  # ✓ Correct
+[node name="Camera2D" type="Camera2D" parent="Player"]    # ✗ Will fail silently
+```
+
+**Fix**: When adding nodes in scenes, ensure names match script expectations exactly.
+
+### Missing Function Definitions
+
+If a function is called but not defined, Godot reports parse errors at all call sites:
+
+```
+SCRIPT ERROR: Parse Error: Function "_start_fall_tracking()" not found in base self.
+          at: GDScript::reload (res://scripts/player/player.gd:515)
+```
+
+**Fix**: Search for all calls to the missing function and add the definition.
+
 ### Type Inference with Untyped Returns
 
 When a method returns an untyped `Array`, using `:=` causes "Cannot infer type" errors in Godot 4.6+:
@@ -241,6 +267,17 @@ If tests fail with "No loader found for resource", the project may not be import
 # Run import before tests (CI does this automatically)
 godot --headless --path . --import
 ```
+
+### Godot 4 UID Files
+
+Godot 4 creates `.uid` files to track resources with unique identifiers. **These files should be committed to version control** - they ensure consistent resource loading across machines and prevent UID conflicts.
+
+```bash
+# Track all .uid files
+git add **/*.uid
+```
+
+Do NOT add `*.uid` to `.gitignore`.
 
 ### Diagnosing Test Failures
 

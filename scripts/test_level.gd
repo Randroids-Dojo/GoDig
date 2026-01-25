@@ -177,8 +177,16 @@ func _on_item_added(item, amount: int) -> void:
 		if color.v < 0.3:
 			color = color.lightened(0.4)
 
-	# Format the text
-	var text := "+%d %s" % [amount, item.display_name]
+	# Format the text with rarity prefix for rare+ items
+	var text: String
+	var rarity_prefix := _get_rarity_prefix(item)
+	if rarity_prefix.is_empty():
+		text = "+%d %s" % [amount, item.display_name]
+	else:
+		text = "%s +%d %s" % [rarity_prefix, amount, item.display_name]
+		# Override color for rare+ items
+		color = _get_rarity_color(item)
+
 	floating.show_pickup(text, color, screen_pos)
 
 
@@ -538,3 +546,41 @@ func _on_block_destroyed(world_pos: Vector2, color: Color) -> void:
 	# Track for achievements
 	if AchievementManager:
 		AchievementManager.track_block_destroyed()
+
+
+# ============================================
+# RARITY HELPERS
+# ============================================
+
+func _get_rarity_prefix(item) -> String:
+	## Get a prefix string for rare+ item notifications
+	if item == null or not "rarity" in item:
+		return ""
+
+	var rarity: String = item.rarity if item.rarity is String else ""
+	match rarity:
+		"rare":
+			return "[RARE]"
+		"epic":
+			return "[EPIC]"
+		"legendary":
+			return "[LEGENDARY]"
+		_:
+			return ""
+
+
+func _get_rarity_color(item) -> Color:
+	## Get the display color for rare+ items
+	if item == null or not "rarity" in item:
+		return Color.WHITE
+
+	var rarity: String = item.rarity if item.rarity is String else ""
+	match rarity:
+		"rare":
+			return Color(0.3, 0.6, 1.0)  # Blue
+		"epic":
+			return Color(0.8, 0.4, 1.0)  # Purple
+		"legendary":
+			return Color(1.0, 0.7, 0.2)  # Orange/Gold
+		_:
+			return Color.WHITE

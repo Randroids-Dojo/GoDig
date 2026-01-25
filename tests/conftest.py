@@ -189,10 +189,9 @@ async def main_menu():
 async def game():
     """Launch the game and navigate to the test level scene.
 
-    NOTE: Scene changes via the Godot automation fork's RemoteDebugger
-    protocol do not work reliably. The automation loses connection when
-    scenes change. Tests using this fixture are marked xfail until the
-    automation fork is fixed to handle scene transitions.
+    NOTE: The Godot automation fork sends error messages instead of
+    automation:scene_changed when change_scene is called. Tests using
+    this fixture are marked xfail until the Godot fork is fixed.
     """
     import asyncio
     port = get_playgodot_port()
@@ -209,8 +208,8 @@ async def game():
         await g.wait_for_node("/root/MainMenu", timeout=30.0)
         await asyncio.sleep(0.5)
 
-        # Change to game scene - this will likely timeout due to automation fork issue
-        await g._client.send("change_scene", {"path": "res://scenes/test_level.tscn"}, timeout=60.0)
+        # Change to game scene
+        await g.change_scene("res://scenes/test_level.tscn")
 
         # Wait for game scene to load
         await g.wait_for_node("/root/Main", timeout=60.0)

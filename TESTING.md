@@ -161,9 +161,61 @@ You're trying to run tests without the automation fork. See setup instructions a
 - Ensure you're using the automation fork, not standard Godot
 - Check that the game scene loads correctly in the editor first
 - Verify node paths in your tests match the actual scene structure
+- **Increase timeout for slow operations** - scene changes can be slow in CI:
+
+```python
+# Default 30s timeout may not be enough
+# Use lower-level API with explicit timeout:
+await g._client.send(
+    "change_scene",
+    {"path": "res://scenes/test_level.tscn"},
+    timeout=60.0
+)
+```
 
 ### "Node not found" errors
 
 - Double-check node paths using the Godot editor's scene tree
 - Remember paths start from `/root/` not the scene root
 - Autoloads are at `/root/AutoloadName`
+- **Check nested scenes** - if HUD is inside UI, path is `/root/Main/UI/HUD/Label`, not `/root/Main/UI/Label`
+
+### GDScript compilation errors causing test failures
+
+Tests may fail with cryptic errors if GDScript has compilation issues. To debug:
+
+```bash
+# Run Godot headless to see script errors
+godot --headless --path . 2>&1 | grep -i "error\|script"
+```
+
+Common causes:
+- **Type inference failures**: Use `=` instead of `:=` for methods returning untyped `Array`
+- **Missing methods**: Verify autoload methods exist before calling them
+- **Cascading failures**: One script error can cause dependent scripts to fail
+
+### "No loader found for resource" errors
+
+This happens when Godot hasn't imported resources (common in fresh CI environments):
+
+```bash
+# Force import before running tests
+godot --headless --path . --import
+
+# CI workflow does this automatically (see .github/workflows/ci.yml)
+```
+
+### Debugging a specific test
+
+```bash
+# Run single test with full output
+pytest tests/test_file.py::test_name -v -s --tb=long
+
+# See what Godot outputs during test
+pytest tests/test_file.py -v 2>&1 | grep -E "^\[|ERROR|WARNING"
+```
+
+### Fixture Differences
+
+- **`main_menu` fixture**: Just loads main menu, fast, no scene changes
+- **`game` fixture**: Loads main menu, then changes to test_level.tscn (slower, may timeout)

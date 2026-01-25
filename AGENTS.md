@@ -165,3 +165,94 @@ python scripts/tools/validate_all.py
 - `Docs/GAME_ART_ASSET_GENERATION.md` - Full pipeline documentation
 - `Docs/ASSET_GENERATION_LEARNINGS.md` - Techniques and iteration insights
 - `Docs/ASSET_QUALITY_REPORT.md` - Current quality metrics
+
+## GDScript Common Pitfalls
+
+**Avoid these common GDScript errors that cause test failures.**
+
+### Type Inference with Untyped Returns
+
+When a method returns an untyped `Array`, using `:=` causes "Cannot infer type" errors in Godot 4.6+:
+
+```gdscript
+# BAD - Will fail with "Cannot infer the type of variable"
+var items := some_method_returning_array()
+
+# GOOD - Use = instead of := for untyped returns
+var items = some_method_returning_array()
+
+# BETTER - Add explicit type annotation
+var items: Array = some_method_returning_array()
+```
+
+### Missing Method Cascades
+
+A missing method causes script compilation to fail, which cascades to all dependent scripts:
+
+```
+SCRIPT ERROR: Parse Error: Cannot infer the type of "all_ores" variable...
+   at: GDScript::reload (res://scripts/autoload/achievement_manager.gd:225)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://scripts/autoload/save_manager.gd:0)
+```
+
+**Fix**: Always verify methods exist before calling them. Check autoload dependencies.
+
+### Node Path Conventions
+
+When scenes are nested (like HUD inside UI), paths must include the full hierarchy:
+
+```gdscript
+# BAD - Node is inside HUD, not directly in UI
+@onready var depth_label: Label = $UI/DepthLabel
+
+# GOOD - Include the intermediate node
+@onready var depth_label: Label = $UI/HUD/DepthLabel
+```
+
+### Debugging GDScript Errors
+
+Run Godot headless to see script errors that may not appear in test output:
+
+```bash
+godot --headless --path /path/to/project 2>&1 | head -50
+```
+
+Look for `SCRIPT ERROR:` lines to identify compilation issues.
+
+## PlayGodot Troubleshooting
+
+**Common issues and fixes for PlayGodot integration tests.**
+
+### Timeout Issues
+
+The default `change_scene` timeout is 30s, which may not be enough in CI:
+
+```python
+# BAD - Uses default 30s timeout
+await g.change_scene("res://scenes/test_level.tscn")
+
+# GOOD - Use explicit longer timeout for slow operations
+await g._client.send(
+    "change_scene",
+    {"path": "res://scenes/test_level.tscn"},
+    timeout=60.0
+)
+```
+
+### Resource Import Errors
+
+If tests fail with "No loader found for resource", the project may not be imported:
+
+```bash
+# Run import before tests (CI does this automatically)
+godot --headless --path . --import
+```
+
+### Diagnosing Test Failures
+
+1. **Check Godot stderr** for script errors (compilation failures)
+2. **Check timeouts** - increase if scene loading is slow
+3. **Verify node paths** - use Godot editor to confirm exact paths
+4. **Run single test** with verbose output: `pytest tests/test_file.py::test_name -v -s`
+

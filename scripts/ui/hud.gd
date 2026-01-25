@@ -18,6 +18,9 @@ extends Control
 ## Reference to low health warning overlay
 @onready var low_health_vignette: ColorRect = $LowHealthVignette
 
+## Quick-sell button (created programmatically)
+var quick_sell_button: Button = null
+
 ## Cached values for comparison
 var _last_hp: int = -1
 var _last_max_hp: int = -1
@@ -44,6 +47,13 @@ func _ready() -> void:
 	# Connect pause button
 	if pause_button:
 		pause_button.pressed.connect(_on_pause_pressed)
+
+	# Create quick-sell button
+	_setup_quick_sell_button()
+
+	# Connect inventory changes to update quick-sell button
+	if InventoryManager:
+		InventoryManager.inventory_changed.connect(_update_quick_sell_button)
 
 
 func _process(delta: float) -> void:
@@ -148,3 +158,90 @@ func _update_depth_display(depth: int) -> void:
 func _on_pause_pressed() -> void:
 	if GameManager:
 		GameManager.pause_game()
+
+
+# ============================================
+# QUICK-SELL BUTTON
+# ============================================
+
+func _setup_quick_sell_button() -> void:
+	## Create and position the quick-sell button
+	quick_sell_button = Button.new()
+	quick_sell_button.name = "QuickSellButton"
+	quick_sell_button.text = "Sell All"
+	quick_sell_button.visible = false  # Hidden until items exist
+
+	# Position below coins label
+	quick_sell_button.position = Vector2(16, 100)
+	quick_sell_button.custom_minimum_size = Vector2(100, 40)
+
+	# Style the button
+	quick_sell_button.add_theme_color_override("font_color", Color.GOLD)
+
+	add_child(quick_sell_button)
+	quick_sell_button.pressed.connect(_on_quick_sell_pressed)
+
+	# Initial update
+	_update_quick_sell_button()
+
+
+func _update_quick_sell_button() -> void:
+	## Update button visibility and text based on inventory
+	if quick_sell_button == null:
+		return
+
+	var total_value := _calculate_sellable_value()
+
+	if total_value > 0:
+		quick_sell_button.text = "Sell All ($%d)" % total_value
+		quick_sell_button.visible = true
+	else:
+		quick_sell_button.visible = false
+
+
+func _calculate_sellable_value() -> int:
+	## Calculate total value of sellable items in inventory
+	if InventoryManager == null:
+		return 0
+
+	var total := 0
+	for slot in InventoryManager.slots:
+		if slot.is_empty() or slot.item == null:
+			continue
+		if slot.item.category in ["ore", "gem"]:
+			total += slot.item.sell_value * slot.quantity
+
+	return total
+
+
+func _on_quick_sell_pressed() -> void:
+	## Sell all ore and gems instantly
+	if InventoryManager == null or GameManager == null:
+		return
+
+	var total := 0
+	var items_to_remove := []
+
+	for slot in InventoryManager.slots:
+		if slot.is_empty() or slot.item == null:
+			continue
+		if slot.item.category in ["ore", "gem"]:
+			total += slot.item.sell_value * slot.quantity
+			if slot.item not in items_to_remove:
+				items_to_remove.append(slot.item)
+
+	if total > 0:
+		# Remove all sellable items
+		for item in items_to_remove:
+			InventoryManager.remove_all_of_item(item)
+
+		# Add coins
+		GameManager.add_coins(total)
+
+		# Auto-save
+		if SaveManager:
+			SaveManager.save_game()
+
+		print("[HUD] Quick-sold items for $%d" % total)
+
+	_update_quick_sell_button()

@@ -24,7 +24,7 @@ const WALL_JUMP_COOLDOWN: float = 0.2  # Prevent instant re-grab
 
 # Tap-to-dig constants
 const TAP_HOLD_THRESHOLD: float = 0.2  # Seconds before continuous mining starts
-const TAP_MINE_INTERVAL: float = 0.15  # Time between hits when holding
+const TAP_MINE_INTERVAL_BASE: float = 0.15  # Base time between hits when holding (affected by tool speed)
 
 # Fall damage constants
 const FALL_DAMAGE_THRESHOLD: int = 3  # blocks (fall more than this to take damage)
@@ -165,6 +165,7 @@ func _handle_mining_input() -> void:
 	var dir := _get_input_direction()
 	if dir != mining_direction:
 		sprite.stop()
+		sprite.speed_scale = 1.0  # Reset animation speed
 		current_state = State.IDLE
 
 
@@ -243,6 +244,9 @@ func _start_mining(direction: Vector2i, target_block: Vector2i) -> void:
 	if direction.x != 0:
 		sprite.flip_h = (direction.x < 0)
 
+	# Apply tool speed multiplier to animation speed
+	var speed_mult := _get_tool_speed_multiplier()
+	sprite.speed_scale = speed_mult
 	sprite.play("swing")
 
 
@@ -282,6 +286,7 @@ func _on_animation_finished() -> void:
 
 	if destroyed:
 		block_destroyed.emit(mining_target)
+		sprite.speed_scale = 1.0  # Reset animation speed
 		# Block destroyed, move into the space
 		_start_move(mining_target)
 	else:
@@ -290,6 +295,7 @@ func _on_animation_finished() -> void:
 		if dir == mining_direction:
 			sprite.play("swing")
 		else:
+			sprite.speed_scale = 1.0  # Reset animation speed
 			current_state = State.IDLE
 
 
@@ -739,7 +745,8 @@ func _process_tap_mining(delta: float) -> void:
 	# After threshold, start continuous mining
 	if _tap_hold_timer >= TAP_HOLD_THRESHOLD and _tap_mine_cooldown <= 0:
 		_hit_tap_target()
-		_tap_mine_cooldown = TAP_MINE_INTERVAL
+		# Faster tools have shorter intervals between hits
+		_tap_mine_cooldown = TAP_MINE_INTERVAL_BASE / _get_tool_speed_multiplier()
 
 
 func _hit_tap_target() -> void:
@@ -821,6 +828,13 @@ func _screen_to_grid(screen_pos: Vector2) -> Vector2i:
 	var world_pos := canvas_transform.affine_inverse() * screen_pos
 
 	return _world_to_grid(world_pos)
+
+
+func _get_tool_speed_multiplier() -> float:
+	## Get the speed multiplier from the equipped tool
+	if PlayerData == null:
+		return 1.0
+	return PlayerData.get_tool_speed_multiplier()
 
 
 # ============================================

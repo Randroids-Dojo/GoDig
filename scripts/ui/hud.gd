@@ -137,7 +137,12 @@ func _update_coins_display(amount: int) -> void:
 
 func _update_depth_display(depth: int) -> void:
 	if depth_label:
-		depth_label.text = "%dm" % depth
+		# Show depth with current layer name
+		var layer_name := GameManager.get_current_layer_name() if GameManager else ""
+		if layer_name != "":
+			depth_label.text = "%dm (%s)" % [depth, layer_name]
+		else:
+			depth_label.text = "%dm" % depth
 
 
 func _on_pause_pressed() -> void:

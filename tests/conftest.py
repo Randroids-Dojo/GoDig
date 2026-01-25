@@ -203,8 +203,8 @@ async def game():
         await g.wait_for_node("/root/MainMenu", timeout=30.0)
         await asyncio.sleep(0.5)
 
-        # Change to game scene
-        await g.change_scene("res://scenes/test_level.tscn")
+        # Change to game scene with extended timeout (scene loading can be slow)
+        await g._client.send("change_scene", {"path": "res://scenes/test_level.tscn"}, timeout=60.0)
 
         # Wait for game scene to load
         await g.wait_for_node("/root/Main", timeout=60.0)

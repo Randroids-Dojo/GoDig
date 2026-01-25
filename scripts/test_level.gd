@@ -95,7 +95,40 @@ func _ready() -> void:
 	# Update initial coins display
 	_on_coins_changed(GameManager.get_coins())
 
+	# Show control hint for new players
+	_show_first_time_hint()
+
 	print("[TestLevel] Level initialized")
+
+
+func _show_first_time_hint() -> void:
+	## Show a control hint for new players who haven't mined any blocks yet
+	if SaveManager.current_save == null:
+		return
+
+	# Only show hint if player hasn't mined anything yet
+	if SaveManager.current_save.blocks_mined > 0:
+		return
+
+	# Wait a moment before showing hint
+	await get_tree().create_timer(1.5).timeout
+
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Position at top of screen
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 4.0)
+
+	# Use a subtle color for hints
+	var color := Color(0.8, 0.9, 1.0)  # Light blue
+
+	var text := "TAP blocks to dig!"
+	floating.show_pickup(text, color, screen_pos)
+	print("[TestLevel] Showing first-time hint")
 
 
 func _on_player_depth_changed(depth: int) -> void:

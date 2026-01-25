@@ -222,7 +222,7 @@ func track_ore_collected(ore_id: String) -> void:
 func _check_all_ores_collected() -> void:
 	if DataRegistry == null:
 		return
-	var all_ores := DataRegistry.get_all_ores()
+	var all_ores = DataRegistry.get_all_ores()
 	if all_ores.size() == 0:
 		return
 

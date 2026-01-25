@@ -43,7 +43,7 @@ position = Vector2(64, 64)
 sprite_frames = ExtResource("5_anim")
 animation = &"swing"
 
-[node name="Camera2D" type="Camera2D" parent="Player"]
+[node name="GameCamera" type="Camera2D" parent="Player"]
 position = Vector2(64, 264)
 script = ExtResource("4_camera")
 

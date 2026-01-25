@@ -368,6 +368,11 @@ func _start_falling() -> void:
 	current_state = State.FALLING
 	velocity = Vector2.ZERO
 	# Start tracking fall from current position
+	_start_fall_tracking()
+
+
+func _start_fall_tracking() -> void:
+	## Begin tracking fall distance for damage calculation
 	if not _is_tracking_fall:
 		_is_tracking_fall = true
 		_fall_start_y = position.y

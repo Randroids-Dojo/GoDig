@@ -185,6 +185,11 @@ func get_ores_at_depth(depth: int) -> Array:
 	return result
 
 
+## Get all ores sorted by min_depth
+func get_all_ores() -> Array:
+	return _ores_by_depth.duplicate()
+
+
 ## Get all loaded ore IDs
 func get_all_ore_ids() -> Array:
 	return ores.keys()

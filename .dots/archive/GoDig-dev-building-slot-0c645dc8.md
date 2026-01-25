@@ -1,11 +1,11 @@
 ---
 title: "implement: Building slot system"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T01:52:19.819573-06:00"
-after:
-  - GoDig-dev-surface-area-379633b2
+created-at: "\"2026-01-16T01:52:19.819573-06:00\""
+closed-at: "2026-01-25T01:20:37.402745+00:00"
+close-reason: Building slot system implemented in scripts/surface.gd with 6 slots and depth-based unlocking
 ---
 
 ## Description

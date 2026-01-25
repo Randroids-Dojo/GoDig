@@ -20,6 +20,7 @@ signal game_started
 signal game_over
 signal depth_updated(depth: int)
 signal depth_milestone_reached(depth: int)
+signal layer_entered(layer_name: String)
 signal coins_changed(new_amount: int)
 signal coins_added(amount: int)
 signal coins_spent(amount: int)
@@ -50,6 +51,9 @@ var player: CharacterBody2D = null
 
 ## Track reached depth milestones for one-time triggers
 var _reached_milestones: Array[int] = []
+
+## Track current layer for transition notifications
+var _current_layer_id: String = ""
 
 ## Depth milestones that trigger auto-save (first time only)
 const DEPTH_MILESTONES := [10, 25, 50, 100, 150, 200, 300, 500, 750, 1000]
@@ -229,6 +233,9 @@ func update_depth(depth: int) -> void:
 	current_depth = depth
 	depth_updated.emit(depth)
 
+	# Check for layer transitions
+	_check_layer_transition(depth)
+
 	# Check for depth milestones (only trigger once per milestone)
 	if depth > old_depth:
 		_check_depth_milestones(depth)
@@ -319,6 +326,7 @@ func _check_depth_milestones(depth: int) -> void:
 ## Reset milestones (for new game)
 func reset_milestones() -> void:
 	_reached_milestones.clear()
+	_current_layer_id = ""  # Also reset layer tracking
 
 
 ## Set reached milestones (for save/load)
@@ -332,6 +340,39 @@ func set_reached_milestones(milestones: Array) -> void:
 ## Get reached milestones (for save/load)
 func get_reached_milestones() -> Array[int]:
 	return _reached_milestones
+
+
+# ============================================
+# LAYER TRANSITIONS
+# ============================================
+
+## Check if player has entered a new layer
+func _check_layer_transition(depth: int) -> void:
+	var layer = DataRegistry.get_layer_at_depth(depth)
+	if layer == null:
+		return
+
+	var new_layer_id: String = layer.id
+	if new_layer_id != _current_layer_id:
+		var old_layer_id := _current_layer_id
+		_current_layer_id = new_layer_id
+		# Only emit if we had a previous layer (skip initial spawn)
+		if old_layer_id != "":
+			layer_entered.emit(layer.display_name)
+			print("[GameManager] Entered new layer: %s" % layer.display_name)
+
+
+## Reset current layer (for new game)
+func reset_layer() -> void:
+	_current_layer_id = ""
+
+
+## Get current layer name
+func get_current_layer_name() -> String:
+	var layer = DataRegistry.get_layer_at_depth(current_depth)
+	if layer:
+		return layer.display_name
+	return ""
 
 
 # ============================================

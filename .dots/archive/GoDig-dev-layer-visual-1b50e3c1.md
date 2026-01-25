@@ -1,9 +1,11 @@
 ---
 title: "implement: Layer visual differentiation"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:44:10.921222-06:00"
+created-at: "\"2026-01-16T00:44:10.921222-06:00\""
+closed-at: "2026-01-24T21:25:18.858538+00:00"
+close-reason: "Implemented: LayerData has color_primary/accent, transition zones, DataRegistry.get_block_color() uses layers"
 ---
 
 ## Description

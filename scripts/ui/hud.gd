@@ -18,12 +18,20 @@ extends Control
 ## Reference to low health warning overlay
 @onready var low_health_vignette: ColorRect = $LowHealthVignette
 
+## Quick-sell button (created programmatically)
+var quick_sell_button: Button = null
+
+## Tool indicator label (created programmatically)
+var tool_label: Label = null
+
 ## Cached values for comparison
 var _last_hp: int = -1
 var _last_max_hp: int = -1
+var _last_coins: int = -1
 
 ## Animation state
 var _vignette_pulse_time: float = 0.0
+var _coins_tween: Tween = null
 const VIGNETTE_PULSE_SPEED: float = 3.0
 const VIGNETTE_MIN_ALPHA: float = 0.1
 const VIGNETTE_MAX_ALPHA: float = 0.4
@@ -44,6 +52,21 @@ func _ready() -> void:
 	# Connect pause button
 	if pause_button:
 		pause_button.pressed.connect(_on_pause_pressed)
+
+	# Create quick-sell button
+	_setup_quick_sell_button()
+
+	# Create tool indicator
+	_setup_tool_indicator()
+
+	# Connect inventory changes to update quick-sell button
+	if InventoryManager:
+		InventoryManager.inventory_changed.connect(_update_quick_sell_button)
+
+	# Connect tool changes to update tool indicator
+	if PlayerData:
+		PlayerData.tool_changed.connect(_on_tool_changed)
+		_update_tool_indicator()
 
 
 func _process(delta: float) -> void:
@@ -134,12 +157,178 @@ func _update_coins_display(amount: int) -> void:
 	if coins_label:
 		coins_label.text = "Coins: %d" % amount
 
+		# Pulse animation when coins increase
+		if _last_coins >= 0 and amount > _last_coins:
+			_pulse_coins_label()
+		_last_coins = amount
+
+
+func _pulse_coins_label() -> void:
+	## Brief scale pulse on the coins label
+	if coins_label == null:
+		return
+
+	# Skip if reduced motion is enabled
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	# Cancel any existing animation
+	if _coins_tween and _coins_tween.is_valid():
+		_coins_tween.kill()
+
+	# Pulse up and back down
+	coins_label.pivot_offset = coins_label.size / 2
+	coins_label.scale = Vector2(1.0, 1.0)
+
+	_coins_tween = create_tween()
+	_coins_tween.tween_property(coins_label, "scale", Vector2(1.2, 1.2), 0.1) \
+		.set_ease(Tween.EASE_OUT)
+	_coins_tween.tween_property(coins_label, "scale", Vector2(1.0, 1.0), 0.15) \
+		.set_ease(Tween.EASE_IN_OUT)
+
 
 func _update_depth_display(depth: int) -> void:
 	if depth_label:
-		depth_label.text = "%dm" % depth
+		# Show depth with current layer name
+		var layer_name := GameManager.get_current_layer_name() if GameManager else ""
+		if layer_name != "":
+			depth_label.text = "%dm (%s)" % [depth, layer_name]
+		else:
+			depth_label.text = "%dm" % depth
 
 
 func _on_pause_pressed() -> void:
 	if GameManager:
 		GameManager.pause_game()
+
+
+# ============================================
+# QUICK-SELL BUTTON
+# ============================================
+
+func _setup_quick_sell_button() -> void:
+	## Create and position the quick-sell button
+	quick_sell_button = Button.new()
+	quick_sell_button.name = "QuickSellButton"
+	quick_sell_button.text = "Sell All"
+	quick_sell_button.visible = false  # Hidden until items exist
+
+	# Position below coins label
+	quick_sell_button.position = Vector2(16, 100)
+	quick_sell_button.custom_minimum_size = Vector2(100, 40)
+
+	# Style the button
+	quick_sell_button.add_theme_color_override("font_color", Color.GOLD)
+
+	add_child(quick_sell_button)
+	quick_sell_button.pressed.connect(_on_quick_sell_pressed)
+
+	# Initial update
+	_update_quick_sell_button()
+
+
+func _update_quick_sell_button() -> void:
+	## Update button visibility and text based on inventory
+	if quick_sell_button == null:
+		return
+
+	var total_value := _calculate_sellable_value()
+
+	if total_value > 0:
+		quick_sell_button.text = "Sell All ($%d)" % total_value
+		quick_sell_button.visible = true
+	else:
+		quick_sell_button.visible = false
+
+
+func _calculate_sellable_value() -> int:
+	## Calculate total value of sellable items in inventory
+	if InventoryManager == null:
+		return 0
+
+	var total := 0
+	for slot in InventoryManager.slots:
+		if slot.is_empty() or slot.item == null:
+			continue
+		if slot.item.category in ["ore", "gem"]:
+			total += slot.item.sell_value * slot.quantity
+
+	return total
+
+
+func _on_quick_sell_pressed() -> void:
+	## Sell all ore and gems instantly
+	if InventoryManager == null or GameManager == null:
+		return
+
+	var total := 0
+	var items_to_remove := []
+
+	for slot in InventoryManager.slots:
+		if slot.is_empty() or slot.item == null:
+			continue
+		if slot.item.category in ["ore", "gem"]:
+			total += slot.item.sell_value * slot.quantity
+			if slot.item not in items_to_remove:
+				items_to_remove.append(slot.item)
+
+	if total > 0:
+		# Remove all sellable items
+		for item in items_to_remove:
+			InventoryManager.remove_all_of_item(item)
+
+		# Add coins
+		GameManager.add_coins(total)
+
+		# Track for achievements
+		if AchievementManager:
+			AchievementManager.track_sale(total)
+
+		# Auto-save
+		if SaveManager:
+			SaveManager.save_game()
+
+		print("[HUD] Quick-sold items for $%d" % total)
+
+	_update_quick_sell_button()
+
+
+# ============================================
+# TOOL INDICATOR
+# ============================================
+
+func _setup_tool_indicator() -> void:
+	## Create and position the tool indicator label
+	tool_label = Label.new()
+	tool_label.name = "ToolLabel"
+
+	# Position below the depth label (right side)
+	tool_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	tool_label.position = Vector2(-200, 60)
+	tool_label.custom_minimum_size = Vector2(184, 30)
+
+	# Style the label
+	tool_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	tool_label.add_theme_font_size_override("font_size", 16)
+	tool_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+
+	add_child(tool_label)
+
+
+func _on_tool_changed(_tool_data) -> void:
+	_update_tool_indicator()
+
+
+func _update_tool_indicator() -> void:
+	## Update tool indicator with current equipped tool
+	if tool_label == null:
+		return
+	if PlayerData == null:
+		tool_label.text = ""
+		return
+
+	var tool_data = PlayerData.get_equipped_tool()
+	if tool_data != null:
+		tool_label.text = "Tool: %s" % tool_data.display_name
+	else:
+		tool_label.text = "Tool: None"

@@ -21,6 +21,7 @@ var _active: Dictionary = {}  # Dictionary[Vector2i, DirtBlock node]
 var _loaded_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] tracks loaded chunks
 var _ore_map: Dictionary = {}  # Dictionary[Vector2i, String ore_id] - what ore is in each block
 var _dug_tiles: Dictionary = {}  # Dictionary[Vector2i, bool] - tiles that have been mined/dug
+var _placed_objects: Dictionary = {}  # Dictionary[Vector2i, int tile_type] - ladders, torches, etc.
 var _dirty_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] - chunks with unsaved changes
 var _player: Node2D = null
 var _surface_row: int = 0
@@ -125,6 +126,10 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 
 			# Only generate blocks at or below the surface
 			if grid_pos.y >= _surface_row:
+				# Check if this should be a cave tile (empty)
+				if _is_cave_tile(grid_pos):
+					continue  # Leave as empty/air
+
 				if not _active.has(grid_pos):
 					_acquire(grid_pos)
 					_determine_ore_spawn(grid_pos)
@@ -211,6 +216,55 @@ func get_ore_at(pos: Vector2i) -> String:
 	return _ore_map.get(pos, "")
 
 
+func get_tile_type(pos: Vector2i) -> int:
+	## Returns the tile type at the position
+	## Returns TileTypes.Type.AIR for empty, LADDER for ladders, etc.
+	if _placed_objects.has(pos):
+		return _placed_objects[pos]
+	if _active.has(pos):
+		return TileTypes.Type.DIRT  # Simplified - actual type would depend on depth
+	return TileTypes.Type.AIR
+
+
+func place_ladder(pos: Vector2i) -> bool:
+	## Place a ladder at the specified position
+	## Returns true if placed successfully, false if position is occupied
+	if _active.has(pos):
+		return false  # Can't place on solid block
+	if _placed_objects.has(pos):
+		return false  # Already has a placed object
+
+	_placed_objects[pos] = TileTypes.Type.LADDER
+
+	# Mark chunk as dirty for persistence
+	var chunk_pos := _grid_to_chunk(pos)
+	_dirty_chunks[chunk_pos] = true
+
+	return true
+
+
+func remove_ladder(pos: Vector2i) -> bool:
+	## Remove a ladder from the specified position
+	## Returns true if removed, false if no ladder there
+	if not _placed_objects.has(pos):
+		return false
+	if _placed_objects[pos] != TileTypes.Type.LADDER:
+		return false
+
+	_placed_objects.erase(pos)
+
+	# Mark chunk as dirty for persistence
+	var chunk_pos := _grid_to_chunk(pos)
+	_dirty_chunks[chunk_pos] = true
+
+	return true
+
+
+func has_ladder(pos: Vector2i) -> bool:
+	## Check if there's a ladder at the position
+	return _placed_objects.get(pos, TileTypes.Type.AIR) == TileTypes.Type.LADDER
+
+
 func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 	## Hit a block with specified tool damage, returns true if destroyed
 	## If tool_damage is -1, uses PlayerData's equipped tool damage
@@ -256,14 +310,62 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 
 
 # ============================================
+# CAVE GENERATION
+# ============================================
+
+## Cave generation constants
+const CAVE_MIN_DEPTH := 20  # Caves start appearing 20 blocks below surface
+const CAVE_FREQUENCY := 0.05  # Lower = larger caves
+const CAVE_THRESHOLD := 0.85  # Higher = fewer caves (0.0-1.0)
+const CAVE_DEPTH_FACTOR := 0.001  # Caves get slightly more common with depth
+
+func _is_cave_tile(pos: Vector2i) -> bool:
+	## Determine if a position should be a cave (empty) using noise
+	var depth := pos.y - _surface_row
+	if depth < CAVE_MIN_DEPTH:
+		return false  # No caves in shallow layers
+
+	# Use position-based noise for deterministic cave shapes
+	var noise_val := _generate_cave_noise(pos)
+
+	# Adjust threshold based on depth - deeper = slightly more caves
+	var depth_bonus := minf(depth * CAVE_DEPTH_FACTOR, 0.1)
+	var adjusted_threshold := CAVE_THRESHOLD - depth_bonus
+
+	return noise_val > adjusted_threshold
+
+
+func _generate_cave_noise(pos: Vector2i) -> float:
+	## Generate cave noise value for a position
+	## Uses layered noise for more natural cave shapes
+	var freq := CAVE_FREQUENCY
+
+	# Primary noise layer
+	var hash1 := (pos.x * 198491317 + pos.y * 6542989) % 1000000
+	var noise1 := float(hash1) / 1000000.0
+
+	# Secondary layer for variation (different frequency)
+	var hash2 := (pos.x * 73856093 + pos.y * 19349663) % 1000000
+	var noise2 := float(hash2) / 1000000.0
+
+	# Combine layers (weighted average)
+	return noise1 * 0.7 + noise2 * 0.3
+
+
+# ============================================
 # ORE SPAWNING LOGIC
 # ============================================
 
 func _determine_ore_spawn(pos: Vector2i) -> void:
 	## Determine if this position should contain ore based on depth and rarity
+	## Uses vein expansion (random walk) to create ore clusters
 	var depth := pos.y - GameManager.SURFACE_ROW
 	if depth < 0:
 		return  # No ores above surface
+
+	# Skip if already has ore (from vein expansion)
+	if _ore_map.has(pos):
+		return
 
 	# Get all ores that can spawn at this depth
 	var available_ores := DataRegistry.get_ores_at_depth(depth)
@@ -282,12 +384,77 @@ func _determine_ore_spawn(pos: Vector2i) -> void:
 		# Generate noise-like value using position
 		var noise_val := _generate_ore_noise(pos, ore.noise_frequency)
 		if noise_val > ore.spawn_threshold:
-			_ore_map[pos] = ore.id
-			# Visually tint the block to show ore
-			_apply_ore_visual(pos, ore)
-			# Apply ore hardness bonus to make ore blocks harder to mine
-			_apply_ore_hardness(pos, ore)
-			return  # Only one ore per block
+			# This is a vein seed - expand using random walk
+			_expand_ore_vein(pos, ore)
+			return  # Only one ore type per seed position
+
+
+func _expand_ore_vein(seed_pos: Vector2i, ore) -> void:
+	## Expand ore from seed position using random walk algorithm
+	## Creates natural-looking ore veins based on ore's vein_size_min/max
+
+	# Get vein size from ore data
+	var vein_seed := seed_pos.x * 73856093 + seed_pos.y * 19349663
+	_rng.seed = vein_seed
+	var vein_size: int = ore.get_random_vein_size(_rng)
+
+	# Place ore at seed position first
+	_place_ore_at(seed_pos, ore)
+
+	if vein_size <= 1:
+		return  # Single block vein
+
+	# Random walk expansion
+	var current_pos := seed_pos
+	var placed_count := 1
+	var attempts := 0
+	var max_attempts := vein_size * 4  # Limit attempts to prevent infinite loops
+
+	# Cardinal directions for random walk
+	var directions := [
+		Vector2i(1, 0),   # Right
+		Vector2i(-1, 0),  # Left
+		Vector2i(0, 1),   # Down
+		Vector2i(0, -1),  # Up
+	]
+
+	while placed_count < vein_size and attempts < max_attempts:
+		attempts += 1
+
+		# Pick random direction
+		var dir: Vector2i = directions[_rng.randi() % 4]
+		var next_pos := current_pos + dir
+
+		# Check if valid position for ore
+		var next_depth := next_pos.y - GameManager.SURFACE_ROW
+		if next_depth < 0:
+			continue  # Don't place above surface
+
+		if not ore.can_spawn_at_depth(next_depth):
+			continue  # Outside ore's depth range
+
+		if _ore_map.has(next_pos):
+			# Position already has ore, but we can still walk through it
+			current_pos = next_pos
+			continue
+
+		if _dug_tiles.has(next_pos):
+			continue  # Don't place ore in dug tiles
+
+		# Place ore at this position
+		_place_ore_at(next_pos, ore)
+		placed_count += 1
+		current_pos = next_pos
+
+
+func _place_ore_at(pos: Vector2i, ore) -> void:
+	## Place ore at a specific position and apply visuals
+	_ore_map[pos] = ore.id
+
+	# Apply visual if block is active (loaded)
+	if _active.has(pos):
+		_apply_ore_visual(pos, ore)
+		_apply_ore_hardness(pos, ore)
 
 
 func _generate_ore_noise(pos: Vector2i, frequency: float) -> float:

@@ -265,6 +265,13 @@ func _collect_game_state() -> void:
 		current_save.equipped_tool = player_data.get("equipped_tool_id", "rusty_pickaxe")
 		current_save.max_depth_reached = player_data.get("max_depth_reached", 0)
 
+	# Collect from AchievementManager
+	if AchievementManager:
+		var achievement_data = AchievementManager.get_save_data()
+		current_save.achievements.clear()
+		for id in achievement_data.get("unlocked", []):
+			current_save.achievements.append(id)
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -290,6 +297,13 @@ func _apply_game_state() -> void:
 			"max_depth_reached": current_save.max_depth_reached,
 		}
 		PlayerData.load_save_data(player_data)
+
+	# Apply to AchievementManager
+	if AchievementManager:
+		var achievement_data = {
+			"unlocked": current_save.achievements.duplicate(),
+		}
+		AchievementManager.load_save_data(achievement_data)
 
 
 ## Run migration if save version is old

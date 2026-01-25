@@ -1,9 +1,11 @@
 ---
 title: "implement: Noise-based terrain generation"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:37:51.430503-06:00"
+created-at: "\"2026-01-16T00:37:51.430503-06:00\""
+closed-at: "2026-01-24T21:19:28.046776+00:00"
+close-reason: dirt_grid.gd uses noise-based deterministic ore spawning with position seeding
 ---
 
 ## Description

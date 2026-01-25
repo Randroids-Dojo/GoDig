@@ -1,9 +1,11 @@
 ---
 title: "implement: Climbing state for player"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T01:58:32.068581-06:00"
+created-at: "\"2026-01-16T01:58:32.068581-06:00\""
+closed-at: "2026-01-25T01:20:46.233565+00:00"
+close-reason: CLIMBING state added to player.gd with full ladder climbing support
 ---
 
 Player enters climbing state on ladder/rope, different movement rules. See ladder-traversal-items.md

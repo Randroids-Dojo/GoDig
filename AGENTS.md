@@ -95,23 +95,34 @@ Use `-p` flag when creating dots:
 3. **Completing work**: Run `dot off <id>` when done
 4. **Creating subtasks**: Use `-P parent-id` for hierarchical organization
 
+### ALWAYS Update Dots After Changes
+
+**After implementing any feature or fix, immediately update the corresponding dot.**
+
+- When a task is complete: `dot off <id> -r "Brief description of what was done"`
+- When discovering a task is already implemented: Close it with evidence
+- When making partial progress: Add a note or create subtasks
+- Before committing: Ensure all related dots are updated
+
+This keeps the backlog accurate and prevents duplicate work across sessions.
+
 ### When to Use Dots vs TodoWrite
 
 - **Dots**: Multi-step work, tasks that may span sessions, work with dependencies
 - **TodoWrite**: Simple single-session execution tracking visible to user
 
-## Ralph Loop Protection
+## Randroid Loop Protection
 
-**NEVER remove or cancel a Ralph loop without explicit user instruction.**
+**NEVER remove or cancel a Randroid loop without explicit user instruction.**
 
-The Ralph loop file at `.claude/ralph-loop.local.md` controls iterative improvement tasks. When a Ralph loop is active:
+The Randroid loop file at `.claude/randroid-loop.local.md` controls iterative improvement tasks. When a Randroid loop is active:
 1. Continue iterating until `max_iterations` is reached
 2. Always keep the primer version as the quality baseline
 3. Only update primer when improvements are validated
-4. Do NOT delete the ralph-loop.local.md file
-5. Do NOT run `/ralph-wiggum:cancel-ralph` unless the user explicitly requests it
+4. Do NOT delete the randroid-loop.local.md file
+5. Do NOT run `/randroid:cancel` unless the user explicitly requests it
 
-The Ralph loop is designed to run autonomously. Completion of work within an iteration does not mean the loop should stop.
+The Randroid loop is designed to run autonomously. Completion of work within an iteration does not mean the loop should stop.
 
 ## Asset Generation Pipeline
 
@@ -154,3 +165,94 @@ python scripts/tools/validate_all.py
 - `Docs/GAME_ART_ASSET_GENERATION.md` - Full pipeline documentation
 - `Docs/ASSET_GENERATION_LEARNINGS.md` - Techniques and iteration insights
 - `Docs/ASSET_QUALITY_REPORT.md` - Current quality metrics
+
+## GDScript Common Pitfalls
+
+**Avoid these common GDScript errors that cause test failures.**
+
+### Type Inference with Untyped Returns
+
+When a method returns an untyped `Array`, using `:=` causes "Cannot infer type" errors in Godot 4.6+:
+
+```gdscript
+# BAD - Will fail with "Cannot infer the type of variable"
+var items := some_method_returning_array()
+
+# GOOD - Use = instead of := for untyped returns
+var items = some_method_returning_array()
+
+# BETTER - Add explicit type annotation
+var items: Array = some_method_returning_array()
+```
+
+### Missing Method Cascades
+
+A missing method causes script compilation to fail, which cascades to all dependent scripts:
+
+```
+SCRIPT ERROR: Parse Error: Cannot infer the type of "all_ores" variable...
+   at: GDScript::reload (res://scripts/autoload/achievement_manager.gd:225)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://scripts/autoload/save_manager.gd:0)
+```
+
+**Fix**: Always verify methods exist before calling them. Check autoload dependencies.
+
+### Node Path Conventions
+
+When scenes are nested (like HUD inside UI), paths must include the full hierarchy:
+
+```gdscript
+# BAD - Node is inside HUD, not directly in UI
+@onready var depth_label: Label = $UI/DepthLabel
+
+# GOOD - Include the intermediate node
+@onready var depth_label: Label = $UI/HUD/DepthLabel
+```
+
+### Debugging GDScript Errors
+
+Run Godot headless to see script errors that may not appear in test output:
+
+```bash
+godot --headless --path /path/to/project 2>&1 | head -50
+```
+
+Look for `SCRIPT ERROR:` lines to identify compilation issues.
+
+## PlayGodot Troubleshooting
+
+**Common issues and fixes for PlayGodot integration tests.**
+
+### Timeout Issues
+
+The default `change_scene` timeout is 30s, which may not be enough in CI:
+
+```python
+# BAD - Uses default 30s timeout
+await g.change_scene("res://scenes/test_level.tscn")
+
+# GOOD - Use explicit longer timeout for slow operations
+await g._client.send(
+    "change_scene",
+    {"path": "res://scenes/test_level.tscn"},
+    timeout=60.0
+)
+```
+
+### Resource Import Errors
+
+If tests fail with "No loader found for resource", the project may not be imported:
+
+```bash
+# Run import before tests (CI does this automatically)
+godot --headless --path . --import
+```
+
+### Diagnosing Test Failures
+
+1. **Check Godot stderr** for script errors (compilation failures)
+2. **Check timeouts** - increase if scene loading is slow
+3. **Verify node paths** - use Godot editor to confirm exact paths
+4. **Run single test** with verbose output: `pytest tests/test_file.py::test_name -v -s`
+

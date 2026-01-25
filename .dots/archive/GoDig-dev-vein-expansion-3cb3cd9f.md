@@ -1,9 +1,11 @@
 ---
 title: "implement: Vein expansion (random walk)"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T00:38:20.884878-06:00"
+created-at: "\"2026-01-16T00:38:20.884878-06:00\""
+closed-at: "2026-01-24T21:30:15.379117+00:00"
+close-reason: Implemented random walk vein expansion in dirt_grid.gd using ore vein_size_min/max
 ---
 
 generate_vein() creates 1-8 connected ore blocks. Natural branching shapes. Adds visual interest.

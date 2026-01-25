@@ -1,11 +1,11 @@
 ---
 title: "implement: Player spawn at surface"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-16T01:10:11.173965-06:00"
-after:
-  - GoDig-dev-surface-area-379633b2
+created-at: "\"2026-01-16T01:10:11.173965-06:00\""
+closed-at: "2026-01-24T21:20:07.295851+00:00"
+close-reason: Player spawns at surface row 7 as defined in GameManager.SURFACE_ROW
 ---
 
 ## Description

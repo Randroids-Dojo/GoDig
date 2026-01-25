@@ -1,9 +1,11 @@
 ---
 title: "implement: Tap-to-dig system"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T00:32:04.325708-06:00"
+created-at: "\"2026-01-16T00:32:04.325708-06:00\""
+closed-at: "2026-01-24T21:20:53.229682+00:00"
+close-reason: Player has tap-to-dig system with hold for continuous mining
 ---
 
 **STATUS: IMPLEMENTED** - See `scripts/player/player.gd` lines 500-635

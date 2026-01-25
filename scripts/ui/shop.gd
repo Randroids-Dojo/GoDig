@@ -1,12 +1,15 @@
 extends Control
 ## Shop UI for selling resources and buying upgrades.
 ##
-## Displays inventory items for sale and tool upgrades for purchase.
+## Supports multiple shop types with different functionality.
 ## Uses GameManager for coin transactions and InventoryManager for items.
+
+const ShopBuilding = preload("res://scripts/surface/shop_building.gd")
 
 signal closed
 
 @onready var coins_label: Label = $Panel/VBox/Header/CoinsLabel
+@onready var shop_title: Label = $Panel/VBox/Header/ShopTitle
 @onready var sell_tab: Control = $Panel/VBox/TabContainer/Sell
 @onready var upgrades_tab: Control = $Panel/VBox/TabContainer/Upgrades
 @onready var sell_items_container: GridContainer = $Panel/VBox/TabContainer/Sell/ScrollContainer/ItemsGrid
@@ -14,6 +17,10 @@ signal closed
 @onready var sell_all_button: Button = $Panel/VBox/TabContainer/Sell/TotalSection/SellAllButton
 @onready var upgrades_container: VBoxContainer = $Panel/VBox/TabContainer/Upgrades/ScrollContainer/UpgradesVBox
 @onready var close_button: Button = $Panel/VBox/CloseButton
+@onready var tab_container: TabContainer = $Panel/VBox/TabContainer
+
+## Current shop type being displayed
+var current_shop_type: int = ShopBuilding.ShopType.GENERAL_STORE
 
 ## Tool upgrades now loaded from DataRegistry (ToolData resources)
 
@@ -32,9 +39,41 @@ func _ready() -> void:
 	InventoryManager.inventory_changed.connect(_refresh_sell_tab)
 
 
-func open() -> void:
+func open(shop_type: int = ShopBuilding.ShopType.GENERAL_STORE) -> void:
+	current_shop_type = shop_type
 	visible = true
+	_configure_for_shop_type()
 	_refresh_ui()
+
+
+func _configure_for_shop_type() -> void:
+	## Configure UI based on current shop type
+	match current_shop_type:
+		ShopBuilding.ShopType.GENERAL_STORE:
+			if shop_title:
+				shop_title.text = "General Store"
+			sell_tab.visible = true
+			upgrades_tab.visible = true
+		ShopBuilding.ShopType.BLACKSMITH:
+			if shop_title:
+				shop_title.text = "Blacksmith"
+			sell_tab.visible = false
+			upgrades_tab.visible = true
+			if tab_container:
+				tab_container.current_tab = 1  # Show upgrades tab
+		ShopBuilding.ShopType.GEM_APPRAISER:
+			if shop_title:
+				shop_title.text = "Gem Appraiser"
+			sell_tab.visible = true
+			upgrades_tab.visible = false
+			if tab_container:
+				tab_container.current_tab = 0  # Show sell tab
+		_:
+			# Default configuration for other shop types
+			if shop_title:
+				shop_title.text = "Shop"
+			sell_tab.visible = true
+			upgrades_tab.visible = true
 
 
 func _refresh_ui() -> void:
@@ -146,6 +185,9 @@ func _on_sell_item(item) -> void:
 		InventoryManager.remove_all_of_item(item)
 		GameManager.add_coins(total)
 		_refresh_sell_tab()
+		# Track for achievements
+		if AchievementManager:
+			AchievementManager.track_sale(total)
 		# Auto-save after transaction
 		SaveManager.save_game()
 
@@ -172,6 +214,9 @@ func _on_sell_all_pressed() -> void:
 
 		GameManager.add_coins(total)
 		_refresh_sell_tab()
+		# Track for achievements
+		if AchievementManager:
+			AchievementManager.track_sale(total)
 		# Auto-save after transaction
 		SaveManager.save_game()
 
@@ -337,6 +382,9 @@ func _on_tool_upgrade() -> void:
 		PlayerData.equip_tool(next_tool.id)
 		print("[Shop] Tool upgraded to: %s" % next_tool.display_name)
 		_refresh_upgrades_tab()
+		# Track for achievements
+		if AchievementManager:
+			AchievementManager.track_upgrade()
 		# Auto-save after tool upgrade
 		SaveManager.save_game()
 
@@ -349,6 +397,9 @@ func _on_backpack_upgrade() -> void:
 			InventoryManager.upgrade_capacity(next.slots)
 			print("[Shop] Backpack upgraded to %d slots" % next.slots)
 			_refresh_upgrades_tab()
+			# Track for achievements
+			if AchievementManager:
+				AchievementManager.track_upgrade()
 			# Auto-save after backpack upgrade
 			SaveManager.save_game()
 

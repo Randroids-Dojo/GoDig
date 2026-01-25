@@ -498,6 +498,10 @@ func _on_block_destroyed(world_pos: Vector2, color: Color) -> void:
 	if p:
 		p.burst(world_pos, color)
 
+	# Track for statistics
+	if SaveManager.current_save:
+		SaveManager.current_save.increment_blocks_mined()
+
 	# Track for achievements
 	if AchievementManager:
 		AchievementManager.track_block_destroyed()

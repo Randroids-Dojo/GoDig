@@ -66,6 +66,9 @@ func _ready() -> void:
 	# Connect item pickup for floating text
 	InventoryManager.item_added.connect(_on_item_added)
 
+	# Connect depth milestone notifications
+	GameManager.depth_milestone_reached.connect(_on_depth_milestone_reached)
+
 	# Connect shop building proximity signals
 	_connect_shop_building()
 
@@ -130,6 +133,27 @@ func _on_item_added(item, amount: int) -> void:
 
 func _on_coins_changed(new_amount: int) -> void:
 	coins_label.text = "$%d" % new_amount
+
+
+func _on_depth_milestone_reached(depth: int) -> void:
+	## Show floating notification when player reaches a depth milestone
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Center the notification on screen
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+
+	# Gold color for milestone notifications
+	var color := Color.GOLD
+
+	# Format the milestone message
+	var text := "DEPTH MILESTONE: %dm!" % depth
+	floating.show_pickup(text, color, screen_pos)
+	print("[TestLevel] Depth milestone notification shown: %dm" % depth)
 
 
 func _on_shop_button_pressed() -> void:

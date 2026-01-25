@@ -185,6 +185,9 @@ func _on_sell_item(item) -> void:
 		InventoryManager.remove_all_of_item(item)
 		GameManager.add_coins(total)
 		_refresh_sell_tab()
+		# Track for achievements
+		if AchievementManager:
+			AchievementManager.track_sale(total)
 		# Auto-save after transaction
 		SaveManager.save_game()
 
@@ -211,6 +214,9 @@ func _on_sell_all_pressed() -> void:
 
 		GameManager.add_coins(total)
 		_refresh_sell_tab()
+		# Track for achievements
+		if AchievementManager:
+			AchievementManager.track_sale(total)
 		# Auto-save after transaction
 		SaveManager.save_game()
 
@@ -376,6 +382,9 @@ func _on_tool_upgrade() -> void:
 		PlayerData.equip_tool(next_tool.id)
 		print("[Shop] Tool upgraded to: %s" % next_tool.display_name)
 		_refresh_upgrades_tab()
+		# Track for achievements
+		if AchievementManager:
+			AchievementManager.track_upgrade()
 		# Auto-save after tool upgrade
 		SaveManager.save_game()
 
@@ -388,6 +397,9 @@ func _on_backpack_upgrade() -> void:
 			InventoryManager.upgrade_capacity(next.slots)
 			print("[Shop] Backpack upgraded to %d slots" % next.slots)
 			_refresh_upgrades_tab()
+			# Track for achievements
+			if AchievementManager:
+				AchievementManager.track_upgrade()
 			# Auto-save after backpack upgrade
 			SaveManager.save_game()
 

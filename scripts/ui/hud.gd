@@ -280,6 +280,10 @@ func _on_quick_sell_pressed() -> void:
 		# Add coins
 		GameManager.add_coins(total)
 
+		# Track for achievements
+		if AchievementManager:
+			AchievementManager.track_sale(total)
+
 		# Auto-save
 		if SaveManager:
 			SaveManager.save_game()

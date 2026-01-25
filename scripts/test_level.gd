@@ -82,6 +82,10 @@ func _ready() -> void:
 	# Connect layer transition notifications
 	GameManager.layer_entered.connect(_on_layer_entered)
 
+	# Connect achievement unlock notifications
+	if AchievementManager:
+		AchievementManager.achievement_unlocked.connect(_on_achievement_unlocked)
+
 	# Connect shop building proximity signals
 	_connect_shop_building()
 
@@ -189,6 +193,27 @@ func _on_layer_entered(layer_name: String) -> void:
 	var text := "Entering: %s" % layer_name
 	floating.show_pickup(text, color, screen_pos)
 	print("[TestLevel] Layer notification shown: %s" % layer_name)
+
+
+func _on_achievement_unlocked(achievement: Dictionary) -> void:
+	## Show floating notification when an achievement is unlocked
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Center the notification on screen, slightly higher than other notifications
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 5.0)
+
+	# Purple/magenta color for achievement notifications
+	var color := Color(0.9, 0.6, 1.0)  # Light purple
+
+	# Format the achievement message
+	var text := "ACHIEVEMENT: %s" % achievement.name
+	floating.show_pickup(text, color, screen_pos)
+	print("[TestLevel] Achievement unlocked: %s" % achievement.name)
 
 
 func _show_inventory_full_notification() -> void:
@@ -395,6 +420,10 @@ func _on_player_died(cause: String) -> void:
 	if SaveManager.current_save:
 		SaveManager.current_save.increment_deaths()
 
+	# Track for achievements
+	if AchievementManager:
+		AchievementManager.track_death()
+
 	# Pause game temporarily
 	get_tree().paused = true
 
@@ -436,3 +465,7 @@ func _on_block_destroyed(world_pos: Vector2, color: Color) -> void:
 	var p := _get_available_particle()
 	if p:
 		p.burst(world_pos, color)
+
+	# Track for achievements
+	if AchievementManager:
+		AchievementManager.track_block_destroyed()

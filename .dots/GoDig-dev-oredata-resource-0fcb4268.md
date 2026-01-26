@@ -1,6 +1,6 @@
 ---
 title: "implement: OreData resource class"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:42:53.968501-06:00"

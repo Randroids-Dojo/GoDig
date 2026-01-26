@@ -1,6 +1,6 @@
 ---
 title: "implement: Death and respawn system"
-status: open
+status: closed
 priority: 1
 issue-type: task
 created-at: "2026-01-19T00:52:47.235475-06:00"

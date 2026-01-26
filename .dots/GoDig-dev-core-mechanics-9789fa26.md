@@ -1,6 +1,6 @@
 ---
 title: "implement: Core mechanics integration tests"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:47:55.565950-06:00"

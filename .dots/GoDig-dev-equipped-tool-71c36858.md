@@ -1,6 +1,6 @@
 ---
 title: "implement: Equipped tool affects dig speed"
-status: open
+status: closed
 priority: 1
 issue-type: task
 created-at: "2026-01-16T01:06:09.216253-06:00"

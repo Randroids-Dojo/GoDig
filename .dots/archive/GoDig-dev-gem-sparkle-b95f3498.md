@@ -1,9 +1,11 @@
 ---
 title: "implement: Gem sparkle visual effect"
-status: active
+status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:49:21.548980-06:00\""
+created-at: "\"\\\"2026-01-16T00:49:21.548980-06:00\\\"\""
+closed-at: "2026-01-26T04:44:01.847084+00:00"
+close-reason: Implemented ore sparkle effect - commit 43fa95b
 ---
 
 Subtle shine/sparkle on gem/ore tiles to hint at valuable resources before mining. Adds discovery excitement.

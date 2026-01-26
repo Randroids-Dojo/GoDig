@@ -1,6 +1,6 @@
 ---
 title: "implement: Wire tool upgrades to PlayerStats"
-status: open
+status: closed
 priority: 1
 issue-type: task
 created-at: "2026-01-18T23:49:26.252382-06:00"

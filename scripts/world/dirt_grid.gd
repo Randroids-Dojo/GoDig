@@ -13,8 +13,8 @@ const LOAD_RADIUS := 2  # Load chunks within 2 chunks of player (5x5 grid)
 ## Emitted when a block drops ore/items. item_id is empty string for dirt-only blocks.
 signal block_dropped(grid_pos: Vector2i, item_id: String)
 
-## Emitted when a block is destroyed. Includes world position and color for particle effects.
-signal block_destroyed(world_pos: Vector2, color: Color)
+## Emitted when a block is destroyed. Includes world position, color, and hardness for effects.
+signal block_destroyed(world_pos: Vector2, color: Color, hardness: float)
 
 var _pool: Array = []  # Array of DirtBlock nodes
 var _active: Dictionary = {}  # Dictionary[Vector2i, DirtBlock node]
@@ -288,12 +288,12 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		var ore_id := _ore_map.get(pos, "") as String
 		block_dropped.emit(pos, ore_id)
 
-		# Signal for particle effects (before releasing block)
+		# Signal for particle effects and screen shake (before releasing block)
 		var world_pos := Vector2(
 			pos.x * BLOCK_SIZE + GameManager.GRID_OFFSET_X + BLOCK_SIZE / 2,
 			pos.y * BLOCK_SIZE + BLOCK_SIZE / 2
 		)
-		block_destroyed.emit(world_pos, block.base_color)
+		block_destroyed.emit(world_pos, block.base_color, block.max_health)
 
 		# Clean up ore map entry
 		if _ore_map.has(pos):

@@ -1,6 +1,6 @@
 ---
 title: "implement: OreData definitions"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:38:18.015267-06:00"

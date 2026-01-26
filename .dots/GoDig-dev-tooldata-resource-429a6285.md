@@ -1,6 +1,6 @@
 ---
 title: "implement: ToolData resource class"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:38:18.017856-06:00"

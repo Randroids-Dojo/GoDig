@@ -24,6 +24,9 @@ var quick_sell_button: Button = null
 ## Tool indicator label (created programmatically)
 var tool_label: Label = null
 
+## Inventory slots label (created programmatically)
+var inventory_label: Label = null
+
 ## Cached values for comparison
 var _last_hp: int = -1
 var _last_max_hp: int = -1
@@ -59,9 +62,13 @@ func _ready() -> void:
 	# Create tool indicator
 	_setup_tool_indicator()
 
-	# Connect inventory changes to update quick-sell button
+	# Create inventory slots indicator
+	_setup_inventory_indicator()
+
+	# Connect inventory changes to update quick-sell button and inventory indicator
 	if InventoryManager:
 		InventoryManager.inventory_changed.connect(_update_quick_sell_button)
+		InventoryManager.inventory_changed.connect(_update_inventory_indicator)
 
 	# Connect tool changes to update tool indicator
 	if PlayerData:
@@ -332,3 +339,51 @@ func _update_tool_indicator() -> void:
 		tool_label.text = "Tool: %s" % tool_data.display_name
 	else:
 		tool_label.text = "Tool: None"
+
+
+# ============================================
+# INVENTORY INDICATOR
+# ============================================
+
+func _setup_inventory_indicator() -> void:
+	## Create and position the inventory slots label
+	inventory_label = Label.new()
+	inventory_label.name = "InventoryLabel"
+
+	# Position below coins label, next to quick-sell button area
+	inventory_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	inventory_label.position = Vector2(130, 100)
+	inventory_label.custom_minimum_size = Vector2(80, 40)
+
+	# Style the label
+	inventory_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	inventory_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	inventory_label.add_theme_font_size_override("font_size", 20)
+
+	add_child(inventory_label)
+
+	# Initial update
+	_update_inventory_indicator()
+
+
+func _update_inventory_indicator() -> void:
+	## Update inventory slots display (X/Y format)
+	if inventory_label == null:
+		return
+	if InventoryManager == null:
+		inventory_label.text = "0/8"
+		return
+
+	var used := InventoryManager.get_used_slots()
+	var total := InventoryManager.get_total_slots()
+
+	inventory_label.text = "%d/%d" % [used, total]
+
+	# Color code based on fullness
+	var fill_ratio := float(used) / float(total) if total > 0 else 0.0
+	if fill_ratio >= 1.0:
+		inventory_label.add_theme_color_override("font_color", Color.RED)
+	elif fill_ratio >= 0.875:  # 7/8
+		inventory_label.add_theme_color_override("font_color", Color.ORANGE)
+	else:
+		inventory_label.add_theme_color_override("font_color", Color.WHITE)

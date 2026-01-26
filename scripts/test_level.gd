@@ -533,11 +533,17 @@ func _get_available_particle() -> CPUParticles2D:
 	return _particle_pool[0] if not _particle_pool.is_empty() else null
 
 
-func _on_block_destroyed(world_pos: Vector2, color: Color) -> void:
+func _on_block_destroyed(world_pos: Vector2, color: Color, hardness: float = 10.0) -> void:
 	## Spawn particle effect when a block is destroyed
 	var p := _get_available_particle()
 	if p:
 		p.burst(world_pos, color)
+
+	# Screen shake for hard blocks (stone+, hardness >= 25)
+	# Shake intensity scales with hardness: stone(25-40)=2px, granite(50-80)=3px, obsidian(100+)=5px
+	if hardness >= 25.0 and player and player.camera:
+		var shake_intensity := clampf(hardness / 20.0, 1.5, 5.0)
+		player.camera.shake(shake_intensity)
 
 	# Track for statistics
 	if SaveManager.current_save:

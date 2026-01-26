@@ -1,6 +1,6 @@
 ---
 title: "implement: Inventory UI (mobile-friendly)"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:38:32.802842-06:00"

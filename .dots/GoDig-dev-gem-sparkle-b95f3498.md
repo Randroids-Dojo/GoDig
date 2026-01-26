@@ -1,9 +1,9 @@
 ---
 title: "implement: Gem sparkle visual effect"
-status: open
+status: active
 priority: 2
 issue-type: task
-created-at: "2026-01-16T00:49:21.548980-06:00"
+created-at: "\"2026-01-16T00:49:21.548980-06:00\""
 ---
 
 Subtle shine/sparkle on gem/ore tiles to hint at valuable resources before mining. Adds discovery excitement.

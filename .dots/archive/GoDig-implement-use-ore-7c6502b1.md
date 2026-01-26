@@ -1,9 +1,11 @@
 ---
 title: "implement: Use ore hardness in DirtBlock"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-18T23:46:41.221165-06:00"
+created-at: "\"\\\"2026-01-18T23:46:41.221165-06:00\\\"\""
+closed-at: "2026-01-26T03:55:57.598803+00:00"
+close-reason: "Already implemented: dirt_grid.gd _apply_ore_hardness() at line 481-488 adds ore hardness to block health"
 ---
 
 DirtBlock.activate() should check if position has ore in _ore_map and add OreData.hardness to the block's max_health. Currently ore hardness is defined but unused.

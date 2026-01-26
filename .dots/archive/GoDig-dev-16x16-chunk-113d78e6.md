@@ -3,9 +3,8 @@ title: "implement: 16x16 chunk configuration"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:51:32.572362-06:00\""
-closed-at: "2026-01-19T19:34:24.921600-06:00"
-close-reason: CHUNK_SIZE = 16 in dirt_grid.gd
+created-at: "2026-01-16T00:51:32.572362-06:00"
+close-reason: CHUNK_SIZE = 16 is configured in scripts/world/dirt_grid.gd line 10
 ---
 
 ## Description

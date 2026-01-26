@@ -1,9 +1,11 @@
 ---
 title: "implement: Hit pause (hitstop) effect"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-19T01:34:57.806529-06:00"
+created-at: "\"2026-01-19T01:34:57.806529-06:00\""
+closed-at: "2026-01-26T05:18:32.272230+00:00"
+close-reason: Implemented hardness-aware hitstop in player.gd - only triggers on hard blocks (>=20 hardness), duration scales with hardness, respects reduced_motion setting
 ---
 
 Brief game freeze on mining hard blocks and finding rare items for impact feedback. Creates satisfying "weight" to actions.

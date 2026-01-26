@@ -3,9 +3,8 @@ title: "implement: Virtual joystick (left side)"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:39:15.599486-06:00\""
-closed-at: "2026-01-19T19:34:24.902217-06:00"
-close-reason: Virtual joystick exists at scripts/ui/virtual_joystick.gd
+created-at: "2026-01-16T00:39:15.599486-06:00"
+close-reason: Implemented in scripts/ui/virtual_joystick.gd and scenes/ui/touch_controls.tscn
 ---
 
 **STATUS: IMPLEMENTED** - See `scripts/ui/virtual_joystick.gd`

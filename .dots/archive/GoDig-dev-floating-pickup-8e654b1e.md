@@ -3,9 +3,8 @@ title: "implement: Floating pickup indicator"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:45:21.949176-06:00\""
-closed-at: "2026-01-19T19:34:24.916402-06:00"
-close-reason: Floating text exists
+created-at: "2026-01-16T00:45:21.949176-06:00"
+close-reason: Implemented with scripts/ui/floating_text.gd and scenes/ui/floating_text.tscn, connected via test_level.gd _on_item_added handler
 ---
 
 ## Description

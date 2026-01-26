@@ -1,12 +1,11 @@
 ---
 title: "implement: Tool tier gating for ores"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-18T23:46:41.324136-06:00"
-after:
-  - GoDig-dev-player-stats-41460a18
-  - GoDig-dev-tool-tier-ea2c98b0
+created-at: "\"2026-01-18T23:46:41.324136-06:00\""
+closed-at: "2026-01-26T03:56:23.366767+00:00"
+close-reason: "Already implemented: dirt_grid.gd can_mine_block() at lines 187-211 checks tier >= ore.required_tool_tier"
 ---
 
 Check OreData.required_tool_tier when player attempts to mine. If player tool tier is too low, show visual feedback (red X, bounce) and don't damage the block. Requires PlayerStats tracking current tool tier.

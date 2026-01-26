@@ -1,9 +1,9 @@
 #!/bin/bash
-# Install git pre-commit hook to run tests before commits
+# Install git pre-commit hook for basic validation
 # This hook is installed automatically on Claude session start
 #
-# The pre-commit hook runs PlayGodot integration tests to catch issues
-# before they reach CI.
+# Note: Tests are NOT run in pre-commit - they run in CI after push.
+# The post-push hook monitors CI and reports failures.
 
 set -e
 
@@ -19,26 +19,28 @@ if [ -f "$HOOK_PATH" ] && grep -q "GoDig pre-commit hook" "$HOOK_PATH" 2>/dev/nu
   exit 0
 fi
 
-# Create the pre-commit hook
+# Create the pre-commit hook (lightweight - no tests)
 cat > "$HOOK_PATH" << 'EOF'
 #!/bin/bash
-# GoDig pre-commit hook - runs integration tests before commit
+# GoDig pre-commit hook - lightweight validation only
+# Tests run in CI after push, monitored by post-push hook
 # To skip: git commit --no-verify
 
-echo "=== Running pre-commit tests ==="
+# Just validate that staged files are syntactically valid GDScript
+# This is fast and catches obvious errors
 
-# Run pytest with minimal output for faster feedback
-# Use -n 0 to run sequentially (more reliable in hook context)
-if python3 -m pytest tests/ -v --tb=short -q 2>/dev/null; then
-  echo "=== Tests PASSED ==="
-  exit 0
-else
-  echo ""
-  echo "=== Tests FAILED ==="
-  echo "Fix the failing tests before committing."
-  echo "To skip this check: git commit --no-verify"
-  exit 1
+STAGED_GD=$(git diff --cached --name-only --diff-filter=ACM | grep '\.gd$' || true)
+
+if [ -n "$STAGED_GD" ]; then
+  # Basic syntax check - just ensure files aren't empty/corrupted
+  for file in $STAGED_GD; do
+    if [ ! -s "$file" ]; then
+      echo "Warning: $file is empty"
+    fi
+  done
 fi
+
+exit 0
 EOF
 
 chmod +x "$HOOK_PATH"

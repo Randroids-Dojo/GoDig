@@ -18,6 +18,17 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE 'git\\s+push'; then $CLAUDE_PROJECT_DIR/.claude/hooks/monitor-ci-after-push.sh; fi"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

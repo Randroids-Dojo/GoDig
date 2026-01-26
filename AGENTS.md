@@ -41,13 +41,22 @@ async def test_property_value(game):
 
 ## CI/CD Requirements
 
-**ALWAYS troubleshoot CI issues when pushing.**
+**CI is monitored automatically after every push.**
 
-After any `git push`, you must:
-1. Check the CI workflow status using `gh run list --limit 1`
-2. If the run fails, investigate with `gh run view <run-id> --log-failed`
-3. Fix any failing tests or build issues before considering the task complete
-4. Re-push and verify CI passes
+The post-push hook (`.claude/hooks/monitor-ci-after-push.sh`) automatically:
+1. Finds the PR for your branch (with exponential backoff if PR doesn't exist yet)
+2. Waits for CI to complete
+3. Reports failures with actionable details
+
+If CI fails, fix the issues and push again. The hook will report success or failure.
+
+### Manual CI Troubleshooting
+
+If you need to check CI manually:
+```bash
+gh run list --limit 1                    # See recent runs
+gh run view <run-id> --log-failed        # See failure details
+```
 
 Do not consider a push successful until CI is green.
 
@@ -55,7 +64,27 @@ Do not consider a push successful until CI is green.
 
 **Use `dot` for tracking work items during sessions.**
 
-Dots is a lightweight task tracker for managing work. Use it to track discrete tasks, bugs, and features.
+Dots is a lightweight task tracker for managing work. The `dot` CLI is automatically installed when you start a session (via `.claude/hooks/install-dots.sh`).
+
+### Essential Session Workflow
+
+**At the START of every session:**
+```bash
+dot ls          # Check ALL open tasks - see what needs to be done
+dot ready       # Show tasks ready to work on (no blockers)
+```
+
+**BEFORE starting any task:**
+```bash
+dot on <id>     # Mark the task as in-progress
+```
+
+**AFTER completing any task:**
+```bash
+dot off <id> -r "What was done"   # Close with completion reason
+```
+
+This is mandatory. Never leave tasks open if you've completed them. Never start work without checking existing tasks first.
 
 ### Quick Reference
 
@@ -88,12 +117,19 @@ Use `-p` flag when creating dots:
 - `3` = Low
 - `4` = Backlog
 
-### Workflow
+### Closing Tasks Properly
 
-1. **Starting a session**: Run `dot ready` to see available work
-2. **Claiming work**: Run `dot on <id>` before starting
-3. **Completing work**: Run `dot off <id>` when done
-4. **Creating subtasks**: Use `-P parent-id` for hierarchical organization
+**You MUST close tasks when done.** Every completed task needs:
+
+1. `dot off <id>` - Mark it closed
+2. `-r "reason"` - Explain what was done (helps future sessions)
+
+Examples:
+```bash
+dot off dots-5 -r "Fixed null check in player.gd"
+dot off dots-12 -r "Already implemented in previous session"
+dot off dots-3 -r "Created PR #42, awaiting review"
+```
 
 ### ALWAYS Update Dots After Changes
 

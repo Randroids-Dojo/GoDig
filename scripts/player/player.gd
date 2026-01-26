@@ -4,6 +4,8 @@ extends CharacterBody2D
 ## Player is 128x128 (same size as one dirt block).
 ## Supports tap-to-dig: tap or hold on adjacent blocks to mine them.
 
+const TileTypesScript = preload("res://scripts/world/tile_types.gd")
+
 signal block_destroyed(grid_pos: Vector2i)
 signal depth_changed(depth: int)
 signal jump_pressed  # Emitted when player wants to jump (for wall-jump)
@@ -40,7 +42,9 @@ const REGEN_INTERVAL: float = 2.0  # Seconds between heals at surface
 const REGEN_AMOUNT: int = 5  # HP restored per tick
 
 # Hitstop constants (game feel)
-const HITSTOP_DURATION: float = 0.03  # Brief freeze on hit
+const HITSTOP_MIN_HARDNESS: float = 20.0  # Only apply hitstop for blocks this hard or harder
+const HITSTOP_BASE_DURATION: float = 0.02  # Base duration for stone blocks
+const HITSTOP_MAX_DURATION: float = 0.05  # Max duration for obsidian/legendary
 const HITSTOP_TIME_SCALE: float = 0.1  # Slow-mo instead of full stop
 
 var dirt_grid: Node2D  # Set by test_level.gd
@@ -279,10 +283,13 @@ func _on_animation_finished() -> void:
 		current_state = State.IDLE
 		return
 
+	# Get block hardness before hitting (for hitstop calculation)
+	var hardness: float = dirt_grid.get_block_hardness(mining_target)
+
 	var destroyed: bool = dirt_grid.hit_block(mining_target)
 
-	# Apply hitstop for game feel
-	_apply_hitstop()
+	# Apply hitstop for game feel (only for hard blocks)
+	_apply_hitstop(hardness)
 
 	if destroyed:
 		block_destroyed.emit(mining_target)
@@ -596,7 +603,7 @@ func _has_ladder_at(pos: Vector2i) -> bool:
 	if dirt_grid == null:
 		return false
 	# Check if tile type is LADDER
-	return dirt_grid.get_tile_type(pos) == TileTypes.Type.LADDER
+	return dirt_grid.get_tile_type(pos) == TileTypesScript.Type.LADDER
 
 
 func _check_ladder() -> void:
@@ -770,10 +777,13 @@ func _hit_tap_target() -> void:
 		_on_tap_end()
 		return
 
+	# Get block hardness before hitting (for hitstop calculation)
+	var hardness: float = dirt_grid.get_block_hardness(_tap_target_tile)
+
 	var destroyed: bool = dirt_grid.hit_block(_tap_target_tile)
 
-	# Apply hitstop for game feel
-	_apply_hitstop()
+	# Apply hitstop for game feel (only for hard blocks)
+	_apply_hitstop(hardness)
 
 	if destroyed:
 		block_destroyed.emit(_tap_target_tile)
@@ -953,14 +963,25 @@ func _start_damage_flash() -> void:
 
 
 ## Apply brief hitstop for game feel on block hit
-func _apply_hitstop() -> void:
+## Only triggers for hard blocks (stone or harder, hardness >= 20)
+## Duration scales with block hardness for more impactful feedback
+func _apply_hitstop(hardness: float = 0.0) -> void:
 	# Skip if reduced motion is enabled
 	if SettingsManager and SettingsManager.reduced_motion:
 		return
 
+	# Only apply hitstop for hard blocks
+	if hardness < HITSTOP_MIN_HARDNESS:
+		return
+
+	# Calculate duration based on hardness (harder blocks = longer pause)
+	# Stone (25) = 20ms, Granite (50) = 30ms, Obsidian (100) = 50ms
+	var hardness_ratio := clampf((hardness - HITSTOP_MIN_HARDNESS) / 80.0, 0.0, 1.0)
+	var duration := lerpf(HITSTOP_BASE_DURATION, HITSTOP_MAX_DURATION, hardness_ratio)
+
 	# Brief time slowdown for impact feel
 	Engine.time_scale = HITSTOP_TIME_SCALE
-	await get_tree().create_timer(HITSTOP_DURATION, true, false, true).timeout
+	await get_tree().create_timer(duration, true, false, true).timeout
 	Engine.time_scale = 1.0
 
 

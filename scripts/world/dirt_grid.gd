@@ -4,6 +4,7 @@ extends Node2D
 ## Handles ore spawning and mining drops.
 
 const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
+const OreSparkleScene = preload("res://scenes/effects/ore_sparkle.tscn")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
@@ -23,6 +24,7 @@ var _ore_map: Dictionary = {}  # Dictionary[Vector2i, String ore_id] - what ore 
 var _dug_tiles: Dictionary = {}  # Dictionary[Vector2i, bool] - tiles that have been mined/dug
 var _placed_objects: Dictionary = {}  # Dictionary[Vector2i, int tile_type] - ladders, torches, etc.
 var _dirty_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] - chunks with unsaved changes
+var _sparkles: Dictionary = {}  # Dictionary[Vector2i, CPUParticles2D] - sparkle effects for ore blocks
 var _player: Node2D = null
 var _surface_row: int = 0
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -167,9 +169,10 @@ func _unload_chunk(chunk_pos: Vector2i) -> void:
 				to_remove.append(grid_pos)
 
 	for pos in to_remove:
-		# Clean up ore map entry when unloading
+		# Clean up ore map entry and sparkle when unloading
 		if _ore_map.has(pos):
 			_ore_map.erase(pos)
+		_remove_ore_sparkle(pos)
 		_release(pos)
 
 	# Clear dug tiles memory for this chunk (will reload from save when needed)
@@ -295,9 +298,10 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		)
 		block_destroyed.emit(world_pos, block.base_color, block.max_health)
 
-		# Clean up ore map entry
+		# Clean up ore map entry and sparkle
 		if _ore_map.has(pos):
 			_ore_map.erase(pos)
+		_remove_ore_sparkle(pos)
 
 		# Mark tile as dug for persistence
 		_dug_tiles[pos] = true
@@ -455,6 +459,7 @@ func _place_ore_at(pos: Vector2i, ore) -> void:
 	if _active.has(pos):
 		_apply_ore_visual(pos, ore)
 		_apply_ore_hardness(pos, ore)
+		_add_ore_sparkle(pos, ore)
 
 
 func _generate_ore_noise(pos: Vector2i, frequency: float) -> float:
@@ -486,6 +491,45 @@ func _apply_ore_hardness(pos: Vector2i, ore) -> void:
 	var block = _active[pos]
 	if ore.hardness > 0:
 		block.apply_ore_hardness(ore.hardness)
+
+
+func _add_ore_sparkle(pos: Vector2i, ore) -> void:
+	## Add sparkle effect to an ore block
+	if not _active.has(pos):
+		return
+	if _sparkles.has(pos):
+		return  # Already has a sparkle
+
+	var block = _active[pos]
+	var sparkle = OreSparkleScene.instantiate()
+
+	# Get rarity from ore (convert string to int if needed)
+	var rarity_value := 0
+	if "rarity" in ore:
+		match ore.rarity:
+			"common": rarity_value = 0
+			"uncommon": rarity_value = 1
+			"rare": rarity_value = 2
+			"epic": rarity_value = 3
+			"legendary": rarity_value = 4
+			_: rarity_value = 0
+	elif "tier" in ore:
+		rarity_value = clampi(ore.tier - 1, 0, 4)
+
+	sparkle.configure(ore.color, rarity_value)
+	block.add_child(sparkle)
+	_sparkles[pos] = sparkle
+
+
+func _remove_ore_sparkle(pos: Vector2i) -> void:
+	## Remove sparkle effect from a position
+	if not _sparkles.has(pos):
+		return
+
+	var sparkle = _sparkles[pos]
+	if is_instance_valid(sparkle):
+		sparkle.queue_free()
+	_sparkles.erase(pos)
 
 
 # ============================================

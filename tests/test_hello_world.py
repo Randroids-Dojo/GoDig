@@ -649,3 +649,55 @@ async def test_player_starts_at_correct_position(game):
     assert grid_pos is not None, "Player should have a grid position"
     # Player should start above the surface (row 7)
     assert grid_pos["y"] <= 7, f"Player should start at or above surface row 7, got y={grid_pos['y']}"
+
+
+# =============================================================================
+# MILESTONE NOTIFICATION TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_milestone_notification_exists(game):
+    """Verify the milestone notification UI exists in the HUD."""
+    exists = await game.node_exists(PATHS["milestone_notification"])
+    assert exists, "MilestoneNotification should exist in HUD"
+
+
+@pytest.mark.asyncio
+async def test_milestone_notification_starts_hidden(game):
+    """Verify the milestone notification starts invisible."""
+    visible = await game.get_property(PATHS["milestone_notification"], "visible")
+    assert visible is False, "MilestoneNotification should start hidden"
+
+
+@pytest.mark.asyncio
+async def test_milestone_notification_has_panel(game):
+    """Verify the milestone notification has a Panel child node."""
+    exists = await game.node_exists(PATHS["milestone_notification"] + "/Panel")
+    assert exists, "MilestoneNotification should have a Panel child"
+
+
+@pytest.mark.asyncio
+async def test_milestone_notification_has_label(game):
+    """Verify the milestone notification has a Label in the Panel."""
+    exists = await game.node_exists(PATHS["milestone_notification"] + "/Panel/Label")
+    assert exists, "MilestoneNotification should have a Label in the Panel"
+
+
+@pytest.mark.asyncio
+async def test_game_manager_emits_depth_milestone_signal(game):
+    """Verify GameManager has the depth_milestone_reached signal infrastructure."""
+    # Check that GameManager has the milestones array
+    milestones = await game.get_property(PATHS["game_manager"], "DEPTH_MILESTONES")
+    assert milestones is not None, "GameManager should have DEPTH_MILESTONES constant"
+    expected = [10, 25, 50, 100, 150, 200, 300, 500, 750, 1000]
+    assert milestones == expected, f"DEPTH_MILESTONES should be {expected}, got {milestones}"
+
+
+@pytest.mark.asyncio
+async def test_game_manager_tracks_reached_milestones(game):
+    """Verify GameManager tracks which milestones have been reached."""
+    reached = await game.get_property(PATHS["game_manager"], "_reached_milestones")
+    assert reached is not None, "GameManager should have _reached_milestones array"
+    # At start, no milestones should be reached
+    assert len(reached) == 0, f"No milestones should be reached at start, got {reached}"

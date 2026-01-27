@@ -1,9 +1,11 @@
 ---
 title: "implement: Dig reach validation"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T01:05:01.658029-06:00"
+created-at: "\"\\\"2026-01-16T01:05:01.658029-06:00\\\"\""
+closed-at: "2026-01-27T05:54:36.739524+00:00"
+close-reason: Implemented can_dig_at() function with reach validation, state checks (no mining while falling), and direction restrictions (no diagonal/upward mining)
 ---
 
 ## Description

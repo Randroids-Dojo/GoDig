@@ -1,9 +1,11 @@
 ---
 title: "implement: Lighting by depth"
-status: open
+status: closed
 priority: 3
 issue-type: task
-created-at: "2026-01-16T00:44:03.968452-06:00"
+created-at: "\"2026-01-16T00:44:03.968452-06:00\""
+closed-at: "2026-01-27T06:17:52.323219+00:00"
+close-reason: Implemented LightingManager autoload with depth-based zones and CanvasModulate integration
 ---
 
 ## Description

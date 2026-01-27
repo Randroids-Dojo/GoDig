@@ -42,6 +42,9 @@ const CURRENT_VERSION := 1
 @export var ores_collected: int = 0
 @export var deaths: int = 0
 
+## Extended statistics (detailed tracking from PlayerStats)
+@export var extended_stats: Dictionary = {}
+
 
 ## Create a new save with default starting state
 static func create_new(slot_name: String = ""):

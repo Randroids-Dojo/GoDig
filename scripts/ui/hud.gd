@@ -43,6 +43,22 @@ const VIGNETTE_PULSE_SPEED: float = 3.0
 const VIGNETTE_MIN_ALPHA: float = 0.1
 const VIGNETTE_MAX_ALPHA: float = 0.4
 
+## Next upgrade goal display (created programmatically)
+var upgrade_goal_container: Control = null
+var upgrade_goal_label: Label = null
+var upgrade_goal_progress: ProgressBar = null
+var _upgrade_goal_tween: Tween = null
+
+## Time since save indicator (created programmatically)
+var save_indicator_label: Label = null
+var _save_timer: float = 0.0
+const SAVE_UPDATE_INTERVAL: float = 1.0  # Update every second
+
+## Ladder quick-slot (created programmatically)
+var ladder_quickslot: Control = null
+var ladder_count_label: Label = null
+var ladder_button: Button = null
+
 
 func _ready() -> void:
 	# Initialize display
@@ -84,6 +100,22 @@ func _ready() -> void:
 		PlayerData.tool_changed.connect(_on_tool_changed)
 		_update_tool_indicator()
 
+	# Create next upgrade goal display
+	_setup_upgrade_goal_display()
+
+	# Create time since save indicator
+	_setup_save_indicator()
+
+	# Create ladder quick-slot
+	_setup_ladder_quickslot()
+
+	# Create mining progress indicator
+	_setup_mining_progress()
+
+	# Connect save events
+	if SaveManager:
+		SaveManager.save_completed.connect(_on_save_completed)
+
 
 func _process(delta: float) -> void:
 	# Pulse the low health vignette
@@ -93,6 +125,15 @@ func _process(delta: float) -> void:
 		var alpha := lerpf(VIGNETTE_MIN_ALPHA, VIGNETTE_MAX_ALPHA, pulse)
 		low_health_vignette.modulate.a = alpha
 
+	# Update save indicator periodically
+	_save_timer += delta
+	if _save_timer >= SAVE_UPDATE_INTERVAL:
+		_save_timer = 0.0
+		_update_save_indicator()
+
+	# Update mining progress indicator every frame
+	_update_mining_progress()
+
 
 ## Connect to a player's HP signals
 func connect_to_player(player: Node) -> void:
@@ -100,6 +141,9 @@ func connect_to_player(player: Node) -> void:
 		player.hp_changed.connect(_on_player_hp_changed)
 	if player.has_signal("player_died"):
 		player.player_died.connect(_on_player_died)
+
+	# Track player for mining progress indicator
+	track_player_for_mining(player)
 
 
 ## Disconnect from a player's HP signals
@@ -421,3 +465,412 @@ func _on_layer_entered(layer_name: String) -> void:
 	if milestone_notification and milestone_notification.has_method("show_layer_entered"):
 		milestone_notification.show_layer_entered(layer_name)
 	print("[HUD] Layer entered notification: %s" % layer_name)
+
+
+# ============================================
+# NEXT UPGRADE GOAL DISPLAY
+# ============================================
+
+func _setup_upgrade_goal_display() -> void:
+	## Create the next upgrade goal display container
+	upgrade_goal_container = Control.new()
+	upgrade_goal_container.name = "UpgradeGoalContainer"
+	upgrade_goal_container.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	upgrade_goal_container.position = Vector2(16, 150)
+	upgrade_goal_container.custom_minimum_size = Vector2(200, 50)
+	add_child(upgrade_goal_container)
+
+	# Create label for upgrade name and cost
+	upgrade_goal_label = Label.new()
+	upgrade_goal_label.name = "UpgradeGoalLabel"
+	upgrade_goal_label.position = Vector2(0, 0)
+	upgrade_goal_label.custom_minimum_size = Vector2(200, 20)
+	upgrade_goal_label.add_theme_font_size_override("font_size", 14)
+	upgrade_goal_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	upgrade_goal_container.add_child(upgrade_goal_label)
+
+	# Create progress bar
+	upgrade_goal_progress = ProgressBar.new()
+	upgrade_goal_progress.name = "UpgradeGoalProgress"
+	upgrade_goal_progress.position = Vector2(0, 22)
+	upgrade_goal_progress.custom_minimum_size = Vector2(180, 16)
+	upgrade_goal_progress.show_percentage = false
+	upgrade_goal_container.add_child(upgrade_goal_progress)
+
+	# Initial update
+	_update_upgrade_goal_display()
+
+	# Connect to coin changes
+	if GameManager:
+		GameManager.coins_changed.connect(_on_coins_changed_for_upgrade)
+
+
+func _on_coins_changed_for_upgrade(_amount: int) -> void:
+	_update_upgrade_goal_display()
+
+
+func _update_upgrade_goal_display() -> void:
+	## Update the next upgrade goal with current progress
+	if upgrade_goal_label == null or upgrade_goal_progress == null:
+		return
+	if PlayerData == null or GameManager == null:
+		upgrade_goal_container.visible = false
+		return
+
+	# Get the next tool upgrade
+	var next_tool = PlayerData.get_next_tool_upgrade()
+	if next_tool == null:
+		# All tools unlocked
+		upgrade_goal_container.visible = false
+		return
+
+	upgrade_goal_container.visible = true
+	var current_coins := GameManager.get_coins()
+	var cost: int = next_tool.cost
+	var can_afford := current_coins >= cost
+	var depth_ok: bool = PlayerData.max_depth_reached >= next_tool.unlock_depth
+
+	# Update label
+	if not depth_ok:
+		upgrade_goal_label.text = "Next: %s (Reach %dm)" % [next_tool.display_name, next_tool.unlock_depth]
+		upgrade_goal_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+	elif can_afford:
+		upgrade_goal_label.text = "Next: %s - READY!" % next_tool.display_name
+		upgrade_goal_label.add_theme_color_override("font_color", Color.GREEN)
+		_pulse_upgrade_label()
+	else:
+		upgrade_goal_label.text = "Next: %s ($%d)" % [next_tool.display_name, cost]
+		upgrade_goal_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+
+	# Update progress bar
+	upgrade_goal_progress.max_value = cost
+	upgrade_goal_progress.value = mini(current_coins, cost)
+
+	# Color progress bar
+	if can_afford:
+		upgrade_goal_progress.modulate = Color.GREEN
+	elif float(current_coins) / float(cost) >= 0.75:
+		upgrade_goal_progress.modulate = Color.YELLOW
+	else:
+		upgrade_goal_progress.modulate = Color.WHITE
+
+
+func _pulse_upgrade_label() -> void:
+	## Brief pulse when upgrade becomes affordable
+	if upgrade_goal_label == null:
+		return
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	if _upgrade_goal_tween and _upgrade_goal_tween.is_valid():
+		return  # Don't interrupt existing pulse
+
+	upgrade_goal_label.pivot_offset = upgrade_goal_label.size / 2
+	_upgrade_goal_tween = create_tween()
+	_upgrade_goal_tween.tween_property(upgrade_goal_label, "scale", Vector2(1.1, 1.1), 0.15)
+	_upgrade_goal_tween.tween_property(upgrade_goal_label, "scale", Vector2(1.0, 1.0), 0.15)
+
+
+# ============================================
+# TIME SINCE SAVE INDICATOR
+# ============================================
+
+func _setup_save_indicator() -> void:
+	## Create the save time indicator label
+	save_indicator_label = Label.new()
+	save_indicator_label.name = "SaveIndicatorLabel"
+
+	# Position in top-right area, below pause button
+	save_indicator_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	save_indicator_label.position = Vector2(-150, 90)
+	save_indicator_label.custom_minimum_size = Vector2(134, 20)
+
+	# Style
+	save_indicator_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	save_indicator_label.add_theme_font_size_override("font_size", 12)
+	save_indicator_label.add_theme_color_override("font_color", Color(0.6, 0.8, 0.6))
+
+	add_child(save_indicator_label)
+
+	# Initial update
+	_update_save_indicator()
+
+
+func _update_save_indicator() -> void:
+	## Update the save indicator with time since last save
+	if save_indicator_label == null:
+		return
+	if SaveManager == null or not SaveManager.is_game_loaded():
+		save_indicator_label.text = ""
+		return
+
+	var seconds := SaveManager.get_seconds_since_last_save()
+
+	if seconds < 0:
+		save_indicator_label.text = "Not saved"
+		save_indicator_label.add_theme_color_override("font_color", Color.RED)
+	elif seconds < 10:
+		save_indicator_label.text = "Saved just now"
+		save_indicator_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+	elif seconds < 60:
+		save_indicator_label.text = "Saved %ds ago" % seconds
+		save_indicator_label.add_theme_color_override("font_color", Color(0.6, 0.8, 0.6))
+	elif seconds < 120:
+		save_indicator_label.text = "Saved 1m ago"
+		save_indicator_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.4))
+	elif seconds < 300:
+		save_indicator_label.text = "Saved %dm ago" % (seconds / 60)
+		save_indicator_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.4))
+	else:
+		save_indicator_label.text = "Saved %dm ago" % (seconds / 60)
+		save_indicator_label.add_theme_color_override("font_color", Color(1.0, 0.5, 0.3))
+
+
+func _on_save_completed(success: bool) -> void:
+	## Flash the save indicator when save completes
+	if not success or save_indicator_label == null:
+		return
+
+	# Immediate update
+	_update_save_indicator()
+
+	# Flash animation
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	var tween := create_tween()
+	tween.tween_property(save_indicator_label, "modulate", Color(1.5, 1.5, 1.5), 0.1)
+	tween.tween_property(save_indicator_label, "modulate", Color.WHITE, 0.2)
+
+
+# ============================================
+# LADDER QUICK-SLOT
+# ============================================
+
+const LADDER_ITEM_ID := "ladder"
+
+func _setup_ladder_quickslot() -> void:
+	## Create the ladder quick-slot UI
+	ladder_quickslot = Control.new()
+	ladder_quickslot.name = "LadderQuickSlot"
+	ladder_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	ladder_quickslot.position = Vector2(-80, 120)
+	ladder_quickslot.custom_minimum_size = Vector2(64, 64)
+	add_child(ladder_quickslot)
+
+	# Background panel
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.color = Color(0.2, 0.2, 0.2, 0.8)
+	bg.size = Vector2(64, 64)
+	ladder_quickslot.add_child(bg)
+
+	# Ladder icon (placeholder - text for now)
+	var icon_label := Label.new()
+	icon_label.name = "IconLabel"
+	icon_label.text = "🪜"
+	icon_label.position = Vector2(8, 4)
+	icon_label.add_theme_font_size_override("font_size", 28)
+	ladder_quickslot.add_child(icon_label)
+
+	# Count label
+	ladder_count_label = Label.new()
+	ladder_count_label.name = "CountLabel"
+	ladder_count_label.position = Vector2(40, 40)
+	ladder_count_label.custom_minimum_size = Vector2(24, 20)
+	ladder_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	ladder_count_label.add_theme_font_size_override("font_size", 16)
+	ladder_count_label.add_theme_color_override("font_color", Color.WHITE)
+	ladder_quickslot.add_child(ladder_count_label)
+
+	# Touch button (invisible overlay)
+	ladder_button = Button.new()
+	ladder_button.name = "LadderButton"
+	ladder_button.flat = true
+	ladder_button.size = Vector2(64, 64)
+	ladder_button.pressed.connect(_on_ladder_quickslot_pressed)
+	ladder_quickslot.add_child(ladder_button)
+
+	# Connect inventory changes
+	if InventoryManager:
+		InventoryManager.inventory_changed.connect(_update_ladder_quickslot)
+
+	# Initial update
+	_update_ladder_quickslot()
+
+
+func _update_ladder_quickslot() -> void:
+	## Update ladder count display
+	if ladder_count_label == null or ladder_quickslot == null:
+		return
+
+	var ladder_count := _get_ladder_count()
+
+	if ladder_count > 0:
+		ladder_count_label.text = "x%d" % ladder_count
+		ladder_count_label.add_theme_color_override("font_color", Color.WHITE)
+		ladder_quickslot.modulate = Color.WHITE
+	else:
+		ladder_count_label.text = "x0"
+		ladder_count_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		ladder_quickslot.modulate = Color(0.5, 0.5, 0.5, 0.8)
+
+
+func _get_ladder_count() -> int:
+	## Get the number of ladders in inventory
+	if InventoryManager == null:
+		return 0
+
+	for slot in InventoryManager.slots:
+		if slot.is_empty() or slot.item == null:
+			continue
+		if slot.item.id == LADDER_ITEM_ID:
+			return slot.quantity
+
+	return 0
+
+
+func _on_ladder_quickslot_pressed() -> void:
+	## Attempt to place a ladder at the player's position
+	if _get_ladder_count() <= 0:
+		return
+
+	# Emit signal for player to handle ladder placement
+	# The test_level.gd will connect this to the player
+	if has_signal("ladder_place_requested"):
+		emit_signal("ladder_place_requested")
+	else:
+		# Fallback: find player and call place_ladder directly
+		var player = get_tree().get_first_node_in_group("player")
+		if player and player.has_method("place_ladder_at_position"):
+			player.place_ladder_at_position()
+
+
+## Signal for ladder placement request
+signal ladder_place_requested
+
+
+# ============================================
+# MINING PROGRESS INDICATOR
+# ============================================
+
+## Mining progress bar (shows current block mining progress)
+var mining_progress_container: Control = null
+var mining_progress_bar: ProgressBar = null
+var mining_progress_label: Label = null
+
+## Reference to player for mining state tracking
+var _tracked_player: Node = null
+var _mining_fade_tween: Tween = null
+
+
+func _setup_mining_progress() -> void:
+	## Create the mining progress indicator
+	mining_progress_container = Control.new()
+	mining_progress_container.name = "MiningProgressContainer"
+	mining_progress_container.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	mining_progress_container.position = Vector2(-100, 200)
+	mining_progress_container.custom_minimum_size = Vector2(200, 40)
+	mining_progress_container.modulate.a = 0.0  # Start hidden
+	add_child(mining_progress_container)
+
+	# Background panel
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.color = Color(0.1, 0.1, 0.1, 0.85)
+	bg.size = Vector2(200, 40)
+	mining_progress_container.add_child(bg)
+
+	# Label showing "Mining..."
+	mining_progress_label = Label.new()
+	mining_progress_label.name = "MiningLabel"
+	mining_progress_label.text = "Mining..."
+	mining_progress_label.position = Vector2(8, 2)
+	mining_progress_label.custom_minimum_size = Vector2(184, 16)
+	mining_progress_label.add_theme_font_size_override("font_size", 12)
+	mining_progress_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	mining_progress_container.add_child(mining_progress_label)
+
+	# Progress bar
+	mining_progress_bar = ProgressBar.new()
+	mining_progress_bar.name = "MiningProgressBar"
+	mining_progress_bar.position = Vector2(8, 20)
+	mining_progress_bar.custom_minimum_size = Vector2(184, 14)
+	mining_progress_bar.show_percentage = false
+	mining_progress_bar.max_value = 1.0
+	mining_progress_bar.value = 0.0
+	mining_progress_container.add_child(mining_progress_bar)
+
+
+func track_player_for_mining(player: Node) -> void:
+	## Start tracking a player's mining state for the indicator
+	_tracked_player = player
+
+
+func _update_mining_progress() -> void:
+	## Update the mining progress indicator based on player state
+	if mining_progress_container == null or mining_progress_bar == null:
+		return
+
+	if _tracked_player == null:
+		_hide_mining_progress()
+		return
+
+	# Check if player is mining
+	if not _tracked_player.has_method("get") or _tracked_player.current_state != _tracked_player.State.MINING:
+		_hide_mining_progress()
+		return
+
+	# Get the mining target and progress
+	var mining_target: Vector2i = _tracked_player.mining_target
+	var dirt_grid = _tracked_player.dirt_grid
+	if dirt_grid == null:
+		_hide_mining_progress()
+		return
+
+	var progress := dirt_grid.get_block_mining_progress(mining_target)
+	if progress < 0:
+		_hide_mining_progress()
+		return
+
+	# Show and update the progress bar
+	_show_mining_progress()
+	mining_progress_bar.value = progress
+
+	# Color the progress bar based on progress
+	if progress < 0.5:
+		mining_progress_bar.modulate = Color(0.8, 0.8, 0.8)
+	elif progress < 0.8:
+		mining_progress_bar.modulate = Color(0.9, 0.9, 0.5)
+	else:
+		mining_progress_bar.modulate = Color(0.5, 1.0, 0.5)
+
+
+func _show_mining_progress() -> void:
+	## Show the mining progress indicator with fade in
+	if mining_progress_container == null:
+		return
+
+	if mining_progress_container.modulate.a >= 1.0:
+		return  # Already visible
+
+	if _mining_fade_tween and _mining_fade_tween.is_valid():
+		_mining_fade_tween.kill()
+
+	_mining_fade_tween = create_tween()
+	_mining_fade_tween.tween_property(mining_progress_container, "modulate:a", 1.0, 0.15)
+
+
+func _hide_mining_progress() -> void:
+	## Hide the mining progress indicator with fade out
+	if mining_progress_container == null:
+		return
+
+	if mining_progress_container.modulate.a <= 0.0:
+		return  # Already hidden
+
+	if _mining_fade_tween and _mining_fade_tween.is_valid():
+		_mining_fade_tween.kill()
+
+	_mining_fade_tween = create_tween()
+	_mining_fade_tween.tween_property(mining_progress_container, "modulate:a", 0.0, 0.2)

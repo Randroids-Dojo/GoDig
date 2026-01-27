@@ -1,9 +1,11 @@
 ---
 title: "implement: Offline income system with cap"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-19T00:31:11.101819-06:00"
+created-at: "\"2026-01-19T00:31:11.101819-06:00\""
+closed-at: "2026-01-27T06:17:48.182841+00:00"
+close-reason: Implemented offline income system with time cap in SaveManager
 ---
 
 ## Description

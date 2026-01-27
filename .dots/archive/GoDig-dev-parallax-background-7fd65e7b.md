@@ -1,11 +1,11 @@
 ---
 title: "implement: Parallax background"
-status: open
+status: closed
 priority: 3
 issue-type: task
-created-at: "2026-01-16T01:52:20.990655-06:00"
-after:
-  - GoDig-dev-surface-area-379633b2
+created-at: "\"2026-01-16T01:52:20.990655-06:00\""
+closed-at: "2026-01-27T06:04:50.015449+00:00"
+close-reason: Added parallax background to surface with mountain and cloud layers
 ---
 
 ## Description

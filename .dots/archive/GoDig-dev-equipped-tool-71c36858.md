@@ -3,9 +3,10 @@ title: "implement: Equipped tool affects dig speed"
 status: closed
 priority: 1
 issue-type: task
-created-at: "\"2026-01-16T01:06:09.216253-06:00\""
-closed-at: "2026-01-19T10:40:41.731762-06:00"
-close-reason: Already implemented - DirtGrid.hit_block() uses PlayerData.get_tool_damage(), DirtBlock.take_hit() subtracts damage and shows visual feedback (darkening). Tool damage flow verified complete.
+created-at: "2026-01-16T01:06:09.216253-06:00"
+after:
+  - GoDig-dev-tooldata-resource-429a6285
+  - GoDig-dev-block-hardness-f048d7da
 ---
 
 ## Description

@@ -3,9 +3,7 @@ title: "implement: OreData resource class"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:42:53.968501-06:00\""
-closed-at: "2026-01-19T19:34:24.890982-06:00"
-close-reason: OreData exists at resources/ores/ore_data.gd
+created-at: "2026-01-16T00:42:53.968501-06:00"
 ---
 
 ## Description

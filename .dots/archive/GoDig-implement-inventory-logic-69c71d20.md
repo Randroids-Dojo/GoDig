@@ -1,9 +1,11 @@
 ---
 title: "implement: Inventory logic unit tests"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-18T23:32:50.230796-06:00"
+created-at: "\"\\\"2026-01-18T23:32:50.230796-06:00\\\"\""
+closed-at: "2026-01-26T05:10:38.313117+00:00"
+close-reason: Tests already fully implemented with 30+ comprehensive test cases in tests/test_inventory.py covering add/remove/stack logic, capacity limits, death penalty helpers, serialization, and clear_all functionality
 ---
 
 ## Description

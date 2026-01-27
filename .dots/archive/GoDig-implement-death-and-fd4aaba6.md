@@ -3,9 +3,10 @@ title: "implement: Death and respawn system"
 status: closed
 priority: 1
 issue-type: task
-created-at: "\"2026-01-19T00:52:47.235475-06:00\""
-closed-at: "2026-01-19T19:35:43.573417-06:00"
-close-reason: Death/respawn system exists
+created-at: "2026-01-19T00:52:47.235475-06:00"
+after:
+  - GoDig-dev-surface-area-379633b2
+  - GoDig-dev-player-spawn-b629056e
 ---
 
 ## Description

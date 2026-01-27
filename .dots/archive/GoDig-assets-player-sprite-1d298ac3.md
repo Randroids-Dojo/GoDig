@@ -1,9 +1,10 @@
 ---
 title: "implement: Player sprite sheet"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:39:51.701697-06:00"
+close-reason: Implemented with miner_swing_composable.png and miner_animation.tres in resources/sprites/, AnimatedSprite2D in player scene
 ---
 
 ## Description

@@ -3,9 +3,10 @@ title: "implement: Inventory full notification"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T01:07:00.113755-06:00\""
-closed-at: "2026-01-19T19:35:43.567781-06:00"
-close-reason: inventory_full signal in inventory_manager.gd
+created-at: "2026-01-16T01:07:00.113755-06:00"
+after:
+  - GoDig-dev-inventory-system-bbefbf8d
+close-reason: Already implemented in scripts/test_level.gd lines 260-280 with cooldown to prevent spam and red INVENTORY FULL! floating text
 ---
 
 ## Description

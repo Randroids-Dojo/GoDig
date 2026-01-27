@@ -1,9 +1,10 @@
 ---
 title: "implement: Inventory system tests"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T01:04:04.543580-06:00"
+close-reason: Implemented in tests/test_inventory.py with 26+ tests covering add/remove/stack/capacity/serialization
 ---
 
 ## Description

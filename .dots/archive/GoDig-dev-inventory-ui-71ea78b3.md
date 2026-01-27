@@ -3,9 +3,7 @@ title: "implement: Inventory UI (mobile-friendly)"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:38:32.802842-06:00\""
-closed-at: "2026-01-19T19:35:43.581413-06:00"
-close-reason: Inventory UI in shop.tscn
+created-at: "2026-01-16T00:38:32.802842-06:00"
 ---
 
 ## Description

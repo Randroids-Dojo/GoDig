@@ -701,3 +701,501 @@ async def test_game_manager_tracks_reached_milestones(game):
     assert reached is not None, "GameManager should have _reached_milestones array"
     # At start, no milestones should be reached
     assert len(reached) == 0, f"No milestones should be reached at start, got {reached}"
+
+
+# =============================================================================
+# DIG REACH VALIDATION TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_player_has_dig_reach_constant(game):
+    """Verify the player has DIG_REACH constant for reach validation."""
+    dig_reach = await game.get_property(PATHS["player"], "DIG_REACH")
+    assert dig_reach is not None, "Player should have DIG_REACH constant"
+    assert dig_reach == 1, f"DIG_REACH should be 1 by default, got {dig_reach}"
+
+
+@pytest.mark.asyncio
+async def test_player_has_can_dig_at_method(game):
+    """Verify the player has can_dig_at method for reach validation."""
+    # Test the method by calling it with a position
+    # The player starts at position (2, 6), so testing position (2, 7) should be valid
+    result = await game.call_method(PATHS["player"], "can_dig_at", [{"x": 2, "y": 7}])
+    # Method should return a boolean (either true or false is valid)
+    assert result is not None, "can_dig_at method should return a value"
+
+
+@pytest.mark.asyncio
+async def test_player_cannot_dig_diagonally(game):
+    """Verify player cannot dig diagonally (reach validation)."""
+    # Get player position
+    grid_pos = await game.get_property(PATHS["player"], "grid_position")
+    # Try diagonal position
+    diagonal_pos = {"x": grid_pos["x"] + 1, "y": grid_pos["y"] + 1}
+    result = await game.call_method(PATHS["player"], "can_dig_at", [diagonal_pos])
+    assert result is False, "Should not be able to dig diagonally"
+
+
+# =============================================================================
+# KEYBOARD INPUT FALLBACK TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_player_has_is_using_keyboard_method(game):
+    """Verify the player has is_using_keyboard method for input detection."""
+    result = await game.call_method(PATHS["player"], "is_using_keyboard")
+    assert result is not None, "is_using_keyboard method should return a value"
+    # At start with no input, should return False
+    assert result is False, "Should not be using keyboard with no input"
+
+
+@pytest.mark.asyncio
+async def test_keyboard_move_actions_exist(game):
+    """Verify keyboard movement actions are properly mapped."""
+    # Test that move_down action works (S or Down arrow)
+    await game.send_action("move_down", True)
+    await game.wait_frames(2)
+    await game.send_action("move_down", False)
+    # If no error, action exists and is processed
+
+
+@pytest.mark.asyncio
+async def test_keyboard_dig_action_exists(game):
+    """Verify keyboard dig action is properly mapped (E key)."""
+    # Test that dig action exists
+    await game.send_action("dig", True)
+    await game.wait_frames(2)
+    await game.send_action("dig", False)
+    # If no error, action exists and is processed
+
+
+@pytest.mark.asyncio
+async def test_keyboard_jump_action_exists(game):
+    """Verify keyboard jump action is properly mapped (Space key)."""
+    # Test that jump action exists
+    await game.send_action("jump", True)
+    await game.wait_frames(2)
+    await game.send_action("jump", False)
+    # If no error, action exists and is processed
+
+
+# =============================================================================
+# PLAYER STATISTICS TRACKING TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_player_stats_exists(game):
+    """Verify the PlayerStats autoload exists."""
+    exists = await game.node_exists(PATHS["player_stats"])
+    assert exists, "PlayerStats autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_blocks_mined_counter(game):
+    """Verify PlayerStats tracks blocks mined."""
+    blocks_mined = await game.get_property(PATHS["player_stats"], "blocks_mined_total")
+    assert blocks_mined is not None, "PlayerStats should have blocks_mined_total"
+    assert isinstance(blocks_mined, int), f"blocks_mined_total should be int, got {type(blocks_mined)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_tiles_moved_counter(game):
+    """Verify PlayerStats tracks tiles moved."""
+    tiles_moved = await game.get_property(PATHS["player_stats"], "tiles_moved")
+    assert tiles_moved is not None, "PlayerStats should have tiles_moved"
+    assert isinstance(tiles_moved, int), f"tiles_moved should be int, got {type(tiles_moved)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_deaths_counter(game):
+    """Verify PlayerStats tracks deaths."""
+    deaths = await game.get_property(PATHS["player_stats"], "deaths_total")
+    assert deaths is not None, "PlayerStats should have deaths_total"
+    assert isinstance(deaths, int), f"deaths_total should be int, got {type(deaths)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_session_tracking(game):
+    """Verify PlayerStats tracks session-specific stats."""
+    session_blocks = await game.get_property(PATHS["player_stats"], "session_blocks_mined")
+    session_depth = await game.get_property(PATHS["player_stats"], "session_max_depth")
+
+    assert session_blocks is not None, "PlayerStats should have session_blocks_mined"
+    assert session_depth is not None, "PlayerStats should have session_max_depth"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_playtime_method(game):
+    """Verify PlayerStats has method to get formatted playtime."""
+    playtime = await game.call_method(PATHS["player_stats"], "get_playtime_string")
+    assert playtime is not None, "get_playtime_string should return a value"
+    assert isinstance(playtime, str), f"playtime should be string, got {type(playtime)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_tracks_max_depth(game):
+    """Verify PlayerStats tracks max depth reached."""
+    max_depth = await game.get_property(PATHS["player_stats"], "max_depth_reached")
+    assert max_depth is not None, "PlayerStats should have max_depth_reached"
+    assert isinstance(max_depth, int), f"max_depth_reached should be int, got {type(max_depth)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_wall_jumps_counter(game):
+    """Verify PlayerStats tracks wall jumps performed."""
+    wall_jumps = await game.get_property(PATHS["player_stats"], "wall_jumps_performed")
+    assert wall_jumps is not None, "PlayerStats should have wall_jumps_performed"
+    assert isinstance(wall_jumps, int), f"wall_jumps_performed should be int, got {type(wall_jumps)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_coins_tracking(game):
+    """Verify PlayerStats tracks coins earned and spent."""
+    coins_earned = await game.get_property(PATHS["player_stats"], "coins_earned_total")
+    coins_spent = await game.get_property(PATHS["player_stats"], "coins_spent_total")
+
+    assert coins_earned is not None, "PlayerStats should have coins_earned_total"
+    assert coins_spent is not None, "PlayerStats should have coins_spent_total"
+    assert isinstance(coins_earned, int), f"coins_earned_total should be int, got {type(coins_earned)}"
+    assert isinstance(coins_spent, int), f"coins_spent_total should be int, got {type(coins_spent)}"
+
+
+# =============================================================================
+# NEXT UPGRADE GOAL HUD TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_hud_has_upgrade_goal_container(game):
+    """Verify HUD has upgrade goal container for showing next upgrade."""
+    exists = await game.node_exists(PATHS["upgrade_goal_container"])
+    assert exists, "HUD should have UpgradeGoalContainer"
+
+
+@pytest.mark.asyncio
+async def test_hud_has_upgrade_goal_label(game):
+    """Verify HUD has upgrade goal label."""
+    hud_path = PATHS["hud"]
+    label = await game.get_property(hud_path, "upgrade_goal_label")
+    assert label is not None, "HUD should have upgrade_goal_label"
+
+
+@pytest.mark.asyncio
+async def test_hud_has_upgrade_goal_progress(game):
+    """Verify HUD has upgrade goal progress bar."""
+    hud_path = PATHS["hud"]
+    progress = await game.get_property(hud_path, "upgrade_goal_progress")
+    assert progress is not None, "HUD should have upgrade_goal_progress"
+
+
+# =============================================================================
+# TIME SINCE SAVE INDICATOR TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_hud_has_save_indicator_label(game):
+    """Verify HUD has save indicator label."""
+    exists = await game.node_exists(PATHS["save_indicator_label"])
+    assert exists, "HUD should have SaveIndicatorLabel"
+
+
+@pytest.mark.asyncio
+async def test_save_indicator_updates(game):
+    """Verify save indicator shows save status."""
+    hud_path = PATHS["hud"]
+    label = await game.get_property(hud_path, "save_indicator_label")
+    assert label is not None, "HUD should have save_indicator_label"
+
+
+# =============================================================================
+# LADDER QUICK-SLOT TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_hud_has_ladder_quickslot(game):
+    """Verify HUD has ladder quick-slot."""
+    exists = await game.node_exists(PATHS["ladder_quickslot"])
+    assert exists, "HUD should have LadderQuickSlot"
+
+
+@pytest.mark.asyncio
+async def test_hud_has_ladder_count_label(game):
+    """Verify HUD has ladder count label."""
+    hud_path = PATHS["hud"]
+    label = await game.get_property(hud_path, "ladder_count_label")
+    assert label is not None, "HUD should have ladder_count_label"
+
+
+@pytest.mark.asyncio
+async def test_hud_has_ladder_button(game):
+    """Verify HUD has ladder button for quick placement."""
+    hud_path = PATHS["hud"]
+    button = await game.get_property(hud_path, "ladder_button")
+    assert button is not None, "HUD should have ladder_button"
+
+
+@pytest.mark.asyncio
+async def test_hud_has_ladder_place_signal(game):
+    """Verify HUD emits ladder_place_requested signal."""
+    hud_path = PATHS["hud"]
+    has_signal = await game.call_method(hud_path, "has_signal", ["ladder_place_requested"])
+    assert has_signal is True, "HUD should have ladder_place_requested signal"
+
+
+# =============================================================================
+# HAPTIC FEEDBACK TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_haptic_feedback_autoload_exists(game):
+    """Verify HapticFeedback autoload exists."""
+    exists = await game.node_exists(PATHS["haptic_feedback"])
+    assert exists, "HapticFeedback autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_haptic_feedback_has_enabled_property(game):
+    """Verify HapticFeedback has enabled property."""
+    enabled = await game.get_property(PATHS["haptic_feedback"], "enabled")
+    assert enabled is not None, "HapticFeedback should have enabled property"
+    assert isinstance(enabled, bool), f"enabled should be bool, got {type(enabled)}"
+
+
+@pytest.mark.asyncio
+async def test_haptic_feedback_has_trigger_method(game):
+    """Verify HapticFeedback has trigger method."""
+    # Test calling the trigger method with LIGHT type (enum value 0)
+    result = await game.call_method(PATHS["haptic_feedback"], "trigger", [0])
+    # Method should complete without error (returns null/void)
+
+
+@pytest.mark.asyncio
+async def test_haptic_feedback_has_convenience_methods(game):
+    """Verify HapticFeedback has convenience methods for game events."""
+    # These should all complete without error
+    await game.call_method(PATHS["haptic_feedback"], "on_mining_hit")
+    await game.call_method(PATHS["haptic_feedback"], "on_block_destroyed")
+    await game.call_method(PATHS["haptic_feedback"], "on_ui_tap")
+
+
+@pytest.mark.asyncio
+async def test_haptic_feedback_is_available_method(game):
+    """Verify HapticFeedback has is_available method."""
+    available = await game.call_method(PATHS["haptic_feedback"], "is_available")
+    assert available is not None, "is_available should return a value"
+    # On non-mobile platforms, this will be False
+
+
+@pytest.mark.asyncio
+async def test_haptic_feedback_is_enabled_method(game):
+    """Verify HapticFeedback has is_enabled method."""
+    enabled = await game.call_method(PATHS["haptic_feedback"], "is_enabled")
+    assert enabled is not None, "is_enabled should return a value"
+
+
+# =============================================================================
+# PARALLAX BACKGROUND TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_surface_has_parallax_background(game):
+    """Verify Surface scene has parallax background."""
+    exists = await game.node_exists(PATHS["surface_parallax"])
+    assert exists, "Surface should have ParallaxBackground"
+
+
+@pytest.mark.asyncio
+async def test_surface_has_mountain_layer(game):
+    """Verify Surface has mountain parallax layer."""
+    surface_path = PATHS["surface"]
+    mountain_layer = await game.get_property(surface_path, "mountain_layer")
+    assert mountain_layer is not None, "Surface should have mountain_layer"
+
+
+@pytest.mark.asyncio
+async def test_surface_has_cloud_layer(game):
+    """Verify Surface has cloud parallax layer."""
+    surface_path = PATHS["surface"]
+    cloud_layer = await game.get_property(surface_path, "cloud_layer")
+    assert cloud_layer is not None, "Surface should have cloud_layer"
+
+
+# =============================================================================
+# SCREEN SHAKE INTENSITY SETTING TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_settings_has_screen_shake_intensity(game):
+    """Verify SettingsManager has screen_shake_intensity property."""
+    intensity = await game.get_property(PATHS["settings_manager"], "screen_shake_intensity")
+    assert intensity is not None, "SettingsManager should have screen_shake_intensity"
+    assert isinstance(intensity, float), f"screen_shake_intensity should be float, got {type(intensity)}"
+    assert 0.0 <= intensity <= 1.0, f"screen_shake_intensity should be 0.0-1.0, got {intensity}"
+
+
+@pytest.mark.asyncio
+async def test_settings_has_screen_shake_signal(game):
+    """Verify SettingsManager has screen_shake_changed signal."""
+    has_signal = await game.call_method(PATHS["settings_manager"], "has_signal", ["screen_shake_changed"])
+    assert has_signal is True, "SettingsManager should have screen_shake_changed signal"
+
+
+# =============================================================================
+# AUTO-SELL TOGGLE SETTING TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_settings_has_auto_sell_enabled(game):
+    """Verify SettingsManager has auto_sell_enabled property."""
+    enabled = await game.get_property(PATHS["settings_manager"], "auto_sell_enabled")
+    assert enabled is not None, "SettingsManager should have auto_sell_enabled"
+    assert isinstance(enabled, bool), f"auto_sell_enabled should be bool, got {type(enabled)}"
+
+
+@pytest.mark.asyncio
+async def test_settings_has_auto_sell_signal(game):
+    """Verify SettingsManager has auto_sell_changed signal."""
+    has_signal = await game.call_method(PATHS["settings_manager"], "has_signal", ["auto_sell_changed"])
+    assert has_signal is True, "SettingsManager should have auto_sell_changed signal"
+
+
+# =============================================================================
+# OFFLINE INCOME SYSTEM TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_save_manager_has_offline_income_signal(game):
+    """Verify SaveManager has offline_income_ready signal."""
+    has_signal = await game.call_method(PATHS["save_manager"], "has_signal", ["offline_income_ready"])
+    assert has_signal is True, "SaveManager should have offline_income_ready signal"
+
+
+@pytest.mark.asyncio
+async def test_save_manager_has_offline_income_constants(game):
+    """Verify SaveManager has offline income constants."""
+    rate = await game.get_property(PATHS["save_manager"], "OFFLINE_INCOME_RATE")
+    max_hours = await game.get_property(PATHS["save_manager"], "OFFLINE_MAX_HOURS")
+    max_seconds = await game.get_property(PATHS["save_manager"], "OFFLINE_MAX_SECONDS")
+
+    assert rate == 1.0, f"OFFLINE_INCOME_RATE should be 1.0, got {rate}"
+    assert max_hours == 4.0, f"OFFLINE_MAX_HOURS should be 4.0, got {max_hours}"
+    assert max_seconds == 14400.0, f"OFFLINE_MAX_SECONDS should be 14400.0, got {max_seconds}"
+
+
+@pytest.mark.asyncio
+async def test_save_manager_has_pending_offline_income(game):
+    """Verify SaveManager tracks pending offline income."""
+    pending = await game.get_property(PATHS["save_manager"], "pending_offline_income")
+    assert pending is not None, "SaveManager should have pending_offline_income"
+    assert isinstance(pending, int), f"pending_offline_income should be int, got {type(pending)}"
+
+
+@pytest.mark.asyncio
+async def test_save_manager_has_offline_income_methods(game):
+    """Verify SaveManager has offline income utility methods."""
+    # Check has_pending_offline_income method exists and returns bool
+    has_pending = await game.call_method(PATHS["save_manager"], "has_pending_offline_income")
+    assert isinstance(has_pending, bool), f"has_pending_offline_income should return bool, got {type(has_pending)}"
+
+    # Check get_pending_offline_info method exists and returns dict
+    info = await game.call_method(PATHS["save_manager"], "get_pending_offline_info")
+    assert info is not None, "get_pending_offline_info should return a value"
+
+
+# =============================================================================
+# LIGHTING BY DEPTH TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_lighting_manager_autoload_exists(game):
+    """Verify LightingManager autoload exists."""
+    exists = await game.node_exists(PATHS["lighting_manager"])
+    assert exists, "LightingManager autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_lighting_manager_has_signal(game):
+    """Verify LightingManager has lighting_changed signal."""
+    has_signal = await game.call_method(PATHS["lighting_manager"], "has_signal", ["lighting_changed"])
+    assert has_signal is True, "LightingManager should have lighting_changed signal"
+
+
+@pytest.mark.asyncio
+async def test_lighting_manager_has_zone_properties(game):
+    """Verify LightingManager has zone tracking properties."""
+    current_zone = await game.get_property(PATHS["lighting_manager"], "current_zone")
+    current_ambient = await game.get_property(PATHS["lighting_manager"], "current_ambient")
+
+    assert current_zone is not None, "LightingManager should have current_zone"
+    assert current_ambient is not None, "LightingManager should have current_ambient"
+
+
+@pytest.mark.asyncio
+async def test_lighting_manager_has_update_depth(game):
+    """Verify LightingManager has update_depth method."""
+    # Call update_depth with depth 0 (surface)
+    result = await game.call_method(PATHS["lighting_manager"], "update_depth", [0])
+    # Method should complete without error
+
+    # Verify ambient is 1.0 for surface
+    ambient = await game.get_property(PATHS["lighting_manager"], "current_ambient")
+    # Note: May transition smoothly, so check target
+    target = await game.get_property(PATHS["lighting_manager"], "_target_ambient")
+    assert target == 1.0, f"Target ambient at surface should be 1.0, got {target}"
+
+
+@pytest.mark.asyncio
+async def test_lighting_manager_zone_names(game):
+    """Verify LightingManager has get_current_zone_name method."""
+    zone_name = await game.call_method(PATHS["lighting_manager"], "get_current_zone_name")
+    assert zone_name is not None, "get_current_zone_name should return a value"
+    assert isinstance(zone_name, str), f"zone name should be string, got {type(zone_name)}"
+
+
+# =============================================================================
+# MINING PROGRESS INDICATOR TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_hud_has_mining_progress_container(game):
+    """Verify HUD has mining progress container."""
+    exists = await game.node_exists(PATHS["mining_progress_container"])
+    assert exists, "HUD should have MiningProgressContainer"
+
+
+@pytest.mark.asyncio
+async def test_hud_has_mining_progress_bar(game):
+    """Verify HUD has mining progress bar."""
+    hud_path = PATHS["hud"]
+    bar = await game.get_property(hud_path, "mining_progress_bar")
+    assert bar is not None, "HUD should have mining_progress_bar"
+
+
+@pytest.mark.asyncio
+async def test_hud_tracks_player_for_mining(game):
+    """Verify HUD can track player for mining progress."""
+    hud_path = PATHS["hud"]
+    tracked = await game.get_property(hud_path, "_tracked_player")
+    # Should be set after connect_to_player is called
+    assert tracked is not None, "HUD should track player for mining progress"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_mining_progress_method(game):
+    """Verify DirtGrid has get_block_mining_progress method."""
+    # Try to get mining progress for position (2, 8) - likely to be underground
+    result = await game.call_method(PATHS["dirt_grid"], "get_block_mining_progress", [{"x": 2, "y": 8}])
+    # Should return float (-1.0 if no block, 0.0-1.0 otherwise)
+    assert result is not None, "get_block_mining_progress should return a value"

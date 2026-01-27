@@ -17,6 +17,8 @@ signal reduced_motion_changed(enabled: bool)
 signal audio_changed()
 signal settings_loaded()
 signal settings_reset()
+signal screen_shake_changed(intensity: float)
+signal auto_sell_changed(enabled: bool)
 
 # ============================================
 # ENUMS
@@ -72,6 +74,20 @@ var reduced_motion: bool = false:
 	set(value):
 		reduced_motion = value
 		reduced_motion_changed.emit(value)
+		_queue_save()
+
+## Accessibility: Screen shake intensity (0.0 - 1.0, 0 = off)
+var screen_shake_intensity: float = 1.0:
+	set(value):
+		screen_shake_intensity = clampf(value, 0.0, 1.0)
+		screen_shake_changed.emit(screen_shake_intensity)
+		_queue_save()
+
+## Gameplay: Auto-sell ores on pickup when inventory full
+var auto_sell_enabled: bool = false:
+	set(value):
+		auto_sell_enabled = value
+		auto_sell_changed.emit(value)
 		_queue_save()
 
 ## Audio: Master volume (0.0 - 1.0)
@@ -135,6 +151,8 @@ func reset_to_defaults() -> void:
 	hand_mode = HandMode.STANDARD
 	haptics_enabled = true
 	reduced_motion = false
+	screen_shake_intensity = 1.0
+	auto_sell_enabled = false
 	master_volume = 1.0
 	sfx_volume = 1.0
 	music_volume = 1.0
@@ -186,6 +204,10 @@ func _save_settings() -> void:
 	config.set_value("accessibility", "hand_mode", hand_mode)
 	config.set_value("accessibility", "haptics_enabled", haptics_enabled)
 	config.set_value("accessibility", "reduced_motion", reduced_motion)
+	config.set_value("accessibility", "screen_shake_intensity", screen_shake_intensity)
+
+	# Gameplay settings
+	config.set_value("gameplay", "auto_sell_enabled", auto_sell_enabled)
 
 	# Audio settings
 	config.set_value("audio", "master_volume", master_volume)
@@ -239,6 +261,17 @@ func _load_settings() -> void:
 
 	reduced_motion = _validate_bool(
 		config.get_value("accessibility", "reduced_motion", false),
+		false
+	)
+
+	screen_shake_intensity = _validate_float(
+		config.get_value("accessibility", "screen_shake_intensity", 1.0),
+		0.0, 1.0, 1.0
+	)
+
+	# Load gameplay settings
+	auto_sell_enabled = _validate_bool(
+		config.get_value("gameplay", "auto_sell_enabled", false),
 		false
 	)
 

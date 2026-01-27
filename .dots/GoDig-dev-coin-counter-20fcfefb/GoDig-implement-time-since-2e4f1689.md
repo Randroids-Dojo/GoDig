@@ -1,9 +1,11 @@
 ---
 title: "implement: Time since last save HUD indicator"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-19T00:51:00.290527-06:00"
+created-at: "\"2026-01-19T00:51:00.290527-06:00\""
+closed-at: "2026-01-27T06:04:37.383683+00:00"
+close-reason: Added save indicator label to HUD showing time since last save with color coding
 ---
 
 ## Description

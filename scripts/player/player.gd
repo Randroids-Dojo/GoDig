@@ -253,11 +253,9 @@ func can_dig_at(target: Vector2i) -> bool:
 
 
 ## Check if player has the drill upgrade that allows upward mining.
-## Reserved for future implementation (v1.1).
 func _has_drill_upgrade() -> bool:
-	# Future: Check PlayerData for drill equipment
-	# if PlayerData and PlayerData.has_equipment("drill"):
-	#     return true
+	if PlayerData and PlayerData.has_drill():
+		return true
 	return false
 
 
@@ -743,18 +741,32 @@ func _land_on_grid(landing_grid: Vector2i) -> void:
 
 func _apply_fall_damage(fall_blocks: int) -> void:
 	## Apply fall damage based on the number of blocks fallen
-	if fall_blocks <= FALL_DAMAGE_THRESHOLD:
+	## Boots can reduce damage and increase the threshold before damage starts
+
+	# Get fall threshold bonus from boots (if equipped)
+	var threshold_bonus := 0
+	if PlayerData:
+		threshold_bonus = PlayerData.get_fall_threshold_bonus()
+
+	var effective_threshold := FALL_DAMAGE_THRESHOLD + threshold_bonus
+
+	if fall_blocks <= effective_threshold:
 		return
 
-	var excess_blocks := fall_blocks - FALL_DAMAGE_THRESHOLD
-	var damage := excess_blocks * DAMAGE_PER_BLOCK
+	var excess_blocks := fall_blocks - effective_threshold
+	var damage := float(excess_blocks) * DAMAGE_PER_BLOCK
 
-	# Future: Apply modifiers (boots, surface type)
-	# damage *= (1.0 - boots_reduction)
-	# damage *= surface_hardness_multiplier
+	# Apply boots damage reduction (if equipped)
+	if PlayerData:
+		var reduction := PlayerData.get_fall_damage_reduction()
+		if reduction > 0:
+			damage *= (1.0 - reduction)
 
 	damage = minf(damage, MAX_FALL_DAMAGE)
 	var final_damage := int(damage)
+
+	if final_damage <= 0:
+		return  # Boots fully absorbed the damage
 
 	# Track fall stat
 	if PlayerStats:

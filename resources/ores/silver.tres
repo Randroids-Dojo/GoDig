@@ -18,5 +18,7 @@ sell_value = 25
 max_stack = 99
 tier = 3
 rarity = "rare"
+colorblind_symbol = "Ag"
+colorblind_pattern = 3
 hardness = 4
 required_tool_tier = 1

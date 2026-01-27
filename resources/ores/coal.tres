@@ -18,5 +18,7 @@ sell_value = 1
 max_stack = 99
 tier = 1
 rarity = "common"
+colorblind_symbol = "C"
+colorblind_pattern = 0
 hardness = 2
 required_tool_tier = 0

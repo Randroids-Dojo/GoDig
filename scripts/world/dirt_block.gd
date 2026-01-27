@@ -6,10 +6,16 @@ extends ColorRect
 const BLOCK_SIZE := 128
 const DEFAULT_TOOL_DAMAGE := 5.0  # Base tool damage (tier 1 pickaxe)
 
+# Shake effect constants
+const SHAKE_INTENSITY := 4.0  # Max shake offset in pixels
+const SHAKE_DURATION := 0.15  # Total shake animation time
+
 var grid_position: Vector2i = Vector2i.ZERO
 var max_health: float = 10.0
 var current_health: float = 10.0
 var base_color: Color = Color.BROWN
+var _base_position: Vector2 = Vector2.ZERO  # Original position for shake effect
+var _shake_tween: Tween = null  # Active shake animation
 
 
 func _init() -> void:
@@ -18,7 +24,8 @@ func _init() -> void:
 
 func activate(pos: Vector2i) -> void:
 	grid_position = pos
-	position = _grid_to_world(pos)
+	_base_position = _grid_to_world(pos)
+	position = _base_position
 	visible = true
 
 	# Get hardness and color from DataRegistry based on depth
@@ -30,9 +37,20 @@ func activate(pos: Vector2i) -> void:
 	color = base_color
 	modulate = Color.WHITE
 
+	# Clean up any previous shake tween
+	if _shake_tween and _shake_tween.is_valid():
+		_shake_tween.kill()
+		_shake_tween = null
+
 
 func deactivate() -> void:
 	visible = false
+	# Clean up shake tween to prevent memory leaks
+	if _shake_tween and _shake_tween.is_valid():
+		_shake_tween.kill()
+		_shake_tween = null
+	# Reset position to base
+	position = _base_position
 
 
 func take_hit(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> bool:
@@ -45,7 +63,33 @@ func take_hit(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> bool:
 	damage_ratio = clamp(damage_ratio, 0.0, 1.0)
 	modulate = Color.WHITE.lerp(Color(0.3, 0.3, 0.3), damage_ratio)
 
+	# Shake effect for mining feedback
+	_play_shake_effect(damage_ratio)
+
 	return current_health <= 0
+
+
+func _play_shake_effect(damage_ratio: float) -> void:
+	## Play a shake animation to provide tactile mining feedback.
+	## Intensity scales with damage ratio for progressive visual feedback.
+
+	# Kill any existing shake
+	if _shake_tween and _shake_tween.is_valid():
+		_shake_tween.kill()
+
+	# Calculate shake intensity based on damage (more damage = stronger shake)
+	var intensity := SHAKE_INTENSITY * (0.5 + damage_ratio * 0.5)
+
+	# Create shake sequence
+	_shake_tween = create_tween()
+	_shake_tween.set_ease(Tween.EASE_OUT)
+	_shake_tween.set_trans(Tween.TRANS_SINE)
+
+	# Quick shake left-right-center
+	var shake_step := SHAKE_DURATION / 3.0
+	_shake_tween.tween_property(self, "position", _base_position + Vector2(intensity, 0), shake_step)
+	_shake_tween.tween_property(self, "position", _base_position + Vector2(-intensity, 0), shake_step)
+	_shake_tween.tween_property(self, "position", _base_position, shake_step)
 
 
 func get_hits_remaining(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> int:

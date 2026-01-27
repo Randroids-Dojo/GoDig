@@ -3,12 +3,13 @@ extends Control
 ## Provides virtual joystick for movement and touch screen action buttons.
 ## Supports multitouch for simultaneous movement and actions.
 ## Automatically shows/hides based on platform detection.
+##
+## Note: Digging happens automatically when moving into blocks (via joystick)
+## or by tapping directly on adjacent blocks (tap-to-dig).
 
 signal direction_pressed(direction: Vector2i)
 signal direction_released()
 signal jump_pressed()
-signal dig_pressed()
-signal dig_released()
 signal inventory_pressed()
 
 ## Reference to the virtual joystick
@@ -19,9 +20,6 @@ signal inventory_pressed()
 
 ## Reference to the jump button
 @onready var jump_button: TouchScreenButton = $ActionButtons/JumpButton
-
-## Reference to the dig button
-@onready var dig_button: TouchScreenButton = $ActionButtons/DigButton
 
 ## Reference to the inventory button
 @onready var inventory_button: TouchScreenButton = $ActionButtons/InventoryButton
@@ -49,11 +47,6 @@ func _setup_action_buttons() -> void:
 	# Connect jump button
 	if jump_button:
 		jump_button.pressed.connect(_on_jump_pressed)
-
-	# Connect dig button
-	if dig_button:
-		dig_button.pressed.connect(_on_dig_pressed)
-		dig_button.released.connect(_on_dig_released)
 
 	# Connect inventory button
 	if inventory_button:
@@ -85,24 +78,9 @@ func _on_jump_pressed() -> void:
 	jump_pressed.emit()
 
 
-func _on_dig_pressed() -> void:
-	dig_pressed.emit()
-
-
-func _on_dig_released() -> void:
-	dig_released.emit()
-
-
 func _on_inventory_pressed() -> void:
 	inventory_pressed.emit()
 
 
 func get_direction() -> Vector2i:
 	return joystick.get_direction()
-
-
-func is_dig_held() -> bool:
-	## Returns true if the dig button is currently being held
-	if dig_button and dig_button is TouchScreenButton:
-		return dig_button.is_pressed()
-	return false

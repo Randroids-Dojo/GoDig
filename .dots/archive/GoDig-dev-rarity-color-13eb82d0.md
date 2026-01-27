@@ -1,9 +1,11 @@
 ---
 title: "implement: Rarity color borders"
-status: active
+status: closed
 priority: 3
 issue-type: task
-created-at: "\"2026-01-16T00:45:21.951966-06:00\""
+created-at: "\"\\\"2026-01-16T00:45:21.951966-06:00\\\"\""
+closed-at: "2026-01-27T05:28:45.533359+00:00"
+close-reason: Implemented rarity color borders for ore blocks with pulsing animation. Colors match inventory rarity system (gray=common, green=uncommon, blue=rare, purple=epic, orange=legendary). Respects reduced motion setting.
 ---
 
 Per inventory-system.md: White/Green/Blue/Purple/Orange borders for item rarity

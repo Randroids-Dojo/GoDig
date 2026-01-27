@@ -74,6 +74,7 @@ PATHS = {
     "surface_shop_building": "/root/Main/Surface/ShopBuilding",
     "surface_mine_entrance": "/root/Main/Surface/MineEntrance",
     "milestone_notification": "/root/Main/UI/HUD/MilestoneNotification",
+    "player_stats": "/root/PlayerStats",
 }
 
 

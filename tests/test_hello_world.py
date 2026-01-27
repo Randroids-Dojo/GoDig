@@ -701,3 +701,163 @@ async def test_game_manager_tracks_reached_milestones(game):
     assert reached is not None, "GameManager should have _reached_milestones array"
     # At start, no milestones should be reached
     assert len(reached) == 0, f"No milestones should be reached at start, got {reached}"
+
+
+# =============================================================================
+# DIG REACH VALIDATION TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_player_has_dig_reach_constant(game):
+    """Verify the player has DIG_REACH constant for reach validation."""
+    dig_reach = await game.get_property(PATHS["player"], "DIG_REACH")
+    assert dig_reach is not None, "Player should have DIG_REACH constant"
+    assert dig_reach == 1, f"DIG_REACH should be 1 by default, got {dig_reach}"
+
+
+@pytest.mark.asyncio
+async def test_player_has_can_dig_at_method(game):
+    """Verify the player has can_dig_at method for reach validation."""
+    # Test the method by calling it with a position
+    # The player starts at position (2, 6), so testing position (2, 7) should be valid
+    result = await game.call_method(PATHS["player"], "can_dig_at", [{"x": 2, "y": 7}])
+    # Method should return a boolean (either true or false is valid)
+    assert result is not None, "can_dig_at method should return a value"
+
+
+@pytest.mark.asyncio
+async def test_player_cannot_dig_diagonally(game):
+    """Verify player cannot dig diagonally (reach validation)."""
+    # Get player position
+    grid_pos = await game.get_property(PATHS["player"], "grid_position")
+    # Try diagonal position
+    diagonal_pos = {"x": grid_pos["x"] + 1, "y": grid_pos["y"] + 1}
+    result = await game.call_method(PATHS["player"], "can_dig_at", [diagonal_pos])
+    assert result is False, "Should not be able to dig diagonally"
+
+
+# =============================================================================
+# KEYBOARD INPUT FALLBACK TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_player_has_is_using_keyboard_method(game):
+    """Verify the player has is_using_keyboard method for input detection."""
+    result = await game.call_method(PATHS["player"], "is_using_keyboard")
+    assert result is not None, "is_using_keyboard method should return a value"
+    # At start with no input, should return False
+    assert result is False, "Should not be using keyboard with no input"
+
+
+@pytest.mark.asyncio
+async def test_keyboard_move_actions_exist(game):
+    """Verify keyboard movement actions are properly mapped."""
+    # Test that move_down action works (S or Down arrow)
+    await game.send_action("move_down", True)
+    await game.wait_frames(2)
+    await game.send_action("move_down", False)
+    # If no error, action exists and is processed
+
+
+@pytest.mark.asyncio
+async def test_keyboard_dig_action_exists(game):
+    """Verify keyboard dig action is properly mapped (E key)."""
+    # Test that dig action exists
+    await game.send_action("dig", True)
+    await game.wait_frames(2)
+    await game.send_action("dig", False)
+    # If no error, action exists and is processed
+
+
+@pytest.mark.asyncio
+async def test_keyboard_jump_action_exists(game):
+    """Verify keyboard jump action is properly mapped (Space key)."""
+    # Test that jump action exists
+    await game.send_action("jump", True)
+    await game.wait_frames(2)
+    await game.send_action("jump", False)
+    # If no error, action exists and is processed
+
+
+# =============================================================================
+# PLAYER STATISTICS TRACKING TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_player_stats_exists(game):
+    """Verify the PlayerStats autoload exists."""
+    exists = await game.node_exists(PATHS["player_stats"])
+    assert exists, "PlayerStats autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_blocks_mined_counter(game):
+    """Verify PlayerStats tracks blocks mined."""
+    blocks_mined = await game.get_property(PATHS["player_stats"], "blocks_mined_total")
+    assert blocks_mined is not None, "PlayerStats should have blocks_mined_total"
+    assert isinstance(blocks_mined, int), f"blocks_mined_total should be int, got {type(blocks_mined)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_tiles_moved_counter(game):
+    """Verify PlayerStats tracks tiles moved."""
+    tiles_moved = await game.get_property(PATHS["player_stats"], "tiles_moved")
+    assert tiles_moved is not None, "PlayerStats should have tiles_moved"
+    assert isinstance(tiles_moved, int), f"tiles_moved should be int, got {type(tiles_moved)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_deaths_counter(game):
+    """Verify PlayerStats tracks deaths."""
+    deaths = await game.get_property(PATHS["player_stats"], "deaths_total")
+    assert deaths is not None, "PlayerStats should have deaths_total"
+    assert isinstance(deaths, int), f"deaths_total should be int, got {type(deaths)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_session_tracking(game):
+    """Verify PlayerStats tracks session-specific stats."""
+    session_blocks = await game.get_property(PATHS["player_stats"], "session_blocks_mined")
+    session_depth = await game.get_property(PATHS["player_stats"], "session_max_depth")
+
+    assert session_blocks is not None, "PlayerStats should have session_blocks_mined"
+    assert session_depth is not None, "PlayerStats should have session_max_depth"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_playtime_method(game):
+    """Verify PlayerStats has method to get formatted playtime."""
+    playtime = await game.call_method(PATHS["player_stats"], "get_playtime_string")
+    assert playtime is not None, "get_playtime_string should return a value"
+    assert isinstance(playtime, str), f"playtime should be string, got {type(playtime)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_tracks_max_depth(game):
+    """Verify PlayerStats tracks max depth reached."""
+    max_depth = await game.get_property(PATHS["player_stats"], "max_depth_reached")
+    assert max_depth is not None, "PlayerStats should have max_depth_reached"
+    assert isinstance(max_depth, int), f"max_depth_reached should be int, got {type(max_depth)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_wall_jumps_counter(game):
+    """Verify PlayerStats tracks wall jumps performed."""
+    wall_jumps = await game.get_property(PATHS["player_stats"], "wall_jumps_performed")
+    assert wall_jumps is not None, "PlayerStats should have wall_jumps_performed"
+    assert isinstance(wall_jumps, int), f"wall_jumps_performed should be int, got {type(wall_jumps)}"
+
+
+@pytest.mark.asyncio
+async def test_player_stats_has_coins_tracking(game):
+    """Verify PlayerStats tracks coins earned and spent."""
+    coins_earned = await game.get_property(PATHS["player_stats"], "coins_earned_total")
+    coins_spent = await game.get_property(PATHS["player_stats"], "coins_spent_total")
+
+    assert coins_earned is not None, "PlayerStats should have coins_earned_total"
+    assert coins_spent is not None, "PlayerStats should have coins_spent_total"
+    assert isinstance(coins_earned, int), f"coins_earned_total should be int, got {type(coins_earned)}"
+    assert isinstance(coins_spent, int), f"coins_spent_total should be int, got {type(coins_spent)}"

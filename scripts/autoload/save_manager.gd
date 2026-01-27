@@ -206,6 +206,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		InventoryManager.clear_all()
 	if PlayerData:
 		PlayerData.reset()
+	if PlayerStats:
+		PlayerStats.reset()
 
 	# Initial save
 	var success := save_game()
@@ -272,6 +274,17 @@ func _collect_game_state() -> void:
 		for id in achievement_data.get("unlocked", []):
 			current_save.achievements.append(id)
 
+	# Collect from PlayerStats
+	if PlayerStats:
+		var stats_data = PlayerStats.get_save_data()
+		current_save.blocks_mined = stats_data.get("blocks_mined_total", 0)
+		current_save.ores_collected = stats_data.get("ores_collected_total", 0)
+		current_save.deaths = stats_data.get("deaths_total", 0)
+		# Extended stats stored in a dictionary (for migration support)
+		if not current_save.get("extended_stats"):
+			current_save.set("extended_stats", {})
+		current_save.extended_stats = stats_data
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -304,6 +317,20 @@ func _apply_game_state() -> void:
 			"unlocked": current_save.achievements.duplicate(),
 		}
 		AchievementManager.load_save_data(achievement_data)
+
+	# Apply to PlayerStats
+	if PlayerStats:
+		# Check for extended stats first (newer saves), fallback to basic stats
+		var stats_data = current_save.get("extended_stats")
+		if stats_data != null and stats_data is Dictionary and not stats_data.is_empty():
+			PlayerStats.load_save_data(stats_data)
+		else:
+			# Load basic stats from older save format
+			PlayerStats.load_save_data({
+				"blocks_mined_total": current_save.blocks_mined,
+				"ores_collected_total": current_save.ores_collected,
+				"deaths_total": current_save.deaths,
+			})
 
 
 ## Run migration if save version is old

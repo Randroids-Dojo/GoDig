@@ -16,6 +16,7 @@ enum State { IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING, CLIMBING
 
 const BLOCK_SIZE := 128
 const MOVE_DURATION := 0.15  # Seconds to move one block
+const DIG_REACH: int = 1  # Max tiles distance for mining (future tool upgrades can increase)
 
 # Wall-jump physics constants
 const GRAVITY: float = 980.0
@@ -163,6 +164,11 @@ func _handle_idle_input() -> void:
 	if dir != Vector2i.ZERO:
 		_try_move_or_mine(dir)
 
+	# Handle keyboard dig action (E key) - mine in last/default direction
+	if Input.is_action_just_pressed("dig") and dir == Vector2i.ZERO:
+		# Default to digging down when no direction is pressed
+		_try_move_or_mine(Vector2i.DOWN)
+
 
 func _handle_mining_input() -> void:
 	# Stop mining if player releases the direction key
@@ -178,14 +184,23 @@ func _get_input_direction() -> Vector2i:
 	if touch_direction != Vector2i.ZERO:
 		return touch_direction
 
-	# Fall back to keyboard input
+	# Fall back to keyboard input (WASD or arrow keys)
+	# Priority: down > left > right > up (up only for climbing)
 	if Input.is_action_pressed("move_down"):
 		return Vector2i(0, 1)
 	elif Input.is_action_pressed("move_left"):
 		return Vector2i(-1, 0)
 	elif Input.is_action_pressed("move_right"):
 		return Vector2i(1, 0)
+	elif Input.is_action_pressed("move_up"):
+		# Up is only used for climbing ladders
+		return Vector2i(0, -1)
 	return Vector2i.ZERO
+
+
+## Check if keyboard input is currently being used (for UI feedback).
+func is_using_keyboard() -> bool:
+	return touch_direction == Vector2i.ZERO and _get_input_direction() != Vector2i.ZERO
 
 
 func _check_jump_input() -> bool:
@@ -201,14 +216,57 @@ func _check_jump_input() -> bool:
 func _try_move_or_mine(direction: Vector2i) -> void:
 	var target := grid_position + direction
 
-	# No horizontal bounds - infinite terrain in all directions!
-	# Vertical movement is unrestricted too (can go up or down freely)
+	# Validate dig reach before attempting to mine
+	if not can_dig_at(target):
+		return
 
 	# Check if target cell has a block
 	if dirt_grid and dirt_grid.has_block(target):
 		_start_mining(direction, target)
 	else:
 		_start_move(target)
+
+
+## Check if player can dig at the specified target position.
+## Validates: distance (reach), direction restrictions, and player state.
+func can_dig_at(target: Vector2i) -> bool:
+	# Calculate distance in tiles
+	var distance := (target - grid_position).abs()
+
+	# Must be within reach
+	if distance.x > DIG_REACH or distance.y > DIG_REACH:
+		return false
+
+	# Must not be diagonal (only cardinal directions allowed)
+	if distance.x > 0 and distance.y > 0:
+		return false
+
+	# Cannot dig upward (unless drill upgrade in future)
+	if target.y < grid_position.y and not _has_drill_upgrade():
+		return false
+
+	# Cannot dig while falling (safety check)
+	if current_state == State.FALLING or current_state == State.WALL_JUMPING:
+		return false
+
+	return true
+
+
+## Check if player has the drill upgrade that allows upward mining.
+## Reserved for future implementation (v1.1).
+func _has_drill_upgrade() -> bool:
+	# Future: Check PlayerData for drill equipment
+	# if PlayerData and PlayerData.has_equipment("drill"):
+	#     return true
+	return false
+
+
+## Get the current dig reach (affected by tool upgrades in future).
+func get_dig_reach() -> int:
+	# Future: Check for extended reach tools
+	# if PlayerData and PlayerData.has_equipment("extended_pickaxe"):
+	#     return 2
+	return DIG_REACH
 
 
 func _start_move(target: Vector2i) -> void:
@@ -226,6 +284,10 @@ func _start_move(target: Vector2i) -> void:
 func _on_move_complete() -> void:
 	grid_position = target_grid_position
 	_update_depth()
+
+	# Track movement stat
+	if PlayerStats:
+		PlayerStats.track_tile_moved()
 
 	# Check if there's ground below - if not, start falling
 	if _should_fall():
@@ -294,6 +356,9 @@ func _on_animation_finished() -> void:
 	if destroyed:
 		block_destroyed.emit(mining_target)
 		sprite.speed_scale = 1.0  # Reset animation speed
+		# Track block mining stat
+		if PlayerStats:
+			PlayerStats.track_block_mined()
 		# Block destroyed, move into the space
 		_start_move(mining_target)
 	else:
@@ -311,6 +376,10 @@ func _update_depth() -> void:
 	if depth < 0:
 		depth = 0
 	depth_changed.emit(depth)
+
+	# Track depth stat
+	if PlayerStats:
+		PlayerStats.track_depth(depth)
 
 
 func _grid_to_world(grid_pos: Vector2i) -> Vector2:
@@ -473,6 +542,10 @@ func _handle_wall_sliding(delta: float) -> void:
 func _do_wall_jump() -> void:
 	current_state = State.WALL_JUMPING
 	_wall_jump_timer = WALL_JUMP_COOLDOWN
+
+	# Track wall jump stat
+	if PlayerStats:
+		PlayerStats.track_wall_jump()
 
 	# Jump away from wall
 	velocity.x = WALL_JUMP_FORCE_X * (-_wall_direction)  # Jump away from wall
@@ -691,7 +764,13 @@ func _apply_fall_damage(fall_blocks: int) -> void:
 	# damage *= surface_hardness_multiplier
 
 	damage = minf(damage, MAX_FALL_DAMAGE)
-	take_damage(int(damage), "fall")
+	var final_damage := int(damage)
+
+	# Track fall stat
+	if PlayerStats:
+		PlayerStats.track_fall(final_damage)
+
+	take_damage(final_damage, "fall")
 
 
 # ============================================
@@ -787,6 +866,9 @@ func _hit_tap_target() -> void:
 
 	if destroyed:
 		block_destroyed.emit(_tap_target_tile)
+		# Track block mining stat (tap-to-dig path)
+		if PlayerStats:
+			PlayerStats.track_block_mined()
 
 		# Check if we should move into the space (if it was adjacent and in a movable direction)
 		var diff := _tap_target_tile - grid_position
@@ -915,6 +997,12 @@ func die(cause: String = "unknown") -> void:
 	current_hp = 0
 	hp_changed.emit(current_hp, MAX_HP)
 	player_died.emit(cause)
+
+	# Track death stat with current depth
+	var depth := grid_position.y - GameManager.SURFACE_ROW
+	if PlayerStats:
+		PlayerStats.track_death(cause, depth)
+
 	print("[Player] Died from: %s" % cause)
 
 

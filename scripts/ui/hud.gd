@@ -27,6 +27,10 @@ var tool_label: Label = null
 ## Inventory slots label (created programmatically)
 var inventory_label: Label = null
 
+## Milestone notification scene
+const MilestoneNotificationScene = preload("res://scenes/ui/milestone_notification.tscn")
+var milestone_notification: Control = null
+
 ## Cached values for comparison
 var _last_hp: int = -1
 var _last_max_hp: int = -1
@@ -49,8 +53,13 @@ func _ready() -> void:
 	if GameManager:
 		GameManager.coins_changed.connect(_on_coins_changed)
 		GameManager.depth_updated.connect(_on_depth_updated)
+		GameManager.depth_milestone_reached.connect(_on_depth_milestone_reached)
+		GameManager.layer_entered.connect(_on_layer_entered)
 		_update_coins_display(GameManager.get_coins())
 		_update_depth_display(0)
+
+	# Create milestone notification
+	_setup_milestone_notification()
 
 	# Connect pause button
 	if pause_button:
@@ -387,3 +396,28 @@ func _update_inventory_indicator() -> void:
 		inventory_label.add_theme_color_override("font_color", Color.ORANGE)
 	else:
 		inventory_label.add_theme_color_override("font_color", Color.WHITE)
+
+
+# ============================================
+# MILESTONE NOTIFICATIONS
+# ============================================
+
+func _setup_milestone_notification() -> void:
+	## Create the milestone notification UI
+	milestone_notification = MilestoneNotificationScene.instantiate()
+	milestone_notification.name = "MilestoneNotification"
+	add_child(milestone_notification)
+
+
+func _on_depth_milestone_reached(depth: int) -> void:
+	## Show notification when a depth milestone is reached
+	if milestone_notification and milestone_notification.has_method("show_milestone"):
+		milestone_notification.show_milestone(depth)
+	print("[HUD] Depth milestone notification: %dm" % depth)
+
+
+func _on_layer_entered(layer_name: String) -> void:
+	## Show notification when entering a new layer
+	if milestone_notification and milestone_notification.has_method("show_layer_entered"):
+		milestone_notification.show_layer_entered(layer_name)
+	print("[HUD] Layer entered notification: %s" % layer_name)

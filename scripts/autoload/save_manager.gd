@@ -15,11 +15,17 @@ signal load_started
 signal load_completed(success: bool)
 signal save_slot_changed(slot: int)
 signal auto_save_triggered
+signal offline_income_ready(amount: int, time_away_minutes: int)
 
 const SAVE_DIR := "user://saves/"
 const CHUNKS_DIR := "user://chunks/"
 const MAX_SLOTS := 3
 const AUTO_SAVE_INTERVAL := 60.0  # Seconds between auto-saves
+
+## Offline income settings
+const OFFLINE_INCOME_RATE := 1.0  # Coins per minute (base rate)
+const OFFLINE_MAX_HOURS := 4.0  # Maximum hours of offline income
+const OFFLINE_MAX_SECONDS := OFFLINE_MAX_HOURS * 3600.0  # 14400 seconds
 
 var current_slot: int = -1
 var current_save: SaveDataClass = null
@@ -29,6 +35,10 @@ var _is_saving: bool = false
 var _auto_save_timer: float = 0.0
 var _session_start_time: int = 0
 var _last_save_time_ms: int = 0
+
+## Offline income tracking
+var pending_offline_income: int = 0
+var pending_offline_minutes: int = 0
 
 const MIN_SAVE_INTERVAL_MS := 5000  # 5 seconds minimum between saves (debounce)
 
@@ -183,6 +193,9 @@ func load_game(slot: int) -> bool:
 	# Apply loaded state to game systems
 	_apply_game_state()
 
+	# Calculate offline earnings (will emit signal if there's income to claim)
+	_calculate_offline_earnings()
+
 	save_slot_changed.emit(current_slot)
 	load_completed.emit(true)
 	print("[SaveManager] Loaded slot %d" % slot)
@@ -331,6 +344,66 @@ func _apply_game_state() -> void:
 				"ores_collected_total": current_save.ores_collected,
 				"deaths_total": current_save.deaths,
 			})
+
+
+## Calculate offline earnings based on time since last save
+func _calculate_offline_earnings() -> void:
+	if current_save == null:
+		return
+
+	var last_save := current_save.last_save_time
+	if last_save <= 0:
+		return  # No valid last save time
+
+	var current_time := int(Time.get_unix_time_from_system())
+	var elapsed_seconds := current_time - last_save
+
+	if elapsed_seconds < 60:
+		return  # Less than a minute, no offline income
+
+	# Cap at maximum offline time
+	var capped_seconds := mini(elapsed_seconds, int(OFFLINE_MAX_SECONDS))
+	var minutes_away := capped_seconds / 60
+
+	# Calculate base income (can be modified by upgrades later)
+	var income_rate := OFFLINE_INCOME_RATE
+
+	# TODO: Apply upgrade multipliers here if player has passive income upgrades
+	# e.g., if PlayerData.has_upgrade("passive_income_2x"):
+	#     income_rate *= 2.0
+
+	var earned := int(minutes_away * income_rate)
+
+	if earned > 0:
+		pending_offline_income = earned
+		pending_offline_minutes = minutes_away
+		print("[SaveManager] Offline earnings: %d coins for %d minutes away" % [earned, minutes_away])
+		# Emit signal for UI to display (caller should handle adding to GameManager)
+		offline_income_ready.emit(earned, minutes_away)
+
+
+## Claim pending offline income (called by UI after showing popup)
+func claim_offline_income() -> int:
+	var amount := pending_offline_income
+	if amount > 0 and GameManager:
+		GameManager.add_coins(amount)
+		print("[SaveManager] Claimed offline income: %d coins" % amount)
+	pending_offline_income = 0
+	pending_offline_minutes = 0
+	return amount
+
+
+## Check if there's pending offline income to claim
+func has_pending_offline_income() -> bool:
+	return pending_offline_income > 0
+
+
+## Get pending offline income details
+func get_pending_offline_info() -> Dictionary:
+	return {
+		"amount": pending_offline_income,
+		"minutes": pending_offline_minutes,
+	}
 
 
 ## Run migration if save version is old

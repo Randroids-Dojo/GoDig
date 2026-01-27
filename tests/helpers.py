@@ -81,6 +81,10 @@ PATHS = {
     "save_indicator_label": "/root/Main/UI/HUD/SaveIndicatorLabel",
     "ladder_quickslot": "/root/Main/UI/HUD/LadderQuickSlot",
     "surface_parallax": "/root/Main/Surface/ParallaxBackground",
+    "lighting_manager": "/root/LightingManager",
+    "ambient_modulate": "/root/Main/AmbientModulate",
+    "mining_progress_container": "/root/Main/UI/HUD/MiningProgressContainer",
+    "mining_progress_bar": "/root/Main/UI/HUD/MiningProgressContainer/MiningProgressBar",
 }
 
 

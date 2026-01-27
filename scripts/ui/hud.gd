@@ -109,6 +109,9 @@ func _ready() -> void:
 	# Create ladder quick-slot
 	_setup_ladder_quickslot()
 
+	# Create mining progress indicator
+	_setup_mining_progress()
+
 	# Connect save events
 	if SaveManager:
 		SaveManager.save_completed.connect(_on_save_completed)
@@ -128,6 +131,9 @@ func _process(delta: float) -> void:
 		_save_timer = 0.0
 		_update_save_indicator()
 
+	# Update mining progress indicator every frame
+	_update_mining_progress()
+
 
 ## Connect to a player's HP signals
 func connect_to_player(player: Node) -> void:
@@ -135,6 +141,9 @@ func connect_to_player(player: Node) -> void:
 		player.hp_changed.connect(_on_player_hp_changed)
 	if player.has_signal("player_died"):
 		player.player_died.connect(_on_player_died)
+
+	# Track player for mining progress indicator
+	track_player_for_mining(player)
 
 
 ## Disconnect from a player's HP signals
@@ -739,3 +748,129 @@ func _on_ladder_quickslot_pressed() -> void:
 
 ## Signal for ladder placement request
 signal ladder_place_requested
+
+
+# ============================================
+# MINING PROGRESS INDICATOR
+# ============================================
+
+## Mining progress bar (shows current block mining progress)
+var mining_progress_container: Control = null
+var mining_progress_bar: ProgressBar = null
+var mining_progress_label: Label = null
+
+## Reference to player for mining state tracking
+var _tracked_player: Node = null
+var _mining_fade_tween: Tween = null
+
+
+func _setup_mining_progress() -> void:
+	## Create the mining progress indicator
+	mining_progress_container = Control.new()
+	mining_progress_container.name = "MiningProgressContainer"
+	mining_progress_container.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	mining_progress_container.position = Vector2(-100, 200)
+	mining_progress_container.custom_minimum_size = Vector2(200, 40)
+	mining_progress_container.modulate.a = 0.0  # Start hidden
+	add_child(mining_progress_container)
+
+	# Background panel
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.color = Color(0.1, 0.1, 0.1, 0.85)
+	bg.size = Vector2(200, 40)
+	mining_progress_container.add_child(bg)
+
+	# Label showing "Mining..."
+	mining_progress_label = Label.new()
+	mining_progress_label.name = "MiningLabel"
+	mining_progress_label.text = "Mining..."
+	mining_progress_label.position = Vector2(8, 2)
+	mining_progress_label.custom_minimum_size = Vector2(184, 16)
+	mining_progress_label.add_theme_font_size_override("font_size", 12)
+	mining_progress_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	mining_progress_container.add_child(mining_progress_label)
+
+	# Progress bar
+	mining_progress_bar = ProgressBar.new()
+	mining_progress_bar.name = "MiningProgressBar"
+	mining_progress_bar.position = Vector2(8, 20)
+	mining_progress_bar.custom_minimum_size = Vector2(184, 14)
+	mining_progress_bar.show_percentage = false
+	mining_progress_bar.max_value = 1.0
+	mining_progress_bar.value = 0.0
+	mining_progress_container.add_child(mining_progress_bar)
+
+
+func track_player_for_mining(player: Node) -> void:
+	## Start tracking a player's mining state for the indicator
+	_tracked_player = player
+
+
+func _update_mining_progress() -> void:
+	## Update the mining progress indicator based on player state
+	if mining_progress_container == null or mining_progress_bar == null:
+		return
+
+	if _tracked_player == null:
+		_hide_mining_progress()
+		return
+
+	# Check if player is mining
+	if not _tracked_player.has_method("get") or _tracked_player.current_state != _tracked_player.State.MINING:
+		_hide_mining_progress()
+		return
+
+	# Get the mining target and progress
+	var mining_target: Vector2i = _tracked_player.mining_target
+	var dirt_grid = _tracked_player.dirt_grid
+	if dirt_grid == null:
+		_hide_mining_progress()
+		return
+
+	var progress := dirt_grid.get_block_mining_progress(mining_target)
+	if progress < 0:
+		_hide_mining_progress()
+		return
+
+	# Show and update the progress bar
+	_show_mining_progress()
+	mining_progress_bar.value = progress
+
+	# Color the progress bar based on progress
+	if progress < 0.5:
+		mining_progress_bar.modulate = Color(0.8, 0.8, 0.8)
+	elif progress < 0.8:
+		mining_progress_bar.modulate = Color(0.9, 0.9, 0.5)
+	else:
+		mining_progress_bar.modulate = Color(0.5, 1.0, 0.5)
+
+
+func _show_mining_progress() -> void:
+	## Show the mining progress indicator with fade in
+	if mining_progress_container == null:
+		return
+
+	if mining_progress_container.modulate.a >= 1.0:
+		return  # Already visible
+
+	if _mining_fade_tween and _mining_fade_tween.is_valid():
+		_mining_fade_tween.kill()
+
+	_mining_fade_tween = create_tween()
+	_mining_fade_tween.tween_property(mining_progress_container, "modulate:a", 1.0, 0.15)
+
+
+func _hide_mining_progress() -> void:
+	## Hide the mining progress indicator with fade out
+	if mining_progress_container == null:
+		return
+
+	if mining_progress_container.modulate.a <= 0.0:
+		return  # Already hidden
+
+	if _mining_fade_tween and _mining_fade_tween.is_valid():
+		_mining_fade_tween.kill()
+
+	_mining_fade_tween = create_tween()
+	_mining_fade_tween.tween_property(mining_progress_container, "modulate:a", 0.0, 0.2)

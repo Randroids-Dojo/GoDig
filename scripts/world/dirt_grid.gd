@@ -280,6 +280,26 @@ func get_block_hardness(pos: Vector2i) -> float:
 	return block.max_health
 
 
+func get_block_health(pos: Vector2i) -> float:
+	## Get the current health of a block at the position
+	## Returns 0.0 if no block exists
+	if not _active.has(pos):
+		return 0.0
+	var block = _active[pos]
+	return block.current_health
+
+
+func get_block_mining_progress(pos: Vector2i) -> float:
+	## Get the mining progress of a block (0.0 = undamaged, 1.0 = about to break)
+	## Returns -1.0 if no block exists
+	if not _active.has(pos):
+		return -1.0
+	var block = _active[pos]
+	if block.max_health <= 0:
+		return 1.0
+	return 1.0 - (block.current_health / block.max_health)
+
+
 func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 	## Hit a block with specified tool damage, returns true if destroyed
 	## If tool_damage is -1, uses PlayerData's equipped tool damage

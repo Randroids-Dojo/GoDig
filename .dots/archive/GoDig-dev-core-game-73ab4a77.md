@@ -3,9 +3,11 @@ title: "implement: Core game loop integration"
 status: closed
 priority: 0
 issue-type: task
-created-at: "\"\\\"2026-01-16T00:46:56.254705-06:00\\\"\""
-closed-at: "2026-01-19T19:35:43.564791-06:00"
-close-reason: Game state machine, signals, and loop wired in test_level.gd
+created-at: "2026-01-16T00:46:56.254705-06:00"
+after:
+  - GoDig-implement-shop-building-25de6397
+  - GoDig-dev-inventory-ui-71ea78b3
+close-reason: Implemented with GameManager states (MENU, PLAYING, PAUSED, SHOP, GAME_OVER), test_level.gd wiring dirt_grid to inventory, shop integration
 ---
 
 ## Description

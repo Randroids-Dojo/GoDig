@@ -3,9 +3,8 @@ title: "implement: Player wall-jump ability"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:38:04.471213-06:00\""
-closed-at: "2026-01-19T19:34:24.869171-06:00"
-close-reason: Wall jump implemented in player.gd
+created-at: "2026-01-16T00:38:04.471213-06:00"
+close-reason: Implemented in scripts/player/player.gd with WALL_SLIDING and WALL_JUMPING states, _start_wall_slide and _do_wall_jump methods
 ---
 
 ## Description

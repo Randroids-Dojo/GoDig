@@ -3,9 +3,8 @@ title: "implement: Floating pickup text"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T01:01:24.196969-06:00\""
-closed-at: "2026-01-19T19:34:24.913796-06:00"
-close-reason: Floating text exists at scenes/ui/floating_text.tscn
+created-at: "2026-01-16T01:01:24.196969-06:00"
+close-reason: Implemented in scripts/test_level.gd lines 158-190 with _on_item_added handler showing colored floating text for item pickups with rarity prefixes
 ---
 
 ## Description

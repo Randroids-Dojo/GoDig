@@ -3,9 +3,7 @@ title: "implement: ToolData resource class"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:38:18.017856-06:00\""
-closed-at: "2026-01-19T11:26:40.020035-06:00"
-close-reason: ToolData class exists, 3 tool .tres files exist, DataRegistry has tool loading (get_tool, get_tools_at_depth)
+created-at: "2026-01-16T00:38:18.017856-06:00"
 ---
 
 ## Description

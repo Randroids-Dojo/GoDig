@@ -3,9 +3,8 @@ title: "implement: Block break time calculation"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:43:21.057626-06:00\""
-closed-at: "2026-01-19T19:35:43.592259-06:00"
-close-reason: Block break time in dirt_block.gd
+created-at: "2026-01-16T00:43:21.057626-06:00"
+close-reason: Core system implemented with dirt_block health, tool damage/speed_multiplier, animation speed scaling in player.gd
 ---
 
 ## Description

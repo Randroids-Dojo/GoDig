@@ -1,9 +1,10 @@
 ---
 title: "implement: Terrain tileset sprites"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:39:51.705359-06:00"
+close-reason: Implemented via TileSetSetup.gd programmatic tileset with atlas coords for all terrain/ore types, procedural generation available
 ---
 
 ## Description

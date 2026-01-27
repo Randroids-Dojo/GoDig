@@ -3,9 +3,10 @@ title: "implement: Chunk cleanup (unload distant)"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:59:08.600546-06:00\""
-closed-at: "2026-01-19T19:34:24.924779-06:00"
-close-reason: _cleanup_distant_chunks in dirt_grid.gd
+created-at: "2026-01-16T00:59:08.600546-06:00"
+after:
+  - GoDig-dev-chunkmanager-load-11c71de3
+close-reason: Implemented in scripts/world/dirt_grid.gd with _cleanup_distant_chunks and _unload_chunk methods
 ---
 
 ## Description

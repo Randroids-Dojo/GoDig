@@ -1,11 +1,12 @@
 ---
 title: "implement: Backpack upgrade system"
-status: open
+status: closed
 priority: 2
 issue-type: task
 created-at: "2026-01-16T00:43:21.066182-06:00"
 after:
   - GoDig-dev-inventory-ui-71ea78b3
+close-reason: Implemented in shop.gd with backpack_upgrades array and _on_backpack_upgrade calling InventoryManager.upgrade_capacity
 ---
 
 ## Description

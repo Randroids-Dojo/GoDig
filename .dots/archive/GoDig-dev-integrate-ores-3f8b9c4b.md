@@ -3,9 +3,11 @@ title: "implement: Integrate ores into chunk generation"
 status: closed
 priority: 1
 issue-type: task
-created-at: "\"2026-01-16T00:38:21.629745-06:00\""
-closed-at: "2026-01-19T19:34:24.933381-06:00"
-close-reason: _determine_ore_spawn in dirt_grid.gd
+created-at: "2026-01-16T00:38:21.629745-06:00"
+after:
+  - GoDig-dev-noise-based-3afe498c
+  - GoDig-dev-vein-expansion-3cb3cd9f
+close-reason: Implemented in dirt_grid.gd _generate_chunk calls _determine_ore_spawn for each tile, using depth-based ore distribution
 ---
 
 ## Description

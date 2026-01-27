@@ -268,6 +268,15 @@ func has_ladder(pos: Vector2i) -> bool:
 	return _placed_objects.get(pos, TileTypes.Type.AIR) == TileTypes.Type.LADDER
 
 
+func get_block_hardness(pos: Vector2i) -> float:
+	## Get the max hardness of a block at the position
+	## Returns 0.0 if no block exists
+	if not _active.has(pos):
+		return 0.0
+	var block = _active[pos]
+	return block.max_health
+
+
 func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 	## Hit a block with specified tool damage, returns true if destroyed
 	## If tool_damage is -1, uses PlayerData's equipped tool damage

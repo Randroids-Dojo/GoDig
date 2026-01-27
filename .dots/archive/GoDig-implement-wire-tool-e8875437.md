@@ -3,9 +3,9 @@ title: "implement: Wire tool upgrades to PlayerStats"
 status: closed
 priority: 1
 issue-type: task
-created-at: "\"2026-01-18T23:49:26.252382-06:00\""
-closed-at: "2026-01-19T10:40:01.058990-06:00"
-close-reason: Already implemented - PlayerData manages tool tier, shop.gd uses ToolData system, dirt_grid.hit_block() auto-loads tool damage from PlayerData
+created-at: "2026-01-18T23:49:26.252382-06:00"
+after:
+  - GoDig-mvp-single-shop-b97d367d
 ---
 
 Shop._on_tool_upgrade() has TODO. Need to track current_tool_tier in GameManager or PlayerStats. When upgraded, update tier and apply damage multiplier to mining. Shop needs to read current tier for UI.

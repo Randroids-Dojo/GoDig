@@ -3,9 +3,10 @@ title: "implement: Shop interaction system"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T01:02:03.895696-06:00\""
-closed-at: "2026-01-19T19:35:43.576004-06:00"
-close-reason: Shop interaction in test_level.gd
+created-at: "2026-01-16T01:02:03.895696-06:00"
+after:
+  - GoDig-implement-shop-building-25de6397
+close-reason: Implemented in scripts/test_level.gd with _connect_shop_building, _on_shop_building_entered/exited handlers that show shop button and open shop UI
 ---
 
 ## Description

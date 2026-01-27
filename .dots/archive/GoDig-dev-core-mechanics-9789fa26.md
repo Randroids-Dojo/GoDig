@@ -3,9 +3,10 @@ title: "implement: Core mechanics integration tests"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:47:55.565950-06:00\""
-closed-at: "2026-01-19T19:35:43.586802-06:00"
-close-reason: Core mechanics integration exists
+created-at: "2026-01-16T00:47:55.565950-06:00"
+after:
+  - GoDig-dev-core-game-73ab4a77
+  - GoDig-dev-save-load-b24a3397
 ---
 
 ## Description

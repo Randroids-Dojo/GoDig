@@ -3,9 +3,8 @@ title: "implement: Block hardness data resource"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:37:43.116244-06:00\""
-closed-at: "2026-01-19T11:23:32.253370-06:00"
-close-reason: Block hardness already implemented via LayerData.get_hardness_at() with variance, DirtBlock.activate() uses DataRegistry.get_block_hardness()
+created-at: "2026-01-16T00:37:43.116244-06:00"
+close-reason: Implemented via LayerData base_hardness, DataRegistry.get_block_hardness(), and DirtBlock using it in activate()
 ---
 
 ## Description

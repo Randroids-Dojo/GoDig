@@ -3,9 +3,8 @@ title: "implement: Jump button (right side)"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:39:15.604801-06:00\""
-closed-at: "2026-01-19T19:34:24.905392-06:00"
-close-reason: Jump button in touch_controls.tscn
+created-at: "2026-01-16T00:39:15.604801-06:00"
+close-reason: Implemented as JumpButton in scenes/ui/touch_controls.tscn line 43
 ---
 
 ## Description

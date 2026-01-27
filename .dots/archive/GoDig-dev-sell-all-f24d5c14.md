@@ -3,9 +3,10 @@ title: "implement: Sell all button"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:45:21.954561-06:00\""
-closed-at: "2026-01-19T19:35:43.578811-06:00"
-close-reason: Sell all in shop.gd
+created-at: "2026-01-16T00:45:21.954561-06:00"
+after:
+  - GoDig-dev-shop-interaction-698ee28c
+close-reason: Already implemented in scripts/ui/shop.gd lines 195-221 with sell_all_button and _on_sell_all_pressed handler
 ---
 
 ## Description

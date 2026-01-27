@@ -1,12 +1,11 @@
 ---
 title: "implement: Chunk generation tests"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T01:04:04.546504-06:00"
-after:
-  - GoDig-dev-chunkmanager-load-11c71de3
-  - GoDig-dev-noise-based-3afe498c
+created-at: "\"2026-01-16T01:04:04.546504-06:00\""
+closed-at: "2026-01-27T07:19:18.667029+00:00"
+close-reason: Added tests for chunk system constants (BLOCK_SIZE, CHUNK_SIZE, POOL_SIZE, LOAD_RADIUS)
 ---
 
 ## Description

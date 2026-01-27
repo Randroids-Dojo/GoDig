@@ -9,12 +9,17 @@ const ToolDataClass = preload("res://resources/tools/tool_data.gd")
 
 signal tool_changed(tool)  # ToolData
 signal max_depth_updated(depth: int)
+signal tool_durability_changed(current: int, max_val: int)
+signal tool_broken()
 
 ## Currently equipped tool ID (default: starter pickaxe)
 var equipped_tool_id: String = "rusty_pickaxe"
 
 ## Maximum depth the player has ever reached (in grid rows)
 var max_depth_reached: int = 0
+
+## Tool durability tracking (per-tool dictionary)
+var tool_durabilities: Dictionary = {}  # tool_id -> current_durability
 
 
 func _ready() -> void:
@@ -119,9 +124,85 @@ func get_next_tool_upgrade() -> ToolDataClass:
 func reset() -> void:
 	equipped_tool_id = "rusty_pickaxe"
 	max_depth_reached = 0
+	tool_durabilities.clear()
 	tool_changed.emit(get_equipped_tool())
 	max_depth_updated.emit(max_depth_reached)
 	print("[PlayerData] Reset to defaults")
+
+
+# ============================================
+# TOOL DURABILITY
+# ============================================
+
+## Get current durability of equipped tool
+func get_tool_durability() -> int:
+	var tool_data: ToolDataClass = get_equipped_tool()
+	if tool_data == null:
+		return 0
+
+	# If tool has no durability system, return max
+	if tool_data.max_durability == 0:
+		return tool_data.max_durability  # 0 means infinite
+
+	# Get stored durability, or initialize to max
+	if not tool_durabilities.has(equipped_tool_id):
+		tool_durabilities[equipped_tool_id] = tool_data.max_durability
+
+	return tool_durabilities[equipped_tool_id]
+
+
+## Use the tool (reduce durability by 1)
+func use_tool() -> void:
+	var tool_data: ToolDataClass = get_equipped_tool()
+	if tool_data == null or tool_data.max_durability == 0:
+		return  # No durability system
+
+	# Initialize if needed
+	if not tool_durabilities.has(equipped_tool_id):
+		tool_durabilities[equipped_tool_id] = tool_data.max_durability
+
+	# Reduce durability
+	tool_durabilities[equipped_tool_id] -= 1
+	var current: int = tool_durabilities[equipped_tool_id]
+
+	tool_durability_changed.emit(current, tool_data.max_durability)
+
+	# Check if broken
+	if current <= 0:
+		tool_broken.emit()
+		print("[PlayerData] Tool broken: %s" % tool_data.display_name)
+
+
+## Repair the equipped tool (full repair)
+func repair_tool() -> int:
+	var tool_data: ToolDataClass = get_equipped_tool()
+	if tool_data == null or tool_data.max_durability == 0:
+		return 0
+
+	var current: int = get_tool_durability()
+	var cost: int = tool_data.get_repair_cost(current)
+
+	tool_durabilities[equipped_tool_id] = tool_data.max_durability
+	tool_durability_changed.emit(tool_data.max_durability, tool_data.max_durability)
+
+	print("[PlayerData] Tool repaired: %s" % tool_data.display_name)
+	return cost
+
+
+## Check if equipped tool is broken
+func is_tool_broken() -> bool:
+	var tool_data: ToolDataClass = get_equipped_tool()
+	if tool_data == null or tool_data.max_durability == 0:
+		return false
+	return get_tool_durability() <= 0
+
+
+## Get repair cost for equipped tool
+func get_repair_cost() -> int:
+	var tool_data: ToolDataClass = get_equipped_tool()
+	if tool_data == null or tool_data.max_durability == 0:
+		return 0
+	return tool_data.get_repair_cost(get_tool_durability())
 
 
 ## Get save data for persistence
@@ -129,6 +210,7 @@ func get_save_data() -> Dictionary:
 	return {
 		"equipped_tool_id": equipped_tool_id,
 		"max_depth_reached": max_depth_reached,
+		"tool_durabilities": tool_durabilities.duplicate(),
 	}
 
 
@@ -136,6 +218,7 @@ func get_save_data() -> Dictionary:
 func load_save_data(data: Dictionary) -> void:
 	equipped_tool_id = data.get("equipped_tool_id", "rusty_pickaxe")
 	max_depth_reached = data.get("max_depth_reached", 0)
+	tool_durabilities = data.get("tool_durabilities", {}).duplicate()
 	tool_changed.emit(get_equipped_tool())
 	max_depth_updated.emit(max_depth_reached)
 	print("[PlayerData] Loaded - Tool: %s, Max Depth: %d" % [equipped_tool_id, max_depth_reached])

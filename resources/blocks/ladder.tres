@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BlockData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/blocks/block_data.gd" id="1_block"]
+
+[resource]
+script = ExtResource("1_block")
+id = "ladder"
+display_name = "Ladder"
+block_type = 1
+placement = 0
+hardness = 3.0
+is_solid = false
+is_climbable = true
+is_light_source = false
+is_walkable = true
+supports_blocks = false
+required_tool_tier = 0
+drop_item_id = "ladder"
+drop_chance = 1.0
+description = "A wooden ladder for vertical traversal."

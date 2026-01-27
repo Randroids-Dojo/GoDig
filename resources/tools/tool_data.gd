@@ -32,3 +32,39 @@ class_name ToolData extends Resource
 
 ## Optional description text
 @export var description: String = ""
+
+## Maximum durability (0 = infinite durability)
+@export var max_durability: int = 0
+
+## Repair cost multiplier (cost = base_damage * multiplier)
+@export var repair_cost_multiplier: float = 1.0
+
+## Whether this tool can break (false = indestructible)
+@export var can_break: bool = false
+
+
+## Get effective damage considering durability (future use)
+func get_effective_damage(current_durability: int) -> float:
+	if max_durability == 0:
+		return damage  # Infinite durability
+
+	# Damage reduction when worn (below 25% durability)
+	var durability_ratio := float(current_durability) / float(max_durability)
+	if durability_ratio < 0.25:
+		return damage * (0.5 + durability_ratio * 2.0)  # 50-100% damage
+	return damage
+
+
+## Check if tool is broken
+func is_broken(current_durability: int) -> bool:
+	return max_durability > 0 and current_durability <= 0
+
+
+## Calculate repair cost
+func get_repair_cost(current_durability: int) -> int:
+	if max_durability == 0:
+		return 0  # Can't repair infinite durability tools
+
+	var missing_durability := max_durability - current_durability
+	var base_cost := int(float(missing_durability) * repair_cost_multiplier)
+	return maxi(1, base_cost)

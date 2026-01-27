@@ -1,12 +1,11 @@
 ---
 title: "implement: Layer transition system"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T00:44:03.965591-06:00"
-after:
-  - GoDig-dev-layer-depth-89c9d8ac
-  - GoDig-dev-define-7-d4679cf5
+created-at: "\"2026-01-16T00:44:03.965591-06:00\""
+closed-at: "2026-01-27T07:19:18.717988+00:00"
+close-reason: Verified existing layer transition notifications work via GameManager and HUD
 ---
 
 ## Description

@@ -129,20 +129,6 @@ async def test_jump_button_has_action(game):
 
 
 @pytest.mark.asyncio
-async def test_dig_button_exists(game):
-    """Verify the dig TouchScreenButton exists for touch digging."""
-    exists = await game.node_exists(PATHS["dig_button"])
-    assert exists, "Dig button should exist for touch controls"
-
-
-@pytest.mark.asyncio
-async def test_dig_button_has_action(game):
-    """Verify the dig button has the correct input action mapped."""
-    action = await game.get_property(PATHS["dig_button"], "action")
-    assert action == "dig", f"Dig button should have action 'dig', got '{action}'"
-
-
-@pytest.mark.asyncio
 async def test_inventory_button_exists(game):
     """Verify the inventory TouchScreenButton exists."""
     exists = await game.node_exists(PATHS["inventory_button"])
@@ -154,6 +140,20 @@ async def test_inventory_button_has_action(game):
     """Verify the inventory button has the correct input action mapped."""
     action = await game.get_property(PATHS["inventory_button"], "action")
     assert action == "inventory", f"Inventory button should have action 'inventory', got '{action}'"
+
+
+@pytest.mark.asyncio
+async def test_jump_button_has_touch_shape(game):
+    """Verify the jump button has a touch shape defined for mobile taps."""
+    shape = await game.get_property(PATHS["jump_button"], "shape")
+    assert shape is not None, "Jump button must have a shape defined for touch input"
+
+
+@pytest.mark.asyncio
+async def test_inventory_button_has_touch_shape(game):
+    """Verify the inventory button has a touch shape defined for mobile taps."""
+    shape = await game.get_property(PATHS["inventory_button"], "shape")
+    assert shape is not None, "Inventory button must have a shape defined for touch input"
 
 
 @pytest.mark.asyncio

@@ -57,8 +57,6 @@ func _ready() -> void:
 	touch_controls.direction_pressed.connect(player.set_touch_direction)
 	touch_controls.direction_released.connect(player.clear_touch_direction)
 	touch_controls.jump_pressed.connect(player.trigger_jump)
-	touch_controls.dig_pressed.connect(player.trigger_dig)
-	touch_controls.dig_released.connect(player.stop_dig)
 	touch_controls.inventory_pressed.connect(_on_inventory_pressed)
 
 	# Connect depth tracking

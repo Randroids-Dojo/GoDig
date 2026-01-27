@@ -8,19 +8,21 @@
 
 ## Control Schemes for Mining Game
 
-### Option A: Virtual Joystick + Buttons
+### Option A: Virtual Joystick + Buttons (IMPLEMENTED)
 ```
 ┌─────────────────────────────────────┐
 │                                     │
 │              GAME VIEW              │
-│                                     │
+│                                 INV │
 │                                     │
 │  ┌───┐                       ┌───┐  │
-│  │ ⬤ │ Move              Dig │ ⬤ │  │
-│  │   │                   Jump│   │  │
-│  └───┘                       └───┘  │
+│  │ ⬤ │ Move                 │JUMP│  │
+│  │   │                       └───┘  │
+│  └───┘                              │
 └─────────────────────────────────────┘
 ```
+**Note:** DIG button was removed as redundant - moving into blocks auto-mines,
+and tap-to-dig allows tapping directly on adjacent blocks.
 
 ### Option B: Tap-to-Move/Dig
 - Tap direction to move
@@ -38,16 +40,17 @@
 ### Recommended Asset
 Use MarcoFazioRandom's Virtual Joystick from Asset Library.
 
-### Node Structure
+### Node Structure (Current Implementation)
 ```
 UI (CanvasLayer)
-├── VirtualJoystick (Control)
-│   ├── Background (TextureRect)
-│   └── Tip (TextureRect)
-├── JumpButton (TouchScreenButton)
-├── DigButton (TouchScreenButton)
-└── InventoryButton (TouchScreenButton)
+├── TouchControls (Control)
+│   ├── VirtualJoystick (Control) - procedurally drawn
+│   └── ActionButtons (Control)
+│       ├── InventoryButton (TouchScreenButton)
+│       └── JumpButton (TouchScreenButton)
 ```
+**Note:** No DigButton - digging is automatic when moving into blocks,
+or via tap-to-dig on adjacent blocks.
 
 ### Joystick Modes
 
@@ -117,15 +120,15 @@ func _on_dig_button_released():
     Input.action_release("dig")
 ```
 
-### Button Layout
-```gdscript
+### Button Layout (Implemented)
+```
 # For mining game:
-# Left side: Movement joystick
-# Right side:
-#   - Dig button (main action)
-#   - Jump button
-#   - Inventory button
-#   - Place ladder button (context-sensitive)
+# Left side: Movement joystick (procedurally drawn)
+# Right side (stacked vertically):
+#   - Inventory button (100x64, top)
+#   - Jump button (100x100, bottom - wall-jump mechanic)
+#
+# Digging: Automatic when moving into blocks OR tap adjacent blocks
 ```
 
 ## Tap-to-Interact System
@@ -204,13 +207,21 @@ func _ready():
         hide_touch_controls()
 ```
 
-## Recommended Approach for GoDig
+## Implemented Approach for GoDig
 
-### Primary Controls
-1. **Left Virtual Joystick**: Movement (walk, climb)
-2. **Tap on Block**: Dig that block (if adjacent)
-3. **Jump Button**: Right side, small
-4. **Inventory Button**: Top right corner
+### Primary Controls (Current)
+1. **Left Virtual Joystick**: Movement (walk left/right, down to dig)
+2. **Auto-Mine**: Moving into blocks automatically mines them
+3. **Tap-to-Dig**: Tap directly on adjacent blocks to mine
+4. **Jump Button**: Right side, 100x100 (for wall-jump mechanic)
+5. **Inventory Button**: Above jump button, 100x64
+
+### Why No Dig Button?
+The DIG button was removed because:
+- Moving the joystick into a block auto-mines it
+- Tap-to-dig allows targeting specific blocks
+- Having both made the DIG button redundant
+- Simpler UI = better mobile UX
 
 ### Context-Sensitive Actions
 - Near shop: Show "Enter" button

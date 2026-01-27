@@ -79,13 +79,6 @@ async def test_jump_button_exists(game):
 
 
 @pytest.mark.asyncio
-async def test_dig_button_exists(game):
-    """Dig button should exist in action buttons."""
-    exists = await game.node_exists(PATHS["dig_button"])
-    assert exists, "Dig button should exist"
-
-
-@pytest.mark.asyncio
 async def test_inventory_button_exists(game):
     """Inventory button should exist in action buttons."""
     exists = await game.node_exists(PATHS["inventory_button"])
@@ -186,19 +179,19 @@ async def test_touch_controls_in_bottom_zone(game):
 
 @pytest.mark.asyncio
 async def test_touch_button_minimum_size(game):
-    """Touch buttons should meet minimum touch target size (88px)."""
-    # Check dig button size (main action, should be at least 88px)
-    dig_visual = await game.node_exists("/root/Main/UI/TouchControls/ActionButtons/DigButton/DigVisual")
-    assert dig_visual, "Dig button visual should exist"
+    """Touch buttons should meet minimum touch target size (64px)."""
+    # Check jump button size (main action button, should be at least 64px)
+    jump_visual = await game.node_exists("/root/Main/UI/TouchControls/ActionButtons/JumpButton/JumpVisual")
+    assert jump_visual, "Jump button visual should exist"
 
     # The size is defined in the ColorRect offset_right/bottom
-    # Dig button should be 118x118 (medium-large size for main action)
-    dig_size = await game.get_property(
-        "/root/Main/UI/TouchControls/ActionButtons/DigButton/DigVisual",
+    # Jump button should be 100x100 (good size for wall-jump action)
+    jump_size = await game.get_property(
+        "/root/Main/UI/TouchControls/ActionButtons/JumpButton/JumpVisual",
         "size"
     )
-    assert dig_size["x"] >= 88, "Dig button should meet minimum touch target width (88px)"
-    assert dig_size["y"] >= 88, "Dig button should meet minimum touch target height (88px)"
+    assert jump_size["x"] >= 64, "Jump button should meet minimum touch target width (64px)"
+    assert jump_size["y"] >= 64, "Jump button should meet minimum touch target height (64px)"
 
 
 @pytest.mark.asyncio

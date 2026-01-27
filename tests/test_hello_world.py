@@ -157,6 +157,27 @@ async def test_inventory_button_has_action(game):
 
 
 @pytest.mark.asyncio
+async def test_jump_button_has_touch_shape(game):
+    """Verify the jump button has a touch shape defined for mobile taps."""
+    shape = await game.get_property(PATHS["jump_button"], "shape")
+    assert shape is not None, "Jump button must have a shape defined for touch input"
+
+
+@pytest.mark.asyncio
+async def test_dig_button_has_touch_shape(game):
+    """Verify the dig button has a touch shape defined for mobile taps."""
+    shape = await game.get_property(PATHS["dig_button"], "shape")
+    assert shape is not None, "Dig button must have a shape defined for touch input"
+
+
+@pytest.mark.asyncio
+async def test_inventory_button_has_touch_shape(game):
+    """Verify the inventory button has a touch shape defined for mobile taps."""
+    shape = await game.get_property(PATHS["inventory_button"], "shape")
+    assert shape is not None, "Inventory button must have a shape defined for touch input"
+
+
+@pytest.mark.asyncio
 async def test_player_has_wall_jump_states(game):
     """Verify the player has the wall-jump state machine states."""
     # Check that the player is in a valid state (IDLE = 0 at start)

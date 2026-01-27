@@ -1,7 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://cw5k8h7j3m8yq"]
+[gd_scene load_steps=6 format=3 uid="uid://cw5k8h7j3m8yq"]
 
 [ext_resource type="Script" path="res://scripts/ui/touch_controls.gd" id="1_x8k7j"]
 [ext_resource type="Script" path="res://scripts/ui/virtual_joystick.gd" id="2_joystick"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jump"]
+size = Vector2(88, 88)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dig"]
+size = Vector2(118, 118)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_inv"]
+size = Vector2(88, 50)
 
 [node name="TouchControls" type="Control"]
 layout_mode = 3
@@ -43,6 +52,8 @@ mouse_filter = 2
 [node name="JumpButton" type="TouchScreenButton" parent="ActionButtons"]
 position = Vector2(108, 72)
 visibility_mode = 1
+shape = SubResource("RectangleShape2D_jump")
+shape_centered = false
 action = "jump"
 
 [node name="JumpVisual" type="ColorRect" parent="ActionButtons/JumpButton"]
@@ -66,6 +77,8 @@ vertical_alignment = 1
 [node name="DigButton" type="TouchScreenButton" parent="ActionButtons"]
 position = Vector2(0, 62)
 visibility_mode = 1
+shape = SubResource("RectangleShape2D_dig")
+shape_centered = false
 action = "dig"
 
 [node name="DigVisual" type="ColorRect" parent="ActionButtons/DigButton"]
@@ -89,6 +102,8 @@ vertical_alignment = 1
 [node name="InventoryButton" type="TouchScreenButton" parent="ActionButtons"]
 position = Vector2(120, 0)
 visibility_mode = 1
+shape = SubResource("RectangleShape2D_inv")
+shape_centered = false
 action = "inventory"
 
 [node name="InventoryVisual" type="ColorRect" parent="ActionButtons/InventoryButton"]

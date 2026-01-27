@@ -1,9 +1,11 @@
 ---
 title: "implement: Block dig progress indicator"
-status: active
+status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T01:06:21.068853-06:00\""
+created-at: "\"\\\"2026-01-16T01:06:21.068853-06:00\\\"\""
+closed-at: "2026-01-27T04:44:48.349151+00:00"
+close-reason: Added block shake effect with tween animation. Intensity scales with damage ratio. Pushed to claude/next-task-w7YBE
 ---
 
 ## Description

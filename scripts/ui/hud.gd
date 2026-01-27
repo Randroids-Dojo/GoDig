@@ -24,6 +24,11 @@ var quick_sell_button: Button = null
 ## Tool indicator label (created programmatically)
 var tool_label: Label = null
 
+## Tool durability bar (created programmatically)
+var tool_durability_container: Control = null
+var tool_durability_bar: ProgressBar = null
+var tool_durability_label: Label = null
+
 ## Inventory slots label (created programmatically)
 var inventory_label: Label = null
 
@@ -86,6 +91,9 @@ func _ready() -> void:
 
 	# Create tool indicator
 	_setup_tool_indicator()
+
+	# Create tool durability indicator
+	_setup_tool_durability()
 
 	# Create inventory slots indicator
 	_setup_inventory_indicator()
@@ -377,6 +385,7 @@ func _setup_tool_indicator() -> void:
 
 func _on_tool_changed(_tool_data) -> void:
 	_update_tool_indicator()
+	_update_tool_durability()
 
 
 func _update_tool_indicator() -> void:
@@ -392,6 +401,85 @@ func _update_tool_indicator() -> void:
 		tool_label.text = "Tool: %s" % tool_data.display_name
 	else:
 		tool_label.text = "Tool: None"
+
+
+# ============================================
+# TOOL DURABILITY INDICATOR
+# ============================================
+
+func _setup_tool_durability() -> void:
+	## Create the tool durability bar
+	tool_durability_container = Control.new()
+	tool_durability_container.name = "ToolDurabilityContainer"
+	tool_durability_container.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	tool_durability_container.position = Vector2(-200, 85)
+	tool_durability_container.custom_minimum_size = Vector2(184, 20)
+	add_child(tool_durability_container)
+
+	# Durability bar
+	tool_durability_bar = ProgressBar.new()
+	tool_durability_bar.name = "DurabilityBar"
+	tool_durability_bar.position = Vector2(0, 0)
+	tool_durability_bar.custom_minimum_size = Vector2(140, 12)
+	tool_durability_bar.show_percentage = false
+	tool_durability_bar.max_value = 100.0
+	tool_durability_bar.value = 100.0
+	tool_durability_container.add_child(tool_durability_bar)
+
+	# Durability label
+	tool_durability_label = Label.new()
+	tool_durability_label.name = "DurabilityLabel"
+	tool_durability_label.position = Vector2(145, -2)
+	tool_durability_label.custom_minimum_size = Vector2(39, 16)
+	tool_durability_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	tool_durability_label.add_theme_font_size_override("font_size", 12)
+	tool_durability_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	tool_durability_container.add_child(tool_durability_label)
+
+	# Hide by default (only show if tool has durability)
+	tool_durability_container.visible = false
+
+
+func _update_tool_durability() -> void:
+	## Update tool durability display
+	if tool_durability_container == null or tool_durability_bar == null:
+		return
+	if PlayerData == null:
+		tool_durability_container.visible = false
+		return
+
+	var tool_data = PlayerData.get_equipped_tool()
+	if tool_data == null or tool_data.max_durability == 0:
+		# Tool has infinite durability, hide the bar
+		tool_durability_container.visible = false
+		return
+
+	# Get current durability from PlayerData
+	var current_durability: int = PlayerData.get_tool_durability()
+	var max_durability: int = tool_data.max_durability
+
+	tool_durability_container.visible = true
+	tool_durability_bar.max_value = max_durability
+	tool_durability_bar.value = current_durability
+
+	# Update label
+	if tool_durability_label:
+		tool_durability_label.text = "%d%%" % int(float(current_durability) / float(max_durability) * 100.0)
+
+	# Color based on durability level
+	var durability_ratio := float(current_durability) / float(max_durability)
+	if durability_ratio <= 0.1:
+		tool_durability_bar.modulate = Color.RED
+		tool_durability_label.add_theme_color_override("font_color", Color.RED)
+	elif durability_ratio <= 0.25:
+		tool_durability_bar.modulate = Color.ORANGE
+		tool_durability_label.add_theme_color_override("font_color", Color.ORANGE)
+	elif durability_ratio <= 0.5:
+		tool_durability_bar.modulate = Color.YELLOW
+		tool_durability_label.add_theme_color_override("font_color", Color.YELLOW)
+	else:
+		tool_durability_bar.modulate = Color(0.4, 0.8, 0.4)
+		tool_durability_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
 
 
 # ============================================

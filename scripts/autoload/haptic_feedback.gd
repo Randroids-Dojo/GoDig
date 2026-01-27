@@ -56,11 +56,17 @@ func _ready() -> void:
 	# Check platform support
 	_platform_supported = _check_platform_support()
 
-	# Load user preference
+	# Load user preference and connect to settings changes
 	if SettingsManager:
-		enabled = SettingsManager.haptic_enabled if SettingsManager.has_method("get") else true
+		enabled = SettingsManager.haptics_enabled
+		SettingsManager.haptics_changed.connect(_on_haptics_setting_changed)
 
 	print("[HapticFeedback] Ready (supported: %s, enabled: %s)" % [_platform_supported, enabled])
+
+
+func _on_haptics_setting_changed(new_enabled: bool) -> void:
+	enabled = new_enabled
+	print("[HapticFeedback] Setting changed: %s" % enabled)
 
 
 func _process(delta: float) -> void:
@@ -211,6 +217,36 @@ func on_land(fall_blocks: int) -> void:
 		trigger(HapticType.HEAVY)
 	elif fall_blocks >= 3:
 		trigger(HapticType.MEDIUM)
+
+
+## Called when player enters a new underground layer
+func on_layer_entered() -> void:
+	trigger(HapticType.MEDIUM)
+
+
+## Called when player picks up a valuable item (gems, rare ores)
+func on_rare_pickup() -> void:
+	trigger(HapticType.SUCCESS)
+
+
+## Called when player's inventory becomes full
+func on_inventory_full() -> void:
+	trigger(HapticType.WARNING)
+
+
+## Called when player reaches a depth milestone
+func on_milestone_reached() -> void:
+	trigger(HapticType.SUCCESS)
+
+
+## Called when player enters a shop or building
+func on_building_enter() -> void:
+	trigger(HapticType.LIGHT)
+
+
+## Called when player sells items
+func on_sell() -> void:
+	trigger(HapticType.SUCCESS)
 
 
 # ============================================

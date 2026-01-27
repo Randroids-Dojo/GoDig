@@ -506,3 +506,72 @@ async def test_dirt_grid_has_cave_noise_method(game):
     """Verify DirtGrid has _generate_cave_noise method."""
     has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_generate_cave_noise"])
     assert has_method, "DirtGrid should have _generate_cave_noise method"
+
+
+# =============================================================================
+# BLOCK DIG PROGRESS INDICATOR TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_dirt_grid_hit_block_with_small_damage(game):
+    """Verify hitting a block with small damage doesn't destroy it."""
+    # Block at (0, 1) should exist (below player spawn)
+    has_block = await game.call(PATHS["dirt_grid"], "has_block", [{"x": 0, "y": 1}])
+    assert has_block, "Block should exist at (0, 1)"
+
+    # Hit with tiny damage (1.0) - shouldn't destroy default hardness blocks
+    destroyed = await game.call(PATHS["dirt_grid"], "hit_block", [{"x": 0, "y": 1}, 1.0])
+    assert destroyed is False, "Block should not be destroyed by 1 damage"
+
+    # Block should still exist
+    still_has_block = await game.call(PATHS["dirt_grid"], "has_block", [{"x": 0, "y": 1}])
+    assert still_has_block, "Block should still exist after minor damage"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_hit_block_progressive_damage(game):
+    """Verify hitting a block multiple times eventually destroys it."""
+    # Use a block further down to avoid conflicts with other tests
+    test_pos = {"x": 1, "y": 5}
+    has_block = await game.call(PATHS["dirt_grid"], "has_block", [test_pos])
+    assert has_block, f"Block should exist at {test_pos}"
+
+    # Hit repeatedly with moderate damage until destroyed
+    max_hits = 20  # Safety limit
+    destroyed = False
+    for _ in range(max_hits):
+        destroyed = await game.call(PATHS["dirt_grid"], "hit_block", [test_pos, 5.0])
+        if destroyed:
+            break
+
+    assert destroyed, "Block should be destroyed after multiple hits"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_get_block_returns_value(game):
+    """Verify get_block returns a block object for valid positions."""
+    # Check block exists first
+    has_block = await game.call(PATHS["dirt_grid"], "has_block", [{"x": 0, "y": 2}])
+    assert has_block, "Block should exist at (0, 2)"
+
+    # Get the block - should return something (not null)
+    block = await game.call(PATHS["dirt_grid"], "get_block", [{"x": 0, "y": 2}])
+    assert block is not None, "get_block should return a block at (0, 2)"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_hit_block_returns_boolean(game):
+    """Verify hit_block returns a boolean value."""
+    test_pos = {"x": 2, "y": 3}
+    has_block = await game.call(PATHS["dirt_grid"], "has_block", [test_pos])
+    assert has_block, f"Block should exist at {test_pos}"
+
+    result = await game.call(PATHS["dirt_grid"], "hit_block", [test_pos, 1.0])
+    assert result is True or result is False, "hit_block should return a boolean"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_block_destroyed_signal(game):
+    """Verify DirtGrid emits block_destroyed signal when block breaks."""
+    has_signal = await game.call(PATHS["dirt_grid"], "has_signal", ["block_destroyed"])
+    assert has_signal, "DirtGrid should have block_destroyed signal for visual feedback"

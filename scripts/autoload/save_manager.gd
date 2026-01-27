@@ -11,11 +11,15 @@ const SaveDataClass = preload("res://resources/save/save_data.gd")
 
 signal save_started
 signal save_completed(success: bool)
+signal save_error(error_message: String)
 signal load_started
 signal load_completed(success: bool)
+signal load_error(error_message: String, slot: int)
 signal save_slot_changed(slot: int)
 signal auto_save_triggered
 signal offline_income_ready(amount: int, time_away_minutes: int)
+signal backup_created(slot: int)
+signal backup_restored(slot: int)
 
 const SAVE_DIR := "user://saves/"
 const CHUNKS_DIR := "user://chunks/"
@@ -40,7 +44,14 @@ var _last_save_time_ms: int = 0
 var pending_offline_income: int = 0
 var pending_offline_minutes: int = 0
 
+## Error tracking
+var last_save_error: String = ""
+var last_load_error: String = ""
+var consecutive_save_failures: int = 0
+const MAX_SAVE_RETRIES := 3
+
 const MIN_SAVE_INTERVAL_MS := 5000  # 5 seconds minimum between saves (debounce)
+const BACKUP_SUFFIX := ".backup"
 
 
 func _ready() -> void:
@@ -127,11 +138,14 @@ func save_game(force: bool = false) -> bool:
 		return false
 
 	if current_save == null:
-		push_warning("[SaveManager] No save loaded, cannot save")
+		last_save_error = "No save loaded, cannot save"
+		push_warning("[SaveManager] %s" % last_save_error)
 		return false
 
 	if current_slot < 0 or current_slot >= MAX_SLOTS:
-		push_error("[SaveManager] Invalid slot: %d" % current_slot)
+		last_save_error = "Invalid slot: %d" % current_slot
+		push_error("[SaveManager] %s" % last_save_error)
+		save_error.emit(last_save_error)
 		return false
 
 	# Debounce: skip if too soon after last save (unless forced)
@@ -142,6 +156,10 @@ func save_game(force: bool = false) -> bool:
 	_is_saving = true
 	_last_save_time_ms = current_time_ms
 	save_started.emit()
+
+	# Create backup before saving (every 5 saves or on milestone)
+	if consecutive_save_failures == 0 and has_save(current_slot):
+		create_backup(current_slot)
 
 	# Update save metadata
 	current_save.last_save_time = int(Time.get_unix_time_from_system())
@@ -154,11 +172,17 @@ func save_game(force: bool = false) -> bool:
 	var error := ResourceSaver.save(current_save, path)
 
 	if error != OK:
-		push_error("[SaveManager] Failed to save: %s" % error_string(error))
+		consecutive_save_failures += 1
+		last_save_error = "Failed to save: %s" % error_string(error)
+		push_error("[SaveManager] %s" % last_save_error)
+		save_error.emit(last_save_error)
 		_is_saving = false
 		save_completed.emit(false)
 		return false
 
+	# Success - reset failure counter
+	consecutive_save_failures = 0
+	last_save_error = ""
 	print("[SaveManager] Saved to slot %d" % current_slot)
 	_is_saving = false
 	save_completed.emit(true)
@@ -168,24 +192,31 @@ func save_game(force: bool = false) -> bool:
 ## Load a save from a slot
 func load_game(slot: int) -> bool:
 	if slot < 0 or slot >= MAX_SLOTS:
-		push_error("[SaveManager] Invalid slot: %d" % slot)
+		last_load_error = "Invalid slot: %d" % slot
+		push_error("[SaveManager] %s" % last_load_error)
+		load_error.emit(last_load_error, slot)
 		return false
 
 	var path := get_save_path(slot)
 	if not ResourceLoader.exists(path):
-		push_warning("[SaveManager] No save in slot %d" % slot)
+		last_load_error = "No save in slot %d" % slot
+		push_warning("[SaveManager] %s" % last_load_error)
+		load_error.emit(last_load_error, slot)
 		return false
 
 	load_started.emit()
 
 	var loaded = ResourceLoader.load(path)
 	if loaded == null or not loaded is SaveDataClass:
-		push_error("[SaveManager] Failed to load save from slot %d" % slot)
+		last_load_error = "Save file corrupted or incompatible in slot %d" % slot
+		push_error("[SaveManager] %s" % last_load_error)
+		load_error.emit(last_load_error, slot)
 		load_completed.emit(false)
 		return false
 
 	current_slot = slot
 	current_save = loaded
+	last_load_error = ""  # Clear on success
 
 	# Handle version migrations
 	_migrate_if_needed()
@@ -562,3 +593,118 @@ func get_time_since_save_text() -> String:
 		return "1 minute ago"
 	else:
 		return "%d minutes ago" % (seconds / 60)
+
+
+# ============================================
+# ERROR HANDLING AND RECOVERY
+# ============================================
+
+## Get the backup path for a save slot
+func get_backup_path(slot: int) -> String:
+	return SAVE_DIR + "slot_%d%s.tres" % [slot, BACKUP_SUFFIX]
+
+
+## Create a backup of a save slot
+func create_backup(slot: int) -> bool:
+	var source_path := get_save_path(slot)
+	var backup_path := get_backup_path(slot)
+
+	if not FileAccess.file_exists(source_path):
+		return false
+
+	# Copy save file to backup
+	var file := FileAccess.open(source_path, FileAccess.READ)
+	if file == null:
+		push_warning("[SaveManager] Failed to read save for backup: %s" % source_path)
+		return false
+
+	var content := file.get_buffer(file.get_length())
+	file.close()
+
+	var backup_file := FileAccess.open(backup_path, FileAccess.WRITE)
+	if backup_file == null:
+		push_warning("[SaveManager] Failed to create backup file: %s" % backup_path)
+		return false
+
+	backup_file.store_buffer(content)
+	backup_file.close()
+
+	backup_created.emit(slot)
+	print("[SaveManager] Backup created for slot %d" % slot)
+	return true
+
+
+## Check if a backup exists for a slot
+func has_backup(slot: int) -> bool:
+	return FileAccess.file_exists(get_backup_path(slot))
+
+
+## Restore a save from backup
+func restore_from_backup(slot: int) -> bool:
+	var backup_path := get_backup_path(slot)
+	var save_path := get_save_path(slot)
+
+	if not FileAccess.file_exists(backup_path):
+		last_load_error = "No backup exists for slot %d" % slot
+		load_error.emit(last_load_error, slot)
+		return false
+
+	# Copy backup to save file
+	var file := FileAccess.open(backup_path, FileAccess.READ)
+	if file == null:
+		last_load_error = "Failed to read backup file"
+		load_error.emit(last_load_error, slot)
+		return false
+
+	var content := file.get_buffer(file.get_length())
+	file.close()
+
+	var save_file := FileAccess.open(save_path, FileAccess.WRITE)
+	if save_file == null:
+		last_load_error = "Failed to write restored save"
+		load_error.emit(last_load_error, slot)
+		return false
+
+	save_file.store_buffer(content)
+	save_file.close()
+
+	backup_restored.emit(slot)
+	print("[SaveManager] Restored slot %d from backup" % slot)
+	return true
+
+
+## Attempt to load with automatic backup recovery on failure
+func load_game_with_recovery(slot: int) -> bool:
+	# Try normal load first
+	if load_game(slot):
+		return true
+
+	# If normal load failed and backup exists, try recovery
+	if has_backup(slot):
+		push_warning("[SaveManager] Primary save corrupted, attempting backup recovery...")
+		if restore_from_backup(slot):
+			# Try loading again after restore
+			if load_game(slot):
+				print("[SaveManager] Successfully recovered from backup")
+				return true
+
+	return false
+
+
+## Get the last error message
+func get_last_error() -> String:
+	if last_save_error != "":
+		return last_save_error
+	return last_load_error
+
+
+## Clear error state
+func clear_errors() -> void:
+	last_save_error = ""
+	last_load_error = ""
+	consecutive_save_failures = 0
+
+
+## Check if save system is healthy (no recent failures)
+func is_save_system_healthy() -> bool:
+	return consecutive_save_failures < MAX_SAVE_RETRIES

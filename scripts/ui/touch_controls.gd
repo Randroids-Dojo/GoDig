@@ -27,10 +27,18 @@ signal inventory_pressed()
 ## If true, ignore platform detection and always show controls
 @export var force_visible: bool = false
 
+## Default positions for controls (for hand mode switching)
+var _default_joystick_anchor: Vector2 = Vector2.ZERO
+var _default_buttons_anchor: Vector2 = Vector2.ZERO
+var _initial_setup_done: bool = false
+
 
 func _ready() -> void:
 	# Ensure action buttons exist before connecting signals
 	_setup_action_buttons()
+
+	# Store default positions after layout is ready
+	call_deferred("_store_default_positions")
 
 	# Connect joystick direction changes
 	joystick.direction_changed.connect(_on_joystick_direction_changed)
@@ -39,6 +47,56 @@ func _ready() -> void:
 	if PlatformDetector:
 		PlatformDetector.platform_changed.connect(_on_platform_changed)
 		_update_visibility()
+
+	# Connect to settings for hand mode changes
+	if SettingsManager:
+		SettingsManager.hand_mode_changed.connect(_on_hand_mode_changed)
+		call_deferred("_apply_hand_mode")
+
+
+func _store_default_positions() -> void:
+	## Store the default anchor positions for hand mode switching
+	if joystick:
+		_default_joystick_anchor = joystick.position
+	if action_buttons:
+		_default_buttons_anchor = action_buttons.position
+	_initial_setup_done = true
+
+
+func _on_hand_mode_changed(_mode: int) -> void:
+	_apply_hand_mode()
+
+
+func _apply_hand_mode() -> void:
+	## Reposition controls based on hand mode setting
+	if not _initial_setup_done:
+		return
+	if SettingsManager == null:
+		return
+
+	var screen_width := get_viewport().get_visible_rect().size.x
+
+	match SettingsManager.hand_mode:
+		SettingsManager.HandMode.STANDARD:
+			# Default: joystick left, buttons right
+			if joystick:
+				joystick.position = _default_joystick_anchor
+			if action_buttons:
+				action_buttons.position = _default_buttons_anchor
+
+		SettingsManager.HandMode.LEFT_HAND:
+			# Flip: joystick right, buttons left
+			if joystick:
+				joystick.position.x = screen_width - _default_joystick_anchor.x - joystick.size.x
+			if action_buttons:
+				action_buttons.position.x = _default_joystick_anchor.x
+
+		SettingsManager.HandMode.RIGHT_HAND:
+			# Same as standard (optimized for right-handed play)
+			if joystick:
+				joystick.position = _default_joystick_anchor
+			if action_buttons:
+				action_buttons.position = _default_buttons_anchor
 
 
 func _setup_action_buttons() -> void:

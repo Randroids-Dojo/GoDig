@@ -5,6 +5,7 @@ extends Node2D
 
 const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 const OreSparkleScene = preload("res://scenes/effects/ore_sparkle.tscn")
+const RarityBorderScene = preload("res://scenes/effects/rarity_border.tscn")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
@@ -25,6 +26,7 @@ var _dug_tiles: Dictionary = {}  # Dictionary[Vector2i, bool] - tiles that have 
 var _placed_objects: Dictionary = {}  # Dictionary[Vector2i, int tile_type] - ladders, torches, etc.
 var _dirty_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] - chunks with unsaved changes
 var _sparkles: Dictionary = {}  # Dictionary[Vector2i, CPUParticles2D] - sparkle effects for ore blocks
+var _rarity_borders: Dictionary = {}  # Dictionary[Vector2i, Node2D] - rarity border effects for ore blocks
 var _player: Node2D = null
 var _surface_row: int = 0
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -169,10 +171,11 @@ func _unload_chunk(chunk_pos: Vector2i) -> void:
 				to_remove.append(grid_pos)
 
 	for pos in to_remove:
-		# Clean up ore map entry and sparkle when unloading
+		# Clean up ore map entry, sparkle, and border when unloading
 		if _ore_map.has(pos):
 			_ore_map.erase(pos)
 		_remove_ore_sparkle(pos)
+		_remove_rarity_border(pos)
 		_release(pos)
 
 	# Clear dug tiles memory for this chunk (will reload from save when needed)
@@ -307,10 +310,11 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		)
 		block_destroyed.emit(world_pos, block.base_color, block.max_health)
 
-		# Clean up ore map entry and sparkle
+		# Clean up ore map entry, sparkle, and border
 		if _ore_map.has(pos):
 			_ore_map.erase(pos)
 		_remove_ore_sparkle(pos)
+		_remove_rarity_border(pos)
 
 		# Mark tile as dug for persistence
 		_dug_tiles[pos] = true
@@ -469,6 +473,7 @@ func _place_ore_at(pos: Vector2i, ore) -> void:
 		_apply_ore_visual(pos, ore)
 		_apply_ore_hardness(pos, ore)
 		_add_ore_sparkle(pos, ore)
+		_add_rarity_border(pos, ore)
 
 
 func _generate_ore_noise(pos: Vector2i, frequency: float) -> float:
@@ -539,6 +544,45 @@ func _remove_ore_sparkle(pos: Vector2i) -> void:
 	if is_instance_valid(sparkle):
 		sparkle.queue_free()
 	_sparkles.erase(pos)
+
+
+func _add_rarity_border(pos: Vector2i, ore) -> void:
+	## Add rarity border effect to an ore block
+	if not _active.has(pos):
+		return
+	if _rarity_borders.has(pos):
+		return  # Already has a border
+
+	var block = _active[pos]
+	var border = RarityBorderScene.instantiate()
+
+	# Get rarity from ore (convert string to int if needed)
+	var rarity_value := 0
+	if "rarity" in ore:
+		match ore.rarity:
+			"common": rarity_value = 0
+			"uncommon": rarity_value = 1
+			"rare": rarity_value = 2
+			"epic": rarity_value = 3
+			"legendary": rarity_value = 4
+			_: rarity_value = 0
+	elif "tier" in ore:
+		rarity_value = clampi(ore.tier - 1, 0, 4)
+
+	border.configure(rarity_value)
+	block.add_child(border)
+	_rarity_borders[pos] = border
+
+
+func _remove_rarity_border(pos: Vector2i) -> void:
+	## Remove rarity border effect from a position
+	if not _rarity_borders.has(pos):
+		return
+
+	var border = _rarity_borders[pos]
+	if is_instance_valid(border):
+		border.queue_free()
+	_rarity_borders.erase(pos)
 
 
 # ============================================

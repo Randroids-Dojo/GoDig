@@ -575,3 +575,35 @@ async def test_dirt_grid_block_destroyed_signal(game):
     """Verify DirtGrid emits block_destroyed signal when block breaks."""
     has_signal = await game.call(PATHS["dirt_grid"], "has_signal", ["block_destroyed"])
     assert has_signal, "DirtGrid should have block_destroyed signal for visual feedback"
+
+
+# =============================================================================
+# RARITY BORDER TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_add_rarity_border_method(game):
+    """Verify DirtGrid has _add_rarity_border method for ore visual effects."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_add_rarity_border"])
+    assert has_method, "DirtGrid should have _add_rarity_border method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_remove_rarity_border_method(game):
+    """Verify DirtGrid has _remove_rarity_border method for cleanup."""
+    has_method = await game.call(PATHS["dirt_grid"], "has_method", ["_remove_rarity_border"])
+    assert has_method, "DirtGrid should have _remove_rarity_border method"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_rarity_borders_dictionary(game):
+    """Verify DirtGrid has _rarity_borders dictionary to track border effects."""
+    rarity_borders = await game.get_property(PATHS["dirt_grid"], "_rarity_borders")
+    assert rarity_borders is not None, "DirtGrid should have _rarity_borders property"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_sparkle_tracking(game):
+    """Verify DirtGrid has _sparkles dictionary for ore sparkle effects."""
+    sparkles = await game.get_property(PATHS["dirt_grid"], "_sparkles")
+    assert sparkles is not None, "DirtGrid should have _sparkles property"

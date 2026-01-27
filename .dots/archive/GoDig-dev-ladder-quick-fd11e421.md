@@ -1,11 +1,11 @@
 ---
 title: "implement: Ladder quick-slot HUD"
-status: open
+status: closed
 priority: 3
 issue-type: task
-created-at: "2026-01-16T01:58:35.016433-06:00"
-after:
-  - GoDig-dev-ladder-placement-7b71387f
+created-at: "\"2026-01-16T01:58:35.016433-06:00\""
+closed-at: "2026-01-27T06:04:41.635813+00:00"
+close-reason: Added ladder quick-slot to HUD with count display and one-tap placement button
 ---
 
 ## Description

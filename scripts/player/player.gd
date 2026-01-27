@@ -359,6 +359,9 @@ func _on_animation_finished() -> void:
 		# Track block mining stat
 		if PlayerStats:
 			PlayerStats.track_block_mined()
+		# Haptic feedback for block break
+		if HapticFeedback:
+			HapticFeedback.on_block_destroyed()
 		# Block destroyed, move into the space
 		_start_move(mining_target)
 	else:
@@ -546,6 +549,10 @@ func _do_wall_jump() -> void:
 	# Track wall jump stat
 	if PlayerStats:
 		PlayerStats.track_wall_jump()
+
+	# Haptic feedback for wall jump
+	if HapticFeedback:
+		HapticFeedback.on_wall_jump()
 
 	# Jump away from wall
 	velocity.x = WALL_JUMP_FORCE_X * (-_wall_direction)  # Jump away from wall
@@ -869,6 +876,9 @@ func _hit_tap_target() -> void:
 		# Track block mining stat (tap-to-dig path)
 		if PlayerStats:
 			PlayerStats.track_block_mined()
+		# Haptic feedback for block break (tap-to-dig)
+		if HapticFeedback:
+			HapticFeedback.on_block_destroyed()
 
 		# Check if we should move into the space (if it was adjacent and in a movable direction)
 		var diff := _tap_target_tile - grid_position
@@ -952,6 +962,10 @@ func take_damage(amount: int, source: String = "unknown") -> int:
 	# Visual feedback: flash red and screen shake
 	_start_damage_flash()
 	_shake_camera_on_damage(actual_damage)
+
+	# Haptic feedback for damage
+	if HapticFeedback:
+		HapticFeedback.on_damage_taken(actual_damage)
 
 	print("[Player] Took %d damage from %s (HP: %d/%d)" % [actual_damage, source, current_hp, MAX_HP])
 

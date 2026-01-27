@@ -1,9 +1,11 @@
 ---
 title: "implement: Next upgrade goal HUD display"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-19T00:31:11.204854-06:00"
+created-at: "\"2026-01-19T00:31:11.204854-06:00\""
+closed-at: "2026-01-27T06:04:33.419334+00:00"
+close-reason: Added upgrade goal container to HUD showing next tool upgrade with cost and progress bar
 ---
 
 ## Description

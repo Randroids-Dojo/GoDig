@@ -75,6 +75,12 @@ PATHS = {
     "surface_mine_entrance": "/root/Main/Surface/MineEntrance",
     "milestone_notification": "/root/Main/UI/HUD/MilestoneNotification",
     "player_stats": "/root/PlayerStats",
+    "haptic_feedback": "/root/HapticFeedback",
+    "hud": "/root/Main/UI/HUD",
+    "upgrade_goal_container": "/root/Main/UI/HUD/UpgradeGoalContainer",
+    "save_indicator_label": "/root/Main/UI/HUD/SaveIndicatorLabel",
+    "ladder_quickslot": "/root/Main/UI/HUD/LadderQuickSlot",
+    "surface_parallax": "/root/Main/Surface/ParallaxBackground",
 }
 
 

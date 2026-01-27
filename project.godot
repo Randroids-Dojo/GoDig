@@ -26,6 +26,7 @@ SaveManager="*res://scripts/autoload/save_manager.gd"
 AchievementManager="*res://scripts/autoload/achievement_manager.gd"
 PlatformDetector="*res://scripts/autoload/platform_detector.gd"
 PlayerStats="*res://scripts/autoload/player_stats.gd"
+HapticFeedback="*res://scripts/autoload/haptic_feedback.gd"
 PlayGodotServer="*res://addons/playgodot/server.gd"
 
 [display]

@@ -271,6 +271,28 @@ func has_ladder(pos: Vector2i) -> bool:
 	return _placed_objects.get(pos, TileTypes.Type.AIR) == TileTypes.Type.LADDER
 
 
+## Get all placed objects as a saveable dictionary
+## Format: {"x,y": tile_type, ...}
+func get_placed_objects_dict() -> Dictionary:
+	var result := {}
+	for pos in _placed_objects:
+		var key := "%d,%d" % [pos.x, pos.y]
+		result[key] = _placed_objects[pos]
+	return result
+
+
+## Load placed objects from a saved dictionary
+## Format: {"x,y": tile_type, ...}
+func load_placed_objects_dict(data: Dictionary) -> void:
+	_placed_objects.clear()
+	for key in data:
+		var parts := key.split(",")
+		if parts.size() == 2:
+			var pos := Vector2i(int(parts[0]), int(parts[1]))
+			_placed_objects[pos] = data[key]
+	print("[DirtGrid] Loaded %d placed objects" % _placed_objects.size())
+
+
 func get_block_hardness(pos: Vector2i) -> float:
 	## Get the max hardness of a block at the position
 	## Returns 0.0 if no block exists

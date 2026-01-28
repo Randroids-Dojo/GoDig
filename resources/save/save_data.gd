@@ -45,6 +45,13 @@ const CURRENT_VERSION := 1
 ## Extended statistics (detailed tracking from PlayerStats)
 @export var extended_stats: Dictionary = {}
 
+## Placed traversal items (ladders, torches, etc.) - Dictionary[String "x,y", int tile_type]
+@export var placed_objects: Dictionary = {}
+
+## Tutorial state
+@export var tutorial_state: int = 0
+@export var tutorial_complete: bool = false
+
 
 ## Create a new save with default starting state
 static func create_new(slot_name: String = ""):

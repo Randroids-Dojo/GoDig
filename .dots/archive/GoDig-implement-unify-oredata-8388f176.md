@@ -1,9 +1,11 @@
 ---
 title: "implement: Unify OreData and ItemData resources"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-01-18T23:46:04.458128-06:00"
+created-at: "\"\\\"2026-01-18T23:46:04.458128-06:00\\\"\""
+closed-at: "2026-01-28T06:49:09.177039+00:00"
+close-reason: "Implemented: OreData extends ItemData, updated all .tres files with category/description, DataRegistry registers ores as items"
 ---
 
 Make OreData extend ItemData, remove duplicate .tres files, update DataRegistry to load ores as items too. See GoDig-research-itemdata-vs-c373f473 for full spec.

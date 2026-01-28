@@ -1,17 +1,12 @@
-class_name OreData extends Resource
+class_name OreData extends ItemData
 ## Resource class for ore type definitions.
 ##
 ## Each ore type (coal, copper, iron, etc.) is a .tres file using this class.
+## Extends ItemData so ores can be directly used in inventory/shop systems.
 ## Used by OreGenerator for placement logic and by inventory/shop for values.
-
-## Unique identifier (coal, copper, iron, etc.)
-@export var id: String = ""
-
-## Display name shown to player
-@export var display_name: String = ""
-
-## Icon texture for inventory/shop UI
-@export var icon: Texture2D
+##
+## Inherited from ItemData: id, display_name, icon, category, max_stack,
+##                          sell_value, rarity, min_depth, description
 
 ## Color for tinting or UI borders
 @export var color: Color = Color.WHITE
@@ -20,13 +15,10 @@ class_name OreData extends Resource
 @export var tile_atlas_coords: Vector2i = Vector2i.ZERO
 
 
-## Generation parameters
+## Generation parameters (OreData-specific)
 @export_group("Generation")
 
-## Minimum depth (grid rows from surface) where this ore can spawn
-@export var min_depth: int = 0
-
-## Maximum depth (-1 for no limit)
+## Maximum depth (-1 for no limit). Note: min_depth is inherited from ItemData.
 @export var max_depth: int = -1
 
 ## Noise threshold (0.0-1.0, higher = rarer). 0.75 common, 0.95+ rare
@@ -42,23 +34,7 @@ class_name OreData extends Resource
 @export var vein_size_max: int = 6
 
 
-## Economy parameters
-@export_group("Economy")
-
-## Base sell value in coins
-@export var sell_value: int = 1
-
-## Maximum stack size in inventory
-@export var max_stack: int = 99
-
-## Rarity tier (1-8, affects border colors in UI)
-@export_range(1, 8) var tier: int = 1
-
-## Rarity name: common, uncommon, rare, epic, legendary
-@export_enum("common", "uncommon", "rare", "epic", "legendary") var rarity: String = "common"
-
-
-## Accessibility
+## Accessibility (OreData-specific)
 @export_group("Accessibility")
 
 ## Symbol for colorblind mode (single character: C, I, G, S, etc.)
@@ -68,7 +44,7 @@ class_name OreData extends Resource
 @export_range(0, 7) var colorblind_pattern: int = 0
 
 
-## Mining parameters
+## Mining parameters (OreData-specific)
 @export_group("Mining")
 
 ## Hardness (hits to break with base pickaxe)

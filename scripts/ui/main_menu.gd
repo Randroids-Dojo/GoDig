@@ -17,10 +17,21 @@ signal settings_opened
 var _game_version: String = "v0.1.0"
 
 
+## Error dialog for save/load failures
+var error_dialog: AcceptDialog = null
+
+
 func _ready() -> void:
 	_setup_version()
 	_setup_buttons()
+	_setup_error_dialog()
 	_update_continue_visibility()
+
+	# Connect to SaveManager error signals
+	if SaveManager:
+		SaveManager.load_error.connect(_on_load_error)
+		SaveManager.save_error.connect(_on_save_error)
+
 	print("[MainMenu] Ready")
 
 
@@ -77,10 +88,10 @@ func _on_continue_pressed() -> void:
 	if slot >= 0:
 		if SaveManager.load_game(slot):
 			_transition_to_game()
-		else:
-			push_warning("[MainMenu] Failed to load save from slot %d" % slot)
+		# Error handling is done via _on_load_error signal
 	else:
-		push_warning("[MainMenu] No save found to continue")
+		# No save found - this shouldn't happen since button is hidden
+		_show_error("No save file found to continue.")
 
 
 func _on_settings_pressed() -> void:
@@ -128,3 +139,35 @@ func _find_most_recent_save() -> int:
 				newest_slot = slot
 
 	return newest_slot
+
+
+func _setup_error_dialog() -> void:
+	"""Create an error dialog for displaying save/load failures."""
+	error_dialog = AcceptDialog.new()
+	error_dialog.title = "Error"
+	error_dialog.dialog_autowrap = true
+	error_dialog.min_size = Vector2(300, 100)
+	add_child(error_dialog)
+
+
+func _on_load_error(error_message: String, slot: int) -> void:
+	"""Handle save load errors by showing a dialog."""
+	if error_dialog:
+		error_dialog.dialog_text = "Failed to load save:\n%s\n\nThe save file may be corrupted. You can start a new game or try a different save slot." % error_message
+		error_dialog.popup_centered()
+	push_error("[MainMenu] Load error: %s (slot %d)" % [error_message, slot])
+
+
+func _on_save_error(error_message: String) -> void:
+	"""Handle save errors by showing a dialog."""
+	if error_dialog:
+		error_dialog.dialog_text = "Failed to save game:\n%s\n\nPlease try again." % error_message
+		error_dialog.popup_centered()
+	push_error("[MainMenu] Save error: %s" % error_message)
+
+
+func _show_error(message: String) -> void:
+	"""Show a generic error message."""
+	if error_dialog:
+		error_dialog.dialog_text = message
+		error_dialog.popup_centered()

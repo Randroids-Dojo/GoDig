@@ -79,6 +79,12 @@ func _ready() -> void:
 		_update_coins_display(GameManager.get_coins())
 		_update_depth_display(0)
 
+	# Connect text size changes for accessibility
+	if SettingsManager:
+		SettingsManager.text_size_changed.connect(_on_text_size_changed)
+		# Apply initial text scale
+		call_deferred("_apply_text_scale")
+
 	# Create milestone notification
 	_setup_milestone_notification()
 
@@ -962,3 +968,74 @@ func _hide_mining_progress() -> void:
 
 	_mining_fade_tween = create_tween()
 	_mining_fade_tween.tween_property(mining_progress_container, "modulate:a", 0.0, 0.2)
+
+
+# ============================================
+# TEXT SIZE ACCESSIBILITY
+# ============================================
+
+## Base font sizes for scaling
+const BASE_FONT_SIZES := {
+	"health_label": 14,
+	"coins_label": 24,
+	"depth_label": 24,
+	"tool_label": 16,
+	"durability_label": 12,
+	"inventory_label": 20,
+	"upgrade_label": 14,
+	"save_indicator": 12,
+	"ladder_count": 16,
+	"mining_label": 12,
+}
+
+
+func _on_text_size_changed(_scale: float) -> void:
+	_apply_text_scale()
+
+
+func _apply_text_scale() -> void:
+	## Apply text size scaling to all HUD labels
+	if SettingsManager == null:
+		return
+
+	var scale := SettingsManager.get_text_scale()
+
+	# Scale health label
+	if health_label:
+		health_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["health_label"] * scale))
+
+	# Scale coins label
+	if coins_label:
+		coins_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["coins_label"] * scale))
+
+	# Scale depth label
+	if depth_label:
+		depth_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["depth_label"] * scale))
+
+	# Scale tool indicator
+	if tool_label:
+		tool_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["tool_label"] * scale))
+
+	# Scale durability label
+	if tool_durability_label:
+		tool_durability_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["durability_label"] * scale))
+
+	# Scale inventory label
+	if inventory_label:
+		inventory_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["inventory_label"] * scale))
+
+	# Scale upgrade goal label
+	if upgrade_goal_label:
+		upgrade_goal_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["upgrade_label"] * scale))
+
+	# Scale save indicator
+	if save_indicator_label:
+		save_indicator_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["save_indicator"] * scale))
+
+	# Scale ladder count
+	if ladder_count_label:
+		ladder_count_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["ladder_count"] * scale))
+
+	# Scale mining progress label
+	if mining_progress_label:
+		mining_progress_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["mining_label"] * scale))

@@ -550,7 +550,12 @@ func _add_ore_sparkle(pos: Vector2i, ore) -> void:
 	elif "tier" in ore:
 		rarity_value = clampi(ore.tier - 1, 0, 4)
 
-	sparkle.configure(ore.color, rarity_value)
+	# Get colorblind symbol if available
+	var symbol := ""
+	if "colorblind_symbol" in ore:
+		symbol = ore.colorblind_symbol
+
+	sparkle.configure(ore.color, rarity_value, symbol)
 	block.add_child(sparkle)
 	_sparkles[pos] = sparkle
 

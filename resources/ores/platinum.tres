@@ -18,5 +18,7 @@ sell_value = 200
 max_stack = 99
 tier = 4
 rarity = "epic"
+colorblind_symbol = "Pt"
+colorblind_pattern = 5
 hardness = 6
 required_tool_tier = 2

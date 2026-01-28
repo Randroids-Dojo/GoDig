@@ -58,6 +58,16 @@ class_name OreData extends Resource
 @export_enum("common", "uncommon", "rare", "epic", "legendary") var rarity: String = "common"
 
 
+## Accessibility
+@export_group("Accessibility")
+
+## Symbol for colorblind mode (single character: C, I, G, S, etc.)
+@export var colorblind_symbol: String = ""
+
+## Pattern type for high-contrast colorblind mode (0-7 for different patterns)
+@export_range(0, 7) var colorblind_pattern: int = 0
+
+
 ## Mining parameters
 @export_group("Mining")
 

@@ -1,9 +1,11 @@
 ---
 title: "implement: MVP tutorial sequence"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-19T02:57:27.506231-06:00"
+created-at: "\"\\\"2026-01-19T02:57:27.506231-06:00\\\"\""
+closed-at: "2026-01-28T06:59:38.276371+00:00"
+close-reason: Added tutorial state machine to GameManager with signals, save/load integration in SaveData and SaveManager
 ---
 
 5-prompt tutorial: movement, dig, collect, sell, upgrade. Guaranteed copper at depth 4. Tutorial complete flag in save. 3 context hints for stuck/full/shop.

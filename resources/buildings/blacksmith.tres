@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BuildingData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/buildings/building_data.gd" id="1_building"]
+
+[resource]
+script = ExtResource("1_building")
+id = "blacksmith"
+display_name = "Blacksmith"
+description = "Upgrade and repair your mining tools."
+unlock_depth = 50
+surface_slot = 2
+is_shop = true
+shop_category = "tools"

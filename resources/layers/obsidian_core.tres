@@ -12,3 +12,6 @@ base_hardness = 85.0
 color_primary = Color(0.098, 0.078, 0.118, 1)
 color_accent = Color(0.15, 0.1, 0.2, 1)
 tile_atlas_coords = Vector2i(5, 0)
+infinite_scaling = true
+hardness_per_100_depth = 15.0
+max_hardness = 500.0

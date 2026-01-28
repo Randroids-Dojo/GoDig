@@ -26,15 +26,40 @@ class_name LayerData extends Resource
 ## TileSet atlas coordinates for this layer's tile (if using TileMap)
 @export var tile_atlas_coords: Vector2i = Vector2i.ZERO
 
+## Enable infinite depth scaling (hardness increases with depth)
+@export var infinite_scaling: bool = false
+
+## Hardness increase per 100 blocks of depth (when infinite_scaling is true)
+@export var hardness_per_100_depth: float = 10.0
+
+## Maximum hardness cap (0 = no cap)
+@export var max_hardness: float = 0.0
+
 
 ## Get hardness with variance based on position for deterministic randomness
+## Supports infinite depth scaling for endless layers
 func get_hardness_at(grid_pos: Vector2i) -> float:
 	# Use position as seed for deterministic variance
 	var seed_value := grid_pos.x * 1000 + grid_pos.y
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var variance := rng.randf_range(0.9, 1.1)
-	return base_hardness * variance
+
+	var hardness := base_hardness
+
+	# Apply infinite depth scaling if enabled
+	if infinite_scaling:
+		var depth_into_layer := grid_pos.y - min_depth
+		if depth_into_layer > 0:
+			# Increase hardness logarithmically to prevent extreme values
+			var depth_factor := log(1.0 + float(depth_into_layer) / 100.0) * hardness_per_100_depth
+			hardness += depth_factor
+
+			# Apply cap if set
+			if max_hardness > 0 and hardness > max_hardness:
+				hardness = max_hardness
+
+	return hardness * variance
 
 
 ## Check if a given depth is in this layer's transition zone

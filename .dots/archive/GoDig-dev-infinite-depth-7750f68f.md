@@ -1,12 +1,11 @@
 ---
 title: "implement: Infinite depth scaling"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-16T02:01:04.682096-06:00"
-after:
-  - GoDig-dev-define-7-d4679cf5
-  - GoDig-dev-layer-depth-89c9d8ac
+created-at: "\"\\\"2026-01-16T02:01:04.682096-06:00\\\"\""
+closed-at: "2026-01-27T15:09:36.659214+00:00"
+close-reason: Added infinite scaling to LayerData with logarithmic hardness increase; enabled on obsidian_core layer
 ---
 
 ## Description

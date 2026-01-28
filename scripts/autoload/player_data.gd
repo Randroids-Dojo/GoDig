@@ -1,13 +1,15 @@
 extends Node
 ## PlayerData - Tracks player equipment and progression stats.
 ##
-## Manages equipped tool and max depth reached. Emits signals when equipment changes.
+## Manages equipped tool, boots, helmet and max depth reached. Emits signals when equipment changes.
 ## Used by shop to determine available upgrades and by player for mining damage.
 
-# Preload to ensure ToolData class is available before autoload initialization
+# Preload to ensure classes are available before autoload initialization
 const ToolDataClass = preload("res://resources/tools/tool_data.gd")
+const EquipmentDataClass = preload("res://resources/equipment/equipment_data.gd")
 
 signal tool_changed(tool)  # ToolData
+signal equipment_changed(slot: int, equipment)  # EquipmentData or null
 signal max_depth_updated(depth: int)
 signal tool_durability_changed(current: int, max_val: int)
 signal tool_broken()
@@ -20,6 +22,15 @@ var max_depth_reached: int = 0
 
 ## Tool durability tracking (per-tool dictionary)
 var tool_durabilities: Dictionary = {}  # tool_id -> current_durability
+
+## Currently equipped boots ID (empty = none)
+var equipped_boots_id: String = ""
+
+## Currently equipped helmet ID (empty = none)
+var equipped_helmet_id: String = ""
+
+## Currently equipped accessory ID (empty = none, includes drill)
+var equipped_accessory_id: String = ""
 
 
 func _ready() -> void:
@@ -123,9 +134,15 @@ func get_next_tool_upgrade() -> ToolDataClass:
 ## Reset player data (for new game)
 func reset() -> void:
 	equipped_tool_id = "rusty_pickaxe"
+	equipped_boots_id = ""
+	equipped_helmet_id = ""
+	equipped_accessory_id = ""
 	max_depth_reached = 0
 	tool_durabilities.clear()
 	tool_changed.emit(get_equipped_tool())
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.BOOTS, null)
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, null)
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.ACCESSORY, null)
 	max_depth_updated.emit(max_depth_reached)
 	print("[PlayerData] Reset to defaults")
 
@@ -205,10 +222,170 @@ func get_repair_cost() -> int:
 	return tool_data.get_repair_cost(get_tool_durability())
 
 
+# ============================================
+# EQUIPMENT (Boots, Helmets)
+# ============================================
+
+## Get the currently equipped boots
+func get_equipped_boots() -> EquipmentDataClass:
+	if DataRegistry == null or equipped_boots_id == "":
+		return null
+	return DataRegistry.get_equipment(equipped_boots_id)
+
+
+## Get the currently equipped helmet
+func get_equipped_helmet() -> EquipmentDataClass:
+	if DataRegistry == null or equipped_helmet_id == "":
+		return null
+	return DataRegistry.get_equipment(equipped_helmet_id)
+
+
+## Equip boots by ID
+func equip_boots(boots_id: String) -> bool:
+	if DataRegistry == null:
+		push_warning("[PlayerData] DataRegistry not available")
+		return false
+
+	var boots = DataRegistry.get_equipment(boots_id)
+	if boots == null:
+		push_warning("[PlayerData] Cannot equip unknown boots: %s" % boots_id)
+		return false
+
+	if boots.slot != EquipmentDataClass.EquipmentSlot.BOOTS:
+		push_warning("[PlayerData] Equipment %s is not boots" % boots_id)
+		return false
+
+	equipped_boots_id = boots_id
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.BOOTS, boots)
+	print("[PlayerData] Equipped boots: %s (Fall reduction: %.0f%%)" % [boots.display_name, boots.fall_damage_reduction * 100])
+	return true
+
+
+## Equip helmet by ID
+func equip_helmet(helmet_id: String) -> bool:
+	if DataRegistry == null:
+		push_warning("[PlayerData] DataRegistry not available")
+		return false
+
+	var helmet = DataRegistry.get_equipment(helmet_id)
+	if helmet == null:
+		push_warning("[PlayerData] Cannot equip unknown helmet: %s" % helmet_id)
+		return false
+
+	if helmet.slot != EquipmentDataClass.EquipmentSlot.HELMET:
+		push_warning("[PlayerData] Equipment %s is not helmet" % helmet_id)
+		return false
+
+	equipped_helmet_id = helmet_id
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, helmet)
+	print("[PlayerData] Equipped helmet: %s" % helmet.display_name)
+	return true
+
+
+## Unequip boots
+func unequip_boots() -> void:
+	equipped_boots_id = ""
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.BOOTS, null)
+
+
+## Unequip helmet
+func unequip_helmet() -> void:
+	equipped_helmet_id = ""
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, null)
+
+
+## Get fall damage reduction from equipped boots (0.0 - 1.0)
+func get_fall_damage_reduction() -> float:
+	var boots = get_equipped_boots()
+	if boots == null:
+		return 0.0
+	return boots.fall_damage_reduction
+
+
+## Get fall threshold bonus from equipped boots (extra blocks before damage)
+func get_fall_threshold_bonus() -> int:
+	var boots = get_equipped_boots()
+	if boots == null:
+		return 0
+	return boots.fall_threshold_bonus
+
+
+## Get light radius bonus from equipped helmet
+func get_light_radius_bonus() -> float:
+	var helmet = get_equipped_helmet()
+	if helmet == null:
+		return 0.0
+	return helmet.light_radius_bonus
+
+
+## Check if boots can be unlocked (depth requirement and tier check)
+func can_unlock_boots(boots: EquipmentDataClass) -> bool:
+	if boots == null:
+		return false
+	if boots.slot != EquipmentDataClass.EquipmentSlot.BOOTS:
+		return false
+	if boots.unlock_depth > max_depth_reached:
+		return false
+	var current = get_equipped_boots()
+	if current != null and boots.tier <= current.tier:
+		return false  # Already have equal or better
+	return true
+
+
+## Get the currently equipped accessory (includes drill)
+func get_equipped_accessory() -> EquipmentDataClass:
+	if DataRegistry == null or equipped_accessory_id == "":
+		return null
+	return DataRegistry.get_equipment(equipped_accessory_id)
+
+
+## Equip accessory by ID
+func equip_accessory(accessory_id: String) -> bool:
+	if DataRegistry == null:
+		push_warning("[PlayerData] DataRegistry not available")
+		return false
+
+	var accessory = DataRegistry.get_equipment(accessory_id)
+	if accessory == null:
+		push_warning("[PlayerData] Cannot equip unknown accessory: %s" % accessory_id)
+		return false
+
+	if accessory.slot != EquipmentDataClass.EquipmentSlot.ACCESSORY:
+		push_warning("[PlayerData] Equipment %s is not accessory" % accessory_id)
+		return false
+
+	equipped_accessory_id = accessory_id
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.ACCESSORY, accessory)
+	print("[PlayerData] Equipped accessory: %s" % accessory.display_name)
+	return true
+
+
+## Unequip accessory
+func unequip_accessory() -> void:
+	equipped_accessory_id = ""
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.ACCESSORY, null)
+
+
+## Check if player has the mining drill equipped
+func has_drill() -> bool:
+	return equipped_accessory_id == "mining_drill"
+
+
+## Get mining speed bonus from equipped accessory
+func get_mining_speed_bonus() -> float:
+	var accessory = get_equipped_accessory()
+	if accessory == null:
+		return 1.0
+	return accessory.mining_speed_bonus
+
+
 ## Get save data for persistence
 func get_save_data() -> Dictionary:
 	return {
 		"equipped_tool_id": equipped_tool_id,
+		"equipped_boots_id": equipped_boots_id,
+		"equipped_helmet_id": equipped_helmet_id,
+		"equipped_accessory_id": equipped_accessory_id,
 		"max_depth_reached": max_depth_reached,
 		"tool_durabilities": tool_durabilities.duplicate(),
 	}
@@ -217,8 +394,14 @@ func get_save_data() -> Dictionary:
 ## Load from save data
 func load_save_data(data: Dictionary) -> void:
 	equipped_tool_id = data.get("equipped_tool_id", "rusty_pickaxe")
+	equipped_boots_id = data.get("equipped_boots_id", "")
+	equipped_helmet_id = data.get("equipped_helmet_id", "")
+	equipped_accessory_id = data.get("equipped_accessory_id", "")
 	max_depth_reached = data.get("max_depth_reached", 0)
 	tool_durabilities = data.get("tool_durabilities", {}).duplicate()
 	tool_changed.emit(get_equipped_tool())
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.BOOTS, get_equipped_boots())
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, get_equipped_helmet())
+	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.ACCESSORY, get_equipped_accessory())
 	max_depth_updated.emit(max_depth_reached)
-	print("[PlayerData] Loaded - Tool: %s, Max Depth: %d" % [equipped_tool_id, max_depth_reached])
+	print("[PlayerData] Loaded - Tool: %s, Boots: %s, Accessory: %s, Max Depth: %d" % [equipped_tool_id, equipped_boots_id, equipped_accessory_id, max_depth_reached])

@@ -8,6 +8,7 @@ const LayerData = preload("res://resources/layers/layer_data.gd")
 const OreData = preload("res://resources/ores/ore_data.gd")
 const ItemData = preload("res://resources/items/item_data.gd")
 const ToolData = preload("res://resources/tools/tool_data.gd")
+const EquipmentData = preload("res://resources/equipment/equipment_data.gd")
 
 ## All loaded layer definitions, sorted by min_depth
 var layers: Array[LayerData] = []
@@ -30,13 +31,23 @@ var tools: Dictionary = {}
 ## Tools sorted by tier for ordered display
 var _tools_by_tier: Array = []
 
+## All loaded equipment definitions
+var equipment: Dictionary = {}
+
+## Equipment sorted by tier for ordered display
+var _equipment_by_tier: Array = []
+
+## Equipment grouped by slot type
+var _equipment_by_slot: Dictionary = {}  # EquipmentSlot -> Array[EquipmentData]
+
 
 func _ready() -> void:
 	_load_all_layers()
 	_load_all_ores()
 	_load_all_items()
 	_load_all_tools()
-	print("[DataRegistry] Loaded %d layers, %d ores, %d items, %d tools" % [layers.size(), ores.size(), items.size(), tools.size()])
+	_load_all_equipment()
+	print("[DataRegistry] Loaded %d layers, %d ores, %d items, %d tools, %d equipment" % [layers.size(), ores.size(), items.size(), tools.size(), equipment.size()])
 
 
 func _load_all_layers() -> void:
@@ -350,3 +361,85 @@ func get_layer_count() -> int:
 ## Get all layer IDs
 func get_all_layer_ids() -> Array:
 	return _layers_by_id.keys()
+
+
+# ============================================
+# EQUIPMENT DATA LOADING AND ACCESS
+# ============================================
+
+func _load_all_equipment() -> void:
+	## Load all .tres files from equipment directory
+	var equipment_path := "res://resources/equipment/"
+	var dir := DirAccess.open(equipment_path)
+
+	if dir == null:
+		push_warning("[DataRegistry] Cannot open equipment directory: %s" % equipment_path)
+		return
+
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+
+	while file_name != "":
+		if file_name.ends_with(".tres"):
+			var resource_path := equipment_path + file_name
+			var resource = load(resource_path)
+			if resource is EquipmentData:
+				equipment[resource.id] = resource
+		file_name = dir.get_next()
+
+	dir.list_dir_end()
+
+	# Sort equipment by tier for ordered display
+	_equipment_by_tier = equipment.values()
+	_equipment_by_tier.sort_custom(func(a, b): return a.tier < b.tier)
+
+	# Group by slot type
+	_equipment_by_slot.clear()
+	for eq in _equipment_by_tier:
+		var slot: int = eq.slot
+		if not _equipment_by_slot.has(slot):
+			_equipment_by_slot[slot] = []
+		_equipment_by_slot[slot].append(eq)
+
+
+## Get an equipment by its ID
+func get_equipment(equipment_id: String) -> EquipmentData:
+	if equipment.has(equipment_id):
+		return equipment[equipment_id]
+	return null
+
+
+## Get all equipment sorted by tier
+func get_all_equipment() -> Array:
+	return _equipment_by_tier.duplicate()
+
+
+## Get all equipment IDs
+func get_all_equipment_ids() -> Array:
+	return equipment.keys()
+
+
+## Get equipment by slot type
+func get_equipment_by_slot(slot: int) -> Array:
+	if _equipment_by_slot.has(slot):
+		return _equipment_by_slot[slot].duplicate()
+	return []
+
+
+## Get boots (slot 0) sorted by tier
+func get_all_boots() -> Array:
+	return get_equipment_by_slot(EquipmentData.EquipmentSlot.BOOTS)
+
+
+## Get helmets (slot 1) sorted by tier
+func get_all_helmets() -> Array:
+	return get_equipment_by_slot(EquipmentData.EquipmentSlot.HELMET)
+
+
+## Get equipment available at a given depth
+func get_equipment_at_depth(depth: int) -> Array:
+	var result := []
+	for eq in _equipment_by_tier:
+		if eq.unlock_depth <= depth:
+			result.append(eq)
+	return result

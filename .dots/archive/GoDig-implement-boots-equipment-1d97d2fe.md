@@ -1,9 +1,11 @@
 ---
 title: "implement: Boots equipment for fall damage reduction"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-19T00:53:02.021108-06:00"
+created-at: "\"\\\"2026-01-19T00:53:02.021108-06:00\\\"\""
+closed-at: "2026-01-27T15:12:46.390351+00:00"
+close-reason: Created EquipmentData resource class, 4 boots items (leather/iron/steel/obsidian), integrated with PlayerData and player fall damage calculation
 ---
 
 ## Description

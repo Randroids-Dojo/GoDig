@@ -24,6 +24,7 @@ const INVENTORY_FULL_COOLDOWN_DURATION := 2.0
 @onready var shop: Control = $UI/Shop
 @onready var pause_button: Button = $UI/HUD/PauseButton
 @onready var pause_menu: CanvasLayer = $PauseMenu
+@onready var death_screen: CanvasLayer = $DeathScreen
 @onready var hud: Control = $UI/HUD
 @onready var floating_text_layer: CanvasLayer = $FloatingTextLayer
 
@@ -452,16 +453,31 @@ func _respawn_player() -> void:
 
 
 func _on_player_died(cause: String) -> void:
-	## Handle player death - respawn at surface after delay
+	## Handle player death - show death screen with options
 	print("[TestLevel] Player died from: %s" % cause)
 
-	# Record death in save data
-	if SaveManager.current_save:
-		SaveManager.current_save.increment_deaths()
+	# Calculate depth at death
+	var depth := player.grid_position.y - GameManager.SURFACE_ROW
+	if depth < 0:
+		depth = 0
 
 	# Track for achievements
 	if AchievementManager:
 		AchievementManager.track_death()
+
+	# Show death screen
+	if death_screen and death_screen.has_method("show_death"):
+		death_screen.show_death(cause, depth)
+	else:
+		# Fallback to old behavior if death screen not available
+		_legacy_death_handler(cause)
+
+
+func _legacy_death_handler(cause: String) -> void:
+	## Legacy death handler for when death screen is not available
+	# Record death in save data
+	if SaveManager.current_save:
+		SaveManager.current_save.increment_deaths()
 
 	# Apply death penalty: lose some random items
 	_apply_death_penalty()
@@ -478,6 +494,30 @@ func _on_player_died(cause: String) -> void:
 
 	# Unpause game
 	get_tree().paused = false
+
+
+func _on_death_screen_respawn() -> void:
+	## Handle respawn request from death screen
+	print("[TestLevel] Respawn requested from death screen")
+
+	# Record death in save data
+	if SaveManager.current_save:
+		SaveManager.current_save.increment_deaths()
+
+	# Respawn player at surface
+	_respawn_player()
+
+
+func _on_death_screen_reload() -> void:
+	## Handle reload request from death screen
+	print("[TestLevel] Reload requested from death screen")
+
+	if SaveManager.current_slot >= 0:
+		var success := SaveManager.load_game(SaveManager.current_slot)
+		if success:
+			print("[TestLevel] Save reloaded from death screen")
+		else:
+			push_warning("[TestLevel] Failed to reload save from death screen")
 
 
 func _apply_death_penalty() -> void:

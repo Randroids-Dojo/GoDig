@@ -387,15 +387,6 @@ func has_item_by_id(item_id: String) -> bool:
 	return get_item_count_by_id(item_id) > 0
 
 
-## Get count of an item by ID
-func get_item_count_by_id(item_id: String) -> int:
-	var total := 0
-	for slot in slots:
-		if slot.item != null and slot.item.id == item_id:
-			total += slot.quantity
-	return total
-
-
 ## Remove items from a specific slot by index
 ## Returns the number of items actually removed
 func remove_items_at_slot(slot_index: int, amount: int = 1) -> int:

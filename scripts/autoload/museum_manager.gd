@@ -5,6 +5,8 @@ extends Node
 ## they're added to the museum collection permanently. The museum displays
 ## all collected artifacts with their lore.
 
+const ArtifactData = preload("res://resources/items/artifact_data.gd")
+
 signal artifact_collected(artifact_id: String)
 signal collection_updated
 

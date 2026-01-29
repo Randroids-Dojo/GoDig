@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EquipmentData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/equipment/equipment_data.gd" id="1_equipment"]
+
+[resource]
+script = ExtResource("1_equipment")
+id = "engineers_helmet"
+display_name = "Engineer's Helmet"
+slot = 1
+rarity = 2
+description = "An advanced helmet with a powerful LED array. Illuminates even the deepest tunnels."
+cost = 500
+unlock_depth = 150
+tier = 3
+light_radius_bonus = 175.0
+light_intensity_bonus = 0.35

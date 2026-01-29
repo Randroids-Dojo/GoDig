@@ -27,6 +27,14 @@ var master_slider: HSlider
 var sfx_slider: HSlider
 var music_slider: HSlider
 
+# Control settings
+var swipe_controls_check: CheckBox
+var tap_to_dig_check: CheckBox
+var joystick_deadzone_slider: HSlider
+var joystick_deadzone_label: Label
+var button_size_slider: HSlider
+var button_size_label: Label
+
 
 func _ready() -> void:
 	if process_mode_paused:
@@ -108,6 +116,37 @@ func _build_ui() -> void:
 	shake_slider = shake_row.get_node("Slider")
 	shake_label = shake_row.get_node("ValueLabel")
 	vbox.add_child(shake_row)
+
+	vbox.add_child(HSeparator.new())
+
+	# === CONTROLS SECTION ===
+	var controls_title := Label.new()
+	controls_title.text = "Controls"
+	controls_title.add_theme_font_size_override("font_size", 18)
+	controls_title.add_theme_color_override("font_color", Color(0.9, 0.9, 0.6))
+	vbox.add_child(controls_title)
+
+	# Tap-to-dig
+	tap_to_dig_check = CheckBox.new()
+	tap_to_dig_check.text = "Tap-to-Dig"
+	vbox.add_child(tap_to_dig_check)
+
+	# Swipe controls
+	swipe_controls_check = CheckBox.new()
+	swipe_controls_check.text = "Swipe Gesture Controls"
+	vbox.add_child(swipe_controls_check)
+
+	# Joystick deadzone
+	var deadzone_row := _create_slider_row("Joystick Deadzone:", 0, 50, 20)
+	joystick_deadzone_slider = deadzone_row.get_node("Slider")
+	joystick_deadzone_label = deadzone_row.get_node("ValueLabel")
+	vbox.add_child(deadzone_row)
+
+	# Button size
+	var btn_size_row := _create_slider_row("Button Size:", 75, 150, 100)
+	button_size_slider = btn_size_row.get_node("Slider")
+	button_size_label = btn_size_row.get_node("ValueLabel")
+	vbox.add_child(btn_size_row)
 
 	vbox.add_child(HSeparator.new())
 
@@ -205,6 +244,10 @@ func _connect_signals() -> void:
 	master_slider.value_changed.connect(_on_master_volume_changed)
 	sfx_slider.value_changed.connect(_on_sfx_volume_changed)
 	music_slider.value_changed.connect(_on_music_volume_changed)
+	tap_to_dig_check.toggled.connect(_on_tap_to_dig_toggled)
+	swipe_controls_check.toggled.connect(_on_swipe_controls_toggled)
+	joystick_deadzone_slider.value_changed.connect(_on_joystick_deadzone_changed)
+	button_size_slider.value_changed.connect(_on_button_size_changed)
 
 
 func _load_current_settings() -> void:
@@ -225,6 +268,14 @@ func _load_current_settings() -> void:
 	master_slider.value = SettingsManager.master_volume * 100
 	sfx_slider.value = SettingsManager.sfx_volume * 100
 	music_slider.value = SettingsManager.music_volume * 100
+
+	# Load control settings
+	tap_to_dig_check.button_pressed = SettingsManager.tap_to_dig_enabled
+	swipe_controls_check.button_pressed = SettingsManager.swipe_controls_enabled
+	joystick_deadzone_slider.value = SettingsManager.joystick_deadzone * 100
+	_update_joystick_deadzone_label()
+	button_size_slider.value = SettingsManager.button_size_scale * 100
+	_update_button_size_label()
 
 
 func _update_text_size_label() -> void:
@@ -297,3 +348,31 @@ func _on_sfx_volume_changed(value: float) -> void:
 
 func _on_music_volume_changed(value: float) -> void:
 	SettingsManager.music_volume = value / 100.0
+
+
+# === Control setting handlers ===
+
+func _on_tap_to_dig_toggled(enabled: bool) -> void:
+	SettingsManager.tap_to_dig_enabled = enabled
+
+
+func _on_swipe_controls_toggled(enabled: bool) -> void:
+	SettingsManager.swipe_controls_enabled = enabled
+
+
+func _on_joystick_deadzone_changed(value: float) -> void:
+	SettingsManager.joystick_deadzone = value / 100.0
+	_update_joystick_deadzone_label()
+
+
+func _on_button_size_changed(value: float) -> void:
+	SettingsManager.button_size_scale = value / 100.0
+	_update_button_size_label()
+
+
+func _update_joystick_deadzone_label() -> void:
+	joystick_deadzone_label.text = "%d%%" % int(joystick_deadzone_slider.value)
+
+
+func _update_button_size_label() -> void:
+	button_size_label.text = "%d%%" % int(button_size_slider.value)

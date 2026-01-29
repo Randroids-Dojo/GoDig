@@ -72,6 +72,11 @@ func _ready() -> void:
 		# Connect death signal for game over handling
 		player.player_died.connect(_on_player_died)
 
+	# Connect death screen signals
+	if death_screen:
+		death_screen.respawn_requested.connect(_on_death_screen_respawn)
+		death_screen.reload_requested.connect(_on_death_screen_reload)
+
 	# Connect item pickup for floating text
 	InventoryManager.item_added.connect(_on_item_added)
 
@@ -439,11 +444,17 @@ func _respawn_player() -> void:
 	# Revive the player with full HP
 	player.revive(player.MAX_HP)
 
-	# Teleport to surface spawn position
-	var center_x := GameManager.GRID_WIDTH / 2
-	var spawn_pos := GameManager.grid_to_world(Vector2i(center_x, GameManager.SURFACE_ROW - 1))
-	player.position = spawn_pos
-	player.grid_position = GameManager.world_to_grid(spawn_pos)
+	# Teleport to surface spawn position (use surface spawn point if available)
+	if surface:
+		player.position = surface.get_spawn_position()
+		player.grid_position = GameManager.world_to_grid(player.position)
+	else:
+		# Fallback if surface scene is not available
+		var center_x := GameManager.GRID_WIDTH / 2
+		var spawn_pos := GameManager.grid_to_world(Vector2i(center_x, GameManager.SURFACE_ROW - 1))
+		player.position = spawn_pos
+		player.grid_position = GameManager.world_to_grid(spawn_pos)
+
 	player.current_state = player.State.IDLE
 	player.velocity = Vector2.ZERO
 

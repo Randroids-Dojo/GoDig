@@ -35,6 +35,12 @@ class_name LayerData extends Resource
 ## Maximum hardness cap (0 = no cap)
 @export var max_hardness: float = 0.0
 
+## Heat damage per second (0 = no heat damage)
+@export var heat_damage: float = 0.0
+
+## Heat damage scaling per 100 blocks of depth (for infinite layers)
+@export var heat_damage_per_100_depth: float = 0.0
+
 
 ## Get hardness with variance based on position for deterministic randomness
 ## Supports infinite depth scaling for endless layers
@@ -66,3 +72,20 @@ func get_hardness_at(grid_pos: Vector2i) -> float:
 func is_transition_zone(depth: int) -> bool:
 	const TRANSITION_RANGE := 10
 	return depth >= max_depth - TRANSITION_RANGE and depth < max_depth
+
+
+## Get heat damage at a specific depth
+## Returns damage per second (0 = no heat damage)
+func get_heat_damage_at(depth: int) -> float:
+	if heat_damage == 0.0 and heat_damage_per_100_depth == 0.0:
+		return 0.0
+
+	var damage := heat_damage
+
+	# Apply depth scaling if enabled
+	if heat_damage_per_100_depth > 0.0:
+		var depth_into_layer := depth - min_depth
+		if depth_into_layer > 0:
+			damage += (float(depth_into_layer) / 100.0) * heat_damage_per_100_depth
+
+	return damage

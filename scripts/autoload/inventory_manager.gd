@@ -380,3 +380,40 @@ func remove_random_items(count: int) -> int:
 		else:
 			break  # Inventory is empty
 	return removed
+
+
+## Check if inventory has at least one of an item by ID
+func has_item_by_id(item_id: String) -> bool:
+	return get_item_count_by_id(item_id) > 0
+
+
+## Get count of an item by ID
+func get_item_count_by_id(item_id: String) -> int:
+	var total := 0
+	for slot in slots:
+		if slot.item != null and slot.item.id == item_id:
+			total += slot.quantity
+	return total
+
+
+## Remove items from a specific slot by index
+## Returns the number of items actually removed
+func remove_items_at_slot(slot_index: int, amount: int = 1) -> int:
+	if slot_index < 0 or slot_index >= slots.size():
+		return 0
+	if amount <= 0:
+		return 0
+
+	var slot = slots[slot_index]
+	if slot.is_empty():
+		return 0
+
+	var to_remove := mini(amount, slot.quantity)
+	slot.quantity -= to_remove
+
+	# Clear slot if empty
+	if slot.quantity <= 0:
+		slot.clear()
+
+	inventory_changed.emit()
+	return to_remove

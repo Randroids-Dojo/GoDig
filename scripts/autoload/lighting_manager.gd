@@ -25,6 +25,9 @@ var current_ambient: float = 1.0
 var current_tint: Color = Color.WHITE
 var current_zone: String = "surface"
 
+## Base ambient (before helmet bonus)
+var base_ambient: float = 1.0
+
 ## CanvasModulate reference (created at runtime or assigned)
 var _canvas_modulate: CanvasModulate = null
 
@@ -33,12 +36,21 @@ var _target_ambient: float = 1.0
 var _target_tint: Color = Color.WHITE
 var _transition_speed: float = 2.0  # Lighting change speed
 
+## Helmet light bonus (0.0 = no bonus, 300 = max light radius from Crystal Helm)
+var _helmet_light_bonus: float = 0.0
+
 
 func _ready() -> void:
 	# Connect to GameManager depth changes if available
 	if GameManager:
 		if GameManager.has_signal("depth_updated"):
 			GameManager.connect("depth_updated", _on_depth_changed)
+	# Connect to PlayerData equipment changes for helmet light bonus
+	if PlayerData:
+		if PlayerData.has_signal("equipment_changed"):
+			PlayerData.connect("equipment_changed", _on_equipment_changed)
+		# Initialize helmet bonus from current equipment
+		_update_helmet_bonus()
 	print("[LightingManager] Ready")
 
 
@@ -54,6 +66,20 @@ func _process(delta: float) -> void:
 ## Called when player depth changes
 func _on_depth_changed(depth: int) -> void:
 	update_depth(depth)
+
+
+## Called when player equipment changes
+func _on_equipment_changed(_slot: int, _equipment) -> void:
+	_update_helmet_bonus()
+	_recalculate_lighting()
+
+
+## Update helmet light bonus from PlayerData
+func _update_helmet_bonus() -> void:
+	if PlayerData == null:
+		_helmet_light_bonus = 0.0
+		return
+	_helmet_light_bonus = PlayerData.get_light_radius_bonus()
 
 
 ## Update lighting based on current depth
@@ -106,9 +132,18 @@ func _recalculate_lighting() -> void:
 		_target_ambient = 0.05
 		_target_tint = Color(0.7, 0.5, 0.8)  # Purple void
 
+	# Store base ambient before helmet bonus
+	base_ambient = _target_ambient
+
+	# Apply helmet light bonus (helmet light_radius_bonus ranges from 50 to 300)
+	# Convert to ambient boost: 50 = +0.1 ambient, 300 = +0.5 ambient
+	if _helmet_light_bonus > 0:
+		var helmet_boost := _helmet_light_bonus / 600.0  # 300 max / 600 = 0.5 max boost
+		_target_ambient = minf(_target_ambient + helmet_boost, 1.0)
+
 	# Emit signal for UI or other systems
 	if old_zone != current_zone:
-		print("[LightingManager] Entered zone: %s at depth %d" % [current_zone, current_depth])
+		print("[LightingManager] Entered zone: %s at depth %d (helmet bonus: %.2f)" % [current_zone, current_depth, _helmet_light_bonus])
 
 	lighting_changed.emit(_target_ambient, _target_tint)
 

@@ -26,6 +26,10 @@ signal coins_added(amount: int)
 signal coins_spent(amount: int)
 signal shop_requested
 signal shop_closed
+signal building_unlocked(building_id: String, building_name: String)
+signal max_depth_updated(depth: int)
+signal tutorial_state_changed(new_state: int)
+signal tutorial_completed
 
 # Grid constants (128x128 blocks, same size as player)
 const BLOCK_SIZE := 128
@@ -45,6 +49,13 @@ const SCENE_GAME_OVER := "res://scenes/ui/game_over.tscn"
 var is_running: bool = false
 var current_depth: int = 0
 var coins: int = 0
+var max_depth_reached: int = 0
+var unlocked_buildings: Array[String] = []
+
+## Tutorial state tracking
+enum TutorialState { MOVEMENT, DIGGING, COLLECTING, SELLING, COMPLETE }
+var tutorial_state: TutorialState = TutorialState.MOVEMENT
+var tutorial_complete: bool = false
 
 ## Reference to the player node (set via register_player)
 var player: CharacterBody2D = null
@@ -236,9 +247,10 @@ func update_depth(depth: int) -> void:
 	# Check for layer transitions
 	_check_layer_transition(depth)
 
-	# Check for depth milestones (only trigger once per milestone)
+	# Check for depth milestones and building unlocks (only when going deeper)
 	if depth > old_depth:
 		_check_depth_milestones(depth)
+		update_max_depth(depth)
 
 
 # Utility functions for grid coordinate conversion
@@ -327,6 +339,7 @@ func _check_depth_milestones(depth: int) -> void:
 func reset_milestones() -> void:
 	_reached_milestones.clear()
 	_current_layer_id = ""  # Also reset layer tracking
+	reset_buildings()  # Also reset building unlocks
 
 
 ## Set reached milestones (for save/load)
@@ -389,3 +402,131 @@ func _notification(what: int) -> void:
 		NOTIFICATION_APPLICATION_RESUMED:
 			# Mobile: app returned to foreground - stay paused, player can resume
 			pass
+
+
+# ============================================
+# BUILDING UNLOCK SYSTEM
+# ============================================
+
+## Building unlock order - buildings unlock at specific depth milestones
+const BUILDING_UNLOCK_ORDER := [
+	{"id": "mine_entrance", "name": "Mine Entrance", "unlock_depth": 0},
+	{"id": "general_store", "name": "General Store", "unlock_depth": 0},
+	{"id": "supply_store", "name": "Supply Store", "unlock_depth": 0},
+	{"id": "blacksmith", "name": "Blacksmith", "unlock_depth": 50},
+	{"id": "equipment_shop", "name": "Equipment Shop", "unlock_depth": 100},
+	{"id": "gem_appraiser", "name": "Gem Appraiser", "unlock_depth": 200},
+	{"id": "gadget_shop", "name": "Gadget Shop", "unlock_depth": 300},
+	{"id": "warehouse", "name": "Warehouse", "unlock_depth": 500},
+	{"id": "elevator", "name": "Elevator", "unlock_depth": 500},
+]
+
+
+## Update max depth and check for building unlocks
+func update_max_depth(depth: int) -> void:
+	if depth > max_depth_reached:
+		max_depth_reached = depth
+		max_depth_updated.emit(max_depth_reached)
+		_check_building_unlocks()
+
+
+## Check if any new buildings should be unlocked based on max depth
+func _check_building_unlocks() -> void:
+	for building in BUILDING_UNLOCK_ORDER:
+		var building_id: String = building["id"]
+		if building_id in unlocked_buildings:
+			continue
+		if max_depth_reached >= building["unlock_depth"]:
+			unlocked_buildings.append(building_id)
+			building_unlocked.emit(building_id, building["name"])
+			print("[GameManager] Building unlocked: %s" % building["name"])
+
+
+## Check if a specific building is unlocked
+func is_building_unlocked(building_id: String) -> bool:
+	return building_id in unlocked_buildings
+
+
+## Get all unlocked building IDs
+func get_unlocked_buildings() -> Array[String]:
+	return unlocked_buildings.duplicate()
+
+
+## Set unlocked buildings (for save/load)
+func set_unlocked_buildings(buildings: Array) -> void:
+	unlocked_buildings.clear()
+	for b in buildings:
+		if b is String:
+			unlocked_buildings.append(b)
+
+
+## Set max depth reached (for save/load)
+func set_max_depth_reached(depth: int) -> void:
+	max_depth_reached = depth
+	# Check for any buildings that should be unlocked at this depth
+	_check_building_unlocks()
+
+
+## Reset buildings (for new game)
+func reset_buildings() -> void:
+	unlocked_buildings.clear()
+	max_depth_reached = 0
+	# Unlock starting buildings
+	_check_building_unlocks()
+
+
+# ============================================
+# TUTORIAL SYSTEM
+# ============================================
+
+## Advance the tutorial to a new state
+func advance_tutorial(new_state: TutorialState) -> void:
+	if tutorial_complete:
+		return
+	if new_state <= tutorial_state and new_state != TutorialState.COMPLETE:
+		return  # Don't go backwards
+
+	tutorial_state = new_state
+	tutorial_state_changed.emit(new_state)
+	print("[GameManager] Tutorial advanced to: %s" % TutorialState.keys()[new_state])
+
+	if new_state == TutorialState.COMPLETE:
+		complete_tutorial()
+
+
+## Mark the tutorial as complete
+func complete_tutorial() -> void:
+	if tutorial_complete:
+		return
+	tutorial_complete = true
+	tutorial_state = TutorialState.COMPLETE
+	tutorial_completed.emit()
+	print("[GameManager] Tutorial completed!")
+	# Save immediately so it persists
+	if SaveManager:
+		SaveManager.save_game()
+
+
+## Check if tutorial is active (not yet complete)
+func is_tutorial_active() -> bool:
+	return not tutorial_complete
+
+
+## Reset tutorial (for new game)
+func reset_tutorial() -> void:
+	tutorial_state = TutorialState.MOVEMENT
+	tutorial_complete = false
+
+
+## Set tutorial state from save data
+func set_tutorial_state(state: int, complete: bool) -> void:
+	tutorial_state = state as TutorialState
+	tutorial_complete = complete
+
+
+## Get tutorial state for save data
+func get_tutorial_state() -> Dictionary:
+	return {
+		"state": tutorial_state,
+		"complete": tutorial_complete
+	}

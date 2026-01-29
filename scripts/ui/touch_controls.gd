@@ -32,6 +32,15 @@ var _default_joystick_anchor: Vector2 = Vector2.ZERO
 var _default_buttons_anchor: Vector2 = Vector2.ZERO
 var _initial_setup_done: bool = false
 
+## Swipe gesture tracking
+var _swipe_start_pos: Vector2 = Vector2.ZERO
+var _swipe_start_time: float = 0.0
+var _is_swiping: bool = false
+const SWIPE_MIN_DISTANCE: float = 50.0  # Minimum swipe distance in pixels
+const SWIPE_MAX_TIME: float = 0.5  # Maximum time for a valid swipe
+const SWIPE_COOLDOWN: float = 0.15  # Cooldown between swipes
+var _swipe_cooldown_timer: float = 0.0
+
 
 func _ready() -> void:
 	# Ensure action buttons exist before connecting signals
@@ -142,3 +151,124 @@ func _on_inventory_pressed() -> void:
 
 func get_direction() -> Vector2i:
 	return joystick.get_direction()
+
+
+# ============================================
+# SWIPE GESTURE CONTROLS
+# ============================================
+
+func _process(delta: float) -> void:
+	# Update swipe cooldown
+	if _swipe_cooldown_timer > 0:
+		_swipe_cooldown_timer -= delta
+
+
+func _input(event: InputEvent) -> void:
+	# Only process swipe if enabled in settings
+	if SettingsManager == null or not SettingsManager.swipe_controls_enabled:
+		return
+
+	# Don't process swipe if we're touching the joystick or buttons
+	if _is_over_control(event.position if event is InputEventScreenTouch or event is InputEventScreenDrag else Vector2.ZERO):
+		return
+
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			_start_swipe(event.position)
+		else:
+			_end_swipe(event.position)
+	elif event is InputEventScreenDrag:
+		_update_swipe(event.position)
+
+
+func _start_swipe(pos: Vector2) -> void:
+	## Begin tracking a potential swipe gesture
+	_swipe_start_pos = pos
+	_swipe_start_time = Time.get_ticks_msec() / 1000.0
+	_is_swiping = true
+
+
+func _update_swipe(pos: Vector2) -> void:
+	## Update swipe tracking - can emit early if swipe distance is reached
+	if not _is_swiping or _swipe_cooldown_timer > 0:
+		return
+
+	var delta := pos - _swipe_start_pos
+	var distance := delta.length()
+
+	# Check if we've swiped far enough
+	if distance >= SWIPE_MIN_DISTANCE:
+		var direction := _get_swipe_direction(delta)
+		if direction != Vector2i.ZERO:
+			_emit_swipe(direction)
+			_is_swiping = false  # Prevent multiple swipes from same gesture
+
+
+func _end_swipe(pos: Vector2) -> void:
+	## Complete a swipe gesture and check if it was valid
+	if not _is_swiping:
+		return
+
+	var delta := pos - _swipe_start_pos
+	var distance := delta.length()
+	var elapsed := (Time.get_ticks_msec() / 1000.0) - _swipe_start_time
+
+	# Reset swiping state
+	_is_swiping = false
+
+	# Check if cooldown is active
+	if _swipe_cooldown_timer > 0:
+		return
+
+	# Check if swipe was fast and far enough
+	if distance >= SWIPE_MIN_DISTANCE and elapsed <= SWIPE_MAX_TIME:
+		var direction := _get_swipe_direction(delta)
+		if direction != Vector2i.ZERO:
+			_emit_swipe(direction)
+
+
+func _get_swipe_direction(delta: Vector2) -> Vector2i:
+	## Convert swipe delta to a cardinal direction
+	# Determine if horizontal or vertical swipe
+	if abs(delta.x) > abs(delta.y):
+		# Horizontal swipe
+		if delta.x > 0:
+			return Vector2i(1, 0)  # Right
+		else:
+			return Vector2i(-1, 0)  # Left
+	else:
+		# Vertical swipe
+		if delta.y > 0:
+			return Vector2i(0, 1)  # Down
+		else:
+			return Vector2i(0, -1)  # Up
+	return Vector2i.ZERO
+
+
+func _emit_swipe(direction: Vector2i) -> void:
+	## Emit a swipe in the specified direction
+	_swipe_cooldown_timer = SWIPE_COOLDOWN
+	direction_pressed.emit(direction)
+
+	# Auto-release after a short delay (simulate tap-move)
+	await get_tree().create_timer(0.1).timeout
+	direction_released.emit()
+	print("[TouchControls] Swipe detected: %s" % str(direction))
+
+
+func _is_over_control(pos: Vector2) -> bool:
+	## Check if position is over a control element (joystick or buttons)
+	if pos == Vector2.ZERO:
+		return false
+
+	if joystick and joystick.visible:
+		var joystick_rect := Rect2(joystick.global_position, joystick.size)
+		if joystick_rect.has_point(pos):
+			return true
+
+	if action_buttons and action_buttons.visible:
+		var buttons_rect := Rect2(action_buttons.global_position, action_buttons.size)
+		if buttons_rect.has_point(pos):
+			return true
+
+	return false

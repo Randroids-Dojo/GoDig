@@ -318,6 +318,14 @@ func get_light_radius_bonus() -> float:
 	return helmet.light_radius_bonus
 
 
+## Get light intensity bonus from equipped helmet
+func get_light_intensity_bonus() -> float:
+	var helmet = get_equipped_helmet()
+	if helmet == null:
+		return 0.0
+	return helmet.light_intensity_bonus
+
+
 ## Check if boots can be unlocked (depth requirement and tier check)
 func can_unlock_boots(boots: EquipmentDataClass) -> bool:
 	if boots == null:
@@ -330,6 +338,36 @@ func can_unlock_boots(boots: EquipmentDataClass) -> bool:
 	if current != null and boots.tier <= current.tier:
 		return false  # Already have equal or better
 	return true
+
+
+## Check if helmet can be unlocked (depth requirement and tier check)
+func can_unlock_helmet(helmet: EquipmentDataClass) -> bool:
+	if helmet == null:
+		return false
+	if helmet.slot != EquipmentDataClass.EquipmentSlot.HELMET:
+		return false
+	if helmet.unlock_depth > max_depth_reached:
+		return false
+	var current = get_equipped_helmet()
+	if current != null and helmet.tier <= current.tier:
+		return false  # Already have equal or better
+	return true
+
+
+## Get the next helmet upgrade available (null if at max tier or no helmets unlocked)
+func get_next_helmet_upgrade() -> EquipmentDataClass:
+	if DataRegistry == null:
+		return null
+
+	var current = get_equipped_helmet()
+	var next_tier: int = 0 if current == null else current.tier + 1
+	var all_helmets = DataRegistry.get_all_helmets()
+
+	for helmet in all_helmets:
+		if helmet.tier == next_tier:
+			return helmet
+
+	return null
 
 
 ## Get the currently equipped accessory (includes drill)

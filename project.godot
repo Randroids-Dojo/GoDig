@@ -28,6 +28,7 @@ PlatformDetector="*res://scripts/autoload/platform_detector.gd"
 PlayerStats="*res://scripts/autoload/player_stats.gd"
 HapticFeedback="*res://scripts/autoload/haptic_feedback.gd"
 LightingManager="*res://scripts/autoload/lighting_manager.gd"
+MuseumManager="*res://scripts/autoload/museum_manager.gd"
 PlayGodotServer="*res://addons/playgodot/server.gd"
 
 [display]

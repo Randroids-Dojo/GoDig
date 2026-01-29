@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ArtifactData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/items/artifact_data.gd" id="1_artifact"]
+
+[resource]
+script = ExtResource("1_artifact")
+id = "artifact_ancient_coin"
+display_name = "Ancient Coin"
+category = "artifact"
+max_stack = 1
+sell_value = 100
+rarity = "legendary"
+min_depth = 50
+description = "A tarnished coin from a long-forgotten civilization."
+museum_id = 1
+era = "Ancient Era"
+lore = "This coin bears markings of a civilization that existed before recorded history. Who were they, and where did they go?"
+spawn_min_depth = 50
+spawn_max_depth = 200
+spawn_chance = 0.0002

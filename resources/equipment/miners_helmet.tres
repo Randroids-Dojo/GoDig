@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EquipmentData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/equipment/equipment_data.gd" id="1_equipment"]
+
+[resource]
+script = ExtResource("1_equipment")
+id = "miners_helmet"
+display_name = "Miner's Helmet"
+slot = 1
+rarity = 1
+description = "A sturdy helmet with an improved lamp. Standard issue for professional miners."
+cost = 200
+unlock_depth = 75
+tier = 2
+light_radius_bonus = 100.0
+light_intensity_bonus = 0.2

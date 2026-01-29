@@ -115,6 +115,43 @@ var music_volume: float = 1.0:
 		_queue_save()
 
 # ============================================
+# CONTROL SETTINGS
+# ============================================
+
+signal swipe_controls_changed(enabled: bool)
+signal joystick_deadzone_changed(deadzone: float)
+signal button_size_changed(scale: float)
+signal tap_to_dig_changed(enabled: bool)
+
+## Controls: Swipe gesture controls enabled
+var swipe_controls_enabled: bool = false:
+	set(value):
+		swipe_controls_enabled = value
+		swipe_controls_changed.emit(value)
+		_queue_save()
+
+## Controls: Virtual joystick deadzone (0.0 - 0.5)
+var joystick_deadzone: float = 0.2:
+	set(value):
+		joystick_deadzone = clampf(value, 0.0, 0.5)
+		joystick_deadzone_changed.emit(joystick_deadzone)
+		_queue_save()
+
+## Controls: Button size scale (0.75 - 1.5)
+var button_size_scale: float = 1.0:
+	set(value):
+		button_size_scale = clampf(value, 0.75, 1.5)
+		button_size_changed.emit(button_size_scale)
+		_queue_save()
+
+## Controls: Tap-to-dig enabled
+var tap_to_dig_enabled: bool = true:
+	set(value):
+		tap_to_dig_enabled = value
+		tap_to_dig_changed.emit(value)
+		_queue_save()
+
+# ============================================
 # INTERNAL STATE
 # ============================================
 
@@ -156,6 +193,10 @@ func reset_to_defaults() -> void:
 	master_volume = 1.0
 	sfx_volume = 1.0
 	music_volume = 1.0
+	swipe_controls_enabled = false
+	joystick_deadzone = 0.2
+	button_size_scale = 1.0
+	tap_to_dig_enabled = true
 	_loading = false
 	_save_settings()
 	settings_reset.emit()
@@ -213,6 +254,12 @@ func _save_settings() -> void:
 	config.set_value("audio", "master_volume", master_volume)
 	config.set_value("audio", "sfx_volume", sfx_volume)
 	config.set_value("audio", "music_volume", music_volume)
+
+	# Control settings
+	config.set_value("controls", "swipe_controls_enabled", swipe_controls_enabled)
+	config.set_value("controls", "joystick_deadzone", joystick_deadzone)
+	config.set_value("controls", "button_size_scale", button_size_scale)
+	config.set_value("controls", "tap_to_dig_enabled", tap_to_dig_enabled)
 
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:
@@ -289,6 +336,27 @@ func _load_settings() -> void:
 	music_volume = _validate_float(
 		config.get_value("audio", "music_volume", 1.0),
 		0.0, 1.0, 1.0
+	)
+
+	# Load control settings
+	swipe_controls_enabled = _validate_bool(
+		config.get_value("controls", "swipe_controls_enabled", false),
+		false
+	)
+
+	joystick_deadzone = _validate_float(
+		config.get_value("controls", "joystick_deadzone", 0.2),
+		0.0, 0.5, 0.2
+	)
+
+	button_size_scale = _validate_float(
+		config.get_value("controls", "button_size_scale", 1.0),
+		0.75, 1.5, 1.0
+	)
+
+	tap_to_dig_enabled = _validate_bool(
+		config.get_value("controls", "tap_to_dig_enabled", true),
+		true
 	)
 
 	_loading = false

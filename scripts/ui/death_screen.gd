@@ -180,6 +180,7 @@ func _format_death_cause(cause: String) -> String:
 		"suffocation": return "Suffocated underground"
 		"lava": return "Burned in lava"
 		"cave_in": return "Buried in a cave-in"
+		"heat": return "Overwhelmed by extreme heat"
 		_: return cause.capitalize()
 
 

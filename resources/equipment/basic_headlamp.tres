@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EquipmentData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/equipment/equipment_data.gd" id="1_equipment"]
+
+[resource]
+script = ExtResource("1_equipment")
+id = "basic_headlamp"
+display_name = "Basic Headlamp"
+slot = 1
+rarity = 0
+description = "A simple headlamp that provides basic illumination in dark caves."
+cost = 75
+unlock_depth = 25
+tier = 1
+light_radius_bonus = 50.0
+light_intensity_bonus = 0.1

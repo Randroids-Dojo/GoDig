@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://test_level_001"]
+[gd_scene load_steps=14 format=3 uid="uid://test_level_001"]
 
 [ext_resource type="Script" path="res://scripts/test_level.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/world/dirt_grid.gd" id="2_grid"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://hud_ui_001" path="res://scenes/ui/hud.tscn" id="9_hud"]
 [ext_resource type="PackedScene" uid="uid://surface_001" path="res://scenes/surface.tscn" id="10_surface"]
 [ext_resource type="PackedScene" uid="uid://death_screen_001" path="res://scenes/ui/death_screen.tscn" id="11_death"]
+[ext_resource type="PackedScene" uid="uid://tutorial_overlay_001" path="res://scenes/ui/tutorial_overlay.tscn" id="12_tutorial"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(120, 120)
@@ -78,6 +79,9 @@ visible = false
 
 [node name="FloatingTextLayer" type="CanvasLayer" parent="."]
 layer = 10
+
+[node name="TutorialOverlay" parent="." instance=ExtResource("12_tutorial")]
+visible = false
 
 [connection signal="depth_changed" from="Player" to="." method="_on_player_depth_changed"]
 [connection signal="player_died" from="Player" to="." method="_on_player_died"]

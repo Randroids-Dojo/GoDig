@@ -64,6 +64,16 @@ var ladder_quickslot: Control = null
 var ladder_count_label: Label = null
 var ladder_button: Button = null
 
+## Rope quick-slot
+var rope_quickslot: Control = null
+var rope_count_label: Label = null
+var rope_button: Button = null
+
+## Teleport scroll quick-slot
+var teleport_quickslot: Control = null
+var teleport_count_label: Label = null
+var teleport_button: Button = null
+
 
 func _ready() -> void:
 	# Initialize display
@@ -123,6 +133,12 @@ func _ready() -> void:
 
 	# Create ladder quick-slot
 	_setup_ladder_quickslot()
+
+	# Create rope quick-slot
+	_setup_rope_quickslot()
+
+	# Create teleport scroll quick-slot
+	_setup_teleport_quickslot()
 
 	# Create mining progress indicator
 	_setup_mining_progress()
@@ -850,6 +866,188 @@ func _on_ladder_quickslot_pressed() -> void:
 
 ## Signal for ladder placement request
 signal ladder_place_requested
+
+
+# ============================================
+# ROPE QUICK-SLOT
+# ============================================
+
+const ROPE_ITEM_ID := "rope"
+
+func _setup_rope_quickslot() -> void:
+	## Create the rope quick-slot UI
+	rope_quickslot = Control.new()
+	rope_quickslot.name = "RopeQuickSlot"
+	rope_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	rope_quickslot.position = Vector2(-80, 190)  # Below ladder
+	rope_quickslot.custom_minimum_size = Vector2(64, 64)
+	add_child(rope_quickslot)
+
+	# Background panel
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.color = Color(0.2, 0.15, 0.1, 0.8)  # Brown tint for rope
+	bg.size = Vector2(64, 64)
+	rope_quickslot.add_child(bg)
+
+	# Rope icon (placeholder - text for now)
+	var icon_label := Label.new()
+	icon_label.name = "IconLabel"
+	icon_label.text = "🪢"
+	icon_label.position = Vector2(8, 4)
+	icon_label.add_theme_font_size_override("font_size", 28)
+	rope_quickslot.add_child(icon_label)
+
+	# Count label
+	rope_count_label = Label.new()
+	rope_count_label.name = "CountLabel"
+	rope_count_label.position = Vector2(40, 40)
+	rope_count_label.custom_minimum_size = Vector2(24, 20)
+	rope_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	rope_count_label.add_theme_font_size_override("font_size", 16)
+	rope_count_label.add_theme_color_override("font_color", Color.WHITE)
+	rope_quickslot.add_child(rope_count_label)
+
+	# Touch button (invisible overlay)
+	rope_button = Button.new()
+	rope_button.name = "RopeButton"
+	rope_button.flat = true
+	rope_button.size = Vector2(64, 64)
+	rope_button.pressed.connect(_on_rope_quickslot_pressed)
+	rope_quickslot.add_child(rope_button)
+
+	# Connect inventory changes
+	if InventoryManager:
+		InventoryManager.inventory_changed.connect(_update_rope_quickslot)
+
+	# Initial update
+	_update_rope_quickslot()
+
+
+func _update_rope_quickslot() -> void:
+	## Update rope count display
+	if rope_count_label == null or rope_quickslot == null:
+		return
+
+	var rope_count := _get_rope_count()
+
+	if rope_count > 0:
+		rope_count_label.text = "x%d" % rope_count
+		rope_count_label.add_theme_color_override("font_color", Color.WHITE)
+		rope_quickslot.modulate = Color.WHITE
+	else:
+		rope_count_label.text = "x0"
+		rope_count_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		rope_quickslot.modulate = Color(0.5, 0.5, 0.5, 0.8)
+
+
+func _get_rope_count() -> int:
+	## Get the number of ropes in inventory
+	if InventoryManager == null:
+		return 0
+	return InventoryManager.get_item_count_by_id(ROPE_ITEM_ID)
+
+
+func _on_rope_quickslot_pressed() -> void:
+	## Attempt to use a rope
+	if _get_rope_count() <= 0:
+		return
+
+	# Find player and call use_rope
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("use_rope"):
+		player.use_rope()
+
+
+# ============================================
+# TELEPORT SCROLL QUICK-SLOT
+# ============================================
+
+const TELEPORT_ITEM_ID := "teleport_scroll"
+
+func _setup_teleport_quickslot() -> void:
+	## Create the teleport scroll quick-slot UI
+	teleport_quickslot = Control.new()
+	teleport_quickslot.name = "TeleportQuickSlot"
+	teleport_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	teleport_quickslot.position = Vector2(-80, 260)  # Below rope
+	teleport_quickslot.custom_minimum_size = Vector2(64, 64)
+	add_child(teleport_quickslot)
+
+	# Background panel
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.color = Color(0.15, 0.1, 0.25, 0.8)  # Purple tint for magic scroll
+	bg.size = Vector2(64, 64)
+	teleport_quickslot.add_child(bg)
+
+	# Teleport icon (placeholder - text for now)
+	var icon_label := Label.new()
+	icon_label.name = "IconLabel"
+	icon_label.text = "📜"
+	icon_label.position = Vector2(8, 4)
+	icon_label.add_theme_font_size_override("font_size", 28)
+	teleport_quickslot.add_child(icon_label)
+
+	# Count label
+	teleport_count_label = Label.new()
+	teleport_count_label.name = "CountLabel"
+	teleport_count_label.position = Vector2(40, 40)
+	teleport_count_label.custom_minimum_size = Vector2(24, 20)
+	teleport_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	teleport_count_label.add_theme_font_size_override("font_size", 16)
+	teleport_count_label.add_theme_color_override("font_color", Color.WHITE)
+	teleport_quickslot.add_child(teleport_count_label)
+
+	# Touch button (invisible overlay)
+	teleport_button = Button.new()
+	teleport_button.name = "TeleportButton"
+	teleport_button.flat = true
+	teleport_button.size = Vector2(64, 64)
+	teleport_button.pressed.connect(_on_teleport_quickslot_pressed)
+	teleport_quickslot.add_child(teleport_button)
+
+	# Connect inventory changes
+	if InventoryManager:
+		InventoryManager.inventory_changed.connect(_update_teleport_quickslot)
+
+	# Initial update
+	_update_teleport_quickslot()
+
+
+func _update_teleport_quickslot() -> void:
+	## Update teleport scroll count display
+	if teleport_count_label == null or teleport_quickslot == null:
+		return
+
+	var teleport_count := _get_teleport_count()
+
+	if teleport_count > 0:
+		teleport_count_label.text = "x%d" % teleport_count
+		teleport_count_label.add_theme_color_override("font_color", Color.WHITE)
+		teleport_quickslot.modulate = Color.WHITE
+	else:
+		teleport_count_label.text = "x0"
+		teleport_count_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		teleport_quickslot.modulate = Color(0.5, 0.5, 0.5, 0.8)
+
+
+func _get_teleport_count() -> int:
+	## Get the number of teleport scrolls in inventory
+	if InventoryManager == null:
+		return 0
+	return InventoryManager.get_item_count_by_id(TELEPORT_ITEM_ID)
+
+
+func _on_teleport_quickslot_pressed() -> void:
+	## Attempt to use a teleport scroll
+	if _get_teleport_count() <= 0:
+		return
+
+	# Find player and call use_teleport_scroll
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("use_teleport_scroll"):
+		player.use_teleport_scroll()
 
 
 # ============================================

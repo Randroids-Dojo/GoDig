@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ArtifactData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/items/artifact_data.gd" id="1_artifact"]
+
+[resource]
+script = ExtResource("1_artifact")
+id = "artifact_obsidian_tablet"
+display_name = "Obsidian Tablet"
+category = "artifact"
+max_stack = 1
+sell_value = 500
+rarity = "legendary"
+min_depth = 300
+description = "A tablet inscribed with unknown symbols, carved from volcanic glass."
+museum_id = 3
+era = "Fire Age"
+lore = "The inscriptions on this tablet describe a great cataclysm. Perhaps the end of the civilization that created the Ancient Coins?"
+spawn_min_depth = 300
+spawn_max_depth = 600
+spawn_chance = 0.0001

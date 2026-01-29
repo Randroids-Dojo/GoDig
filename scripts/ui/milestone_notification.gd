@@ -113,5 +113,46 @@ func show_layer_entered(layer_name: String) -> void:
 	_tween.tween_callback(_hide)
 
 
+## Display building unlock notification
+func show_building_unlocked(building_name: String) -> void:
+	if label == null or panel == null:
+		return
+
+	# Format the building unlock text
+	label.text = "UNLOCKED: %s!" % building_name
+
+	# Reset state
+	visible = true
+	modulate.a = 0.0
+	scale = Vector2(0.8, 0.8)
+
+	# Cancel any existing animation
+	if _tween and _tween.is_valid():
+		_tween.kill()
+
+	# Skip fancy animations if reduced motion is enabled
+	if SettingsManager and SettingsManager.reduced_motion:
+		modulate.a = 1.0
+		scale = Vector2(1.0, 1.0)
+		_tween = create_tween()
+		_tween.tween_interval(2.5)
+		_tween.tween_property(self, "modulate:a", 0.0, 0.3)
+		_tween.tween_callback(_hide)
+		return
+
+	# Animated sequence with extra pop for unlock events
+	_tween = create_tween()
+	_tween.tween_property(self, "modulate:a", 1.0, 0.15) \
+		.set_ease(Tween.EASE_OUT)
+	_tween.tween_property(self, "scale", Vector2(1.15, 1.15), 0.2) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.1) \
+		.set_ease(Tween.EASE_IN_OUT)
+	_tween.tween_interval(2.0)
+	_tween.tween_property(self, "modulate:a", 0.0, 0.5) \
+		.set_ease(Tween.EASE_IN)
+	_tween.tween_callback(_hide)
+
+
 func _hide() -> void:
 	visible = false

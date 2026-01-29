@@ -1,11 +1,11 @@
 ---
 title: "implement: Building unlock system"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-01-19T01:56:51.720926-06:00"
-after:
-  - GoDig-dev-surface-area-379633b2
+created-at: "\"\\\"2026-01-19T01:56:51.720926-06:00\\\"\""
+closed-at: "2026-01-28T06:53:18.249873+00:00"
+close-reason: Implemented BuildingData resource, GameManager unlock logic with signals, HUD notifications for building unlocks
 ---
 
 Track max_depth_reached in GameManager, emit building_unlocked signals, show toast notifications. Buildings appear on surface when unlocked. v1.0 feature.

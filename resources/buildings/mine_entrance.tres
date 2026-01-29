@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="BuildingData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/buildings/building_data.gd" id="1_building"]
+
+[resource]
+script = ExtResource("1_building")
+id = "mine_entrance"
+display_name = "Mine Entrance"
+description = "The entrance to the mine. Dig deep to find treasures!"
+unlock_depth = 0
+surface_slot = 0
+is_shop = false

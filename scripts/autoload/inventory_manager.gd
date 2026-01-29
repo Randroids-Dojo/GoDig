@@ -15,6 +15,9 @@ signal inventory_full
 ## Emitted when a specific item is added (for floating text feedback)
 signal item_added(item: ItemData, amount: int)
 
+## Emitted when items are auto-sold
+signal item_auto_sold(item: ItemData, amount: int, coins_earned: int)
+
 
 ## Inner class representing a single inventory slot
 class InventorySlot:
@@ -92,9 +95,19 @@ func add_item(item: ItemData, amount: int = 1) -> int:
 		item_added.emit(item, added)
 		inventory_changed.emit()
 
-	# If we couldn't fit everything, signal inventory full
+	# If we couldn't fit everything, check for auto-sell
 	if remaining > 0:
-		inventory_full.emit()
+		# Check if auto-sell is enabled
+		if SettingsManager and SettingsManager.auto_sell_enabled:
+			# Auto-sell the excess items
+			var coins_earned := remaining * item.sell_value
+			if GameManager:
+				GameManager.add_coins(coins_earned)
+			item_auto_sold.emit(item, remaining, coins_earned)
+			print("[InventoryManager] Auto-sold %d x %s for $%d" % [remaining, item.display_name, coins_earned])
+			remaining = 0  # All items handled
+		else:
+			inventory_full.emit()
 
 	return remaining
 

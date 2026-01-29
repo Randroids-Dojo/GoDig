@@ -81,6 +81,11 @@ func _ready() -> void:
 	# Connect layer transition notifications
 	GameManager.layer_entered.connect(_on_layer_entered)
 
+	# Connect save/load signals for placed object persistence
+	if SaveManager:
+		SaveManager.save_started.connect(_on_save_started)
+		SaveManager.load_completed.connect(_on_load_completed)
+
 	# Connect achievement unlock notifications
 	if AchievementManager:
 		AchievementManager.achievement_unlocked.connect(_on_achievement_unlocked)
@@ -628,3 +633,27 @@ func _get_rarity_color(item) -> Color:
 			return Color(1.0, 0.7, 0.2)  # Orange/Gold
 		_:
 			return Color.WHITE
+
+
+# ============================================
+# TRAVERSAL ITEM PERSISTENCE
+# ============================================
+
+func _on_save_started() -> void:
+	## Save placed objects (ladders, torches) to the current save
+	if dirt_grid and SaveManager.current_save:
+		var placed_data := dirt_grid.get_placed_objects_dict()
+		SaveManager.current_save.placed_objects = placed_data
+		print("[TestLevel] Saved %d placed objects" % placed_data.size())
+
+
+func _on_load_completed(success: bool) -> void:
+	## Load placed objects from the save when game loads
+	if not success:
+		return
+
+	if dirt_grid and SaveManager.current_save:
+		var placed_data = SaveManager.current_save.placed_objects
+		if placed_data and not placed_data.is_empty():
+			dirt_grid.load_placed_objects_dict(placed_data)
+			print("[TestLevel] Loaded %d placed objects from save" % placed_data.size())

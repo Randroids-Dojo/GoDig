@@ -76,6 +76,7 @@ func _ready() -> void:
 		GameManager.depth_updated.connect(_on_depth_updated)
 		GameManager.depth_milestone_reached.connect(_on_depth_milestone_reached)
 		GameManager.layer_entered.connect(_on_layer_entered)
+		GameManager.building_unlocked.connect(_on_building_unlocked)
 		_update_coins_display(GameManager.get_coins())
 		_update_depth_display(0)
 
@@ -559,6 +560,13 @@ func _on_layer_entered(layer_name: String) -> void:
 	if milestone_notification and milestone_notification.has_method("show_layer_entered"):
 		milestone_notification.show_layer_entered(layer_name)
 	print("[HUD] Layer entered notification: %s" % layer_name)
+
+
+func _on_building_unlocked(building_id: String, building_name: String) -> void:
+	## Show notification when a building is unlocked
+	if milestone_notification and milestone_notification.has_method("show_building_unlocked"):
+		milestone_notification.show_building_unlocked(building_name)
+	print("[HUD] Building unlocked notification: %s" % building_name)
 
 
 # ============================================

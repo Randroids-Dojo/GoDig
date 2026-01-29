@@ -329,6 +329,12 @@ func _collect_game_state() -> void:
 			current_save.set("extended_stats", {})
 		current_save.extended_stats = stats_data
 
+	# Collect tutorial state from GameManager
+	if GameManager:
+		var tutorial_data = GameManager.get_tutorial_state()
+		current_save.tutorial_state = tutorial_data.get("state", 0)
+		current_save.tutorial_complete = tutorial_data.get("complete", false)
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -375,6 +381,10 @@ func _apply_game_state() -> void:
 				"ores_collected_total": current_save.ores_collected,
 				"deaths_total": current_save.deaths,
 			})
+
+	# Apply tutorial state to GameManager
+	if GameManager:
+		GameManager.set_tutorial_state(current_save.tutorial_state, current_save.tutorial_complete)
 
 
 ## Calculate offline earnings based on time since last save

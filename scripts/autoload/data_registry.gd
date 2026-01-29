@@ -155,6 +155,11 @@ func _load_all_ores() -> void:
 	_load_ores_from_directory("res://resources/ores/")
 	_load_ores_from_directory("res://resources/gems/")
 
+	# Also register ores as items for inventory/shop compatibility
+	# OreData extends ItemData, so ores can be used directly as items
+	for ore_id in ores:
+		items[ore_id] = ores[ore_id]
+
 	# Sort by min_depth for efficient depth queries
 	_ores_by_depth = ores.values()
 	_ores_by_depth.sort_custom(func(a, b): return a.min_depth < b.min_depth)

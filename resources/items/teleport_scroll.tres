@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/items/item_data.gd" id="1_item_data"]
+
+[resource]
+script = ExtResource("1_item_data")
+id = "teleport_scroll"
+display_name = "Teleport Scroll"
+category = "consumable"
+max_stack = 5
+sell_value = 50
+rarity = "uncommon"
+min_depth = 0
+description = "Use to instantly teleport back to the surface. Consumed on use."

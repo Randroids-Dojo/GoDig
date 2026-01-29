@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ArtifactData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/items/artifact_data.gd" id="1_artifact"]
+
+[resource]
+script = ExtResource("1_artifact")
+id = "artifact_fossilized_crown"
+display_name = "Fossilized Crown"
+category = "artifact"
+max_stack = 1
+sell_value = 1000
+rarity = "legendary"
+min_depth = 500
+description = "The crown of an ancient ruler, perfectly preserved in stone."
+museum_id = 4
+era = "Imperial Age"
+lore = "This crown belonged to the last ruler of the deep kingdom. They say the kingdom still exists, far below..."
+spawn_min_depth = 500
+spawn_max_depth = 0
+spawn_chance = 0.00005

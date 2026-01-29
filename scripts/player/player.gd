@@ -82,6 +82,12 @@ const DAMAGE_FLASH_DURATION: float = 0.1
 # Surface regeneration state
 var _regen_timer: float = 0.0
 
+# Heat damage state
+var _heat_damage_timer: float = 0.0
+var _current_heat_damage: float = 0.0
+const HEAT_DAMAGE_INTERVAL: float = 1.0  # Apply heat damage every second
+signal heat_damage_warning(damage_per_second: float)
+
 # Squash/stretch animation state
 var _scale_tween: Tween
 
@@ -138,6 +144,9 @@ func _process(delta: float) -> void:
 
 	# Surface regeneration: heal when at surface and not at full HP
 	_process_surface_regen(delta)
+
+	# Heat damage: take damage in hot zones
+	_process_heat_damage(delta)
 
 	# Handle tap-to-dig hold mining
 	_process_tap_mining(delta)
@@ -1048,6 +1057,52 @@ func _process_surface_regen(delta: float) -> void:
 		heal(REGEN_AMOUNT)
 
 
+## Process heat damage from hot zones (called every frame)
+func _process_heat_damage(delta: float) -> void:
+	# Calculate current depth
+	var depth := grid_position.y - GameManager.SURFACE_ROW
+	if depth <= 0:
+		_current_heat_damage = 0.0
+		_heat_damage_timer = 0.0
+		return
+
+	# Get current layer and its heat damage
+	var layer = DataRegistry.get_layer_at_depth(depth)
+	if layer == null:
+		_current_heat_damage = 0.0
+		return
+
+	var heat_damage := layer.get_heat_damage_at(depth)
+	if heat_damage <= 0:
+		_current_heat_damage = 0.0
+		_heat_damage_timer = 0.0
+		return
+
+	# Update heat damage warning if it changed significantly
+	if absf(heat_damage - _current_heat_damage) > 0.1:
+		_current_heat_damage = heat_damage
+		heat_damage_warning.emit(_current_heat_damage)
+
+	# Accumulate damage timer
+	_heat_damage_timer += delta
+	if _heat_damage_timer >= HEAT_DAMAGE_INTERVAL:
+		_heat_damage_timer -= HEAT_DAMAGE_INTERVAL
+		var damage_amount := int(ceilf(_current_heat_damage))
+		if damage_amount > 0:
+			take_damage(damage_amount, "heat")
+			print("[Player] Heat damage: %d (zone: %.1f/s)" % [damage_amount, _current_heat_damage])
+
+
+## Check if player is currently in a heat zone
+func is_in_heat_zone() -> bool:
+	return _current_heat_damage > 0.0
+
+
+## Get current heat damage per second (for UI display)
+func get_current_heat_damage() -> float:
+	return _current_heat_damage
+
+
 ## Get HP as a percentage (0.0 to 1.0)
 func get_hp_percent() -> float:
 	return float(current_hp) / float(MAX_HP)
@@ -1137,6 +1192,99 @@ func _squash_stretch(squash_scale: Vector2, stretch_scale: Vector2, squash_durat
 		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
 	# Return to normal
 	_scale_tween.tween_property(sprite, "scale", Vector2.ONE, 0.1)
+
+
+# ============================================
+# CONSUMABLE ITEM USAGE
+# ============================================
+
+signal rope_used(ascent_blocks: int)
+signal teleport_used
+
+## Use a rope item to ascend quickly
+## Returns true if rope was used successfully
+func use_rope() -> bool:
+	# Check if we have a rope in inventory
+	if not InventoryManager.has_item_by_id("rope"):
+		return false
+
+	# Calculate ascent - move up 5 blocks (or to surface, whichever is closer)
+	var current_depth := grid_position.y - GameManager.SURFACE_ROW
+	var ascent_blocks := mini(5, maxi(0, current_depth))
+
+	if ascent_blocks <= 0:
+		return false  # Already at or above surface
+
+	# Find a valid landing spot (first empty space going up)
+	var target_y := grid_position.y - ascent_blocks
+	var target := Vector2i(grid_position.x, target_y)
+
+	# Check if we can actually move there (no solid block)
+	if dirt_grid and dirt_grid.has_block(target):
+		# Try to find closest empty space above
+		for y in range(grid_position.y - 1, target_y - 1, -1):
+			var check_pos := Vector2i(grid_position.x, y)
+			if not dirt_grid.has_block(check_pos):
+				target = check_pos
+				ascent_blocks = grid_position.y - y
+				break
+		else:
+			return false  # No valid landing spot
+
+	# Consume the rope
+	if not InventoryManager.remove_item_by_id("rope", 1):
+		return false
+
+	# Teleport player up
+	position = GameManager.grid_to_world(target) + Vector2(BLOCK_SIZE / 2.0, BLOCK_SIZE / 2.0)
+	grid_position = target
+	current_state = State.IDLE
+	velocity = Vector2.ZERO
+
+	# Update depth
+	var new_depth := grid_position.y - GameManager.SURFACE_ROW
+	if new_depth < 0:
+		new_depth = 0
+	GameManager.update_depth(new_depth)
+	depth_changed.emit(new_depth)
+
+	rope_used.emit(ascent_blocks)
+	print("[Player] Used rope to ascend %d blocks" % ascent_blocks)
+	return true
+
+
+## Use a teleport scroll to return to surface
+## Returns true if scroll was used successfully
+func use_teleport_scroll() -> bool:
+	# Check if we have a teleport scroll in inventory
+	if not InventoryManager.has_item_by_id("teleport_scroll"):
+		return false
+
+	# Check if already at surface
+	var current_depth := grid_position.y - GameManager.SURFACE_ROW
+	if current_depth <= 0:
+		return false  # Already at surface
+
+	# Consume the scroll
+	if not InventoryManager.remove_item_by_id("teleport_scroll", 1):
+		return false
+
+	# Teleport to surface spawn point
+	var spawn_y := GameManager.SURFACE_ROW - 1
+	var target := Vector2i(grid_position.x, spawn_y)
+
+	position = GameManager.grid_to_world(target) + Vector2(BLOCK_SIZE / 2.0, BLOCK_SIZE / 2.0)
+	grid_position = target
+	current_state = State.IDLE
+	velocity = Vector2.ZERO
+
+	# Update depth to 0 (surface)
+	GameManager.update_depth(0)
+	depth_changed.emit(0)
+
+	teleport_used.emit()
+	print("[Player] Used teleport scroll to return to surface")
+	return true
 
 
 # ============================================

@@ -250,6 +250,20 @@ func get_all_item_ids() -> Array:
 	return items.keys()
 
 
+## Get all loaded items as an array
+func get_all_items() -> Array:
+	return items.values()
+
+
+## Get all artifacts (items with category "artifact")
+func get_all_artifacts() -> Array:
+	var result: Array = []
+	for item in items.values():
+		if item.category == "artifact":
+			result.append(item)
+	return result
+
+
 # ============================================
 # TOOL DATA LOADING AND ACCESS
 # ============================================

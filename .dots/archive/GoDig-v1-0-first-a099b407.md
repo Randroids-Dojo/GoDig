@@ -1,6 +1,7 @@
 ---
 title: "v1.0: First-play tutorial"
-status: open
+status: closed
+close_reason: Implemented in session claude/next-ten-tasks-thE2H
 priority: 3
 issue-type: task
 created-at: "2026-01-16T01:01:44.046896-06:00"

@@ -15,3 +15,5 @@ tile_atlas_coords = Vector2i(5, 0)
 infinite_scaling = true
 hardness_per_100_depth = 15.0
 max_hardness = 500.0
+heat_damage = 2.0
+heat_damage_per_100_depth = 1.0

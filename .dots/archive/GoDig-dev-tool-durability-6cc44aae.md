@@ -1,9 +1,11 @@
 ---
 title: "implement: Tool durability HUD"
-status: open
+status: closed
 priority: 3
 issue-type: task
-created-at: "2026-01-16T00:39:28.311011-06:00"
+created-at: "\"2026-01-16T00:39:28.311011-06:00\""
+closed-at: "2026-01-29T06:48:45.755070+00:00"
+close-reason: "Already implemented - hud.gd:413-490 has tool durability bar that shows/updates based on PlayerData"
 ---
 
 Display tool durability in the HUD if/when tool durability system is implemented.

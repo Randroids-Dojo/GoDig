@@ -84,6 +84,8 @@ PATHS = {
     "ambient_modulate": "/root/Main/AmbientModulate",
     "mining_progress_container": "/root/Main/UI/HUD/MiningProgressContainer",
     "mining_progress_bar": "/root/Main/UI/HUD/MiningProgressContainer/MiningProgressBar",
+    "sound_manager": "/root/SoundManager",
+    "localization_manager": "/root/LocalizationManager",
 }
 
 

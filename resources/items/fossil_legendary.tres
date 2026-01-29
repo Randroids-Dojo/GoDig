@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/items/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+id = "fossil_legendary"
+display_name = "Primordial Fossil"
+category = "fossil"
+max_stack = 1
+sell_value = 1000
+rarity = "legendary"
+min_depth = 500
+description = "An impossibly ancient fossil from the dawn of time."

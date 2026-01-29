@@ -280,6 +280,10 @@ func add_coins(amount: int) -> void:
 	coins_added.emit(amount)
 	coins_changed.emit(coins)
 
+	# Play coin pickup sound
+	if SoundManager:
+		SoundManager.play_coin_pickup()
+
 
 ## Spend coins if player has enough. Returns true if successful.
 func spend_coins(amount: int) -> bool:
@@ -331,6 +335,9 @@ func _check_depth_milestones(depth: int) -> void:
 			_reached_milestones.append(milestone)
 			depth_milestone_reached.emit(milestone)
 			print("[GameManager] Depth milestone reached: %dm" % milestone)
+			# Play milestone sound
+			if SoundManager:
+				SoundManager.play_milestone()
 			# Auto-save on milestone
 			SaveManager.save_game()
 

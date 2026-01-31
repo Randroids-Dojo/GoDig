@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ToolData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/tools/tool_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "gold_pickaxe"
+display_name = "Gold Pickaxe"
+damage = 80.0
+speed_multiplier = 1.75
+cost = 12000
+unlock_depth = 350
+tier = 5
+description = "Pure gold construction. Unmatched mining efficiency."

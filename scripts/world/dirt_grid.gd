@@ -461,8 +461,8 @@ func _determine_ore_spawn(pos: Vector2i) -> void:
 
 
 func _expand_ore_vein(seed_pos: Vector2i, ore) -> void:
-	## Expand ore from seed position using random walk algorithm
-	## Creates natural-looking ore veins based on ore's vein_size_min/max
+	## Expand ore from seed position using improved cluster algorithm
+	## Creates natural-looking ore veins with branches and organic shapes
 
 	# Get vein size from ore data
 	var vein_seed := seed_pos.x * 73856093 + seed_pos.y * 19349663
@@ -475,26 +475,57 @@ func _expand_ore_vein(seed_pos: Vector2i, ore) -> void:
 	if vein_size <= 1:
 		return  # Single block vein
 
-	# Random walk expansion
-	var current_pos := seed_pos
+	# Use cluster-based expansion for larger, more natural veins
+	var placed_positions: Array[Vector2i] = [seed_pos]
 	var placed_count := 1
 	var attempts := 0
-	var max_attempts := vein_size * 4  # Limit attempts to prevent infinite loops
+	var max_attempts := vein_size * 6  # More attempts for better coverage
 
-	# Cardinal directions for random walk
-	var directions := [
+	# Cardinal and diagonal directions for more organic shapes
+	var cardinal_dirs := [
 		Vector2i(1, 0),   # Right
 		Vector2i(-1, 0),  # Left
 		Vector2i(0, 1),   # Down
 		Vector2i(0, -1),  # Up
 	]
 
+	# Diagonal directions for occasional branch variation
+	var diagonal_dirs := [
+		Vector2i(1, 1),   # Down-Right
+		Vector2i(-1, 1),  # Down-Left
+		Vector2i(1, -1),  # Up-Right
+		Vector2i(-1, -1), # Up-Left
+	]
+
+	# Track last direction for "flow" tendency (veins tend to continue)
+	var last_dir := Vector2i.ZERO
+
 	while placed_count < vein_size and attempts < max_attempts:
 		attempts += 1
 
-		# Pick random direction
-		var dir: Vector2i = directions[_rng.randi() % 4]
-		var next_pos := current_pos + dir
+		# Pick a random existing ore position to expand from
+		var expand_from: Vector2i
+		if _rng.randf() < 0.7 and placed_positions.size() > 1:
+			# Usually expand from most recent positions (creates tendrils)
+			var recent_idx := placed_positions.size() - 1 - (_rng.randi() % mini(3, placed_positions.size()))
+			expand_from = placed_positions[recent_idx]
+		else:
+			# Occasionally expand from any position (creates branches)
+			expand_from = placed_positions[_rng.randi() % placed_positions.size()]
+
+		# Pick direction with bias toward continuing previous direction
+		var dir: Vector2i
+		if last_dir != Vector2i.ZERO and _rng.randf() < 0.4:
+			# Continue in same direction (creates longer veins)
+			dir = last_dir
+		elif _rng.randf() < 0.15:
+			# Occasionally use diagonal (creates more organic shapes)
+			dir = diagonal_dirs[_rng.randi() % 4]
+		else:
+			# Usually use cardinal direction
+			dir = cardinal_dirs[_rng.randi() % 4]
+
+		var next_pos := expand_from + dir
 
 		# Check if valid position for ore
 		var next_depth := next_pos.y - GameManager.SURFACE_ROW
@@ -505,8 +536,7 @@ func _expand_ore_vein(seed_pos: Vector2i, ore) -> void:
 			continue  # Outside ore's depth range
 
 		if _ore_map.has(next_pos):
-			# Position already has ore, but we can still walk through it
-			current_pos = next_pos
+			# Position already has ore, try different direction
 			continue
 
 		if _dug_tiles.has(next_pos):
@@ -514,8 +544,9 @@ func _expand_ore_vein(seed_pos: Vector2i, ore) -> void:
 
 		# Place ore at this position
 		_place_ore_at(next_pos, ore)
+		placed_positions.append(next_pos)
 		placed_count += 1
-		current_pos = next_pos
+		last_dir = dir
 
 
 func _place_ore_at(pos: Vector2i, ore) -> void:

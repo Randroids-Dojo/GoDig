@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="OreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/ores/ore_data.gd" id="1_ore_data"]
+
+[resource]
+script = ExtResource("1_ore_data")
+id = "titanium"
+display_name = "Titanium"
+category = "ore"
+max_stack = 99
+sell_value = 350
+rarity = "epic"
+min_depth = 500
+description = "Lightweight yet incredibly strong metal found in the deep."
+color = Color(0.7, 0.75, 0.85, 1)
+tile_atlas_coords = Vector2i(7, 1)
+max_depth = 1500
+spawn_threshold = 0.95
+noise_frequency = 0.02
+vein_size_min = 1
+vein_size_max = 2
+colorblind_symbol = "Ti"
+colorblind_pattern = 6
+hardness = 7
+required_tool_tier = 3

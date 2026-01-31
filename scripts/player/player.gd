@@ -366,6 +366,9 @@ func _on_animation_finished() -> void:
 		# Track block mining stat
 		if PlayerStats:
 			PlayerStats.track_block_mined()
+		# Track combo for bonus system
+		if MiningBonusManager:
+			MiningBonusManager.on_block_mined()
 		# Haptic feedback for block break
 		if HapticFeedback:
 			HapticFeedback.on_block_destroyed()
@@ -888,6 +891,9 @@ func _hit_tap_target() -> void:
 		# Track block mining stat (tap-to-dig path)
 		if PlayerStats:
 			PlayerStats.track_block_mined()
+		# Track combo for bonus system (tap-to-dig path)
+		if MiningBonusManager:
+			MiningBonusManager.on_block_mined()
 		# Haptic feedback for block break (tap-to-dig)
 		if HapticFeedback:
 			HapticFeedback.on_block_destroyed()
@@ -982,6 +988,10 @@ func take_damage(amount: int, source: String = "unknown") -> int:
 	# Play hurt sound
 	if SoundManager:
 		SoundManager.play_player_hurt()
+
+	# Reset mining combo on damage
+	if MiningBonusManager:
+		MiningBonusManager.reset_combo()
 
 	print("[Player] Took %d damage from %s (HP: %d/%d)" % [actual_damage, source, current_hp, MAX_HP])
 

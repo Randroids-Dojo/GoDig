@@ -252,6 +252,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		PlayerData.reset()
 	if PlayerStats:
 		PlayerStats.reset()
+	if MiningBonusManager:
+		MiningBonusManager.reset()
 
 	# Initial save
 	var success := save_game()
@@ -335,6 +337,13 @@ func _collect_game_state() -> void:
 		current_save.tutorial_state = tutorial_data.get("state", 0)
 		current_save.tutorial_complete = tutorial_data.get("complete", false)
 
+	# Collect from MiningBonusManager
+	if MiningBonusManager:
+		var bonus_data = MiningBonusManager.get_save_data()
+		if not current_save.get("mining_bonus_data"):
+			current_save.set("mining_bonus_data", {})
+		current_save.mining_bonus_data = bonus_data
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -385,6 +394,12 @@ func _apply_game_state() -> void:
 	# Apply tutorial state to GameManager
 	if GameManager:
 		GameManager.set_tutorial_state(current_save.tutorial_state, current_save.tutorial_complete)
+
+	# Apply to MiningBonusManager
+	if MiningBonusManager:
+		var bonus_data = current_save.get("mining_bonus_data")
+		if bonus_data != null and bonus_data is Dictionary and not bonus_data.is_empty():
+			MiningBonusManager.load_save_data(bonus_data)
 
 
 ## Calculate offline earnings based on time since last save

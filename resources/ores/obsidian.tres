@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="OreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/ores/ore_data.gd" id="1_ore_data"]
+
+[resource]
+script = ExtResource("1_ore_data")
+id = "obsidian"
+display_name = "Obsidian"
+category = "ore"
+max_stack = 99
+sell_value = 500
+rarity = "legendary"
+min_depth = 600
+description = "Volcanic glass formed under extreme pressure. Razor sharp."
+color = Color(0.15, 0.1, 0.2, 1)
+tile_atlas_coords = Vector2i(8, 1)
+max_depth = -1
+spawn_threshold = 0.96
+noise_frequency = 0.015
+vein_size_min = 1
+vein_size_max = 2
+colorblind_symbol = "Ob"
+colorblind_pattern = 7
+hardness = 8
+required_tool_tier = 4

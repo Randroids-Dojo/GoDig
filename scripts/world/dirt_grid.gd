@@ -15,6 +15,9 @@ const LOAD_RADIUS := 2  # Load chunks within 2 chunks of player (5x5 grid)
 ## Emitted when a block drops ore/items. item_id is empty string for dirt-only blocks.
 signal block_dropped(grid_pos: Vector2i, item_id: String)
 
+## Emitted when a fossil is found while mining
+signal fossil_found(grid_pos: Vector2i, fossil_id: String)
+
 ## Emitted when a block is destroyed. Includes world position, color, and hardness for effects.
 signal block_destroyed(world_pos: Vector2, color: Color, hardness: float)
 
@@ -345,12 +348,21 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		var ore_id := _ore_map.get(pos, "") as String
 		block_dropped.emit(pos, ore_id)
 
+		# Check for fossil drop
+		var fossil_id := _check_fossil_drop(pos)
+		if fossil_id != "":
+			fossil_found.emit(pos, fossil_id)
+
 		# Signal for particle effects and screen shake (before releasing block)
 		var world_pos := Vector2(
 			pos.x * BLOCK_SIZE + GameManager.GRID_OFFSET_X + BLOCK_SIZE / 2,
 			pos.y * BLOCK_SIZE + BLOCK_SIZE / 2
 		)
 		block_destroyed.emit(world_pos, block.base_color, block.max_health)
+
+		# Play sound effect
+		if SoundManager:
+			SoundManager.play_block_break(block.max_health)
 
 		# Clean up ore map entry, sparkle, and border
 		if _ore_map.has(pos):
@@ -711,6 +723,60 @@ func clear_all_dug_tiles() -> void:
 func get_dug_tile_count() -> int:
 	## Get count of dug tiles in memory (for debugging)
 	return _dug_tiles.size()
+
+
+# ============================================
+# FOSSIL SPAWNING SYSTEM
+# ============================================
+
+## Fossil spawn chances by depth tier
+const FOSSIL_SPAWN_CHANCE := 0.005  # 0.5% base chance per block
+const FOSSIL_DEPTH_TIERS := [
+	{"min_depth": 50, "max_depth": 150, "fossil_id": "fossil_common", "weight": 1.0},
+	{"min_depth": 150, "max_depth": 300, "fossil_id": "fossil_rare", "weight": 0.3},
+	{"min_depth": 300, "max_depth": 500, "fossil_id": "fossil_amber", "weight": 0.15},
+	{"min_depth": 500, "max_depth": 99999, "fossil_id": "fossil_legendary", "weight": 0.05},
+]
+
+
+func _check_fossil_drop(pos: Vector2i) -> String:
+	## Check if a fossil should drop at this position
+	## Returns fossil_id or empty string
+	var depth := pos.y - _surface_row
+	if depth < 50:
+		return ""  # No fossils in shallow areas
+
+	# Use position-based seed for deterministic spawning
+	var seed_value := pos.x * 73856093 + pos.y * 19349663
+	_rng.seed = seed_value
+
+	# Roll for fossil spawn
+	if _rng.randf() > FOSSIL_SPAWN_CHANCE:
+		return ""
+
+	# Determine which fossil tiers are available at this depth
+	var available_fossils: Array = []
+	var total_weight := 0.0
+
+	for tier in FOSSIL_DEPTH_TIERS:
+		if depth >= tier["min_depth"] and depth < tier["max_depth"]:
+			available_fossils.append(tier)
+			total_weight += tier["weight"]
+
+	if available_fossils.is_empty():
+		return ""
+
+	# Weighted random selection
+	var roll := _rng.randf() * total_weight
+	var cumulative := 0.0
+
+	for tier in available_fossils:
+		cumulative += tier["weight"]
+		if roll <= cumulative:
+			return tier["fossil_id"]
+
+	# Fallback to first available
+	return available_fossils[0]["fossil_id"]
 
 
 # ============================================

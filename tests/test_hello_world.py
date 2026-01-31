@@ -1199,3 +1199,145 @@ async def test_dirt_grid_has_mining_progress_method(game):
     result = await game.call_method(PATHS["dirt_grid"], "get_block_mining_progress", [{"x": 2, "y": 8}])
     # Should return float (-1.0 if no block, 0.0-1.0 otherwise)
     assert result is not None, "get_block_mining_progress should return a value"
+
+
+# =============================================================================
+# SOUND MANAGER TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_sound_manager_exists(game):
+    """Verify SoundManager autoload exists."""
+    exists = await game.node_exists(PATHS["sound_manager"])
+    assert exists, "SoundManager autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_sound_manager_has_sfx_pool(game):
+    """Verify SoundManager has SFX player pool."""
+    max_sfx = await game.get_property(PATHS["sound_manager"], "MAX_SFX_PLAYERS")
+    assert max_sfx == 8, f"MAX_SFX_PLAYERS should be 8, got {max_sfx}"
+
+
+@pytest.mark.asyncio
+async def test_sound_manager_has_music_players(game):
+    """Verify SoundManager has music player pool."""
+    max_music = await game.get_property(PATHS["sound_manager"], "MAX_MUSIC_PLAYERS")
+    assert max_music == 2, f"MAX_MUSIC_PLAYERS should be 2, got {max_music}"
+
+
+@pytest.mark.asyncio
+async def test_sound_manager_has_convenience_methods(game):
+    """Verify SoundManager has convenience methods for game sounds."""
+    # These should all complete without error
+    await game.call_method(PATHS["sound_manager"], "play_ui_click")
+    await game.call_method(PATHS["sound_manager"], "play_coin_pickup")
+
+
+# =============================================================================
+# LOCALIZATION MANAGER TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_localization_manager_exists(game):
+    """Verify LocalizationManager autoload exists."""
+    exists = await game.node_exists(PATHS["localization_manager"])
+    assert exists, "LocalizationManager autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_localization_manager_has_default_locale(game):
+    """Verify LocalizationManager has default locale."""
+    locale = await game.get_property(PATHS["localization_manager"], "current_locale")
+    assert locale is not None, "LocalizationManager should have current_locale"
+
+
+@pytest.mark.asyncio
+async def test_localization_manager_has_supported_languages(game):
+    """Verify LocalizationManager has supported languages."""
+    languages = await game.get_property(PATHS["localization_manager"], "SUPPORTED_LANGUAGES")
+    assert languages is not None, "LocalizationManager should have SUPPORTED_LANGUAGES"
+    assert "en" in languages, "SUPPORTED_LANGUAGES should include English"
+
+
+@pytest.mark.asyncio
+async def test_localization_manager_format_number(game):
+    """Verify LocalizationManager can format numbers."""
+    result = await game.call_method(PATHS["localization_manager"], "format_number", [1000])
+    assert result is not None, "format_number should return a value"
+    assert "," in result or "." in result, f"Formatted number should have separator, got '{result}'"
+
+
+# =============================================================================
+# FOSSIL SPAWNING TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_fossil_signal(game):
+    """Verify DirtGrid has fossil_found signal."""
+    has_signal = await game.call_method(PATHS["dirt_grid"], "has_signal", ["fossil_found"])
+    assert has_signal is True, "DirtGrid should have fossil_found signal"
+
+
+@pytest.mark.asyncio
+async def test_dirt_grid_has_fossil_constants(game):
+    """Verify DirtGrid has fossil spawning constants."""
+    spawn_chance = await game.get_property(PATHS["dirt_grid"], "FOSSIL_SPAWN_CHANCE")
+    assert spawn_chance is not None, "DirtGrid should have FOSSIL_SPAWN_CHANCE"
+    assert spawn_chance == 0.005, f"FOSSIL_SPAWN_CHANCE should be 0.005, got {spawn_chance}"
+
+
+# =============================================================================
+# NEW LAYER TESTS (Crystal Caves and Magma Zone)
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_crystal_caves_layer_exists(game):
+    """Verify Crystal Caves layer is registered in DataRegistry."""
+    exists = await game.call_method(PATHS["data_registry"], "has_layer", ["crystal_caves"])
+    assert exists is True, "DataRegistry should have crystal_caves layer"
+
+
+@pytest.mark.asyncio
+async def test_magma_zone_layer_exists(game):
+    """Verify Magma Zone layer is registered in DataRegistry."""
+    exists = await game.call_method(PATHS["data_registry"], "has_layer", ["magma_zone"])
+    assert exists is True, "DataRegistry should have magma_zone layer"
+
+
+@pytest.mark.asyncio
+async def test_crystal_caves_depth_range(game):
+    """Verify Crystal Caves layer has correct depth range."""
+    min_depth = await game.call_method(PATHS["data_registry"], "get_layer_min_depth", ["crystal_caves"])
+    max_depth = await game.call_method(PATHS["data_registry"], "get_layer_max_depth", ["crystal_caves"])
+
+    assert min_depth == 450, f"Crystal Caves min_depth should be 450, got {min_depth}"
+    assert max_depth == 550, f"Crystal Caves max_depth should be 550, got {max_depth}"
+
+
+@pytest.mark.asyncio
+async def test_magma_zone_depth_range(game):
+    """Verify Magma Zone layer has correct depth range."""
+    min_depth = await game.call_method(PATHS["data_registry"], "get_layer_min_depth", ["magma_zone"])
+    max_depth = await game.call_method(PATHS["data_registry"], "get_layer_max_depth", ["magma_zone"])
+
+    assert min_depth == 700, f"Magma Zone min_depth should be 700, got {min_depth}"
+    assert max_depth == 800, f"Magma Zone max_depth should be 800, got {max_depth}"
+
+
+@pytest.mark.asyncio
+async def test_layer_at_depth_450(game):
+    """Verify Crystal Caves is returned for depth 450."""
+    layer_id = await game.call_method(PATHS["data_registry"], "get_layer_id_at_depth", [475])
+    assert layer_id == "crystal_caves", f"Layer at depth 475 should be crystal_caves, got {layer_id}"
+
+
+@pytest.mark.asyncio
+async def test_layer_at_depth_750(game):
+    """Verify Magma Zone is returned for depth 750."""
+    layer_id = await game.call_method(PATHS["data_registry"], "get_layer_id_at_depth", [750])
+    assert layer_id == "magma_zone", f"Layer at depth 750 should be magma_zone, got {layer_id}"

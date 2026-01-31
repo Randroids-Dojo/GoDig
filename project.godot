@@ -29,6 +29,8 @@ PlayerStats="*res://scripts/autoload/player_stats.gd"
 HapticFeedback="*res://scripts/autoload/haptic_feedback.gd"
 LightingManager="*res://scripts/autoload/lighting_manager.gd"
 MuseumManager="*res://scripts/autoload/museum_manager.gd"
+SoundManager="*res://scripts/autoload/sound_manager.gd"
+LocalizationManager="*res://scripts/autoload/localization_manager.gd"
 PlayGodotServer="*res://addons/playgodot/server.gd"
 
 [display]

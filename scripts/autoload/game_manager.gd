@@ -424,8 +424,10 @@ const BUILDING_UNLOCK_ORDER := [
 	{"id": "equipment_shop", "name": "Equipment Shop", "unlock_depth": 100},
 	{"id": "gem_appraiser", "name": "Gem Appraiser", "unlock_depth": 200},
 	{"id": "gadget_shop", "name": "Gadget Shop", "unlock_depth": 300},
+	{"id": "refinery", "name": "Refinery", "unlock_depth": 400},
 	{"id": "warehouse", "name": "Warehouse", "unlock_depth": 500},
 	{"id": "elevator", "name": "Elevator", "unlock_depth": 500},
+	{"id": "research_lab", "name": "Research Lab", "unlock_depth": 600},
 ]
 
 

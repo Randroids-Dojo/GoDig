@@ -88,6 +88,11 @@ PATHS = {
     "localization_manager": "/root/LocalizationManager",
     "analytics_manager": "/root/AnalyticsManager",
     "tutorial_overlay": "/root/Main/TutorialOverlay",
+    "daily_rewards_manager": "/root/DailyRewardsManager",
+    "day_night_manager": "/root/DayNightManager",
+    "prestige_manager": "/root/PrestigeManager",
+    "enemy_manager": "/root/EnemyManager",
+    "biome_manager": "/root/BiomeManager",
 }
 
 

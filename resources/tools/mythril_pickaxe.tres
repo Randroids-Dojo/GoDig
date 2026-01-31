@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ToolData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/tools/tool_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "mythril_pickaxe"
+display_name = "Mythril Pickaxe"
+damage = 150.0
+speed_multiplier = 2.1
+cost = 50000
+unlock_depth = 700
+tier = 7
+description = "Legendary mythril from deep within the earth. Incredibly efficient."

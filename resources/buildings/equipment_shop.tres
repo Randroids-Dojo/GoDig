@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BuildingData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/buildings/building_data.gd" id="1_building"]
+
+[resource]
+script = ExtResource("1_building")
+id = "equipment_shop"
+display_name = "Equipment Shop"
+description = "Buy helmets, boots, and accessories to improve your mining."
+unlock_depth = 100
+surface_slot = 3
+is_shop = true
+shop_category = "equipment"

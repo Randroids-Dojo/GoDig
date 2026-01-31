@@ -92,7 +92,11 @@ func _is_within_bounds(screen_pos: Vector2) -> bool:
 
 
 func _screen_to_local(screen_pos: Vector2) -> Vector2:
-	return screen_pos - global_position
+	# Convert screen position to local coordinates accounting for viewport transform
+	# This is essential for mobile web where the viewport may be scaled
+	var canvas_xform := get_viewport().canvas_transform
+	var world_pos := canvas_xform.affine_inverse() * screen_pos
+	return world_pos - global_position
 
 
 func _handle_touch(screen_pos: Vector2) -> void:

@@ -155,13 +155,25 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 		push_warning("[TestLevel] Unknown item dropped: %s" % item_id)
 		return
 
-	var leftover := InventoryManager.add_item(item, 1)
+	# Check for lucky strike (bonus ore)
+	var amount := 1
+	if MiningBonusManager:
+		var multiplier := MiningBonusManager.check_lucky_strike(item_id)
+		if multiplier > 1.0:
+			# Lucky strike! Add bonus ore
+			amount += MiningBonusManager.get_lucky_strike_ore_bonus()
+			_show_lucky_strike_notification(item)
+
+		# Track ore for vein bonus
+		MiningBonusManager.on_ore_collected(item_id)
+
+	var leftover := InventoryManager.add_item(item, amount)
 	if leftover > 0:
 		# Inventory full - item was not fully added
 		print("[TestLevel] Inventory full, could not add %s" % item.display_name)
 		_show_inventory_full_notification()
 	else:
-		print("[TestLevel] Added %s to inventory" % item.display_name)
+		print("[TestLevel] Added %d x %s to inventory" % [amount, item.display_name])
 
 
 func _on_item_added(item, amount: int) -> void:
@@ -287,6 +299,29 @@ func _show_inventory_full_notification() -> void:
 
 	var text := "INVENTORY FULL!"
 	floating.show_pickup(text, color, screen_pos)
+
+
+func _show_lucky_strike_notification(item) -> void:
+	## Show floating notification for lucky strike bonus
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Position above player
+	var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+	screen_pos.y -= 128.0  # Higher than normal pickups
+
+	# Gold color for lucky strike
+	var color := Color(1.0, 0.85, 0.2)  # Gold
+
+	var text := "LUCKY STRIKE! +%s" % item.display_name
+	floating.show_pickup(text, color, screen_pos)
+
+	# Play a sound effect if available
+	if SoundManager and SoundManager.has_method("play_milestone"):
+		SoundManager.play_milestone()
 
 
 func _on_shop_button_pressed() -> void:
@@ -473,7 +508,7 @@ func _on_player_died(cause: String) -> void:
 	print("[TestLevel] Player died from: %s" % cause)
 
 	# Calculate depth at death
-	var depth := player.grid_position.y - GameManager.SURFACE_ROW
+	var depth: int = player.grid_position.y - GameManager.SURFACE_ROW
 	if depth < 0:
 		depth = 0
 
@@ -653,7 +688,7 @@ func _get_rarity_color(item) -> Color:
 func _on_save_started() -> void:
 	## Save placed objects (ladders, torches) to the current save
 	if dirt_grid and SaveManager.current_save:
-		var placed_data := dirt_grid.get_placed_objects_dict()
+		var placed_data: Dictionary = dirt_grid.get_placed_objects_dict()
 		SaveManager.current_save.placed_objects = placed_data
 		print("[TestLevel] Saved %d placed objects" % placed_data.size())
 

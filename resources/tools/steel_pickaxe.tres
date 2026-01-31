@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ToolData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/tools/tool_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "steel_pickaxe"
+display_name = "Steel Pickaxe"
+damage = 55.0
+speed_multiplier = 1.5
+cost = 5000
+unlock_depth = 200
+tier = 4
+description = "Tempered steel for deep mining. Exceptional power and speed."

@@ -86,6 +86,7 @@ PATHS = {
     "mining_progress_bar": "/root/Main/UI/HUD/MiningProgressContainer/MiningProgressBar",
     "sound_manager": "/root/SoundManager",
     "localization_manager": "/root/LocalizationManager",
+    "analytics_manager": "/root/AnalyticsManager",
 }
 
 

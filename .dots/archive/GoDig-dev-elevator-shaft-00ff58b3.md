@@ -1,12 +1,11 @@
 ---
 title: "implement: Elevator shaft building"
-status: open
+status: closed
 priority: 3
 issue-type: task
-created-at: "2026-01-16T00:43:49.321885-06:00"
-after:
-  - GoDig-dev-building-slot-0c645dc8
-  - GoDig-dev-surface-area-379633b2
+created-at: "\"\\\"2026-01-16T00:43:49.321885-06:00\\\"\""
+closed-at: "2026-01-31T04:26:27.958798+00:00"
+close-reason: Created elevator_shaft.gd with visual shaft, rails, platform, and cable animation
 ---
 
 ## Description

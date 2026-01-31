@@ -1216,6 +1216,13 @@ func _squash_stretch(squash_scale: Vector2, stretch_scale: Vector2, squash_durat
 
 signal rope_used(ascent_blocks: int)
 signal teleport_used
+signal grappling_hook_used(start_pos: Vector2, end_pos: Vector2)
+
+## Grappling hook state
+var _grappling_hook_active: bool = false
+var _grappling_hook_target: Vector2 = Vector2.ZERO
+const GRAPPLING_HOOK_RANGE: int = 8  # Maximum range in blocks
+const GRAPPLING_HOOK_SPEED: float = 2000.0  # Pixels per second
 
 ## Use a rope item to ascend quickly
 ## Returns true if rope was used successfully
@@ -1272,8 +1279,10 @@ func use_rope() -> bool:
 ## Use a teleport scroll to return to surface
 ## Returns true if scroll was used successfully
 func use_teleport_scroll() -> bool:
-	# Check if we have a teleport scroll in inventory
-	if not InventoryManager.has_item_by_id("teleport_scroll"):
+	# Check if we have a teleport scroll in inventory or gadgets
+	var has_scroll := InventoryManager.has_item_by_id("teleport_scroll")
+	var has_gadget := PlayerData and PlayerData.get_gadget_count("teleport_scroll") > 0
+	if not has_scroll and not has_gadget:
 		return false
 
 	# Check if already at surface
@@ -1281,8 +1290,14 @@ func use_teleport_scroll() -> bool:
 	if current_depth <= 0:
 		return false  # Already at surface
 
-	# Consume the scroll
-	if not InventoryManager.remove_item_by_id("teleport_scroll", 1):
+	# Consume the scroll (prefer inventory, then gadget)
+	if has_scroll:
+		if not InventoryManager.remove_item_by_id("teleport_scroll", 1):
+			return false
+	elif has_gadget:
+		if not PlayerData.use_gadget("teleport_scroll"):
+			return false
+	else:
 		return false
 
 	# Teleport to surface spawn point
@@ -1301,6 +1316,82 @@ func use_teleport_scroll() -> bool:
 	teleport_used.emit()
 	print("[Player] Used teleport scroll to return to surface")
 	return true
+
+
+## Use the grappling hook to quickly travel to a target position
+## target_direction: Vector2i direction to grapple (e.g., Vector2i(0, -1) for up)
+## Returns true if grappling hook was used successfully
+func use_grappling_hook(target_direction: Vector2i) -> bool:
+	# Check if we have a grappling hook gadget
+	if not PlayerData or PlayerData.get_gadget_count("grappling_hook") <= 0:
+		return false
+
+	# Can't use while falling or wall jumping
+	if current_state in [State.FALLING, State.WALL_JUMPING]:
+		return false
+
+	# Normalize direction
+	if target_direction == Vector2i.ZERO:
+		return false
+
+	# Find furthest valid landing point in direction
+	var landing_pos: Vector2i = grid_position
+	var found_target := false
+
+	for distance in range(1, GRAPPLING_HOOK_RANGE + 1):
+		var check_pos := grid_position + target_direction * distance
+
+		# Check if position is blocked
+		if dirt_grid and dirt_grid.has_block(check_pos):
+			# Hit a wall - land at previous position
+			if distance > 1:
+				landing_pos = grid_position + target_direction * (distance - 1)
+				found_target = true
+			break
+		else:
+			# Valid empty space
+			landing_pos = check_pos
+			found_target = true
+
+	if not found_target or landing_pos == grid_position:
+		return false
+
+	# Consume the grappling hook use
+	if not PlayerData.use_gadget("grappling_hook"):
+		return false
+
+	# Calculate world positions for visual effect
+	var start_world := position
+	var end_world := _grid_to_world(landing_pos)
+
+	# Instantly move player (could be animated in future)
+	position = end_world
+	grid_position = landing_pos
+	current_state = State.IDLE
+	velocity = Vector2.ZERO
+
+	# Update depth
+	_update_depth()
+
+	# Emit signal for visual effects
+	grappling_hook_used.emit(start_world, end_world)
+
+	print("[Player] Used grappling hook to travel to %s" % str(landing_pos))
+	return true
+
+
+## Use grappling hook toward a screen position (for tap-to-grapple)
+func use_grappling_hook_to(screen_pos: Vector2) -> bool:
+	var target_grid := _screen_to_grid(screen_pos)
+	var direction := target_grid - grid_position
+
+	# Normalize to cardinal direction
+	if abs(direction.x) > abs(direction.y):
+		direction = Vector2i(signi(direction.x), 0)
+	else:
+		direction = Vector2i(0, signi(direction.y))
+
+	return use_grappling_hook(direction)
 
 
 # ============================================

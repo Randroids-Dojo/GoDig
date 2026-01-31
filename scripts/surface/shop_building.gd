@@ -12,7 +12,9 @@ enum ShopType {
 	BLACKSMITH,        ## Tool upgrades and repairs
 	EQUIPMENT_SHOP,    ## Gear and equipment
 	GEM_APPRAISER,     ## Sell gems at better rates
-	WAREHOUSE,         ## Extra storage
+	WAREHOUSE,         ## Extra storage capacity
+	GADGET_SHOP,       ## Utility items (teleport scrolls, etc.)
+	ELEVATOR,          ## Fast travel system
 }
 
 signal player_entered(shop_type: ShopType)
@@ -70,4 +72,8 @@ func get_shop_type_name() -> String:
 			return "gem_appraiser"
 		ShopType.WAREHOUSE:
 			return "warehouse"
+		ShopType.GADGET_SHOP:
+			return "gadget_shop"
+		ShopType.ELEVATOR:
+			return "elevator"
 	return "unknown"

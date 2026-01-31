@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ToolData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/tools/tool_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "diamond_pickaxe"
+display_name = "Diamond Pickaxe"
+damage = 200.0
+speed_multiplier = 2.4
+cost = 100000
+unlock_depth = 900
+tier = 8
+description = "The hardest material forged into the ultimate tool. Cuts through anything."

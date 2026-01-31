@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="OreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/ores/ore_data.gd" id="1_ore_data"]
+
+[resource]
+script = ExtResource("1_ore_data")
+id = "void_crystal"
+display_name = "Void Crystal"
+category = "ore"
+max_stack = 99
+sell_value = 1000
+rarity = "legendary"
+min_depth = 1000
+description = "A crystal infused with the essence of the void. Pulsates with dark energy."
+color = Color(0.2, 0.0, 0.3, 1)
+tile_atlas_coords = Vector2i(9, 1)
+max_depth = -1
+spawn_threshold = 0.97
+noise_frequency = 0.012
+vein_size_min = 1
+vein_size_max = 2
+colorblind_symbol = "Vc"
+colorblind_pattern = 7
+hardness = 10
+required_tool_tier = 5

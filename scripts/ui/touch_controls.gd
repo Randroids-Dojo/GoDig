@@ -157,6 +157,9 @@ func get_direction() -> Vector2i:
 # SWIPE GESTURE CONTROLS
 # ============================================
 
+## Track active button touch for manual fallback detection
+var _active_button_touch: int = -1  # Touch index currently on a button
+
 func _process(delta: float) -> void:
 	# Update swipe cooldown
 	if _swipe_cooldown_timer > 0:
@@ -164,21 +167,67 @@ func _process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	# Only process swipe if enabled in settings
-	if SettingsManager == null or not SettingsManager.swipe_controls_enabled:
-		return
-
-	# Don't process swipe if we're touching the joystick or buttons
-	if _is_over_control(event.position if event is InputEventScreenTouch or event is InputEventScreenDrag else Vector2.ZERO):
-		return
-
+	# Handle touch events for buttons (fallback for TouchScreenButton issues on mobile web)
 	if event is InputEventScreenTouch:
-		if event.pressed:
-			_start_swipe(event.position)
-		else:
-			_end_swipe(event.position)
+		_handle_button_touch(event)
+
+		# Process swipe only if enabled and not on controls
+		if SettingsManager and SettingsManager.swipe_controls_enabled:
+			if not _is_over_control(event.position):
+				if event.pressed:
+					_start_swipe(event.position)
+				else:
+					_end_swipe(event.position)
+
 	elif event is InputEventScreenDrag:
-		_update_swipe(event.position)
+		# Process swipe only if enabled and not on controls
+		if SettingsManager and SettingsManager.swipe_controls_enabled:
+			if not _is_over_control(event.position):
+				_update_swipe(event.position)
+
+
+func _handle_button_touch(event: InputEventScreenTouch) -> void:
+	## Manual touch detection for action buttons (fallback for mobile web)
+	## This ensures buttons work even when TouchScreenButton has viewport issues
+
+	# Convert screen position to canvas coordinates
+	var canvas_xform := get_viewport().canvas_transform
+	var world_pos := canvas_xform.affine_inverse() * event.position
+
+	if event.pressed:
+		# Check if touch is on jump button
+		if jump_button and jump_button.visible:
+			var jump_rect := _get_button_rect(jump_button)
+			if jump_rect.has_point(world_pos):
+				_active_button_touch = event.index
+				_on_jump_pressed()
+				return
+
+		# Check if touch is on inventory button
+		if inventory_button and inventory_button.visible:
+			var inv_rect := _get_button_rect(inventory_button)
+			if inv_rect.has_point(world_pos):
+				_active_button_touch = event.index
+				_on_inventory_pressed()
+				return
+	else:
+		# Touch released - clear active button if it was this touch
+		if event.index == _active_button_touch:
+			_active_button_touch = -1
+
+
+func _get_button_rect(button: TouchScreenButton) -> Rect2:
+	## Get the global rect for a TouchScreenButton based on its shape
+	var button_global_pos := button.global_position
+	var shape := button.shape as RectangleShape2D
+	if shape:
+		var size := shape.size
+		if button.shape_centered:
+			return Rect2(button_global_pos - size / 2.0, size)
+		else:
+			return Rect2(button_global_pos, size)
+	# Fallback: use a reasonable default size
+	return Rect2(button_global_pos, Vector2(100, 100))
 
 
 func _start_swipe(pos: Vector2) -> void:
@@ -258,17 +307,22 @@ func _emit_swipe(direction: Vector2i) -> void:
 
 func _is_over_control(pos: Vector2) -> bool:
 	## Check if position is over a control element (joystick or buttons)
+	## pos is in screen coordinates, so we need to convert to canvas coordinates
 	if pos == Vector2.ZERO:
 		return false
 
+	# Convert screen position to canvas/world coordinates
+	var canvas_xform := get_viewport().canvas_transform
+	var world_pos := canvas_xform.affine_inverse() * pos
+
 	if joystick and joystick.visible:
 		var joystick_rect := Rect2(joystick.global_position, joystick.size)
-		if joystick_rect.has_point(pos):
+		if joystick_rect.has_point(world_pos):
 			return true
 
 	if action_buttons and action_buttons.visible:
 		var buttons_rect := Rect2(action_buttons.global_position, action_buttons.size)
-		if buttons_rect.has_point(pos):
+		if buttons_rect.has_point(world_pos):
 			return true
 
 	return false

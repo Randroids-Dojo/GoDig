@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="LayerData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/layers/layer_data.gd" id="1_layer"]
+
+[resource]
+script = ExtResource("1_layer")
+id = "void_depths"
+display_name = "Void Depths"
+min_depth = 1200
+max_depth = 99999
+base_hardness = 150.0
+color_primary = Color(0.02, 0.01, 0.05, 1)
+color_accent = Color(0.1, 0.0, 0.15, 1)
+tile_atlas_coords = Vector2i(6, 0)
+infinite_scaling = true
+hardness_per_100_depth = 25.0
+max_hardness = 1000.0
+heat_damage = 5.0
+heat_damage_per_100_depth = 2.0

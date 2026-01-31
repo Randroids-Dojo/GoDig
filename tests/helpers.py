@@ -87,6 +87,7 @@ PATHS = {
     "sound_manager": "/root/SoundManager",
     "localization_manager": "/root/LocalizationManager",
     "analytics_manager": "/root/AnalyticsManager",
+    "tutorial_overlay": "/root/Main/TutorialOverlay",
 }
 
 

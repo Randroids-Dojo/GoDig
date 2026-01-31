@@ -61,6 +61,9 @@ func _ready() -> void:
 		if GameManager.is_tutorial_active():
 			call_deferred("_check_initial_tutorial")
 
+	# Handle viewport resize to reposition panel
+	get_viewport().size_changed.connect(_on_viewport_resized)
+
 	print("[TutorialOverlay] Ready")
 
 
@@ -178,17 +181,31 @@ func show_step(step: int) -> void:
 
 
 func _position_panel(pos: String) -> void:
-	## Position the panel on screen
+	## Position the panel on screen, ensuring it stays within viewport bounds
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_width := panel.custom_minimum_size.x
+	var panel_height := panel.custom_minimum_size.y
+
+	# Ensure panel isn't wider than viewport (with margins)
+	var margin := 20.0
+	var max_width := viewport_size.x - (margin * 2)
+	if panel_width > max_width:
+		panel.custom_minimum_size.x = max_width
+		panel_width = max_width
+
+	# Use TOP_LEFT preset for predictable positioning
+	panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+
+	# Calculate centered X position
+	var center_x := (viewport_size.x - panel_width) / 2.0
+
 	match pos:
 		"top":
-			panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
-			panel.position = Vector2(-160, 80)
+			panel.position = Vector2(center_x, 80)
 		"bottom":
-			panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-			panel.position = Vector2(-160, -200)
+			panel.position = Vector2(center_x, viewport_size.y - panel_height - margin)
 		_:  # center
-			panel.set_anchors_preset(Control.PRESET_CENTER)
-			panel.position = Vector2(-160, -90)
+			panel.position = Vector2(center_x, (viewport_size.y - panel_height) / 2.0)
 
 
 func hide_tutorial() -> void:
@@ -241,3 +258,10 @@ func _on_tutorial_completed() -> void:
 	## Tutorial is fully complete
 	hide_tutorial()
 	print("[TutorialOverlay] Tutorial completed!")
+
+
+func _on_viewport_resized() -> void:
+	## Reposition panel when viewport size changes (e.g., orientation change)
+	if visible and _current_step >= 0 and TUTORIAL_STEPS.has(_current_step):
+		var step_data: Dictionary = TUTORIAL_STEPS[_current_step]
+		_position_panel(step_data.get("position", "center"))

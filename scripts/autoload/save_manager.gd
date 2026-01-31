@@ -254,6 +254,14 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		PlayerStats.reset()
 	if MiningBonusManager:
 		MiningBonusManager.reset()
+	if DailyRewardsManager:
+		DailyRewardsManager.reset()
+	if DayNightManager:
+		DayNightManager.reset()
+	if PrestigeManager:
+		PrestigeManager.reset_run()  # Only reset run data, keep prestige bonuses
+	if EnemyManager:
+		EnemyManager.reset()
 
 	# Initial save
 	var success := save_game()
@@ -344,6 +352,34 @@ func _collect_game_state() -> void:
 			current_save.set("mining_bonus_data", {})
 		current_save.mining_bonus_data = bonus_data
 
+	# Collect from DailyRewardsManager
+	if DailyRewardsManager:
+		var daily_data = DailyRewardsManager.get_save_data()
+		if not current_save.get("daily_rewards_data"):
+			current_save.set("daily_rewards_data", {})
+		current_save.daily_rewards_data = daily_data
+
+	# Collect from DayNightManager
+	if DayNightManager:
+		var daynight_data = DayNightManager.get_save_data()
+		if not current_save.get("day_night_data"):
+			current_save.set("day_night_data", {})
+		current_save.day_night_data = daynight_data
+
+	# Collect from PrestigeManager
+	if PrestigeManager:
+		var prestige_data = PrestigeManager.get_save_data()
+		if not current_save.get("prestige_data"):
+			current_save.set("prestige_data", {})
+		current_save.prestige_data = prestige_data
+
+	# Collect from EnemyManager
+	if EnemyManager:
+		var enemy_data = EnemyManager.get_save_data()
+		if not current_save.get("enemy_data"):
+			current_save.set("enemy_data", {})
+		current_save.enemy_data = enemy_data
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -400,6 +436,30 @@ func _apply_game_state() -> void:
 		var bonus_data = current_save.get("mining_bonus_data")
 		if bonus_data != null and bonus_data is Dictionary and not bonus_data.is_empty():
 			MiningBonusManager.load_save_data(bonus_data)
+
+	# Apply to DailyRewardsManager
+	if DailyRewardsManager:
+		var daily_data = current_save.get("daily_rewards_data")
+		if daily_data != null and daily_data is Dictionary and not daily_data.is_empty():
+			DailyRewardsManager.load_save_data(daily_data)
+
+	# Apply to DayNightManager
+	if DayNightManager:
+		var daynight_data = current_save.get("day_night_data")
+		if daynight_data != null and daynight_data is Dictionary and not daynight_data.is_empty():
+			DayNightManager.load_save_data(daynight_data)
+
+	# Apply to PrestigeManager
+	if PrestigeManager:
+		var prestige_data = current_save.get("prestige_data")
+		if prestige_data != null and prestige_data is Dictionary and not prestige_data.is_empty():
+			PrestigeManager.load_save_data(prestige_data)
+
+	# Apply to EnemyManager
+	if EnemyManager:
+		var enemy_data = current_save.get("enemy_data")
+		if enemy_data != null and enemy_data is Dictionary and not enemy_data.is_empty():
+			EnemyManager.load_save_data(enemy_data)
 
 
 ## Calculate offline earnings based on time since last save

@@ -33,6 +33,11 @@ SoundManager="*res://scripts/autoload/sound_manager.gd"
 LocalizationManager="*res://scripts/autoload/localization_manager.gd"
 AnalyticsManager="*res://scripts/autoload/analytics_manager.gd"
 MiningBonusManager="*res://scripts/autoload/mining_bonus_manager.gd"
+DailyRewardsManager="*res://scripts/autoload/daily_rewards_manager.gd"
+DayNightManager="*res://scripts/autoload/day_night_manager.gd"
+PrestigeManager="*res://scripts/autoload/prestige_manager.gd"
+EnemyManager="*res://scripts/autoload/enemy_manager.gd"
+BiomeManager="*res://scripts/autoload/biome_manager.gd"
 PlayGodotServer="*res://addons/playgodot/server.gd"
 
 [display]

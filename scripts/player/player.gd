@@ -544,6 +544,10 @@ func _do_wall_jump() -> void:
 	if HapticFeedback:
 		HapticFeedback.on_wall_jump()
 
+	# Play jump sound
+	if SoundManager:
+		SoundManager.play_jump()
+
 	# Jump away from wall
 	velocity.x = WALL_JUMP_FORCE_X * (-_wall_direction)  # Jump away from wall
 	velocity.y = -WALL_JUMP_FORCE_Y
@@ -739,6 +743,10 @@ func _land_on_grid(landing_grid: Vector2i) -> void:
 	if camera and fall_distance_px > BLOCK_SIZE * 2:
 		var shake_intensity := clampf(fall_distance_px / 200.0, 1.0, 6.0)
 		camera.shake(shake_intensity)
+
+	# Play landing sound
+	if SoundManager and fall_distance_px > BLOCK_SIZE:
+		SoundManager.play_land(intensity)
 
 	# Snap to proper grid position
 	grid_position = landing_grid
@@ -971,6 +979,10 @@ func take_damage(amount: int, source: String = "unknown") -> int:
 	if HapticFeedback:
 		HapticFeedback.on_damage_taken(actual_damage)
 
+	# Play hurt sound
+	if SoundManager:
+		SoundManager.play_player_hurt()
+
 	print("[Player] Took %d damage from %s (HP: %d/%d)" % [actual_damage, source, current_hp, MAX_HP])
 
 	if current_hp <= 0:
@@ -1020,6 +1032,10 @@ func die(cause: String = "unknown") -> void:
 	var depth := grid_position.y - GameManager.SURFACE_ROW
 	if PlayerStats:
 		PlayerStats.track_death(cause, depth)
+
+	# Play death sound
+	if SoundManager:
+		SoundManager.play_player_death()
 
 	print("[Player] Died from: %s" % cause)
 

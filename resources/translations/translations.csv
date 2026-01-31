@@ -1,0 +1,63 @@
+keys,en,es,fr,de
+GAME_TITLE,GoDig,GoDig,GoDig,GoDig
+MENU_START,Start Game,Iniciar Juego,Commencer,Spiel Starten
+MENU_CONTINUE,Continue,Continuar,Continuer,Fortsetzen
+MENU_SETTINGS,Settings,Configuración,Paramètres,Einstellungen
+MENU_QUIT,Quit,Salir,Quitter,Beenden
+COINS_FORMAT,{amount} coins,{amount} monedas,{amount} pièces,{amount} Münzen
+DEPTH_FORMAT,Depth: {depth}m,Profundidad: {depth}m,Profondeur: {depth}m,Tiefe: {depth}m
+LAYER_TOPSOIL,Topsoil,Tierra Vegetal,Terre Végétale,Mutterboden
+LAYER_SUBSOIL,Subsoil,Subsuelo,Sous-sol,Unterboden
+LAYER_CLAY,Clay,Arcilla,Argile,Lehm
+LAYER_STONE,Stone,Piedra,Pierre,Stein
+LAYER_GRANITE,Granite,Granito,Granit,Granit
+LAYER_CRYSTAL_CAVES,Crystal Caves,Cuevas de Cristal,Grottes de Cristal,Kristallhöhlen
+LAYER_DEEP_STONE,Deep Stone,Piedra Profunda,Pierre Profonde,Tiefenstein
+LAYER_MAGMA_ZONE,Magma Zone,Zona de Magma,Zone Magma,Magmazone
+LAYER_OBSIDIAN_CORE,Obsidian Core,Núcleo de Obsidiana,Noyau d'Obsidienne,Obsidiankern
+ITEM_COAL,Coal,Carbón,Charbon,Kohle
+ITEM_COPPER,Copper,Cobre,Cuivre,Kupfer
+ITEM_IRON,Iron,Hierro,Fer,Eisen
+ITEM_SILVER,Silver,Plata,Argent,Silber
+ITEM_GOLD,Gold,Oro,Or,Gold
+ITEM_PLATINUM,Platinum,Platino,Platine,Platin
+ITEM_FOSSIL_COMMON,Ancient Fossil,Fósil Antiguo,Fossile Ancien,Uraltes Fossil
+ITEM_FOSSIL_RARE,Rare Fossil,Fósil Raro,Fossile Rare,Seltenes Fossil
+ITEM_FOSSIL_AMBER,Amber Fossil,Fósil de Ámbar,Fossile d'Ambre,Bernsteinfossil
+ITEM_FOSSIL_LEGENDARY,Primordial Fossil,Fósil Primordial,Fossile Primordial,Urfossil
+ITEM_LADDER,Ladder,Escalera,Échelle,Leiter
+ITEM_ROPE,Rope,Cuerda,Corde,Seil
+ITEM_TELEPORT_SCROLL,Teleport Scroll,Pergamino de Teletransporte,Parchemin de Téléportation,Teleportrolle
+BUILDING_GENERAL_STORE,General Store,Tienda General,Magasin Général,Gemischtwarenladen
+BUILDING_BLACKSMITH,Blacksmith,Herrero,Forgeron,Schmied
+BUILDING_SUPPLY_STORE,Supply Store,Tienda de Suministros,Magasin de Fournitures,Vorratsladen
+BUILDING_EQUIPMENT_SHOP,Equipment Shop,Tienda de Equipamiento,Boutique d'Équipement,Ausrüstungsladen
+BUILDING_GEM_APPRAISER,Gem Appraiser,Tasador de Gemas,Expert en Gemmes,Edelsteinschätzer
+BUILDING_WAREHOUSE,Warehouse,Almacén,Entrepôt,Lagerhaus
+SHOP_SELL,Sell,Vender,Vendre,Verkaufen
+SHOP_BUY,Buy,Comprar,Acheter,Kaufen
+SHOP_UPGRADES,Upgrades,Mejoras,Améliorations,Upgrades
+UI_INVENTORY,Inventory,Inventario,Inventaire,Inventar
+UI_PAUSE,Paused,Pausado,En Pause,Pausiert
+UI_RESUME,Resume,Reanudar,Reprendre,Fortsetzen
+UI_MAIN_MENU,Main Menu,Menú Principal,Menu Principal,Hauptmenü
+UI_HP,HP,PV,PV,LP
+UI_CLOSE,Close,Cerrar,Fermer,Schließen
+SETTINGS_AUDIO,Audio,Audio,Audio,Audio
+SETTINGS_MASTER_VOLUME,Master Volume,Volumen Principal,Volume Principal,Hauptlautstärke
+SETTINGS_SFX_VOLUME,Sound Effects,Efectos de Sonido,Effets Sonores,Soundeffekte
+SETTINGS_MUSIC_VOLUME,Music,Música,Musique,Musik
+SETTINGS_ACCESSIBILITY,Accessibility,Accesibilidad,Accessibilité,Barrierefreiheit
+SETTINGS_TEXT_SIZE,Text Size,Tamaño de Texto,Taille du Texte,Textgröße
+SETTINGS_COLORBLIND,Colorblind Mode,Modo Daltónico,Mode Daltonien,Farbenblind-Modus
+SETTINGS_HAPTICS,Haptic Feedback,Retroalimentación Háptica,Retour Haptique,Haptisches Feedback
+SETTINGS_REDUCED_MOTION,Reduced Motion,Movimiento Reducido,Mouvement Réduit,Reduzierte Bewegung
+DEATH_MESSAGE,You Died!,¡Has Muerto!,Vous êtes mort!,Du bist gestorben!
+DEATH_CAUSE_FALL,Fell too far,Caída fatal,Chute mortelle,Zu tief gefallen
+DEATH_CAUSE_HEAT,Burned by heat,Quemado por el calor,Brûlé par la chaleur,Von Hitze verbrannt
+DEATH_RESPAWN,Respawn,Reaparecer,Réapparaître,Wiederbeleben
+TUTORIAL_MOVEMENT,Use arrows or WASD to move,Usa flechas o WASD para moverte,Utilisez les flèches ou WASD,Pfeiltasten oder WASD zum Bewegen
+TUTORIAL_DIGGING,Hold a direction to dig,Mantén una dirección para cavar,Maintenez une direction pour creuser,Halte eine Richtung zum Graben
+TUTORIAL_SELLING,Sell items at the shop,Vende objetos en la tienda,Vendez des objets à la boutique,Verkaufe Gegenstände im Laden
+ACHIEVEMENT_UNLOCKED,Achievement Unlocked!,¡Logro Desbloqueado!,Succès Débloqué!,Erfolg Freigeschaltet!
+MILESTONE_REACHED,Depth Milestone!,¡Hito de Profundidad!,Jalon de Profondeur!,Tiefenmeilenstein!

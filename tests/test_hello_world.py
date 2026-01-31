@@ -1341,3 +1341,49 @@ async def test_layer_at_depth_750(game):
     """Verify Magma Zone is returned for depth 750."""
     layer_id = await game.call_method(PATHS["data_registry"], "get_layer_id_at_depth", [750])
     assert layer_id == "magma_zone", f"Layer at depth 750 should be magma_zone, got {layer_id}"
+
+
+# =============================================================================
+# TUTORIAL OVERLAY TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_tutorial_overlay_exists(game):
+    """Verify the tutorial overlay node exists."""
+    exists = await game.node_exists(PATHS["tutorial_overlay"])
+    assert exists, "TutorialOverlay should exist"
+
+
+@pytest.mark.asyncio
+async def test_tutorial_overlay_is_canvas_layer(game):
+    """Verify the tutorial overlay is a CanvasLayer."""
+    layer = await game.get_property(PATHS["tutorial_overlay"], "layer")
+    assert layer is not None, "TutorialOverlay should have layer property (CanvasLayer)"
+    assert layer == 99, f"TutorialOverlay layer should be 99 (above HUD), got {layer}"
+
+
+@pytest.mark.asyncio
+async def test_tutorial_overlay_process_mode(game):
+    """Verify the tutorial overlay runs while game is paused."""
+    # PROCESS_MODE_ALWAYS = 3
+    process_mode = await game.get_property(PATHS["tutorial_overlay"], "process_mode")
+    assert process_mode == 3, f"TutorialOverlay process_mode should be PROCESS_MODE_ALWAYS (3), got {process_mode}"
+
+
+@pytest.mark.asyncio
+async def test_tutorial_overlay_has_panel(game):
+    """Verify the tutorial overlay has a panel for content."""
+    panel = await game.get_property(PATHS["tutorial_overlay"], "panel")
+    assert panel is not None, "TutorialOverlay should have panel property"
+
+
+@pytest.mark.asyncio
+async def test_tutorial_overlay_has_viewport_resize_handler(game):
+    """Verify the tutorial overlay responds to viewport resize."""
+    # Check that the _on_viewport_resized method exists by verifying the signal is connected
+    # The tutorial overlay should handle viewport resize for portrait mode support
+    overlay_path = PATHS["tutorial_overlay"]
+    # Test by calling the method directly (should not error)
+    result = await game.call_method(overlay_path, "_on_viewport_resized")
+    # Method should complete without error (returns void/null)

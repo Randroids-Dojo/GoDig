@@ -6,6 +6,9 @@
 
 set -e
 
+# Save original directory (project root)
+PROJECT_DIR="$(pwd)"
+
 WORK_DIR="${HOME}/.local/share/godig"
 GODOT_DIR="${WORK_DIR}/godot-automation"
 PLAYGODOT_DIR="${WORK_DIR}/PlayGodot"
@@ -79,6 +82,68 @@ fi
 if [ -n "$CLAUDE_ENV_FILE" ]; then
   echo "export GODOT_PATH=\"${GODOT_BINARY}\"" >> "$CLAUDE_ENV_FILE"
   echo "GODOT_PATH set to $GODOT_BINARY"
+fi
+
+# === Install .NET SDK if needed ===
+# The mono build of Godot requires .NET SDK 8.0+ for --import to work
+# Without it, the import command crashes with signal 11
+if ! command -v dotnet >/dev/null 2>&1; then
+  echo "=== Installing .NET SDK (required for Godot mono build) ==="
+  # Install via Microsoft's script (works on most Linux distros)
+  curl -sSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 8.0 --install-dir "$HOME/.dotnet" 2>/dev/null || true
+  export PATH="$HOME/.dotnet:$PATH"
+  export DOTNET_ROOT="$HOME/.dotnet"
+  # Export for current session
+  if [ -n "$CLAUDE_ENV_FILE" ]; then
+    echo "export PATH=\"\$HOME/.dotnet:\$PATH\"" >> "$CLAUDE_ENV_FILE"
+    echo "export DOTNET_ROOT=\"\$HOME/.dotnet\"" >> "$CLAUDE_ENV_FILE"
+  fi
+  if command -v dotnet >/dev/null 2>&1; then
+    echo ".NET SDK installed successfully"
+  else
+    echo "WARNING: .NET SDK installation failed - tests may not work"
+  fi
+else
+  echo ".NET SDK already available"
+fi
+
+# === Import Godot Project ===
+# Run Godot import to ensure all resources are available for tests
+# This is required before running tests - mirrors CI behavior
+# CI runs import TWICE to ensure global classes are resolved
+IMPORT_STAMP="${PROJECT_DIR}/.godot/.import_complete"
+GLOBAL_CACHE="${PROJECT_DIR}/.godot/global_script_class_cache.cfg"
+
+if [ -f "$IMPORT_STAMP" ] && [ -f "$GLOBAL_CACHE" ]; then
+  echo "Godot project already imported"
+else
+  echo "=== Importing Godot Project ==="
+  cd "$PROJECT_DIR"
+
+  # Use xvfb-run if available (provides virtual display for Godot)
+  XVFB_CMD=""
+  if command -v xvfb-run >/dev/null 2>&1; then
+    XVFB_CMD="xvfb-run --auto-servernum"
+  fi
+
+  # Run import twice to ensure all global classes are resolved (mirrors CI)
+  echo "First import pass..."
+  timeout 120 $XVFB_CMD "$GODOT_BINARY" --headless --path . --import 2>/dev/null || true
+
+  echo "Second import pass..."
+  timeout 120 $XVFB_CMD "$GODOT_BINARY" --headless --path . --import 2>/dev/null || true
+
+  # Verify global class cache was created
+  if [ -f "$GLOBAL_CACHE" ]; then
+    echo "Global class cache created successfully"
+    # Create stamp file to avoid re-importing every session
+    touch "$IMPORT_STAMP" 2>/dev/null || true
+  else
+    echo "WARNING: Global class cache not found - import may have failed"
+    echo "Tests may fail due to missing resource imports"
+  fi
+
+  echo "Godot project import complete"
 fi
 
 echo "=== Godot + PlayGodot Setup Complete ==="

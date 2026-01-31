@@ -32,6 +32,24 @@ var equipped_helmet_id: String = ""
 ## Currently equipped accessory ID (empty = none, includes drill)
 var equipped_accessory_id: String = ""
 
+## Warehouse upgrade level (0 = no upgrade)
+var warehouse_level: int = 0
+
+## Gadgets owned (gadget_id -> quantity)
+var gadgets_owned: Dictionary = {}
+
+## Consumables owned (consumable_id -> quantity) for items not in inventory
+var consumables_owned: Dictionary = {}
+
+## Unlocked boots IDs
+var unlocked_boots: Array[String] = []
+
+## Unlocked helmets IDs
+var unlocked_helmets: Array[String] = []
+
+## Elevator saved depths (for fast travel)
+var elevator_depths: Array[int] = []
+
 
 func _ready() -> void:
 	# Defer connection to allow other autoloads to initialize first
@@ -139,6 +157,12 @@ func reset() -> void:
 	equipped_accessory_id = ""
 	max_depth_reached = 0
 	tool_durabilities.clear()
+	warehouse_level = 0
+	gadgets_owned.clear()
+	consumables_owned.clear()
+	unlocked_boots.clear()
+	unlocked_helmets.clear()
+	elevator_depths.clear()
 	tool_changed.emit(get_equipped_tool())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.BOOTS, null)
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, null)
@@ -417,6 +441,101 @@ func get_mining_speed_bonus() -> float:
 	return accessory.mining_speed_bonus
 
 
+# ============================================
+# GADGETS AND CONSUMABLES
+# ============================================
+
+## Get gadget count by ID
+func get_gadget_count(gadget_id: String) -> int:
+	return gadgets_owned.get(gadget_id, 0)
+
+
+## Add gadgets
+func add_gadget(gadget_id: String, count: int = 1) -> void:
+	if not gadgets_owned.has(gadget_id):
+		gadgets_owned[gadget_id] = 0
+	gadgets_owned[gadget_id] += count
+
+
+## Use a gadget (returns true if successful)
+func use_gadget(gadget_id: String) -> bool:
+	if get_gadget_count(gadget_id) <= 0:
+		return false
+	gadgets_owned[gadget_id] -= 1
+	return true
+
+
+## Get consumable count by ID
+func get_consumable_count(consumable_id: String) -> int:
+	return consumables_owned.get(consumable_id, 0)
+
+
+## Add consumables
+func add_consumable(consumable_id: String, count: int = 1) -> void:
+	if not consumables_owned.has(consumable_id):
+		consumables_owned[consumable_id] = 0
+	consumables_owned[consumable_id] += count
+
+
+## Use a consumable (returns true if successful)
+func use_consumable(consumable_id: String) -> bool:
+	if get_consumable_count(consumable_id) <= 0:
+		return false
+	consumables_owned[consumable_id] -= 1
+	return true
+
+
+# ============================================
+# EQUIPMENT OWNERSHIP
+# ============================================
+
+## Check if boots are unlocked
+func has_boots(boots_id: String) -> bool:
+	return boots_id in unlocked_boots
+
+
+## Unlock boots
+func unlock_boots(boots_id: String) -> void:
+	if boots_id not in unlocked_boots:
+		unlocked_boots.append(boots_id)
+
+
+## Check if helmet is unlocked
+func has_helmet(helmet_id: String) -> bool:
+	return helmet_id in unlocked_helmets
+
+
+## Unlock helmet
+func unlock_helmet(helmet_id: String) -> void:
+	if helmet_id not in unlocked_helmets:
+		unlocked_helmets.append(helmet_id)
+
+
+# ============================================
+# ELEVATOR SYSTEM
+# ============================================
+
+## Add an elevator stop at a depth
+func add_elevator_depth(depth: int) -> void:
+	if depth not in elevator_depths:
+		elevator_depths.append(depth)
+		elevator_depths.sort()
+
+
+## Check if elevator can travel to a depth
+func can_elevator_to(depth: int) -> bool:
+	return depth in elevator_depths
+
+
+## Get all elevator stops
+func get_elevator_stops() -> Array[int]:
+	return elevator_depths.duplicate()
+
+
+# ============================================
+# SAVE/LOAD
+# ============================================
+
 ## Get save data for persistence
 func get_save_data() -> Dictionary:
 	return {
@@ -426,6 +545,12 @@ func get_save_data() -> Dictionary:
 		"equipped_accessory_id": equipped_accessory_id,
 		"max_depth_reached": max_depth_reached,
 		"tool_durabilities": tool_durabilities.duplicate(),
+		"warehouse_level": warehouse_level,
+		"gadgets_owned": gadgets_owned.duplicate(),
+		"consumables_owned": consumables_owned.duplicate(),
+		"unlocked_boots": unlocked_boots.duplicate(),
+		"unlocked_helmets": unlocked_helmets.duplicate(),
+		"elevator_depths": elevator_depths.duplicate(),
 	}
 
 
@@ -437,9 +562,32 @@ func load_save_data(data: Dictionary) -> void:
 	equipped_accessory_id = data.get("equipped_accessory_id", "")
 	max_depth_reached = data.get("max_depth_reached", 0)
 	tool_durabilities = data.get("tool_durabilities", {}).duplicate()
+	warehouse_level = data.get("warehouse_level", 0)
+	gadgets_owned = data.get("gadgets_owned", {}).duplicate()
+	consumables_owned = data.get("consumables_owned", {}).duplicate()
+
+	# Load unlocked equipment arrays
+	unlocked_boots.clear()
+	var saved_boots = data.get("unlocked_boots", [])
+	for b in saved_boots:
+		if b is String:
+			unlocked_boots.append(b)
+
+	unlocked_helmets.clear()
+	var saved_helmets = data.get("unlocked_helmets", [])
+	for h in saved_helmets:
+		if h is String:
+			unlocked_helmets.append(h)
+
+	elevator_depths.clear()
+	var saved_depths = data.get("elevator_depths", [])
+	for d in saved_depths:
+		if d is int:
+			elevator_depths.append(d)
+
 	tool_changed.emit(get_equipped_tool())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.BOOTS, get_equipped_boots())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, get_equipped_helmet())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.ACCESSORY, get_equipped_accessory())
 	max_depth_updated.emit(max_depth_reached)
-	print("[PlayerData] Loaded - Tool: %s, Boots: %s, Accessory: %s, Max Depth: %d" % [equipped_tool_id, equipped_boots_id, equipped_accessory_id, max_depth_reached])
+	print("[PlayerData] Loaded - Tool: %s, Boots: %s, Accessory: %s, Max Depth: %d, Warehouse Lvl: %d" % [equipped_tool_id, equipped_boots_id, equipped_accessory_id, max_depth_reached, warehouse_level])

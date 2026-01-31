@@ -29,6 +29,12 @@ const TUTORIAL_STEPS := {
 		"message": "Head back to the surface and enter the shop\nto sell your ores for coins!",
 		"position": "top",
 	},
+	GameManager.TutorialState.COMPLETE: {
+		"title": "Tutorial Complete!",
+		"message": "You've mastered the basics!\nNow dig deeper, find rare ores,\nand upgrade your equipment!",
+		"position": "center",
+		"is_final": true,
+	},
 }
 
 ## UI Elements
@@ -165,6 +171,15 @@ func show_step(step: int) -> void:
 	# Position panel based on step preference
 	_position_panel(step_data.get("position", "center"))
 
+	# Update button text and visibility for final step
+	var is_final: bool = step_data.get("is_final", false)
+	if is_final:
+		continue_btn.text = "Let's Go!"
+		skip_btn.visible = false
+	else:
+		continue_btn.text = "Got it!"
+		skip_btn.visible = true
+
 	# Fade in
 	visible = true
 	background.modulate.a = 0.0
@@ -224,6 +239,15 @@ func _on_continue_pressed() -> void:
 	hide_tutorial()
 	tutorial_step_completed.emit(_current_step)
 
+	# For SELLING step, don't auto-advance - wait for actual sale to happen
+	# The shop will trigger advancement when a sale is made
+	if _current_step == GameManager.TutorialState.SELLING:
+		return
+
+	# For COMPLETE step, tutorial is already done, just dismiss
+	if _current_step == GameManager.TutorialState.COMPLETE:
+		return
+
 	# Advance to next step in GameManager
 	if GameManager:
 		var next_step := _current_step + 1
@@ -248,15 +272,15 @@ func _on_background_input(event: InputEvent) -> void:
 
 func _on_tutorial_state_changed(new_state: int) -> void:
 	## Show the tutorial step when GameManager changes state
-	if new_state != GameManager.TutorialState.COMPLETE:
-		# Small delay to let game actions complete
-		await get_tree().create_timer(0.3).timeout
-		show_step(new_state)
+	# Small delay to let game actions complete
+	await get_tree().create_timer(0.3).timeout
+	show_step(new_state)
 
 
 func _on_tutorial_completed() -> void:
-	## Tutorial is fully complete
-	hide_tutorial()
+	## Tutorial is fully complete - show celebration message
+	# The COMPLETE step will be shown via _on_tutorial_state_changed
+	# This is called after, so we just log it
 	print("[TutorialOverlay] Tutorial completed!")
 
 

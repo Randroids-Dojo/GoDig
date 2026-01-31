@@ -257,6 +257,8 @@ func _on_sell_item(item) -> void:
 		# Track for achievements
 		if AchievementManager:
 			AchievementManager.track_sale(total)
+		# Complete tutorial after first sale
+		_check_tutorial_sale_complete()
 		# Auto-save after transaction
 		SaveManager.save_game()
 
@@ -287,8 +289,17 @@ func _on_sell_all_pressed() -> void:
 		# Track for achievements
 		if AchievementManager:
 			AchievementManager.track_sale(total)
+		# Complete tutorial after first sale
+		_check_tutorial_sale_complete()
 		# Auto-save after transaction
 		SaveManager.save_game()
+
+
+func _check_tutorial_sale_complete() -> void:
+	## Complete the tutorial if player is in SELLING state and just made a sale
+	if GameManager and GameManager.is_tutorial_active():
+		if GameManager.tutorial_state == GameManager.TutorialState.SELLING:
+			GameManager.advance_tutorial(GameManager.TutorialState.COMPLETE)
 
 
 # ============================================

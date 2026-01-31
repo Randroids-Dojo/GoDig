@@ -16,8 +16,10 @@ const BUILDING_SLOTS := [
 	{"x": 256, "unlock_depth": 50, "type": "blacksmith", "name": "Blacksmith"},
 	{"x": 512, "unlock_depth": 100, "type": "supply_store", "name": "Supply Store"},
 	{"x": -512, "unlock_depth": 200, "type": "equipment_shop", "name": "Equipment"},
-	{"x": 768, "unlock_depth": 300, "type": "gem_appraiser", "name": "Appraiser"},
-	{"x": -768, "unlock_depth": 500, "type": "warehouse", "name": "Warehouse"},
+	{"x": 768, "unlock_depth": 200, "type": "gem_appraiser", "name": "Appraiser"},
+	{"x": -768, "unlock_depth": 300, "type": "gadget_shop", "name": "Gadgets"},
+	{"x": 1024, "unlock_depth": 500, "type": "warehouse", "name": "Warehouse"},
+	{"x": -1024, "unlock_depth": 500, "type": "elevator", "name": "Elevator"},
 ]
 
 @onready var spawn_point: Marker2D = $SpawnPoint

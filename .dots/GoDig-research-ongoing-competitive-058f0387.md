@@ -322,6 +322,86 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - "Every roguelite has a period during a run where it starts feeling like a chore"
 - **GoDig Solution**: Natural stopping points (surface return) prevent chore feeling
 
+### Session 14 (2026-02-01)
+
+**Deep Rock Galactic Extraction Phase Design**:
+- Extraction creates "satisfying tension" - players must backtrack to escape pod once objective is complete
+- Community debates: time limit (30 seconds) feels punishing when pod spawns far away
+- Deep Rock Galactic Survivor: Phase 5 extraction timer criticized as redundant after boss kill
+- Season 6 (Q1 2026) introduces "Heavy Extraction" mission type with booster rockets
+- Lift gadget "exponentially cuts return time" - critical for late-game usability
+- 90% positive (17,000+ reviews) validates mine-defend-extract core loop
+- **GoDig Application**: Our surface return isn't timed, but ladder depletion creates similar pressure. Elevator unlock should mirror DRG's Lift satisfaction.
+
+**Cozy Game Design: Safe Zone Principles (Gamasutra)**:
+- Coziness = safety + abundance + softness (lower stress, needs met, gentle stimuli)
+- Distinct thresholds between dangerous/safe spaces heighten relief (snowstorm → cabin)
+- Protection signals: sleeping pets, relaxed guardians, warm tones, enclosed spaces
+- Mundanity matters: familiar settings (tea rooms, pantries) cozier than exotic ones
+- Focus through elimination: no interruptions, intimate framing, knowable space
+- Undertale cited: warm tones + relaxed guardian + focused interior = safe haven
+- **GoDig Application**: Surface should have warm colors, enclosed shop interiors, no threats visible. Underground should feel increasingly unfamiliar.
+
+**Noita Physics-Based Destruction**:
+- "Every pixel is physically simulated" - 95% positive rating (45,499 reviews)
+- Environmental destructibility is "key to appeal and greatest asset"
+- Liquids pour/fill realistically - creates emergent problem-solving
+- Chain reactions: burn wood → collapses → releases toxic sludge → erodes enemies
+- Players describe "amazed by pretty pixels and physics" as initial hook
+- "You can destroy the whole world if you wish" - player agency maximized
+- **GoDig Application**: Our block destruction should feel impactful. Particle effects, debris falling, dust clouds. Each dig should feel like "making a mark on the world."
+
+**Mobile Session End Celebrations (2025 Best Practices)**:
+- Session-end rewards create "positive experience" - players feel appreciated
+- Level completion events provide immediate rewards/recognition
+- "Little 'you did it!' moments" via badges, trophies, animations boost retention
+- Satisfying animations encourage return visits
+- Game UI Database: over 1,300 games with 55,000 UI screenshots for reference
+- Responsive animation feedback makes sequences "satisfying" and "organic"
+- **GoDig Application**: After selling ore, need celebratory moment. After safe return from deep dive, need "you made it!" relief celebration.
+
+**Mr. Mine - Idle Mining Progression (88% positive, 6,857 reviews)**:
+- "Adventure and discovery" emphasized over pure incremental progress
+- Each new depth introduces "rarer minerals, hidden structures, surprises"
+- 100+ drill upgrades create constant progression milestones
+- Progression unlocks: battles, reactors, caves, new worlds - content gates, not just numbers
+- "Keeps players hooked through constant sense of discovery"
+- **GoDig Lesson**: Depth should unlock NEW THINGS, not just harder blocks. Caves, treasures, secrets.
+
+**Core Keeper Mining Progression (2025)**:
+- Biome-based ore progression: Copper → Tin → Iron → Scarlet → Octarine → Galaxite
+- "Each mining skill level increases mining damage by 1" - granular progression
+- Automation via drills unlocks mid-game - first step into passive income
+- Ore Boulders as "plentiful source" once drills available - reward for investment
+- Crafting station prerequisites create natural gates: Tin Workbench → Iron Workbench
+- "Points invested into perk trees may be refunded" - encourages experimentation
+- **GoDig Application**: Our pickaxe tiers should have similar "can I mine this?" gating by depth.
+
+**Roguelike Design Principles (2025 Synthesis)**:
+- "Player themselves getting better" is the core hook - skill accumulates across runs
+- Expert players have "higher-than-average chance at winning" despite same odds
+- Near-instant restart after failure prevents antagonizing frustrated players
+- "One more game" mentality = strong addiction factor
+- "Satisfying and short gameplay loop" critical for repeated play (Hades cited)
+- Permadeath adds "strong sense of consequences" - every action matters
+- **GoDig Application**: Death should be quick + restart immediate. Our "emergency rescue" should feel like a consequence but not punishment.
+
+**Dome Keeper 2025 Deep Dive**:
+- Central tension: "do you risk delving deeper, or return to prepare for attack?"
+- Lift gadget: "important boost late-game" for return trip efficiency
+- Three resources (iron, water, cobalt) create "efficiency puzzle"
+- 90% positive with 17,000+ reviews validates the mine-defend loop
+- Multiplayer announced for 2026 - validates cooperative mining interest
+- Xbox Game Pass December 2025 - broad audience appeal proven
+- **GoDig Distinction**: No defense mechanic means pure push-your-luck on ladder economy
+
+**Incremental Game Psychology: "Number Go Up"**:
+- Core hook: "you click the cookie, you have a cookie, enough cookies net automatic gains"
+- Shortcut to positive feedback loop - minimal friction to reward
+- Genre exploding: "new games developed almost daily"
+- Itch.io game tagline captures it: "Drop balls. Make money. Number go up. Happy."
+- **GoDig Application**: Our ore count, coin count, depth record - all "numbers going up". Make each visible and satisfying.
+
 ### Topics for Future Research
 - [x] Analyze Spelunky 2's "secrets and lessons" retention (Session 9)
 - [x] Study Terraria's biome discovery system (Session 10)
@@ -341,11 +421,14 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Research SteamWorld Dig pickaxe satisfaction design (Session 13)
 - [x] Analyze "just one more run" psychology (Session 13)
 - [x] Study Idle Miner Tycoon economy design (Session 13)
+- [x] Analyze Deep Rock Galactic extraction phase design in detail (Session 14)
+- [x] Research "cozy comfort" signals in home base areas (Session 14)
+- [x] Study Noita physics-based destruction feel (Session 14)
+- [x] Research mobile game "session end" celebrations (Session 14)
 - [ ] Study Satisfactory/Factorio automation for v1.1 features
-- [ ] Analyze Deep Rock Galactic extraction phase design in detail
-- [ ] Research "cozy comfort" signals in home base areas
-- [ ] Study Noita physics-based destruction feel
-- [ ] Research mobile game "session end" celebrations
+- [ ] Analyze Astroneer mining and terrain deformation satisfaction
+- [ ] Research "hidden depths" discovery moments in mining games
+- [ ] Study mobile game "comeback" mechanics after player absence
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -365,6 +448,12 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-distinct-audio-09fbd1b1` - Distinct audio/visual per pickaxe tier (Session 13)
 - `GoDig-implement-satisfying-sell-150bde42` - Satisfying sell animation with coin cascade (Session 13)
 - `GoDig-implement-return-route-86fe3653` - Visual hint for efficient return routes (Session 13)
+- `GoDig-implement-safe-return-6aad4c11` - Safe return celebration when reaching surface (Session 14)
+- `GoDig-implement-block-destruction-9de5b1c4` - Block destruction particle effects (Session 14)
+- `GoDig-implement-surface-cozy-e7e78188` - Surface cozy zone visual distinction (Session 14)
+- `GoDig-implement-depth-unlocks-9826143d` - Depth unlocks new discoveries (Session 14)
+- `GoDig-implement-instant-restart-35c6a217` - Instant restart after emergency rescue (Session 14)
+- `GoDig-implement-numbers-go-5805c161` - Numbers go up visibility and satisfaction (Session 14)
 
 ## How to Use This Task
 

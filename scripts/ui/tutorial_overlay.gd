@@ -182,6 +182,9 @@ func show_step(step: int) -> void:
 
 	# Fade in
 	visible = true
+	# Re-enable background input interception when showing
+	if background:
+		background.mouse_filter = Control.MOUSE_FILTER_STOP
 	background.modulate.a = 0.0
 	panel.modulate.a = 0.0
 
@@ -228,6 +231,11 @@ func hide_tutorial() -> void:
 	if _fade_tween and _fade_tween.is_valid():
 		_fade_tween.kill()
 
+	# Immediately disable input on background to prevent blocking game input
+	# This is important for web builds where visibility changes may not fully disable input
+	if background:
+		background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 	_fade_tween = create_tween()
 	_fade_tween.tween_property(background, "modulate:a", 0.0, 0.2)
 	_fade_tween.parallel().tween_property(panel, "modulate:a", 0.0, 0.2)
@@ -265,8 +273,12 @@ func _on_skip_pressed() -> void:
 
 
 func _on_background_input(event: InputEvent) -> void:
-	## Handle background clicks (dismiss on tap)
+	## Handle background clicks/taps (dismiss on tap)
+	# Handle mouse clicks (desktop)
 	if event is InputEventMouseButton and event.pressed:
+		_on_continue_pressed()
+	# Handle touch events (mobile web)
+	elif event is InputEventScreenTouch and event.pressed:
 		_on_continue_pressed()
 
 

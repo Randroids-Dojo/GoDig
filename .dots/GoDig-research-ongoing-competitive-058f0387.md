@@ -402,6 +402,70 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Itch.io game tagline captures it: "Drop balls. Make money. Number go up. Happy."
 - **GoDig Application**: Our ore count, coin count, depth record - all "numbers going up". Make each visible and satisfying.
 
+### Session 15 (2026-02-01)
+
+**Astroneer Terrain Deformation Design**:
+- "Decided to make the hardest possible game on all dimensions" - picked challenging technical approach
+- Core philosophy: "terrain deformation from day one... the entire game was built around that idea"
+- "Sculpting the terrain is what people want to do in the game. It's kind of like the output valve."
+- "Full ground deformation with your digging tool" creates "simple joy to creating and finding things"
+- Dig Tool offers excavate, raise, flatten modes - versatile terrain manipulation
+- Can "dig right to the core of each planet" - validates infinite depth appeal
+- Marching cubes algorithm + chunk-based rebuilding for performance
+- **GoDig Application**: Our block-based digging is simpler but each dig should still feel impactful. The "making a mark on the world" feeling is key.
+
+**Factory Builder Automation Design (Satisfactory/Factorio)**:
+- Satisfactory: "glossier, more accessible experience, effectively streamlining many of the ideas Factorio pioneered"
+- Infinite resource deposits in Satisfactory remove tedious "seek new veins" loop
+- Conveyor belts are "own type of logic puzzle" - players optimize and iterate
+- "Overseeing a system of interconnected machines" creates satisfying complexity
+- Player quote: "I don't know where the factory ends and I begin" - deeply immersive
+- Factorio includes tower defense element (pollution attracts enemies) - defense + mining
+- **GoDig v1.1 Application**: Automation buildings (Auto-Miner Station) should create simple optimization puzzles. Don't over-complicate - Satisfactory succeeded by streamlining.
+
+**Procedural Generation Discovery Principles**:
+- "The key is control: randomness should surprise players, but never betray them. Think of it like jazz."
+- Cellular automata mimics natural cave erosion - creates believable chambers
+- Wave Function Collapse creates "unpredictable but still cohesive" results
+- Hidden corridors connect rooms, offering "alternative routes if discovered"
+- Deep Rock Galactic: completely destructible procedural caves are "key feature"
+- Spelunky 2: "no two expeditions are identical" - keeps runs fresh
+- Terraria: "unique secrets, including hidden chests, underground temples, and mysterious NPC encounters"
+- **GoDig Application**: Our procedural generation should include discoverable secrets - hidden treasure rooms, rare structure spawns, mini-puzzles.
+
+**Discovery as Core Design Element**:
+- "It's not just exploration that's required, but also the sense of discovery that makes these games magical"
+- Discovery = "going out into the game to find things you didn't know were there"
+- Games need "narrative or mechanical branching" to create true exploration feel
+- Mr Mine: "These moments break the routine and add depth to your mining journey. They also make the game feel more like an adventure than a numbers game."
+- Keep on Mining: "Hidden journals, audio logs, and artifacts tell tales of the underground"
+- Colossal Cave Adventure: original cave exploration + treasure hunt (milestone-based points)
+- **GoDig Implementation**: Add discoverable lore elements - old mining journals, strange artifacts, abandoned equipment. These create stories players tell.
+
+**Mobile Player Re-engagement & Comeback Mechanics**:
+- 77% of mobile app users churn within first three days - re-engagement critical
+- "Welcome back" campaigns: 3-7 days for users who haven't played in X days
+- Effective value exchange: "Claim your 1,000 free gems now!" feels like gift, not ad
+- Clash Royale: "Season Reset" gives lapsed players fresh start - genius retention
+- Returning player rewards: premium currency, gacha tickets, exclusive items
+- Timed boosts create urgency: "The better the boost, the greater the incentive not to let it go to waste!"
+- Message framing: "You were so close to unlocking a new character! Come back and finish what you started"
+- **GoDig Implementation**: Welcome back rewards should include ladders (core resource), premium ore, and progress reminder. Don't punish absence.
+
+**Lapsed Player Segmentation Strategy**:
+- ML-driven prediction of who will lapse and who responds to re-engagement
+- Segments: at-risk mid-value (moderate rewards), high-value whales (VIP treatment), low-value free (ad-based incentives)
+- Mistplay: removed streak pressure from daily rewards - "players were happier without having the pressure"
+- **GoDig Learning**: Don't punish missed days. Streak bonuses create guilt, not joy.
+
+**2025 Mobile Retention Benchmarks**:
+- Average Day 1 retention: 26%
+- Average Day 7 retention: 10%
+- Average Day 30 retention: <4%
+- Top performers (puzzle/casual): 35%+ Day 1, 12%+ Day 7
+- Genshin Impact: 40%+ Day 30 through exploration, events, character upgrades
+- **GoDig Target**: Aim for casual-tier retention (30%+ D1, 12%+ D7) through satisfying core loop
+
 ### Topics for Future Research
 - [x] Analyze Spelunky 2's "secrets and lessons" retention (Session 9)
 - [x] Study Terraria's biome discovery system (Session 10)
@@ -425,10 +489,15 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Research "cozy comfort" signals in home base areas (Session 14)
 - [x] Study Noita physics-based destruction feel (Session 14)
 - [x] Research mobile game "session end" celebrations (Session 14)
-- [ ] Study Satisfactory/Factorio automation for v1.1 features
-- [ ] Analyze Astroneer mining and terrain deformation satisfaction
-- [ ] Research "hidden depths" discovery moments in mining games
-- [ ] Study mobile game "comeback" mechanics after player absence
+- [x] Study Satisfactory/Factorio automation for v1.1 features (Session 15)
+- [x] Analyze Astroneer mining and terrain deformation satisfaction (Session 15)
+- [x] Research "hidden depths" discovery moments in mining games (Session 15)
+- [x] Study mobile game "comeback" mechanics after player absence (Session 15)
+- [ ] Research "eureka moments" in puzzle/exploration games
+- [ ] Study Subnautica's biome progression and discovery pacing
+- [ ] Analyze Hollow Knight's exploration reward structure
+- [ ] Research procedural "set pieces" that feel handcrafted
+- [ ] Study mobile battle pass design for ethical implementation
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -454,6 +523,10 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-depth-unlocks-9826143d` - Depth unlocks new discoveries (Session 14)
 - `GoDig-implement-instant-restart-35c6a217` - Instant restart after emergency rescue (Session 14)
 - `GoDig-implement-numbers-go-5805c161` - Numbers go up visibility and satisfaction (Session 14)
+- `GoDig-implement-discoverable-lore-67646ab4` - Journals, artifacts, abandoned equipment (Session 15)
+- `GoDig-implement-welcome-back-f99d9b0d` - Welcome back rewards for returning players (Session 15)
+- `GoDig-implement-hidden-treasure-9fd6f4c2` - Hidden treasure rooms in procedural caves (Session 15)
+- `GoDig-implement-automation-building-496db9d0` - Auto-Miner Station v1.1 feature (Session 15)
 
 ## How to Use This Task
 

@@ -1,7 +1,7 @@
 # Fun Factor Analysis - Mining Game Core Loop
 
 > Research compilation from game design analysis, forums, and similar games.
-> Last updated: 2026-02-01
+> Last updated: 2026-02-01 (Session 2: Variable Reward Deep Dive)
 
 ## Core Loop Summary
 
@@ -87,6 +87,55 @@
 4. **Artificial waiting/timers** - Respect player time
 5. **Tedious return trips** - Elevator unlocks help late game
 
+## Variable Reward & Discovery Psychology (Session 2 Research)
+
+### Variable Ratio Reinforcement - Why It Works
+
+From [Number Analytics](https://www.numberanalytics.com/blog/mastering-reward-schedules-game-design) and [PMC Research](https://pmc.ncbi.nlm.nih.gov/articles/PMC7882574/):
+
+- **Anticipation produces dopamine**: Counter-intuitively, dopamine is released during ANTICIPATION, not just reward receipt
+- **Uncertainty is compelling**: "Dopamine cells are most active when there is maximum uncertainty"
+- **The perfect trifecta**: Games succeed because they provide anticipation + unpredictability + immediate feedback
+- **Variable > Fixed**: Unpredictable rewards are more engaging than predictable schedules
+
+### Near-Miss Psychology
+
+From [Psychology of Games](https://www.psychologyofgames.com/2016/09/the-near-miss-effect-and-game-rewards/):
+
+- Near-misses activate the same reward systems as actual wins
+- May be MORE motivating than winning or losing
+- Design implication: "Engineer more chances to almost win"
+- In mining context: blocks near ore veins could shimmer subtly
+
+### Return Trip Tension - Similar Games
+
+**Deep Rock Galactic**:
+- "Delightfully tense" extraction phase
+- Limited time to return while fighting enemies
+- Risk/reward dynamic praised by reviewers
+
+**Dome Keeper**:
+- "Mining is meditative, but tension hangs in background"
+- "Each wave forces meaningful decisions - do you push your luck and mine deeper, or play it safe?"
+- Enemy is time itself, not monsters
+
+### Roguelike "One More Run" Psychology
+
+From [Hearthstone](https://hearthstone-decks.net/one-more-run-the-most-addictive-roguelike-pc-games/):
+
+- "Every failure feels like a lesson, every win feels like a triumph"
+- Meta-progression (Rogue Legacy style) reduces sting of death
+- "Just one more run" itch from death + immediate retry
+
+### Game Feel / Juice Best Practices
+
+From [GameAnalytics](https://www.gameanalytics.com/blog/squeezing-more-juice-out-of-your-game-design):
+
+- Juicing = taking working game and adding layers of satisfaction
+- Shooting games: make player feel powerful (larger bullets, recoil, screen shake)
+- Level-up sounds provide "slower-burning feedback on satisfying progress"
+- Synchronized audio-visual cues enhance perceived fairness and satisfaction
+
 ## Sources
 
 - [Game Design Deep Dive: SteamWorld Dig](https://www.gamedeveloper.com/design/game-design-deep-dive-the-digging-mechanic-in-i-steamworld-dig-i-)
@@ -95,6 +144,10 @@
 - [Risk-Reward Cycles in Modern Game Design](https://playercounter.com/blog/why-risk-reward-cycles-dominate-modern-game-design/)
 - [Core Gameplay Loop Design](https://blog.gamedistribution.com/core-gameplay-loop-design-small-tweaks-big-engagement/)
 - [Mining in Games Analysis](http://gamedesignreviews.com/scrapbook/mining-in-games/)
+- [Number Analytics: Mastering Reward Schedules](https://www.numberanalytics.com/blog/mastering-reward-schedules-game-design)
+- [PMC: Loot Boxes and Arousal](https://pmc.ncbi.nlm.nih.gov/articles/PMC7882574/)
+- [Psychology of Games: Near Miss Effect](https://www.psychologyofgames.com/2016/09/the-near-miss-effect-and-game-rewards/)
+- [Gamedeveloper: Compulsion Loops & Dopamine](https://www.gamedeveloper.com/design/compulsion-loops-dopamine-in-games-and-gamification)
 
 ## Implementation Checklist for Fun Factor
 
@@ -117,3 +170,10 @@
 - [ ] Surface home base comfort signals
 - [ ] Risk indicator for deep dives
 - [ ] Rare ladder drops from blocks
+
+### Phase 4: Discovery Polish (P4 - New from Session 2)
+- [ ] Near-miss ore hints (shimmer on blocks adjacent to veins)
+- [ ] Jackpot celebration for rare/legendary finds
+- [ ] First-discovery bonus system
+- [ ] Cave treasure chests
+- [ ] Deep dive tension meter (unified indicator)

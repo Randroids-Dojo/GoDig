@@ -197,6 +197,63 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Mitigation: underground stations charge more but save time
 - **GoDig Application**: Need late-game infrastructure (elevator) to prevent tedium
 
+### Session 12 (2026-02-01)
+
+**Slay the Spire Metrics-Driven Design (GDC Vault)**:
+- Sold 1M+ copies first year, 3M+ on Steam with 97% positive rating
+- "Metrics-driven design and balance" - heavy data usage throughout Early Access
+- Community feedback integral to balance while maintaining game feel
+- Key insight: "Allowing for combos and strong synergies is a hallmark of their design"
+- Weekly updates during 14-month Early Access - iteration matters
+
+**Loop Hero Idle/Active Hybrid Design**:
+- "Brilliant combination of idle design with persistence and run focus of roguelite"
+- "Commit or retreat" method creates meaningful decisions
+- Resource retention varies by exit: die=30%, early retreat=60%, camp=100%
+- Won Best Foreign Mobile Game at 2025 Pegases Awards
+- Criticism: "On the hard side due to RNG and grinding required"
+
+**Vertical Slice Best Practices (GDC 2025)**:
+- "Becoming more important than ever" for publisher attention (Playstack - publishers of Balatro)
+- "Make First 10 Seconds Count" - bold visual, sound tone, player control quickly
+- Player validation data critical: "30-40% completed feedback surveys"
+- "Core mechanic produces repeatable fun across multiple playtests"
+
+**Mining Game "Feel" 2025 Consensus**:
+- Hytale dev: "Mining isn't fun enough" - reworking audiovisual feel
+- Deep Rock Galactic: "digging away and finding caverns is so much fun"
+- SteamWorld Dig: "best platforming mechanics not made by Nintendo"
+- Stardew Valley: time limits + enemies + shortcuts + bombs = variety
+- Key: Discovery and exploration, not just extraction
+
+**Mobile Game Economy First 5 Minutes**:
+- 62% of players abandon due to lack of currency/resources (GameAnalytics)
+- Dual currency (soft/hard) in 78% of successful titles
+- "Layered approach perfect for mobile" - 5 min bus ride or 1 hour session
+- Warning: "Too generous = blast through content, too stingy = frustrated quit"
+- 30% increase in engagement from steady reward tapering
+
+**Motherload Underground Stations**:
+- "Stations at various levels underground so don't have to go all the way back up"
+- They charge more (justified as transport cost)
+- First "screw this game" moment: tedium of return trip
+- Solution appears as REWARD: "underground outpost appears as a reward"
+- **GoDig Application**: Elevator unlock should feel like achievement, not purchase
+
+**Risk vs Reward Psychology**:
+- Board games teach: "thrill of enormous success + devastation of losing all"
+- Push-your-luck is DISTINCT from pure luck - requires meaningful CHOICES
+- Incan Gold: self-balancing (fewer players = greater reward)
+- "Good tension: I wish I could do both but must choose"
+- "Bad frustration: I can't do anything meaningful"
+
+**First Upgrade Hook Psychology**:
+- "First few rounds feel tedious as characters move slowly"
+- "Players who prove patience won't go unrewarded"
+- "Satisfaction of seeing hero improve keeps players glued"
+- Mobile: 40% session length increase when controls mastered in 5 min
+- Critical: First upgrade must be FELT immediately
+
 ### Topics for Future Research
 - [x] Analyze Spelunky 2's "secrets and lessons" retention (Session 9)
 - [x] Study Terraria's biome discovery system (Session 10)
@@ -208,10 +265,12 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Research "cozy mining" games for casual appeal patterns (Session 10)
 - [x] Analyze Cult of the Lamb retention mechanics (Session 11)
 - [x] Study Vampire Survivors for minimalist "just one more" design (Session 11)
+- [x] Analyze Slay the Spire metrics-driven design (Session 12)
+- [x] Study Loop Hero for passive progression ideas (Session 12)
+- [x] Research vertical slice playtesting methodologies (Session 12)
 - [ ] Study Satisfactory/Factorio automation for v1.1 features
-- [ ] Research vertical slice playtesting methodologies
-- [ ] Analyze Slay the Spire deckbuilding progression for upgrade variety
-- [ ] Study loop hero for passive progression ideas
+- [ ] Analyze Deep Rock Galactic extraction phase design in detail
+- [ ] Research "cozy comfort" signals in home base areas
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -227,6 +286,7 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-core-mining-debb2ca2` - Core mining feel validation test (Session 11)
 - `GoDig-implement-anti-grind-ea5b1d1e` - Anti-grind economy balance pass (Session 11)
 - `GoDig-implement-underground-rest-bf86dfe8` - Underground rest stations v1.1 (Session 11)
+- `GoDig-implement-first-5-0e449846` - First 5 minute economy tuning (Session 12 validation)
 
 ## How to Use This Task
 

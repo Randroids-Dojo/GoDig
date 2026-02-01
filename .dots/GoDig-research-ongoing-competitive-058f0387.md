@@ -1,9 +1,9 @@
 ---
 title: "research: Ongoing competitive analysis - mining/digging games"
-status: active
+status: open
 priority: 3
 issue-type: research
-created-at: "\"2026-02-01T07:56:09.847420-06:00\""
+created-at: "2026-02-01T07:56:09.847420-06:00"
 ---
 
 ## Purpose

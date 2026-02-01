@@ -221,7 +221,8 @@ func _collect_game_state() -> String:
 
 	# DataRegistry state
 	if DataRegistry:
-		lines.append("DataRegistry: %d items, %d tools, %d ores loaded" % [
+		lines.append("DataRegistry: %d layers, %d items, %d tools, %d ores loaded" % [
+			DataRegistry.layers.size(),
 			DataRegistry.items.size(),
 			DataRegistry.tools.size(),
 			DataRegistry.ores.size()

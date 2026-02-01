@@ -12,6 +12,12 @@ Add warning when player has <3 ladders while more than 30m deep. Critical tensio
 ## Context
 Research shows 'investment protection' is a core motivator. Players deep underground with few ladders should feel increasing tension, but still have options (wall-jump, forfeit cargo, buy more on surface).
 
+**Relationship to other specs**:
+- This is a SIMPLE, targeted warning (ladders only)
+- Complements `return-to-9ecc2744` (inventory fill warnings)
+- Both may eventually be superseded by `deep-dive-2e1f97dc` (unified tension meter)
+- For MVP: implement this + inventory warnings separately, then unify later
+
 ## Implementation
 1. Track player depth and ladder count in HUD
 2. When depth > 30m AND ladders < 3: show pulsing warning icon

@@ -903,3 +903,70 @@ Research reveals first upgrade timing is CRITICAL for retention. Currently no sp
 - [Push Your Luck - Game Ideas](https://www.gameideas.net/push-your-luck)
 - [Ladder Mechanics in Games - Pav Creations](https://pavcreations.com/climbing-ladders-mechanic-in-unity-2d-platformer-games/)
 - [Video Games vs Ladders Analysis - Parry Everything](https://parryeverything.com/2023/01/31/video-games-vs-ladders/)
+
+## Session 8 Continued: Mr. Mine and Idle Mining Analysis
+
+### What Makes Mr. Mine Addictive
+
+From [Mr. Mine Blog](https://blog.mrmine.com/what-are-idle-mining-games-and-why-are-they-soaddictive/) and [Genre Analysis](https://blog.mrmine.com/mining-game-spotlight-mr-mine-and-the-reinvention-of-the-idle-genre/):
+
+**The "Click, Earn, Boost" Loop**:
+- Initial active engagement (clicking/digging)
+- Automation tools that accumulate resources passively
+- Upgrades that boost production dramatically
+- Creates satisfying optimization gameplay
+
+**Depth-Based Surprises**:
+- Mr. Mine ties major features to specific depth milestones
+- "Surprises trigger at specific depths" - caves, rare minerals, creatures
+- Unlike games that just "increase numbers," new CONTENT unlocks
+- Each layer adds NEW mechanics, not just harder versions
+
+**Fast Satisfaction Curve**:
+- "Feels satisfying right away within minutes"
+- "You don't need to wait long to see results"
+- This fast start keeps new players interested
+- Matches our 5-minute first upgrade target
+
+### Hybrid Active/Passive Design
+
+Mr. Mine's key differentiator:
+- Can actively click to speed up mining
+- Can also automate and walk away
+- "Does both" - appeals to different play styles
+
+**GoDig Application**:
+- Core: Active mining (not idle)
+- Future (v1.1+): Automation buildings for passive income
+- Current: Offline earnings already implemented (1 coin/min)
+
+### Idle Miner Tycoon's Progression Design
+
+From [Mr. Mine Comparison](https://blog.mrmine.com/idle-miner-tycoon-vs-mr-mine/):
+
+- 5 mines per continent, 8 continents total = 40 progression goals
+- "Unlocking new levels step by step brings satisfaction"
+- Encourages effort to see business grow gradually
+
+**GoDig Application**: Our 7 layers + biome variations provides similar progression structure. Each layer should feel like a new "continent" with unique challenges.
+
+### Key Insight: Depth Milestones as Content Gates
+
+Mr. Mine succeeds because depth isn't just a number - it's a **content unlock system**:
+- 100m: First cave system
+- 250m: New enemy type
+- 500m: Special ore unlocks
+- etc.
+
+**GoDig Implementation Gap**: We have layer transitions, but need more "surprise" moments between layers. Consider:
+- Hidden treasure chests at random depths
+- First encounter with new ore type = celebration
+- Cave discovery = mini-event
+- Depth records = personal achievement
+
+### Sources (Session 8 Continued)
+
+- [What Are Idle Mining Games and Why Are They Addictive - Mr. Mine](https://blog.mrmine.com/what-are-idle-mining-games-and-why-are-they-soaddictive/)
+- [Mr. Mine Genre Reinvention - Mr. Mine](https://blog.mrmine.com/mining-game-spotlight-mr-mine-and-the-reinvention-of-the-idle-genre/)
+- [Top Idle Mining Games 2026 - Mr. Mine](https://blog.mrmine.com/top-idle-mining-clicker-games-to-play-in-2025/)
+- [Idle Miner Tycoon vs Mr. Mine - Mr. Mine](https://blog.mrmine.com/idle-miner-tycoon-vs-mr-mine/)

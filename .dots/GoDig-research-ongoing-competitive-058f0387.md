@@ -144,6 +144,59 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Mine is Life: 2025 game jam entry - fresh competition emerging
 - **Competitive Position**: GoDig's ladder-based risk system is unique differentiator
 
+### Session 11 (2026-02-01)
+
+**Vampire Survivors - Gambling Psychology Applied Successfully**:
+- Creator Luca Galante applied gambling industry experience to game design
+- Result: "distils the essence of compelling, just-one-more-go game design"
+- PENS Model: Games fulfill competence (power/mastery) and autonomy (freedom)
+- Minimal input (directional only) but maximum feedback (constant visual rewards)
+- **GoDig Application**: Our tap-to-dig is simple; feedback (particles, sounds, toasts) must be rich
+
+**Mining Game Grindiness - The Player Feedback Spectrum**:
+- Keep on Mining (2025): "dopamine-inducing early, repetitive mid-game" - pacing issue
+- Deep Rock Galactic Survivor: "best loop mechanically" but exponential scaling ruins late game
+- Super Mining Mechs: "If digging isn't satisfying by itself, the game isn't for you"
+- Hytale: Developer publicly stated mining "isn't fun enough" - they're fixing it
+- Key insight: Mining must be inherently satisfying BEFORE any systems/upgrades
+
+**What Makes Mining Satisfying (Forum Consensus)**:
+- Deep Rock Galactic: "digging away and finding caverns etc is so much fun"
+- Stardew Valley: time limits + enemies + shortcuts + bombs = variety
+- SteamWorld Dig 2: "frequently mentioned as standout" for upgrade feel
+- **Common thread**: Discovery and exploration, not just extraction
+
+**Cult of the Lamb - Two-Loop Retention**:
+- Dungeon crawling feeds base building, base building motivates dungeons
+- Forgiving death: lose "a little bit of progress" not everything
+- "Brilliant entry point to roguelites" - accessibility praised
+- **GoDig Application**: Our surface/underground loops feed each other similarly
+
+**Push-Your-Luck: Deep Sea Adventure Model**:
+- Players share single oxygen supply - greed affects everyone
+- Taking treasure = slowing return + draining shared resource
+- "Incredible moment of anticipation" when decisions revealed
+- **GoDig Application**: Our ladder depletion is gradual like oxygen - BETTER than sudden bust
+
+**Mobile Session Reality (2025 Data)**:
+- Median session: 4-6 minutes (not 15-30 as often assumed)
+- Players average 4-6 sessions daily, 3-5 min each
+- 80% of players churn by Day 1 - retention is critical
+- First session 10-20 minutes is vital for F2P success
+- **GoDig Application**: Design for 5-minute complete loops, hook within 2 minutes
+
+**SteamWorld Dig 2 Addiction Analysis**:
+- "Gameplay loop of dungeon crawler - little progress each outing, always gathering rewards"
+- "Price/benefits of items well-tuned" - creates "just a few more coins" feeling
+- "Impeccably paced - new powers when comfortable" - timing matters
+- Upgrade impact: "Tier 1 vs Tier 3 should feel like night and day"
+
+**Motherload Tedium Problem**:
+- "Repetition of going up and down gets increasingly tedious"
+- "Best part is upgrading, everything in between is grind"
+- Mitigation: underground stations charge more but save time
+- **GoDig Application**: Need late-game infrastructure (elevator) to prevent tedium
+
 ### Topics for Future Research
 - [x] Analyze Spelunky 2's "secrets and lessons" retention (Session 9)
 - [x] Study Terraria's biome discovery system (Session 10)
@@ -153,10 +206,12 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Analyze Hades 2 early access feedback on progression pacing (Session 10)
 - [x] Study Balatro's variable reward system (Session 10)
 - [x] Research "cozy mining" games for casual appeal patterns (Session 10)
+- [x] Analyze Cult of the Lamb retention mechanics (Session 11)
+- [x] Study Vampire Survivors for minimalist "just one more" design (Session 11)
 - [ ] Study Satisfactory/Factorio automation for v1.1 features
 - [ ] Research vertical slice playtesting methodologies
-- [ ] Analyze Cult of the Lamb retention mechanics
-- [ ] Study Vampire Survivors for minimalist "just one more" design
+- [ ] Analyze Slay the Spire deckbuilding progression for upgrade variety
+- [ ] Study loop hero for passive progression ideas
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -169,6 +224,9 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-post-launch-37e1e607` - Remote economy tuning framework (Session 10)
 - `GoDig-implement-ore-discovery-5f8102ab` - Balatro-style ore micro-celebrations (Session 10)
 - `GoDig-implement-block-adjacent-ef98f7e1` - Near-miss ore shimmer hints (Session 10)
+- `GoDig-implement-core-mining-debb2ca2` - Core mining feel validation test (Session 11)
+- `GoDig-implement-anti-grind-ea5b1d1e` - Anti-grind economy balance pass (Session 11)
+- `GoDig-implement-underground-rest-bf86dfe8` - Underground rest stations v1.1 (Session 11)
 
 ## How to Use This Task
 

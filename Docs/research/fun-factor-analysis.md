@@ -1,7 +1,7 @@
 # Fun Factor Analysis - Mining Game Core Loop
 
 > Research compilation from game design analysis, forums, and similar games.
-> Last updated: 2026-02-01 (Session 10: Balatro, Haptics, One-Hand Controls, Hades 2)
+> Last updated: 2026-02-01 (Session 11: Vampire Survivors Psychology, Session Design, Push-Your-Luck)
 
 ## Core Loop Summary
 
@@ -1366,3 +1366,280 @@ Based on this research, these gaps need attention:
 - [Idle Game Engagement 2025 - Gamigion](https://www.gamigion.com/idle/)
 - [Mobile Monetization Trends 2025 - ContextSDK](https://contextsdk.com/blogposts/monetization-trends-in-mobile-gaming-whats-shaping-2025)
 - [Dome Keeper Feedback - Steam Community](https://steamcommunity.com/app/1637320/discussions/0/)
+
+## Session 11 Research: Vampire Survivors Psychology, Grindiness Balance, Session Design
+
+### Vampire Survivors - Gambling Psychology Applied to Games
+
+From [The Conversation](https://theconversation.com/vampire-survivors-how-developers-used-gambling-psychology-to-create-a-bafta-winning-game-203613) and [GameDeveloper](https://www.gamedeveloper.com/design/vampire-survivors-development-sounds-like-an-open-source-fueled-fever-dream):
+
+**Creator's Background**:
+- Luca Galante applied previous gambling industry experience to game design
+- Result: "distils the essence of compelling, just-one-more-go game design"
+- Foundation for an entire new sub-genre ("survivors-like")
+
+**The PENS Model - Player Needs Satisfaction**:
+- Games fulfill psychological needs: Competence, Autonomy, Relatedness
+- Vampire Survivors efficiently addresses two: competence (power/mastery) and autonomy (freedom)
+- "Built around multilayered rewards" - constant drip of satisfaction
+
+**Minimal Input, Maximum Feedback**:
+- Only requires directional controls - attacking is automatic
+- Yet the screen is constantly filled with feedback (enemies dying, numbers flying)
+- "Deceptively simple structure creates a dance between player and enemy hordes"
+
+**GoDig Application**:
+- Our core input is simple too (tap to dig)
+- But feedback should be rich: particles, sounds, ore discovery toasts
+- Competence: getting better at ladder placement and route planning
+- Autonomy: choosing when to return, what to mine, how to upgrade
+
+### Mining Game Grindiness: The Player Feedback Spectrum
+
+From [AllGameNoFilter](https://allgamenofilter.com/2025/08/02/game-review-keep-on-mining-a-chill-grind-that-eventually-hits-bedrock/), [Steam Discussions](https://steamcommunity.com/app/2830150/discussions/0/4695657936515530098/), and [ResetEra](https://www.resetera.com/threads/more-satisfying-mining-in-games.1128900/):
+
+**Keep on Mining Feedback (2025)**:
+- Early game: "dopamine-inducing unlocks and upgrades"
+- Mid-game problem: "repetitive and grind-heavy, limited strategic depth"
+- Design flaw: "Some talents increase rock durability, effectively weakening the player"
+- Learning: Never make upgrades feel like downgrades
+
+**Deep Rock Galactic: Survivor**:
+- "One of the best game loops mechanically" - mining, shooting, extraction
+- Early game "feels very satisfying til 10 to 15 finished goals"
+- Problem: "Special minerals increase massively per stat level"
+- Result: "Very annoying and boring grind slowly destroying the fantastic game loop"
+
+**Super Mining Mechs**:
+- "The game is very grindy indeed, that's the nature of the core gameplay loop"
+- Key insight: "If you don't feel that the digging aspect of the game is satisfying or fun by itself, I don't think the game is for you"
+- Our core digging MUST be satisfying before adding any systems on top
+
+**Hytale Mining Rework**:
+- Developer publicly stated he is "dissatisfied with the current experience"
+- Goal: "More fun, more satisfying, and less grindy"
+- Key quote: "If mining isn't fun, the entire gameplay loop starts feeling like a repetitive grind instead of an adventure"
+
+**What Makes Mining Satisfying (Forum Consensus)**:
+- Deep Rock Galactic: "digging away and finding caverns etc is so much fun"
+- Stardew Valley: "time limit, enemies to battle, shortcuts, better loot deeper"
+- Stardew bombs: "blowing up massive amounts of rocks at once is always satisfying"
+- SteamWorld Dig 2: "frequently mentioned as standout"
+- Astroneer: "digging and finding caverns" - exploration discovery
+
+**GoDig Application**:
+- Mining must be inherently satisfying BEFORE upgrades
+- Avoid exponential scaling that makes late-game feel grindy
+- Each upgrade should feel like power increase, never weakening
+- Discovery (finding ores, caves) is what makes digging fun
+
+### Cult of the Lamb - Roguelite Retention Through Base Building
+
+From [Escapist Magazine](https://www.escapistmagazine.com/cult-of-the-lamb-review-in-3-minutes-a-delightful-roguelite-base-managing-hybrid/), [Inverse](https://www.inverse.com/gaming/cult-of-the-lamb-review), and [GameRant](https://gamerant.com/roguelites-best-progression-systems-respect-your-free-time/):
+
+**Two-Loop Design**:
+- Dungeon crawling (roguelite combat) + cult management (town building)
+- "Joy of watching the cult expand cleverly hooks into the core loop"
+- Players go into dungeons to gather materials for cult buildings/upgrades
+
+**Forgiving Death**:
+- "Dying in roguelites is usually a massive pain point"
+- Cult of the Lamb: deity resurrects you, only lose "a little bit of dungeon progress"
+- Materials partially retained - "still plenty to go around when managing cult"
+
+**Accessibility Praised**:
+- "Brilliant entry point to roguelites"
+- Base management gives purpose to combat runs
+- Combat gives resources for base management
+- Neither loop works without the other
+
+**GoDig Application**:
+- Our surface buildings parallel the cult base
+- Forfeit Cargo = forgiving death (lose cargo, keep tools)
+- Mining gives resources for upgrades/buildings
+- Upgrades give tools for deeper mining
+- Two loops feed each other
+
+### Push-Your-Luck: Creating Tension Through Decision Points
+
+From [Board Game Design Course](https://boardgamedesigncourse.com/game-mechanics-sometimes-you-want-to-push-your-luck/) and [BoardGameGeek](https://boardgamegeek.com/boardgamemechanic/2661/push-your-luck):
+
+**The Core Mechanic**:
+- "Decide between settling for existing gains OR risking them for further rewards"
+- Key distinction: This is NOT pure luck - it's meaningful CHOICES
+- "The thrill of potentially enormous success, and the devastation of losing it all"
+
+**Self-Balancing Design (Incan Gold)**:
+- Fewer players staying = greater potential reward
+- Risk naturally increases as rewards do
+- Players self-regulate based on risk tolerance
+
+**Creating Tension Without Fatigue**:
+- "Grant bonus points based on number of players already dropped out"
+- Race mechanics or "wall of doom closing in" ratchets up tension
+- But constant max pressure is exhausting (Dome Keeper feedback)
+
+**Deep Sea Adventure - Shared Resource Model**:
+- Players share a single submarine with single oxygen tank
+- "Unique blend of cooperation and competition"
+- Taking treasure = slowing return + draining shared oxygen
+- Creates "incredible moment of anticipation" when decisions are revealed
+
+**GoDig Application**:
+- Our "bust" = running out of ladders while deep
+- Unlike sudden bust (dice roll), ours is gradual (ladder count depleting)
+- This is BETTER for tension - feel it building like oxygen depleting
+- Surface visits must break the tension (unlike Dome Keeper's constant pressure)
+
+### Mobile Session Design: The 4-6 Minute Reality
+
+From [GameRefinery](https://www.gamerefinery.com/3-things-to-know-about-session-length-restriction-when-designing-a-free2play-game/), [GameDeveloper](https://www.gamedeveloper.com/business/how-first-session-length-impacts-game-performance), and [BestAppsToday](https://bestappstoday.com/trending/mobile-gaming-trends/):
+
+**Actual Session Length Data (2025)**:
+- Median session: ~4 min casual, ~5 min mid-core, ~6 min classic/puzzle
+- Top 25% achieve 7-9 minutes per session
+- Most mobile gaming happens in brief 5-15 min sessions
+- "Way to pass time in a bus or queue, not whole afternoon"
+
+**Session Frequency**:
+- Mobile gamers average 4-6 sessions daily
+- Typical: 3-5 sessions of 3-6 minutes each per day
+- Total daily play: 15-30 minutes spread across sessions
+
+**First Session Critical**:
+- Most games lose 20% of installs within 2 minutes from first launch
+- Ensuring first session is 10-20 minutes is vital for F2P success
+- Median Day-1 retention only 18-20% (80% churn!)
+- Day 7: 3-6%, Day 30: under 1-2%
+
+**GoDig Application**:
+- Design for 5-minute complete loops (dig -> sell -> upgrade consideration)
+- Full inventory should trigger natural stopping point at ~4-6 minutes
+- First session must hook within 2 minutes
+- Provide satisfying stopping points, don't trap players in long sessions
+
+### Motherload's Enduring Design Lessons
+
+From [TVTropes](https://tvtropes.org/pmwiki/pmwiki.php/VideoGame/Motherload), [PlayStation Blog](https://blog.playstation.com/2013/11/08/super-motherload-on-ps4-exploring-the-story-and-game-modes/), and [Game Informer](https://gameinformer.com/games/super_motherload/b/playstation4/archive/2013/11/22/digging-deep-shallow-play.aspx):
+
+**Core Loop Excellence**:
+- "Dig -> Collect -> Sell -> Refuel/Repair -> Upgrade -> Dig Deeper"
+- "Getting money to get more stuff, which you then use to get more money"
+- Four years of concepting and refinement
+
+**Tension Through Resources**:
+- "True fear when low on fuel flying up to the surface"
+- Fuel tank upgrades: "On Hardcore this is a matter of life and death"
+- Players report 5-hour sessions despite simple mechanics
+
+**The Tedium Problem**:
+- "Repetition of going up and down so many times gets increasingly tedious"
+- "Little changes about the gameplay over time"
+- "Best part is fun of upgrading, everything in between is a grind"
+
+**Mitigation - Stations**:
+- "Stations at various levels underground so you don't have to go all the way back up"
+- They charge more (justified as transport cost)
+- Teleportation items: cheap + risky vs expensive + safe
+
+**GoDig Application**:
+- Our ladder system replaces fuel as limiting resource
+- Unlike fuel (depletes passively), ladders require ACTIVE decisions
+- This is BETTER: player feels agency in every placement
+- Need later-game infrastructure (elevator) to prevent tedium
+- Consider underground shop outposts for convenience (at premium)
+
+### SteamWorld Dig 2's Addictive Progression
+
+From [ResetEra](https://www.resetera.com/threads/steamworld-dig-2-why-is-it-so-addicting.33518/), [Game Informer](https://gameinformer.com/games/steamworld_dig_2/b/switch/archive/2017/09/28/steamworld-dig-2-review.aspx), and [VideoChums](https://videochums.com/review/steamworld-dig-2):
+
+**Why It's Addicting**:
+- "Gameplay loop of a dungeon crawler like Diablo or Etrian Odyssey"
+- "Only make a little bit of progress in each outing, but every time you gather rewards"
+- "Price/benefits of items are well-tuned"
+- "Bite-sized forays that always bring you closer to some objective or purchase"
+
+**Upgrade Feel**:
+- "Progression feels great and equipment upgrades have real weight"
+- "Considerable impact on gameplay and controls"
+- Drilling powerup "cuts digging to a fraction of time"
+- "Tier 1 vs Tier 3 should feel like night and day"
+
+**The "Just One More Trip" Feeling**:
+- Players regularly making trips "not necessarily to make progress"
+- But "because they were getting really close to a new upgrade"
+- The anticipation of the upgrade drives continued play
+
+**Pacing Excellence**:
+- "Impeccably paced, with new powers opening up just when comfortable"
+- "World is fun to move around, characters charming"
+- "Process of gradually increasing efficiency is airtight"
+
+**GoDig Application**:
+- Our upgrade pricing must create this "just a few more coins" feeling
+- Each trip should feel like progress toward next purchase
+- Upgrades must have dramatic gameplay impact
+- Pacing: new abilities/unlocks should arrive before boredom
+
+### Implementation Priority Refinement (Session 11)
+
+Based on accumulated research, these are the KEY insights for fun factor:
+
+#### Core Loop Fundamentals (Non-Negotiable)
+| Principle | Implementation |
+|-----------|----------------|
+| Mining must be fun WITHOUT upgrades | Test core digging satisfaction first |
+| Upgrades must feel like power increases | Never make player feel weaker |
+| Session target: 4-6 minutes complete loop | Inventory size controls pacing |
+| Tension rhythm: vary high/low | Surface visits = genuine relief |
+| First upgrade in < 5 minutes | Critical retention gate |
+
+#### The Tension Curve Model
+```
+TENSION
+   ^
+   |                    * Full inventory, deep, 1 ladder
+   |                  **
+   |                 *    Low ladder warning
+   |               *
+   |             *   Inventory 60%
+   |           *
+   |         *
+   |       *
+   |     *   First ore found (excitement spike)
+   |   *
+   | *   Start dive (5 ladders = confidence)
+---+----------------------------------------> TIME
+   |
+   |  * Back on surface (RELIEF - this must be real)
+   v
+RELIEF
+```
+
+Key Insight: Unlike Dome Keeper where "pressure is always max," GoDig must have genuine relief moments on surface. The contrast makes both states meaningful.
+
+#### New Gaps Identified
+
+| Gap | Priority | Rationale |
+|-----|----------|-----------|
+| Core mining feel validation | P0 | "If digging isn't satisfying, loop fails" |
+| Underground shop outpost | P3 | Reduces late-game tedium (v1.1) |
+| Upgrade power feel test | P1 | "Tier 1 vs Tier 3 = night and day" |
+| Anti-grind economy balance | P1 | Avoid exponential scaling trap |
+
+### Sources (Session 11)
+
+- [Vampire Survivors Gambling Psychology - The Conversation](https://theconversation.com/vampire-survivors-how-developers-used-gambling-psychology-to-create-a-bafta-winning-game-203613)
+- [Vampire Survivors Development - GameDeveloper](https://www.gamedeveloper.com/design/vampire-survivors-development-sounds-like-an-open-source-fueled-fever-dream)
+- [Keep on Mining Review - AllGameNoFilter](https://allgamenofilter.com/2025/08/02/game-review-keep-on-mining-a-chill-grind-that-eventually-hits-bedrock/)
+- [Super Mining Mechs Grind Discussion - Steam](https://steamcommunity.com/app/2830150/discussions/0/4695657936515530098/)
+- [Satisfying Mining Discussion - ResetEra](https://www.resetera.com/threads/more-satisfying-mining-in-games.1128900/)
+- [Cult of the Lamb Review - Escapist](https://www.escapistmagazine.com/cult-of-the-lamb-review-in-3-minutes-a-delightful-roguelite-base-managing-hybrid/)
+- [Push Your Luck Design - Board Game Design Course](https://boardgamedesigncourse.com/game-mechanics-sometimes-you-want-to-push-your-luck/)
+- [Deep Sea Adventure - BoardGameTips](https://boardgame.tips/deep-sea-adventure)
+- [Mobile Session Length Data - GameRefinery](https://www.gamerefinery.com/3-things-to-know-about-session-length-restriction-when-designing-a-free2play-game/)
+- [First Session Impact - GameDeveloper](https://www.gamedeveloper.com/business/how-first-session-length-impacts-game-performance)
+- [Motherload Analysis - TVTropes](https://tvtropes.org/pmwiki/pmwiki.php/VideoGame/Motherload)
+- [SteamWorld Dig 2 Addiction - ResetEra](https://www.resetera.com/threads/steamworld-dig-2-why-is-it-so-addicting.33518/)
+- [Mobile Onboarding - Adrian Crook](https://adriancrook.com/best-practices-for-mobile-game-onboarding/)
+- [FTUE Definition - Mobile Game Doctor](https://mobilegamedoctor.com/2025/05/30/ftue-onboarding-whats-in-a-name/)

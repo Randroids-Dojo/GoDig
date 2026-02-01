@@ -126,13 +126,22 @@ func _ready() -> void:
 
 func _load_all_layers() -> void:
 	## Load all layer resources from preloaded array
-	for resource in LAYER_RESOURCES:
+	print("[DataRegistry] Loading %d layer resources..." % LAYER_RESOURCES.size())
+	for i in range(LAYER_RESOURCES.size()):
+		var resource = LAYER_RESOURCES[i]
+		if resource == null:
+			push_error("[DataRegistry] Layer resource %d is null!" % i)
+			continue
 		if resource is LayerData:
 			layers.append(resource)
 			_layers_by_id[resource.id] = resource
+			print("[DataRegistry] Loaded layer: %s" % resource.id)
+		else:
+			push_error("[DataRegistry] Layer resource %d is not LayerData: %s" % [i, typeof(resource)])
 
 	# Sort by min_depth for proper depth lookup
 	layers.sort_custom(func(a, b): return a.min_depth < b.min_depth)
+	print("[DataRegistry] Sorted %d layers by depth" % layers.size())
 
 
 ## Get a layer by its ID

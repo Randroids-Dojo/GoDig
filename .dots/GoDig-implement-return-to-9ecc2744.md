@@ -8,6 +8,9 @@ created-at: "2026-02-01T01:08:48.725086-06:00"
 
 Add visual/audio tension as inventory fills - drives the core loop return.
 
+**NOTE: This is a SIMPLER alternative to `GoDig-implement-deep-dive-2e1f97dc` (unified tension meter).**
+Implement this first for MVP, then upgrade to unified meter later.
+
 ## Research Findings
 - 'Investment Protection' - full inventory creates natural tension
 - Dome Keeper: 'panicked adrenaline' when timing returns

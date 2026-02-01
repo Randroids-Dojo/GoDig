@@ -1,12 +1,16 @@
 ---
 title: "implement: Risk indicator for deep dives"
 status: open
-priority: 2
+priority: 3
 issue-type: task
 created-at: "2026-02-01T01:09:30.102005-06:00"
 ---
 
 Visual indicator showing risk level as player ventures deeper without return path.
+
+**NOTE: This may be superseded by `GoDig-implement-deep-dive-2e1f97dc` (unified tension meter).**
+Consider implementing as part of the unified meter, or as a simpler MVP alternative.
+Priority lowered to P3 - implement inventory warnings first (`return-to-9ecc2744`).
 
 ## Research Findings
 - 'Risk/Reward Gradient' - deeper = more danger but better rewards

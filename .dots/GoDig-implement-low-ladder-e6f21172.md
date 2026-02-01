@@ -36,3 +36,10 @@ Research shows 'investment protection' is a core motivator. Players deep undergr
 - [ ] Warning clears when reaching surface
 - [ ] Warning clears when getting more ladders
 - [ ] Audio cue is subtle, not annoying
+
+## Related Specs
+
+**NOTE**: This is a SIMPLIFIED version of the ladder warning. For the full depth-aware version with scaling formula, see:
+- `GoDig-implement-depth-aware-00ae8542` (Depth-aware ladder warning system)
+
+For MVP, implement THIS spec first (simple fixed thresholds). The depth-aware version is a P2 polish enhancement.

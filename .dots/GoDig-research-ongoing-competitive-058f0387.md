@@ -1003,15 +1003,153 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Tension is key: "If no chance of failure, no tension. If success impossible, players avoid risk."
 - **GoDig Validation**: Our ladder depletion creates perfect progressive risk curve
 
+### Session 21 (2026-02-01)
+
+**UnderMine: Action-Adventure Roguelike Mining Analysis**:
+- Blend of combat and dungeon crawling with RPG progression - "mine gold, die, upgrade, try again"
+- Core loop praised as "addictive" - "even through routine failure players couldn't stop thinking about next deep dive"
+- Progression system provides safety net: "spend gold to improve and set up your next character"
+- Hundreds of items including relics, potions, blessings, and curses that combo and stack
+- Post-game Othermine: true roguelike mode without base game progression - extended content for mastery players
+- Criticism: struggles to differentiate from peers; RNG can throw frustrating combinations
+- **GoDig Differentiation**: Our ladder economy creates unique risk tension UnderMine lacks
+
+**SpaceRat Miner (Playdate): Fast-Paced Mobile Mining**:
+- Core loop: dig deep, collect gems, dodge falling rocks, run from lava, beat bosses
+- Procedurally generated map each run ensures variety
+- Equipment progression: improve gear to go further each run
+- Controls: A button to mine, D-Pad to move, crank for drill recharge
+- Platform constraint (Playdate) forced streamlined mobile-friendly design
+- **GoDig Validation**: Simple controls (tap to mine) with depth-based progression works for mobile
+
+**Cryptical Path: Rogue-Builder Mechanic (January 2025 Release)**:
+- "World's first action roguelite builder" - players place rooms to build their own dungeon path
+- Core innovation: purchase rooms with currency earned from combat, place them adjacent to current position
+- Strategic dynamism: "not at mercy of game as your own thriftiness"
+- Push-your-luck integration: "decide whether worth building across to another outcrop for possible rewards, or heading straight to boss"
+- Developer quote: "empowering players to combine tactical planning with unpredictable nature of roguelites"
+- Fully optimized for Steam Deck - validates handheld/mobile potential
+- **GoDig Learning**: Player agency over path creates investment. Our surface building system could offer similar player-directed progression.
+
+**Retromine: Card-Based Mining Progression**:
+- Deckbuilding roguelike where cards enable digging, movement, and resource gathering
+- Dig with cards, manage deck order, survive cave collapses
+- Dual resource tension: scorium (survival) vs ore (upgrades) - must balance both
+- Shop between runs: buy new cards AND remove basic cards to streamline deck
+- Card types: Resource Cards, Tool Cards, Action Cards, Utility Cards (game-changing)
+- Synergy discovery is core satisfaction - combining walkie-talkie + minecart for movement multiplier
+- Discard pile mechanics prevent infinite loops while enabling combo play
+- **GoDig Inspiration**: Card/item synergies create discovery moments. Our pickaxe + inventory upgrades could create similar combo satisfaction.
+
+**Hollow Mine: Mining + Crafting + Combat Integration**:
+- Fully destructible environments - dig tunnels, set traps, flank enemies
+- 120 items, 9 unlockable character classes with unique abilities
+- Five unique biomes with procedurally generated rooms
+- 40-minute+ run length with fast-paced action
+- Resources enable crafting weapons, spells, and potions
+- Mining wagons, bombs, and biome-specific traps as strategic tools
+- **GoDig Contrast**: We're combat-free, which is simpler but requires mining itself to carry all satisfaction. Their destructible environments validate our block-breaking visual polish priority.
+
+**Push-Your-Luck Mathematical Balance**:
+- Formula: (points if correct × success probability) - (points lost × failure probability) = expected value
+- If expected value > 0, mathematically continue; if < 0, bank
+- Key insight: 50% success per step = 25% chance of two successful steps. Players perceive 25% as "very low"
+- Balance rule: Risk and reward must BOTH increase during turn duration
+- Beginning: low risk, low reward - most continue
+- Middle: moderate risk, greater reward - should be rewarded for stopping here
+- End: high risk, highest reward - only for committed players
+- Self-balancing mechanisms: simultaneous turns, reduced hazards after hits, increasing rewards for persistence
+- **GoDig Application**: Our ladder depletion creates gradual risk increase. Consider adding depth-based ore value multipliers for reward scaling.
+
+**FTUE First 60 Seconds Hook (2025 Best Practices)**:
+- FTUE = first 60 seconds + first 15 minutes (kinesthetic learning)
+- "First 60 seconds determine whether users will come back"
+- Worst games lose 46% by minute 5; best lose only 17%
+- Key principle: "first thing players need is to PLAY! Don't make them click/choose/sign in"
+- Start with hand-crafted level introducing only core concepts
+- Common mistake: explaining full value up front overwhelms new players
+- Weave narrative lens early so players view gameplay through story context
+- D1 weak = onboarding problem; D1 solid but D7 tanks = early content lacks depth
+- **GoDig FTUE Target**: First tap breaks first block within 5 seconds. First ore within 30 seconds. First sell within 60 seconds.
+
+**Tension and Relief Design Patterns**:
+- Tension creates physical effects: increased heart rate, adrenaline, fight-or-flight response
+- Overcoming tension creates strong dopamine release - reinforces engagement
+- "Safe zones" allow player to return to point where designers can ramp them up smoothly
+- Blue signals safety, green promotes relaxation - ideal for recovery zones
+- Tension-relief cycles: alternate between challenging and relaxing sections
+- Pacing control creates rhythm and flow
+- Player agency: allow players to manage their own tension and relief
+- **GoDig Surface Design**: Surface must be CLEARLY safe (warm colors, enclosed shop interiors, no threats visible). Underground = increasing unfamiliarity and tension.
+
+**Resource Scarcity Economy Design**:
+- Economy should alternate between abundance and scarcity
+- Abundance periods reward players; scarcity prompts planning or purchases
+- Too many resources = lose value; too scarce = stuck or forced to spend money
+- Dual-tier currency standard: soft currency (earned easily) + hard currency (usually paid)
+- Connect reward value to ease of completion + scarcity + synergies
+- "Sinks" (upkeep, degradation) balance "faucets" (rewards, drops)
+- Avoid grinding burnout: player shouldn't face extreme scarcity of needed resources
+- **GoDig Economy**: Ladders are our scarcity lever. Must be available enough to feel achievable but scarce enough to create tension.
+
+**Vertical vs Horizontal Progression**:
+- Vertical = SCALE (bigger numbers, more powerful stats)
+- Horizontal = OPTIONS (more tools, abilities, playstyles)
+- Vertical strength: clear picture of getting stronger
+- Vertical weakness: treadmill feeling - power matched by difficulty, nothing changes
+- Horizontal strength: promotes strategic thinking and player expression
+- Horizontal weakness: useless or overwhelming options harm experience
+- Best approach: combine both - horizontal options with vertical improvements
+- Auto-balance systems: scale player back in lower zones to prevent power creep
+- **GoDig Progression Mix**: Pickaxe tiers (vertical), inventory upgrades (vertical), new item types (horizontal), automation unlocks (horizontal v1.1)
+
+**Inventory Management as Tension Design**:
+- Limits create meaningful choices: what to keep, what to drop?
+- "Is it worth the risk to grab that rare loot or head back to camp and unload?"
+- Resident Evil briefcase: inventory as logic puzzle - efficient packing
+- Inventory adds strategy and depth - makes you think, plan, organize
+- **GoDig Full Inventory Mechanic**: When inventory full, player faces decision: keep digging (can't collect) or return with current haul. Natural push-your-luck tension.
+
+**Death Penalty Design in Roguelikes**:
+- Permadeath places "heavy burden on designers to ensure every element is balanced"
+- Key insight: permadeath works when there are NOT sudden-death situations
+- Softer implementations: retain money/items with repercussions for failure
+- Rogue Legacy inheritance: death is necessity for progress, not punishment
+- Blazblue Entropy Effect: take two buffs to next run - death becomes opportunity
+- Co-op revival: dead players become ghosts with limited gameplay; revive via chests or bosses
+- **GoDig Emergency Rescue Refinement**: Frame rescue as "lesson learned" opportunity. Show what was lost + what was gained (map knowledge, ore locations remembered).
+
+**Dome Keeper Multiplayer Update (2025-2026)**:
+- Multiplayer most requested feature since day 1
+- Developer warning: adding multiplayer to singleplayer game is "unreasonable amount of work"
+- Expected release: early 2026 after December 2025 playtest
+- Competitive Versus Mode planned: two teams sharing single big mine
+- No public lobbies - join codes + Steam friends only to avoid cheaters
+- Before multiplayer: focused on replayability content ("A Keeper's Duty" update)
+- **GoDig Learning**: Focus on single-player core loop perfection first. Multiplayer is v2+ feature if ever.
+
+**Currency/Sell Animation Psychology**:
+- "Currency animations stitch action into experience - draw cause-effect loop between action and reward"
+- Beatstar: coins flip and spin, reflecting light when entering balance
+- "Classically conditioned injection of dopamine" - similar to Pavlov's bell
+- Currency animations play hundreds of thousands of times during player lifecycle - polish is critical
+- Sound + visual sync essential: music feels "like reverberating from subwoofer"
+- **GoDig Sell Animation Priority**: This is one of most-repeated moments. Needs satisfying coin cascade + sound + brief celebration. Each sale should feel rewarding.
+
 ### Topics for Future Research
-- [ ] Analyze Cryptical Path's "build the dungeon" mechanic for player agency
-- [ ] Research Retromine's card-based mining progression system
-- [ ] Study UnderMine's action-adventure roguelike mining blend
-- [ ] Analyze SpaceRat Miner for fast-paced mobile mining roguelite patterns
-- [ ] Study Hollow Mine's mining + crafting + combat integration
+- [x] Analyze Cryptical Path's "build the dungeon" mechanic for player agency (Session 21)
+- [x] Research Retromine's card-based mining progression system (Session 21)
+- [x] Study UnderMine's action-adventure roguelike mining blend (Session 21)
+- [x] Analyze SpaceRat Miner for fast-paced mobile mining roguelite patterns (Session 21)
+- [x] Study Hollow Mine's mining + crafting + combat integration (Session 21)
 - [ ] Research idle game "return animation" patterns for surface arrival
 - [ ] Analyze Windblown's "Endless Mode" for post-game content ideas
 - [ ] Study how Core Keeper balances XP gain vs efficient tools
+- [ ] Research "inventory Tetris" satisfaction patterns (Resident Evil, Diablo)
+- [ ] Study mobile game "abundance/scarcity" cycle timing
+- [ ] Analyze vertical/horizontal progression balance in successful mobile games
+- [ ] Research Dome Keeper multiplayer design when released (Q1 2026)
+- [ ] Study Cryptical Path player reviews for "rogue-builder" reception
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -1063,6 +1201,10 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-risk-indicator-b563b726` - Risk indicator for deep dives (Session 20)
 - `GoDig-implement-mining-streak-1de66c2b` - Mining streak/combo subtle feedback (Session 20)
 - `GoDig-implement-subtle-tension-0b659daa` - Subtle tension audio layer (Session 20)
+- `GoDig-implement-depth-based-1cb81c32` - Depth-based ore value multiplier for risk/reward scaling (Session 21)
+- `GoDig-implement-full-inventory-8ac866d7` - Full inventory decision moment design (Session 21)
+- `GoDig-implement-emergency-rescue-aa6fc471` - Emergency rescue "lesson learned" framing (Session 21)
+- `GoDig-implement-surface-warm-3b40fce7` - Surface warm colors and cozy visual distinction (Session 21)
 
 ## How to Use This Task
 

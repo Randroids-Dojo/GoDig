@@ -3,7 +3,7 @@ title: "research: Ongoing competitive analysis - mining/digging games"
 status: active
 priority: 3
 issue-type: research
-created-at: "\"\\\"\\\\\\\"2026-02-01T07:56:09.847420-06:00\\\\\\\"\\\"\""
+created-at: "\"\\\"\\\\\\\"\\\\\\\\\\\\\\\"2026-02-01T07:56:09.847420-06:00\\\\\\\\\\\\\\\"\\\\\\\"\\\"\""
 ---
 
 ## Purpose
@@ -1222,6 +1222,102 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Hytale: rope for high places, ladders when rope can't reach ceiling
 - **GoDig Differentiation**: Our ladders are consumable resources creating push-your-luck tension. This is unique.
 
+### Session 23 (2026-02-01)
+
+**Mining Core Loop - The Fun Debate (GameDev.net Consensus)**:
+- Divergent view: "Digging is not the fun part of these games, it's merely the means to get resources to craft cool things"
+- Counter view: "Something satisfying about digging, discovery, and using those discoveries to enable more digging"
+- SteamWorld Dig specifically called out: "it's quite satisfying just to dig dig dig, without any further concerns"
+- Motherload appeal: "surviving in dangerous environment while accumulating wealth, constantly making decisions about risks vs rewards"
+- Classic tension: "My air tank is just about gone, I need to return to surface, but there's two diamond ores right there"
+- **GoDig Critical Insight**: The FUN comes from the DECISION moment, not the digging itself. Ladder scarcity creates those decisions.
+
+**Failure Design: Incremental vs Instant Loss**:
+- "Instant death won't be fun" - players need warning and agency
+- Better: "incremental losses that players can choose to quit from"
+- Players should "see their losses increase step by step, not in huge jumps"
+- "Implicit choice of returning to base and cutting losses or pressing onward"
+- **GoDig Application**: Low ladder warning should appear BEFORE crisis. Player chooses to return or push luck. Emergency rescue = fail state, not instant loss.
+
+**Loop Hero Retreat System - Gold Standard**:
+- Three outcomes: Die (lose 70%), Early retreat (lose 40%), Camp return (keep 100%)
+- Creates meaningful decision: "cut your losses" is genuine strategic choice
+- "Breaks down the structure of a roguelike into a series of small loops"
+- Accessibility praised: "wonderfully approachable" for roguelike newcomers
+- Resources fuel meta-progression - every run adds permanent value
+- **GoDig Application**: Model our surface return as "camp" (keep all), emergency rescue as "retreat" (lose %), death as worst outcome.
+
+**Push-Your-Luck Mechanics (BoardGameGeek Deep Dive)**:
+- Definition: "Decide whether to stop or keep going... get too greedy, end up with nothing"
+- Critical: Push-your-luck is DISTINCT from pure luck - requires meaningful CHOICES
+- Self-balancing: "Fewer players still in = greater potential reward"
+- Best examples 2025: Quacks of Quedlinburg (bag-building + push), Flip 7 (Spiel des Jahres nominee)
+- Deep Sea Adventure: shared oxygen creates social tension - our solo version avoids blame
+- **GoDig Advantage**: Our ladder economy creates push-your-luck with SOLO responsibility. Player only blames themselves.
+
+**First Upgrade Psychological Hook (F2P Design)**:
+- "High conversion item" = the virtual item most likely to incentivize first engagement
+- Example: "Double Coin" boost - single $2 purchase, permanent effect, massive perceived value
+- "After player drops first dollar, they are more likely to stick around"
+- Builder unlocks in base builders: "effectively doubling progression speed"
+- Key: First upgrade must have MASSIVE perceived value, even if small actual cost
+- **GoDig Application**: First pickaxe upgrade should feel transformative. Not 10% better - 50%+ noticeable improvement.
+
+**Upgrade Instant Feel - Why It Matters**:
+- Dark Souls: "immensely satisfying to return to areas that kicked your ass once levelled up"
+- "You really feel the journey from fragile weakling to god slayer"
+- Upgrades must be FELT, not just seen in stats
+- Visual changes matter: "Bioshock guns start average, end up sci-fi looking"
+- One hit vs multiple hits creates "night and day" feel difference
+- **GoDig Priority**: When player buys Copper Pickaxe, first dig should feel DRAMATICALLY different.
+
+**Mobile Retention Benchmarks 2025**:
+- Day 1 retention: ~18-20% median (80% churn!)
+- Day 7 retention: ~10%
+- Day 30 retention: <4%
+- Top performers: 35%+ D1, 12%+ D7
+- Critical: First session determines retention fate
+- **GoDig Target**: Beat casual benchmark (30%+ D1) through satisfying core loop.
+
+**Dopamine and Anticipation (Core Loop Science)**:
+- Dopamine created during ANTICIPATION, released upon reward
+- Three-part cycle: anticipation → activity → reward
+- "The excitement before the reward that gets us hooked"
+- Unpredictable rewards fuel endless engagement cycle
+- Casual games: small reward every 30-90 seconds, major accomplishment every 10-15 minutes
+- **GoDig Timing**: Ore discovery = small dopamine hit (30-90 sec cadence). Surface sell = major hit (3-5 min cadence).
+
+**Currency Animation Excellence**:
+- "Currency flows from claim button to wallet's UI location"
+- Beatstar example: "coins flip and spin, reflecting light when entering balance"
+- Each currency type should have unique sound profile
+- Brawl Stars: "currency pauses mid-animation, ensuring players admire it"
+- Hundreds of thousands of plays during player lifecycle - benefits compound
+- **GoDig Sell Animation**: When selling ore, coins should flow visibly to wallet. Sound should be satisfying. Pause for player to "admire" earnings.
+
+**Tension UI Indicators (Mobile Best Practices)**:
+- Progress bars create urgency and excitement
+- Red = danger/urgency, Green = positive/safe
+- Low health indicators: "flashing red around peripheries" or character visual changes
+- Timers add urgency without punishing casual play
+- Haptic feedback "vastly under-utilized" on mobile
+- **GoDig Ladder Warning**: Implement visual urgency indicator when ladders low + depth high. Red pulsing border, or ladder icon flashing.
+
+**Depth Progression Models (Terraria/Starbound/Under A Rock)**:
+- Terraria: "Spelunking is key to gameplay... many great weapons and item drops littered below surface"
+- Starbound layer system: Subsurface → Shallow Underground → Mid Underground → Deep Underground → Core
+- Each layer has unique monsters, blocks, microdungeons, plants
+- Under A Rock 2026: "Resources can now be harvested underground, giving caves value beyond exploration"
+- **GoDig Layer Design**: Our 7 layers should each have distinct visual identity, unique ore types, and layer-specific surprises.
+
+**Climbing/Ladder Satisfaction (2025 Analysis)**:
+- "Climbing isn't just a mechanic anymore - it's evolving into a genre"
+- "There's something truly satisfying about climbing to survive, explore or relax"
+- Death Stranding: ladders are physics objects, can be deployed horizontally or as ramps
+- Jusant: individual hand control, stamina system, physics-based movement
+- Half-Life Alyx: realistic manual ladder climbing in VR
+- **GoDig Ladder Feel**: Ladder placement should feel significant. Brief animation, satisfying sound, visible progress indicator.
+
 ### Topics for Future Research
 - [x] Analyze Cryptical Path's "build the dungeon" mechanic for player agency (Session 21)
 - [x] Research Retromine's card-based mining progression system (Session 21)
@@ -1241,6 +1337,10 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [ ] Study Cryptical Path player reviews for "rogue-builder" reception
 - [ ] Analyze Dig Dig Boom full release reception when available
 - [ ] Research DRG: Rogue Core player feedback when Early Access launches Q2 2026
+- [ ] Study Jusant's climbing stamina system for ladder/traversal inspiration
+- [ ] Research Cairn's climbing feedback when full release available (2026)
+- [ ] Analyze Starbound's underground layer variety system in depth
+- [ ] Study Under A Rock's cave resource harvesting design when released
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -1299,6 +1399,10 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-juice-tiered-system` - Two-tier juice: subtle mining vs discovery celebration (Session 22)
 - `GoDig-implement-pickaxe-feel-distinct` - Each pickaxe tier visually/aurally distinct (Session 22)
 - `GoDig-implement-scavenged-equipment` - Rare equipment finds underground (inspired by DRG:RC) (Session 22)
+- `GoDig-implement-retreat-vs-2b7f49b2` - Loop Hero-style retreat preserves more resources than death (Session 23)
+- `GoDig-implement-visual-ladder-3119af69` - Visual urgency indicator for low ladder count (Session 23)
+- `GoDig-implement-upgrade-instant-a98283f7` - Upgrades must be FELT immediately after purchase (Session 23)
+- `GoDig-implement-coin-flow-4c1b405e` - Coin flow sell animation with satisfying sound cascade (Session 23)
 
 ## How to Use This Task
 

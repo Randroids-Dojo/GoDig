@@ -2168,3 +2168,153 @@ From [ContextSDK](https://contextsdk.com/blogposts/gaming-push-strategy-overcomi
 - [FTUE vs Onboarding - Mobile Game Doctor](https://mobilegamedoctor.com/2025/05/30/ftue-onboarding-whats-in-a-name/)
 - [Roguelike Mastery - Grid Sage Games](https://www.gridsagegames.com/blog/2025/08/designing-for-mastery-in-roguelikes-w-roguelike-radio/)
 - [Gaming Push Strategy - ContextSDK](https://contextsdk.com/blogposts/gaming-push-strategy-overcoming-the-63-5-industry-opt-in-challenge)
+
+## Session 18 Research: 5-Minute Loop, Upgrade Psychology, and Juice Calibration
+
+### Mobile Session Length Reality (2025-2026 Data)
+
+From [Udonis](https://www.blog.udonis.co/mobile-marketing/mobile-games/session-length) and [Quantumrun](https://www.quantumrun.com/consulting/average-gaming-session-length-by-age-group/):
+
+- **Median mobile session**: 5-6 minutes (not 15-30 as developers often assume)
+- **Top 25% performers**: 8-9 minutes average session
+- **Multiple sessions**: Players average 4-6 sessions daily
+- **Median daily playtime**: 22 minutes total across all sessions
+- This directly contradicts the "epic 30-minute session" assumption
+
+**GoDig Critical Insight**: Each complete loop (dig-sell-upgrade) MUST fit in 5 minutes. Design for 4-6 daily sessions, not one long session.
+
+### FTUE Best Practices 2025 (Comprehensive)
+
+From [GameAnalytics](https://www.gameanalytics.com/blog/tips-for-a-great-first-time-user-experience-ftue-in-f2p-games/) and [Unity](https://unity.com/how-to/10-first-time-user-experience-tips-games):
+
+- "Just a few minutes — or less — to hook a player"
+- **Worst games lose 46% by minute 5**; best lose only 17%
+- "Core loop (action + reward + progression) should complete within 3-5 minutes"
+- "88% of users return after experiencing a satisfying cycle"
+- Progressive disclosure: "Hide systems not needed for first 15 minutes"
+- "No ads during FTUE - ads frustrate and distract from onboarding"
+- D1 retention improvements: "Improving FTUE can increase D1 retention by up to 50%"
+
+**GoDig Implementation**: FTUE must complete one full loop in under 3 minutes: dig → find ore → return → sell → see upgrade path.
+
+### SteamWorld Dig 2 Perfect Upgrade Pacing
+
+From [Medium/Gandheezy](https://gandheezy.medium.com/steamworld-dig-2-axby-review-695d7db73ed5) and [Metacritic User Reviews](https://www.metacritic.com/game/steamworld-dig-2/user-reviews/):
+
+- "Upgrade system is perfectly balanced so you're never over or under powered"
+- Each tool "serves a very specific purpose: to help you keep digging"
+- "Reviewers had trouble choosing among available upgrades, because each has noticeable effect"
+- Creates "just one more trip" mentality to hit next tier
+- Cog system: Collectibles that customize tools with mods - adds player agency
+- Key insight: **Upgrade should solve problem player JUST faced, not future problems**
+
+**GoDig Learning**: Each upgrade should directly address a frustration the player just experienced. Track player pain points and surface relevant upgrades.
+
+### Dome Keeper Success Analysis (90% Positive, 17K Reviews)
+
+From [RetroStyleGames](https://retrostylegames.com/blog/why-dome-keeper-so-good/):
+
+- "Simple core loop but very addicting"
+- "Music, presentation, and gameplay loop are all 10/10"
+- "Feeling of getting back to base with a second to spare" = core satisfaction
+- Variety through unlocks: extra domes, game modes, starting modifiers
+- Criticism: "Building same things in same order" - need more build variety
+
+**GoDig Advantage**: Our surface expansion (multiple shops) and pickaxe variety should provide more decision variety than Dome Keeper.
+
+### Game Juice Calibration (Over-Juicing Warning)
+
+From [Wayline](https://www.wayline.io/blog/the-perils-of-over-juicing) and [BloodMoon Interactive](https://www.bloodmooninteractive.com/articles/juice.html):
+
+- "When used correctly, screen shake creates engaging game feel; if overused, players feel nauseous"
+- "Reserve intense effects for special occasions" - mining is CONSTANT
+- **Screen shake**: 0.1-0.3 seconds, randomize direction, ease out smoothly
+- **Particles**: "Start basic, layer complexity for important events"
+- **Hitstop**: Both attacker and target pause for impact feel
+- "Juice can't fix bad design" - core loop must work without any juice first
+- Accessibility: "Implement options to customize intensity of visual/audio effects"
+
+**GoDig Implementation**: Subtle feedback for regular mining, reserved juice for ore discovery and upgrades. Always include option to reduce effects.
+
+### Keep Digging (January 2026): New Competitor
+
+From [Steam](https://store.steampowered.com/app/3585800/Keep_Digging/):
+
+- Multiplayer co-op mining game reaching 1,000m depth across 10 layers
+- No combat, pure exploration focus - validates our cozy mining approach
+- Up to 8 players, cross-progression between solo and multiplayer
+- Equipment upgrades to level 20, over 8 upgradeable technologies
+- "Hybrid approach - dig vertically until exciting depth, then explore sideways"
+
+**GoDig Competitive Position**: Our ladder-based risk system remains unique differentiator. Keep Digging lacks the tension mechanic that makes GoDig's push-your-luck compelling.
+
+### Addictive Core Loop Anatomy (2025 Consensus)
+
+From [Mr. Mine Blog](https://mrmine.com/blog/what-are-idle-mining-games-and-why-are-they-soaddictive//) and [NotebookCheck](https://www.notebookcheck.net/Fun-grind-and-addictive-progression-these-games-motivate-with-more-than-just-the-endgame.1086973.0.html):
+
+- **Core loop**: dig-collect-upgrade-repeat is inherently compelling
+- **Discovery thrill**: "Rare finds aren't just for fun - they help unlock stronger tools"
+- **Low time commitment**: Perfect for mobile - "very little required time" yet engaging
+- **Constant progress**: "The more you play, the more efficient and powerful you become"
+- **Idle element appeal**: Progression even when not actively playing (for hybrid games)
+
+**GoDig Validation**: Our active mining + ladder risk differentiates us from idle games while keeping the core loop addictive.
+
+### Two-Tier Juice System Design
+
+Based on Session 18 research synthesis:
+
+**Tier 1: Subtle Constant Feedback (Mining)**
+- Tiny dust particles on block break (2-4 particles)
+- Soft "crunch" sound with slight pitch variation
+- Micro screen shake (0.5-1 pixel, optional)
+- Quick brightness flash on broken block (50ms)
+
+**Tier 2: Reserved Discovery Juice (Ore/Upgrades)**
+- Burst of colored particles matching ore type (8-12 particles)
+- Distinct "discovery" chime + ore-specific sound
+- Medium screen shake (2-3 pixels, 100ms)
+- Glow effect radiating from ore
+- HUD popup with ore name + value
+- Haptic feedback (short burst on mobile)
+
+**Tier 3: Jackpot Moments (Rare/Legendary)**
+- Full particle explosion (20+ particles)
+- Unique legendary sound effect
+- Dramatic screen shake (4-5 pixels, 200ms)
+- Screen flash with ore color tint
+- Large floating text with celebration words
+- Strong haptic feedback
+- Brief time slowdown (100ms)
+
+### Implementation Priorities Update (Session 18)
+
+| Feature | Priority | Rationale |
+|---------|----------|-----------|
+| 5-minute complete loop | P0 | Median session is 5-6 min; loop must fit |
+| Upgrade solves frustration | P1 | SteamWorld Dig 2's "noticeable effect" pattern |
+| Two-tier juice system | P1 | Prevent fatigue, reserve impact for discoveries |
+| Juice accessibility options | P2 | Allow players to customize effect intensity |
+
+### Implementation Specs Created (Session 18)
+
+- `GoDig-implement-5-minute-655909a4` - 5-minute complete loop guarantee
+- `GoDig-implement-upgrade-solves-92eac94a` - Upgrade solves recent frustration pattern
+- `GoDig-implement-subtle-mining-7540eb96` - Subtle mining vs reserved discovery juice
+- `GoDig-implement-game-juice-8a70d20e` - Game juice accessibility options
+- `GoDig-research-keep-digging-512417e2` - Keep Digging competitive analysis
+
+## Sources (Session 18)
+
+- [Mobile Session Length - Udonis](https://www.blog.udonis.co/mobile-marketing/mobile-games/session-length)
+- [Gaming Session Length by Age - Quantumrun](https://www.quantumrun.com/consulting/average-gaming-session-length-by-age-group/)
+- [FTUE Best Practices - GameAnalytics](https://www.gameanalytics.com/blog/tips-for-a-great-first-time-user-experience-ftue-in-f2p-games/)
+- [FTUE Tips - Unity](https://unity.com/how-to/10-first-time-user-experience-tips-games)
+- [SteamWorld Dig 2 Review - Gandheezy](https://gandheezy.medium.com/steamworld-dig-2-axby-review-695d7db73ed5)
+- [SteamWorld Dig 2 - Metacritic User Reviews](https://www.metacritic.com/game/steamworld-dig-2/user-reviews/)
+- [Why Dome Keeper Is Good - RetroStyleGames](https://retrostylegames.com/blog/why-dome-keeper-so-good/)
+- [Over-Juicing Warning - Wayline](https://www.wayline.io/blog/the-perils-of-over-juicing)
+- [Game Juice Guide - BloodMoon Interactive](https://www.bloodmooninteractive.com/articles/juice.html)
+- [Keep Digging - Steam](https://store.steampowered.com/app/3585800/Keep_Digging/)
+- [Idle Mining Games Addiction - Mr. Mine Blog](https://mrmine.com/blog/what-are-idle-mining-games-and-why-are-they-soaddictive//)
+- [Fun Grind Progression - NotebookCheck](https://www.notebookcheck.net/Fun-grind-and-addictive-progression-these-games-motivate-with-more-than-just-the-endgame.1086973.0.html)

@@ -685,11 +685,109 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Research Nine Sols combat and exploration balance (Session 17)
 - [x] Analyze Dead Cells' biome variety and path choice system (Session 17)
 - [x] Study mobile game notification timing for ethical engagement (Session 17)
+### Session 18 (2026-02-01)
+
+**Keep Digging (January 2026): New Competitor Analysis**:
+- Multiplayer co-op mining game reaching 1,000m depth across 10 layers
+- No combat, pure exploration focus - validates our cozy mining approach
+- Up to 8 players, cross-progression between solo and multiplayer
+- Equipment upgrades to level 20, over 8 upgradeable technologies
+- "Hybrid approach - dig vertically until exciting depth, then explore sideways"
+- Steam release by Wild Dog (Tokyo-based studio)
+- **GoDig Competitive Position**: Our ladder-based risk system is still unique; their depth (1000m) matches our mid-game. We differentiate on the tension/risk mechanics.
+
+**Push-Your-Luck Game Design (BoardGameGeek/Incan Gold)**:
+- Self-balancing mechanic: "fewer players still in = greater potential reward"
+- Double hazard card = bust mechanic creates anticipation
+- Deck manipulation (removing hazard after bust) creates hope for next round
+- **GoDig Application**: Our ladders naturally create self-balancing - the deeper you go with fewer ladders, the more committed you are to the rewards.
+
+**The Forge (Roblox): Luck-Based Mining Analysis**:
+- Luck stat as percentage modifier for rare ore encounters
+- When mining a rock, base item pool determined first, then luck modifies probabilities
+- Creates "lucky streak" feeling when rare ores appear
+- **GoDig Consideration**: Could add "lucky pickaxe" modifier or depth-based luck bonuses for variety.
+
+**What Makes Mining Games Addictive (2025 Consensus)**:
+- **Core loop**: dig-collect-upgrade-repeat is inherently compelling
+- **Discovery thrill**: "Rare finds aren't just for fun - they help unlock stronger tools"
+- **Low time commitment**: Perfect for mobile - "very little required time" yet engaging
+- **Constant progress**: "The more you play, the more efficient and powerful you become"
+- **Idle element appeal**: Progression even when not actively playing (for hybrid games)
+- **GoDig Validation**: Our active mining + ladder risk differentiates us from idle games while keeping the core loop addictive.
+
+**Idle Miner Tycoon Economy Lessons**:
+- Three-tier bottleneck system: miners → elevator → transporter
+- "Balancing these three ensures steady growth. Over-invest in one = bottleneck"
+- New player trap: "dump coins into miners, leaving elevators overwhelmed"
+- Prestige timing: "Early = prioritize upgrades. Mid = prestige more. Late = prestige is primary engine"
+- **GoDig Application**: Our single-resource (coins) approach is simpler, but we could add subtle bottlenecks (inventory space, pickaxe durability) for interesting decisions.
+
+**Mobile Game Session Length Reality (2025-2026 Data)**:
+- **Median mobile session**: 5-6 minutes (not 15-30 as developers often assume)
+- **Top 25% performers**: 8-9 minutes average
+- **Multiple sessions**: Players average 4-6 sessions daily
+- **Median daily playtime**: 22 minutes total across all sessions
+- **GoDig Target**: Each complete loop (dig-sell-upgrade) should fit in 5 minutes. Design for 4-6 daily sessions.
+
+**FTUE Best Practices 2025 (GameAnalytics/Unity/Udonis)**:
+- "Just a few minutes — or less — to hook a player"
+- Worst games lose 46% by minute 5; best lose only 17%
+- "Core loop (action + reward + progression) should complete within 3-5 minutes"
+- "88% of users return after experiencing a satisfying cycle"
+- Progressive disclosure: "Hide systems not needed for first 15 minutes"
+- **First session 10-20 minutes is vital** for F2P retention
+- "No ads during FTUE - ads frustrate and distract from onboarding"
+- D1 retention improvements: "Improving FTUE can increase D1 retention by up to 50%"
+- **GoDig Implementation**: FTUE must complete one full loop in under 3 minutes: dig → find ore → return → sell → see upgrade path.
+
+**SteamWorld Dig 2: Perfect Upgrade Pacing Analysis**:
+- "Upgrade system is perfectly balanced so you're never over or under powered"
+- Each tool "serves a very specific purpose: to help you keep digging"
+- "Reviewers had trouble choosing among available upgrades, because each has noticeable effect"
+- Creates "just one more trip" mentality to hit next tier
+- Cog system: Collectibles that customize tools with mods - adds player agency
+- **GoDig Learning**: Each upgrade should solve a specific frustration the player just experienced. Pickaxe too slow? Here's faster one. Inventory too small? Here's expansion.
+
+**Dome Keeper: Why It Works (90% Positive, 17K Reviews)**:
+- "Simple core loop but very addicting"
+- "Music, presentation, and gameplay loop are all 10/10"
+- "Feeling of getting back to base with a second to spare" = core satisfaction
+- Variety through unlocks: extra domes, game modes, starting modifiers
+- Criticism: "Building same things in same order" - need more build variety
+- **GoDig Advantage**: Our surface expansion (multiple shops) and pickaxe variety should provide more decision variety than Dome Keeper.
+
+**Game Juice Best Practices 2025 (Over-Juicing Warning)**:
+- "When used correctly, screen shake creates engaging game feel; if overused, players feel nauseous"
+- "Reserve intense effects for special occasions" - mining is CONSTANT
+- **Screen shake**: 0.1-0.3 seconds, randomize direction, ease out smoothly
+- **Particles**: "Start basic, layer complexity for important events"
+- **Hitstop**: Both attacker and target pause for impact feel
+- "Juice can't fix bad design" - core loop must work without any juice first
+- Accessibility: "Implement options to customize intensity of visual/audio effects"
+- **GoDig Implementation**: Subtle feedback for regular mining, reserved juice for ore discovery and upgrades. Always include option to reduce effects.
+
+**New Indie Mining Games 2025-2026**:
+- **Mashina** (July 2025): Stop-motion visual style, mining robot, upgrade equipment
+- **ITER** (2025): Mining roguelite with 2D-3D dimension shifting
+- **Hold the Mine** (Gamescom 2025): Roguelike wave-based mining + base-building + card-battler
+- **Keep Digging** (Jan 2026): Co-op exploration to 1000m depth
+- **Kin and Quarry** (Jan 2026): Mining focus, recent release
+- **GoDig Competitive Landscape**: Competition growing but mobile-focused ladder-risk games remain rare.
+
+### Topics for Future Research
+- [x] Analyze Keep Digging (Jan 2026) for depth/layer design (Session 18)
+- [x] Study push-your-luck board game balance mechanics (Session 18)
+- [x] Research mobile session length reality vs assumptions (Session 18)
+- [x] Analyze FTUE best practices 2025 (Session 18)
+- [x] Study SteamWorld Dig 2 upgrade pacing in detail (Session 18)
+- [x] Research game juice over-juicing warnings (Session 18)
 - [ ] Analyze Windblown (Dead Cells devs new roguelike) for co-op mining potential
 - [ ] Study mobile game "offline progress reveal" animation patterns
 - [ ] Research Cogmind's extended game challenges for v1.1 mastery content
 - [ ] Analyze Cryptical Path's "build the dungeon" mechanic for player agency
 - [ ] Study Core Keeper's mining skill progression system
+- [ ] Analyze ITER's 2D-3D dimension shifting for gameplay variety ideas
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -727,6 +825,9 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-distinct-layer-a60843e5` - Dead Cells-style distinct layer identities (Session 17)
 - `GoDig-implement-optional-danger-cc87675c` - Optional high-risk high-reward danger zones (Session 17)
 - `GoDig-implement-ftue-60-94baf4fa` - FTUE: Dig-find-return in first 60 seconds (Session 17)
+- `GoDig-implement-upgrade-solves-frustration-PENDING` - Each upgrade solves specific recent frustration (Session 18)
+- `GoDig-implement-juice-accessibility-PENDING` - Accessibility options for visual/audio intensity (Session 18)
+- `GoDig-implement-5-min-complete-loop-PENDING` - Ensure complete loop fits in 5 minutes (Session 18)
 
 ## How to Use This Task
 

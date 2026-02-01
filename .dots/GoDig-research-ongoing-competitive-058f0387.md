@@ -466,6 +466,96 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Genshin Impact: 40%+ Day 30 through exploration, events, character upgrades
 - **GoDig Target**: Aim for casual-tier retention (30%+ D1, 12%+ D7) through satisfying core loop
 
+### Session 16 (2026-02-01)
+
+**Eureka Moments in Puzzle Games (The Witness Analysis)**:
+- The Witness "breaks traditional rules of puzzle design" yet produces "Aha! moments" when players figure things out
+- Key insight: "Make the puzzle solution a reward for completing a puzzle that does follow rules"
+- Bonfire Peaks DLC cited for "great eureka moments" - short snappy puzzles with discoverable mechanics
+- Öoo: "Simple core mechanic — placing and exploding bombs — then mines so much puzzling gold out of it"
+- Blue Prince: "Love letter to puzzle-solving with many great moments where the game expands in mind-expanding ways"
+- **GoDig Application**: Each new depth layer should introduce a subtle twist that creates "aha" moments - new block types, mechanics, surprises
+
+**Subnautica Depth-Based Progression Model**:
+- Core loop: "find resources/blueprints → craft tools/vehicles → discover new areas → find more powerful tools"
+- Depth tiers create natural gates: 500m default → 900m (Ruby upgrade) → 1300m (Nickel) → 1700m (Kyanite)
+- "Player cannot descend without another technology" - technology unlocks enable physical access
+- PDA messages arrive at specific depths/locations creating "natural breadcrumb trail that feels organic"
+- "Depth as both literal and metaphorical storytelling device" - deeper = more significant revelations
+- "Unlocks narrative progression not through levels but by evaluating player's physical and emotional readiness"
+- Open-ended pacing: "You simply can't do things out of order, because there is no real order"
+- **GoDig Critical Insight**: Our depth progression should mirror Subnautica's model - pickaxe tiers unlock deeper access, but player chooses when to venture
+
+**Hollow Knight Exploration Reward Structure**:
+- Core philosophy: "A lot of these decisions... all built around this sense of discovery"
+- Discovery "doesn't just mean finding 500 flags" - it means "unique sights, unique characters, unique systems"
+- Map system creates dual reward: players earn complete maps through exploration + incomplete maps create "tense yet exhilarating" moments
+- "Collectibles and abilities well placed in far corners of map" - almost every mastered ability rewarded
+- "Impressive amount of secrets, hidden areas and optional content" - replayability through discovery
+- Criticism: "Relatively limited number of main upgrades" can make progression feel sparse
+- Set new metroidvania standard - even Silksong "has to reckon with" Hollow Knight's influence
+- **GoDig Application**: Hidden areas should reward skill mastery. Incomplete map knowledge creates tension that complements ladder economy.
+
+**Procedural + Handcrafted Hybrid Design (2025 Best Practices)**:
+- Spelunky: "Assembles pre-designed rooms according to strict rules ensuring playability"
+- "Each level segment has defined entry and exit points, guaranteeing levels are always completable"
+- "Constraints and careful rule design produce better results than pure randomness"
+- The Binding of Isaac: "Room pool contains thousands of handcrafted designs" with procedural arrangement
+- 2025 trend: "Combining handcrafted areas with procedurally generated ones - best of both worlds"
+- "True challenge is controlling randomness so player feels levels are handcrafted each time"
+- Gen AI 2025: "Levels that adapt, evolve, and never feel the same twice"
+- **GoDig Application**: Use Spelunky-style chunks - handcraft interesting cave formations, special encounters, then procedurally arrange them. Guarantee fun.
+
+**SteamWorld Dig Upgrade Satisfaction Deep Dive**:
+- Core flow: "Enter mine → dig → uncover ore/gems → return to town → sell → upgrade tools"
+- "Better pickaxe digs faster through harder soil" - direct power-to-progress relationship
+- "At the end of each cave, you receive an upgrade... gives very rewarding sense of progression"
+- "How perfectly everything 'clicks' - upgrades introduced at just the right time"
+- Movement satisfaction: "wall-jump, running, run-jump, high-jump, double-jump make moving around very satisfying"
+- SteamWorld Dig 2: "Impeccably paced, new powers opening up just when comfortable with current loadout"
+- "Difference in capabilities between start and end is monumental" - dramatic power curve
+- Criticism: "Game ends right when starting to feel at peak of power" - pacing issue
+- **GoDig Learning**: Time upgrade unlocks to when player has mastered previous tier. The moment of "wait, I can do THAT now?" is pure satisfaction.
+
+**Risk vs Reward Tension Design (2025)**:
+- "Risk = potential for negative outcomes (losing currency, health, progress). Reward = benefits motivating those risks"
+- "Creates compelling tension: players weigh possibility of loss against allure of significant gains"
+- Risk/Reward "naturally creates Tension as players may fail to gain Rewards they want"
+- Mobile 2025: "More strategic than previous years. Biggest titles reward long-term planning, careful timing"
+- "Excessively risky scenarios may discourage casual players, while overly safe experiences lack excitement"
+- Variable payout: "Safer, smaller rewards in early levels → more volatile, lucrative opportunities as players progress"
+- **GoDig Application**: Early depths should be low-risk with reliable rewards. Deeper = higher variance but better expected value. Let player CHOOSE risk level.
+
+**Psychology of Grinding & Satisfaction**:
+- Self-Determination Theory (SDT): "Drives intrinsic motivation — doing something for the pure joy of it"
+- Three needs: autonomy (freedom), competence (mastery), relatedness (connection)
+- Grinding "extends far beyond mechanical progression" - shaped by "operant conditioning, variable reward anticipation"
+- "Immediate feedback for player actions enhances user experience" - visual/audio cues critical
+- Dopamine release: "Each time user achieves something exciting, brain releases dopamine"
+- Hedonic engagement: "Active involvement and immersion into activity intended for pure enjoyment"
+- Liberation: "Feeling of release, freeing individual from everyday restrictions"
+- **GoDig Application**: Mining itself must be the fun, not just the rewards. Each dig needs satisfying feedback. Upgrades amplify already-fun activity.
+
+**"One More Run" Psychology (Rogue Legacy Model)**:
+- "Run length, moveset, and outside progression must blend carefully to create can't-put-down game"
+- Rogue Legacy: First to establish "winning formula for macro progression outside individual runs"
+- Loss aversion: "Couldn't keep all gold before next run, forcing hard choices on what to spend"
+- "Players improve over time, eventually reaching point of exploring with dangerous levels of confidence"
+- Quick runs critical: "Games where runs are pretty quick help because you can go from doing great to dead fast"
+- Some roguelikes integrate narrative into loop (Returnal cited for smart delivery)
+- **GoDig Application**: Our emergency rescue = "death" but keeps some progress. Player learns, improves, digs deeper next run. 5-minute loops enable "one more."
+
+**Mobile Battle Pass Ethical Implementation (2025)**:
+- Standard structure: Free track + Premium track, Tiers unlocked with XP/missions, 30-60 day reset
+- 2025 evolution: "AI-personalized missions, dynamic reward tracks, tiered passes for different spending levels"
+- Modern trend: "Resource-rich incentives over decorations" - materials, gacha tickets, direct progression help
+- Ethical concerns: "Time-limited rewards create FOMO, compelling excessive time or money investment"
+- Younger players "especially vulnerable" to psychological pressure
+- Call of Duty Mobile: "Community widely regards its battle pass as best deal in game" - F2P friendly model
+- Best practice: "Challenges should be achievable by merely playing the game for a while"
+- Regulatory landscape: FTC settlement with Epic Games for "dark patterns" - transparency requirements increasing
+- **GoDig v1.1**: If implementing battle pass, make free track genuinely valuable. Premium = cosmetics + convenience, not power.
+
 ### Topics for Future Research
 - [x] Analyze Spelunky 2's "secrets and lessons" retention (Session 9)
 - [x] Study Terraria's biome discovery system (Session 10)
@@ -493,11 +583,16 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Analyze Astroneer mining and terrain deformation satisfaction (Session 15)
 - [x] Research "hidden depths" discovery moments in mining games (Session 15)
 - [x] Study mobile game "comeback" mechanics after player absence (Session 15)
-- [ ] Research "eureka moments" in puzzle/exploration games
-- [ ] Study Subnautica's biome progression and discovery pacing
-- [ ] Analyze Hollow Knight's exploration reward structure
-- [ ] Research procedural "set pieces" that feel handcrafted
-- [ ] Study mobile battle pass design for ethical implementation
+- [x] Research "eureka moments" in puzzle/exploration games (Session 16)
+- [x] Study Subnautica's biome progression and discovery pacing (Session 16)
+- [x] Analyze Hollow Knight's exploration reward structure (Session 16)
+- [x] Research procedural "set pieces" that feel handcrafted (Session 16)
+- [x] Study mobile battle pass design for ethical implementation (Session 16)
+- [ ] Analyze Animal Well's minimalist discovery design
+- [ ] Study Rain World's emergent ecosystem and player agency
+- [ ] Research Nine Sols combat and exploration balance
+- [ ] Analyze Dead Cells' biome variety and path choice system
+- [ ] Study mobile game notification timing for ethical engagement
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -527,6 +622,10 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-welcome-back-f99d9b0d` - Welcome back rewards for returning players (Session 15)
 - `GoDig-implement-hidden-treasure-9fd6f4c2` - Hidden treasure rooms in procedural caves (Session 15)
 - `GoDig-implement-automation-building-496db9d0` - Auto-Miner Station v1.1 feature (Session 15)
+- `GoDig-implement-depth-specific-9e7ded37` - Depth-specific eureka mechanics (Session 16)
+- `GoDig-implement-risk-gradient-62fd403a` - Risk gradient scaling by depth (Session 16)
+- `GoDig-implement-handcrafted-cave-812a8dfa` - Spelunky-style pre-designed cave chunks (Session 16)
+- `GoDig-implement-exploration-fog-ba6cb120` - Exploration fog with map reveal (Session 16)
 
 ## How to Use This Task
 

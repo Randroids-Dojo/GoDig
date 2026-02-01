@@ -3,7 +3,7 @@ title: "research: Ongoing competitive analysis - mining/digging games"
 status: active
 priority: 3
 issue-type: research
-created-at: "\"2026-02-01T07:56:09.847420-06:00\""
+created-at: "\"\\\"2026-02-01T07:56:09.847420-06:00\\\"\""
 ---
 
 ## Purpose
@@ -254,6 +254,74 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Mobile: 40% session length increase when controls mastered in 5 min
 - Critical: First upgrade must be FELT immediately
 
+### Session 13 (2026-02-01)
+
+**Deep Sea Adventure: The Gold Standard for Shared Resource Tension**:
+- Core mechanic: All players share a single oxygen supply (starts at 25)
+- Taking treasure = oxygen drains faster + movement slows (double punishment for greed)
+- "If one dives too deep, other divers' lives will be on the line"
+- Social tension: "convincing people not to take treasure if you're too far from submarine"
+- Chain reaction: "if one person picks up then everyone else almost always follows"
+- **GoDig Application**: Our ladder depletion creates similar gradual tension, but SOLO (no social blame). This is BETTER for mobile - player only blames themselves.
+
+**The Return Journey Problem (Dome Keeper / Motherload)**:
+- Dome Keeper: "Mining underground is strangely peaceful... but tension always hangs in background"
+- Motherload: "Repetition of going up and down gets increasingly tedious"
+- Solution: Gadgets that make return easier (Lift, Teleporter) unlock as REWARDS
+- Dome Keeper Lift: "cut down time to go from mines to dome exponentially"
+- **GoDig Critical Insight**: The return trip is where FUN can die. Must balance:
+  1. Early game: Wall-jump + ladders = skill expression, feels clever
+  2. Mid-game: Elevator unlock = reward for investment
+  3. Late-game: Teleport scroll = emergency bailout (premium feel)
+
+**Push-Your-Luck Board Game Design (BoardGameGeek Analysis)**:
+- Core tension: "stop or keep going - get too greedy, end up with nothing"
+- Self-balancing: "fewer players still in = greater their potential reward"
+- Best games: Quacks of Quedlinburg (bag-building + push), Flip 7 (Spiel des Jahres 2025 nominee)
+- Deep Sea Adventure: 2015 Game Market Prize winner - validates shared tension model
+- **GoDig Unique Angle**: Solo ladder economy = all tension, no social blame
+
+**SteamWorld Dig Pickaxe Satisfaction Analysis**:
+- "When you get that newest upgrade so you can dig through each block with only one hit, it's immensely satisfying"
+- Sound design critical: "tinkling noise becomes clearer with higher tempo with every subsequent hit"
+- Progression criticism: upgrades are "boringly straightforward" (just stat increases)
+- **GoDig Improvement**: Each tier should have VISUAL/AUDIO differences, not just faster
+
+**Power Progression Psychology**:
+- "Understanding the psychology behind power progression helps create experiences that resonate"
+- Balance intrinsic (mastery) vs extrinsic (rewards) motivation
+- Dopamine: "each time user achieves something exciting, brain releases dopamine"
+- Power creep danger: "new content must be challenging, but makes older content boring"
+- **GoDig Solution**: Horizontal progression later (cosmetics, automation) not just vertical
+
+**Just One More Run Psychology (2025 Analysis)**:
+- "Endless loop of defeat and determination has made roguelikes one of the most addictive genres"
+- Quick runs matter: "games where runs are pretty quick help because you can go from doing great to dead fast"
+- Nuclear Throne: "great because it's quick - you can get to the Throne in less than ten minutes"
+- Risk of Rain 2: "item drops turn into stacking frenzy of busted combinations"
+- **GoDig Target**: 5-minute complete loop (dig -> sell -> upgrade) enables "one more run"
+
+**Idle Miner Tycoon Economy Design**:
+- "Upgrades feel rewarding... love how fast the progression feels without forcing you to spend money"
+- Core satisfaction: "return-from-idle" animation showing idle cash earned
+- Prestige system: "resets progress but gives permanent multiplier"
+- "Satisfying loop where small actions support big goals"
+- **GoDig Inspiration**: Surface visits = our "return from idle" moment (even though active)
+
+**Sell Animation Psychology**:
+- "Accumulated coin piles accompanied by sparkling sounds evoke feelings of achievement"
+- "Vivid visuals—shining coins, flashing lights—amplify perceived reward"
+- Short-term rewards: "immediate feedback, coin or sound effect after completing task"
+- "Ideally awards should be made immediately... player quickly confirms competence"
+- **GoDig Implementation**: Selling ore needs SATISFYING coin cascade animation + sound
+
+**Roguelite Time Pressure Design**:
+- "Time-based clock prods player along, imposes cost on spending too long"
+- "Leaving good players without time pressure invites optimal tedium"
+- 20-30 minute ideal run length for roguelites, but mobile is different
+- "Every roguelite has a period during a run where it starts feeling like a chore"
+- **GoDig Solution**: Natural stopping points (surface return) prevent chore feeling
+
 ### Topics for Future Research
 - [x] Analyze Spelunky 2's "secrets and lessons" retention (Session 9)
 - [x] Study Terraria's biome discovery system (Session 10)
@@ -268,9 +336,16 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Analyze Slay the Spire metrics-driven design (Session 12)
 - [x] Study Loop Hero for passive progression ideas (Session 12)
 - [x] Research vertical slice playtesting methodologies (Session 12)
+- [x] Analyze Deep Sea Adventure shared resource tension model (Session 13)
+- [x] Study push-your-luck board game mechanics (Session 13)
+- [x] Research SteamWorld Dig pickaxe satisfaction design (Session 13)
+- [x] Analyze "just one more run" psychology (Session 13)
+- [x] Study Idle Miner Tycoon economy design (Session 13)
 - [ ] Study Satisfactory/Factorio automation for v1.1 features
 - [ ] Analyze Deep Rock Galactic extraction phase design in detail
 - [ ] Research "cozy comfort" signals in home base areas
+- [ ] Study Noita physics-based destruction feel
+- [ ] Research mobile game "session end" celebrations
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -287,6 +362,9 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-anti-grind-ea5b1d1e` - Anti-grind economy balance pass (Session 11)
 - `GoDig-implement-underground-rest-bf86dfe8` - Underground rest stations v1.1 (Session 11)
 - `GoDig-implement-first-5-0e449846` - First 5 minute economy tuning (Session 12 validation)
+- `GoDig-implement-distinct-audio-09fbd1b1` - Distinct audio/visual per pickaxe tier (Session 13)
+- `GoDig-implement-satisfying-sell-150bde42` - Satisfying sell animation with coin cascade (Session 13)
+- `GoDig-implement-return-route-86fe3653` - Visual hint for efficient return routes (Session 13)
 
 ## How to Use This Task
 

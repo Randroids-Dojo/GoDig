@@ -303,3 +303,141 @@ From [GameAnalytics](https://www.gameanalytics.com/blog/squeezing-more-juice-out
 ```
 
 The ideal experience oscillates: comfort at surface, rising tension underground, relief on safe return, satisfaction when selling, empowerment after upgrade, then back down with new confidence.
+
+## Session 4 Research: Core Loop Polish & First 5 Minutes
+
+### The Critical First 5 Minutes
+
+From [Tentuplay](https://blog.tentuplay.io/blog/analyze-first-5-minutes-of-game) and [Google Play Dev](https://medium.com/googleplaydev/why-the-first-ten-minutes-is-crucial-if-you-want-to-keep-players-coming-back-to-your-mobile-game-4a89031b6308):
+
+- **Worst performing games lose 46% of installs by minute 5**
+- Top performers only lose 17% by minute 5
+- Tutorial should be under 5 minutes
+- Give option to skip or fast-forward
+- Core loop (action + reward + progression) should complete within 3-5 minutes
+- "88% of users return after experiencing a satisfying cycle"
+
+**GoDig Application**: New players must complete dig -> collect -> return -> sell -> see upgrade within first 5 minutes. Starting with 5 ladders + Supply Store at 0m enables this.
+
+### Dome Keeper's Risk-Reward Masterclass
+
+From [Gamedeveloper](https://www.gamedeveloper.com/business/how-dome-keeper-focuses-on-systems-that-feed-into-one-another):
+
+- **"Do you risk digging deeper for that juicy cobalt vein, or hightail it back?"** This is THE core tension
+- Carrying capacity affects movement speed - heavier = slower
+- Digging larger caves delays enemy waves (incentivizes exploration)
+- "Hundreds of micro-decisions" make simple mechanics feel complex
+- Systems feed into each other: mining funds upgrades, upgrades fund deeper mining
+
+**GoDig Application**: Consider adding weight-based movement penalty for loaded inventory. Larger excavated areas could provide buffs (light? stability?).
+
+### SteamWorld Dig's Stuck-Avoidance Design
+
+From [Gamedeveloper](https://www.gamedeveloper.com/design/game-design-deep-dive-the-digging-mechanic-in-i-steamworld-dig-i-):
+
+- Original intent: constant risk of getting stuck as main tension source
+- Developers SOFTENED this for accessibility
+- Anti-frustration: bonus rooms allow infinite deaths with no penalty
+- Risk/reward: die = lose half money + loot drops where you died
+- "Do you risk your life for that last gem?"
+
+**GoDig Application**: Forfeit Cargo is the right middle-ground between death (too harsh) and reload (feels like cheating). Players lose cargo but keep tools and traversal items.
+
+### Motherload's Addictive Core Loop
+
+From [Playstation Blog](https://blog.playstation.com/2013/11/08/super-motherload-on-ps4-exploring-the-story-and-game-modes/) and [Steam Reviews](https://steamcommunity.com/app/269110/reviews/):
+
+- Four years of concepting and refinement
+- Core loop: dig -> collect -> sell -> refuel/repair -> upgrade -> dig deeper
+- "Getting money to get more stuff, which you then use to get more money"
+- "True fear when low on fuel flying up to the surface"
+- Players report 5-hour sessions in one sitting
+
+**GoDig Application**: Fuel mechanic was deliberately excluded (design decision), but the "fear of running low on escape resources" maps directly to ladder count. Low ladder warning is critical.
+
+### Currency Animation Psychology
+
+From [Game Economist](https://www.gameeconomistconsulting.com/the-best-currency-animations-of-all-time/):
+
+- Animations play thousands of times; benefits compound
+- "Classically conditioned reward triggers"
+- Coins should flip, spin, reflect light
+- Counter should roll up like slot machine
+- Connection between reward and balance must be tight
+
+**GoDig Application**: Sell screen needs coin arc + rolling counter. Brief pause when coins reach balance (Brawl Stars pattern).
+
+### Idle Game Psychology (Applicable Lessons)
+
+From [Artifex Terra](https://artifexterra.com/the-psychology-behind-idle-game-addictiveness/):
+
+- **Return rewards**: Offline progress makes coming back feel good
+- **Loss aversion**: Pain of losing hurts 2x joy of gaining
+- **Accumulation desire**: Constantly gaining, minimal loss
+- **Fading pendulum problem**: Progression slows until it stops = motivation loss
+
+**GoDig Application**: While not an idle game, GoDig should never punish returning players. Auto-save at good moments. Clear stopping points prevent burnout.
+
+### Game Juice Best Practices (Expanded)
+
+From [Blood Moon Interactive](https://www.bloodmooninteractive.com/articles/juice.html) and [Design Lab Blog](https://thedesignlab.blog/2025/01/06/making-gameplay-irresistibly-satisfying-using-game-juice/):
+
+- **Reserve intense effects for special occasions** - Mining is constant, don't fatigue players
+- **Squash/stretch on UI elements** (buttons, counters) makes them feel organic
+- **Sound variation**: Randomize pitch/volume to avoid repetition
+- **"Juice can't fix bad design"** - Core loop must work without any juice first
+
+**GoDig Application**: Ore discovery and upgrades get full juice treatment. Regular block breaking gets subtle, varied feedback. Test core loop with placeholder audio/visuals first.
+
+## Implementation Priority Refinement (Session 4)
+
+Based on accumulated research, here's the refined priority order for maximum fun factor impact:
+
+### P0 - Absolute First (Enable Core Loop)
+1. **Supply Store at 0m** - Must exist before first dive
+2. **5 Starting Ladders** - Enables first profitable trip
+3. **First Upgrade < 5 Minutes** - Critical retention gate
+
+### P1 - Core Tension (Make Loop Feel Good)
+4. **Low Ladder Warning** - Creates "fear of getting stuck"
+5. **Forfeit Cargo Option** - Accessible alternative to death
+6. **Quick-Buy Ladder Button** - Don't break flow to shop
+
+### P2 - Reward Satisfaction (Sell/Upgrade Moments)
+7. **Sell Animation with Coin Arc** - Makes reward tangible
+8. **First Ore Discovery Celebration** - Hook the player early
+9. **Upgrade Celebration + Comparison** - Show the power fantasy
+
+### P3 - Tension Feedback (Background Awareness)
+10. **Deep Dive Tension Meter** - Unified risk indicator
+11. **Safe Return Celebration** - Complete the relief arc
+12. **Inventory Fill Warnings** - Natural return triggers
+
+### P4 - Discovery Delight (Variable Rewards)
+13. **Jackpot Celebration** - Memorable rare finds
+14. **Near-Miss Ore Hints** - "Almost found it" feeling
+15. **Rare Ladder Drops** - Unexpected help
+
+## Key Insight Summary
+
+| Moment | Emotion Target | Mechanic |
+|--------|----------------|----------|
+| Start dive | Confidence | 5 ladders + knowledge of shop |
+| Find first ore | Excitement | Sound + sparkle + toast |
+| Inventory filling | Growing tension | HUD warnings at 60/80/100% |
+| Low on ladders | Anxiety (good) | Pulsing warning + heartbeat |
+| Surface reached | Relief | "Cargo secured!" celebration |
+| Sell resources | Satisfaction | Coin arc + rolling counter |
+| Buy upgrade | Empowerment | Before/after comparison + fanfare |
+| Start next dive | Renewed confidence | Faster pickaxe = immediately felt |
+
+## Sources (Session 4)
+
+- [Core Loop Design - GameDistribution](https://blog.gamedistribution.com/core-gameplay-loop-design-small-tweaks-big-engagement/)
+- [Dome Keeper Systems Design - Gamedeveloper](https://www.gamedeveloper.com/business/how-dome-keeper-focuses-on-systems-that-feed-into-one-another)
+- [SteamWorld Dig Deep Dive - Gamedeveloper](https://www.gamedeveloper.com/design/game-design-deep-dive-the-digging-mechanic-in-i-steamworld-dig-i-)
+- [First 5 Minutes Analysis - Tentuplay](https://blog.tentuplay.io/blog/analyze-first-5-minutes-of-game)
+- [First 10 Minutes - Google Play Dev](https://medium.com/googleplaydev/why-the-first-ten-minutes-is-crucial-if-you-want-to-keep-players-coming-back-to-your-mobile-game-4a89031b6308)
+- [Currency Animations - Game Economist](https://www.gameeconomistconsulting.com/the-best-currency-animations-of-all-time/)
+- [Idle Game Psychology - Artifex Terra](https://artifexterra.com/the-psychology-behind-idle-game-addictiveness/)
+- [Game Juice Guide - Blood Moon Interactive](https://www.bloodmooninteractive.com/articles/juice.html)

@@ -4,7 +4,10 @@ status: open
 priority: 1
 issue-type: task
 created-at: "2026-02-01T08:31:11.616576-06:00"
+supplements: GoDig-implement-sell-animation-58af35a8
 ---
+
+**NOTE**: This spec supplements `GoDig-implement-sell-animation-58af35a8` with additional Session 13 research context. The two specs should be implemented together.
 
 ## Description
 

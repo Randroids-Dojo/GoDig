@@ -1,7 +1,7 @@
 # Fun Factor Analysis - Mining Game Core Loop
 
 > Research compilation from game design analysis, forums, and similar games.
-> Last updated: 2026-02-01 (Session 7: Push-Your-Luck & Quick Restart)
+> Last updated: 2026-02-01 (Session 10: Balatro, Haptics, One-Hand Controls, Hades 2)
 
 ## Core Loop Summary
 
@@ -1136,3 +1136,233 @@ Based on this research, the following gaps need implementation specs:
 - [Dome Keeper Updates - Steam Community](https://steamcommunity.com/app/1637320/allnews/)
 - [Terraria Mining Guide - Carl's Guides](https://www.carlsguides.com/terraria/walkthrough/exploring-underground-caverns.php)
 - [Compulsion Loops & Dopamine - Gamedeveloper](https://www.gamedeveloper.com/design/compulsion-loops-dopamine-in-games-and-gamification)
+
+## Session 10 Research: Balatro, Haptics, One-Hand Controls, Hades 2
+
+### Balatro's Variable Reward System (GDCA 2025 Game of the Year)
+
+From [Cubix](https://www.cubix.co/blog/balatro-card-game-a-blueprint-for-indie-success/) and [Oreate AI](https://www.oreateai.com/blog/the-allure-of-balatro-why-this-minimalist-game-captivates-players/):
+
+**Why It Works**:
+- Exponential growth through multipliers: "making numbers go up" satisfaction
+- Variable ratio reinforcement: uncertainty keeps players engaged
+- "You cannot pay to win here. You have to learn how to use the chaos, manipulate it, and eventually master it."
+- Meta-progression: even failures yield permanent rewards (coins for unlocks)
+- Sold 5M+ copies by January 2025
+
+**Randomness + Player Agency Balance**:
+- Shops rotate unpredictably, Jokers appear without warning
+- Many runs collapse through no fault of the player
+- BUT: "The game never removes randomness, but it allows you to shape it—to stabilize the chaos"
+- Randomness becomes strategy, not barrier
+
+**GoDig Application**:
+- Each block mined is a micro-uncertainty moment (like card draw)
+- Ore discovery parallels finding the right Joker
+- Players can't control ore placement but CAN control route planning
+- Our ladder system gives agency over randomness
+
+### Cozy Mining Games & Casual Market Trends (2025)
+
+From [Plarium](https://plarium.com/en/blog/best-cozy-games/), [GameRant](https://gamerant.com/best-relaxing-mining-games/), and [The Cozy Gaming Nook](https://thecozygamingnook.com/mining-games/):
+
+**Market Size**:
+- Casual games: $24.2 billion in 2025
+- 31% of global downloads (over 31 billion)
+- 1.3 billion monthly players
+- 45+ demographic (21%) is fastest growing - drawn to cozy simulations
+
+**Successful Cozy Mining Examples**:
+- **Forager**: "Simple controls and a fast-paced loop that makes mining feel like a satisfying part of a bigger cozy puzzle. Perfect for short, sweet play sessions packed with progress."
+- **Dinkum**: Blends cozy farming with chill mining
+- **My Time at Portia**: Mining as material gathering for building/bonding
+
+**Key Design Pattern**:
+- Mining as relaxation, not just extraction
+- 70% likelihood upcoming mining games will blend mining + management
+- Pacing matters: progress should feel constant, not grindy
+
+**GoDig Application**:
+- Our active mining differentiates from idle games
+- Surface visits should feel like "cozy home base" relief
+- Consider adding more management depth (building upgrades) for cozy appeal
+
+### Haptic Feedback Best Practices (iOS/Android)
+
+From [Interhaptics](https://interhaptics.medium.com/enhance-player-immersion-with-haptics-for-ios-and-android-games-using-interhaptics-for-mobile-d01b2f160543), [Saropa](https://saropa-contacts.medium.com/2025-guide-to-haptics-enhancing-mobile-ux-with-tactile-feedback-676dd5937774), and [XDA Developers (Marvel Snap)](https://www.xda-developers.com/marvel-snap-mobile-game-haptics/):
+
+**Platform Reality**:
+- iOS significantly outperforms Android for haptic quality/control
+- Separate development often required for each platform
+- "Users will have a much more satisfying experience on iPhones"
+
+**Marvel Snap Example**:
+- "Thunderous boom when a card slammed down"
+- "Feel a blade slicing through a card to eliminate it"
+- "Feel the weight of each move and how there's purpose behind it"
+- Vibrations created for "distinct and memorable interactions"
+
+**Best Practices**:
+- Reserve custom haptic patterns for high-value scenarios (not every action)
+- Transient events (taps) for quick feedback, continuous events (textures) for sustained actions
+- Haptics must sync precisely with visuals - even small delays feel unnatural
+- Don't use haptics in isolation - integrate with what user sees and hears
+
+**GoDig Implementation Plan**:
+| Event | Haptic Type | Intensity |
+|-------|-------------|-----------|
+| Ore discovery | Transient burst | Medium-high |
+| Upgrade purchase | Continuous rumble (0.3s) | High |
+| Ladder placement | Subtle tap | Low |
+| Block break | Light tap | Very low (varies) |
+| Danger warning | Pulse pattern | Medium |
+
+### One-Hand Mobile Controls (UX Research)
+
+From [Mobile Free To Play](https://mobilefreetoplay.com/control-mechanics/), [Smashing Magazine](https://www.smashingmagazine.com/2020/02/design-mobile-apps-one-hand-usage/), and [Punchev](https://punchev.com/blog/designing-for-mobile-ux-considerations-for-mobile-game-development):
+
+**Usage Statistics**:
+- 49-75% of smartphone users operate phones one-handed
+- Majority use thumb to navigate and interact
+- 59% will disengage if controls are physically uncomfortable
+
+**The "Subway Thumb" Grip**:
+- Most casual of all orientations
+- Player holds phone in one hand, uses only that thumb
+- Common when walking or holding subway rail
+- Game must be playable in this mode
+
+**Screen Zone Design**:
+- Green zone (easy): Bottom corners, within thumb arc
+- Yellow zone (manageable): Middle areas
+- Red zone (hard): Top corners, opposite side from thumb
+- Zones flip horizontally for left-handed users
+
+**Research Findings**:
+- One-handed gesture interface more effective and satisfying
+- Full-page menus should be flyout menus from bottom
+- Simple layouts for one-handed play improve usability without sacrificing depth
+
+**GoDig Application**:
+- Dig controls (tap-based) already work one-handed
+- HUD elements must be in green/yellow zones
+- Quick-buy ladder button: bottom-right corner
+- Inventory/shop access: bottom of screen
+- Avoid critical buttons in top corners
+
+### Hades 2 Progression Pacing (Metacritic 94/100)
+
+From [GameRant](https://gamerant.com/hades-2-1-0-release-best-route-underworld-why/), [The Flagship Eclipse](https://www.theflagshipeclipse.com/2025/09/25/4-biggest-changes-hades-2s-1-0-launch-makes-to-the-early-access-version-how-its-so-much-better/), and [Supergiant](https://www.supergiantgames.com/blog/hades-ii-development-update/):
+
+**Early Access Strategy**:
+- Released when "far enough along that player feedback wouldn't mostly consist of stuff they already knew wasn't there yet, but wasn't so far along that it was too late to act on feedback"
+- 2M+ copies sold in Early Access alone
+
+**Balance Iteration**:
+- "Satisfying progression curve where boons should make players feel strong enough but not too overpowered"
+- Several boons replaced, others rebalanced
+- "Rare and Epic boons feel even more special now than they did in Early Access"
+- Combat feels challenging but boon impact is felt
+
+**Addressing Staleness**:
+- After a few dozen runs, areas became "a bit too easy"
+- Solution: New, tougher foes spawn in completed areas
+- Keeps skills sharp, maintains challenge
+
+**Player Feedback Response**:
+- Ending reworked after examining player reactions
+- "Some fans felt the story's original ending didn't land as intended"
+- Community feedback integral to development
+
+**GoDig Lesson**:
+- Plan for post-launch economy tuning
+- Start with generous progression, tighten later if needed
+- Monitor for "staleness" in early areas
+- Consider difficulty scaling after mastery
+
+### Idle Game Monetization Patterns (2025)
+
+From [Gamigion](https://www.gamigion.com/idle/), [ContextSDK](https://contextsdk.com/blogposts/monetization-trends-in-mobile-gaming-whats-shaping-2025), and [Adjoe](https://adjoe.io/glossary/idle-games-mobile/):
+
+**Revenue Split**:
+- In-app advertising: 60-70% of idle game revenue
+- Rewarded videos most effective format
+- Hybrid models (ads + IAPs + passes) now mainstream
+
+**Critical Mistake to Avoid**:
+- "One key mistake many idle games still make: they front-load monetization"
+- Players asked to spend before they feel anything
+- Top performers wait until Day 3 when players chase rare drops
+
+**Making Ads Helpful**:
+- Pizza Ready example: 42% ad engagement rate (vs 25-30% average)
+- Secret: "Players feel like the ads are bailing them out, not slowing them down"
+- Productive frustration: bottleneck + solution = acceptable ad
+
+**Frequency Balance**:
+- Overloading ads leads to churn
+- Frequency caps essential
+- Offer ad-free experience through IAP
+
+**GoDig Application**:
+- NO monetization until after first upgrade (trust building)
+- Day 1-2: onboarding and unlock systems
+- Day 3+: optional ads for ladder bundles, time boosts
+- Rewarded video: "Watch ad for 3 free ladders" when stuck
+
+### Dome Keeper 2025 Community Feedback
+
+From [Steam Community](https://steamcommunity.com/app/1637320/discussions/0/) and [Steambase](https://steambase.io/games/dome-keeper/reviews):
+
+**Key Complaints**:
+- Assessor character: "needs time in the oven"
+- Costs too high for time management game
+- "Downtime when waiting for orbs to recharge"
+- Basic controls questions persist
+
+**Pacing Feedback**:
+- "Think about the rhythm of pressure"
+- "At the moment, pressure is always high with no moment to relax"
+- "If the pressure is always max, it's just exhausting and not that fun"
+
+**Developer Response**:
+- "Community feedback integral to why Dome Keeper became a good game"
+- Committed to faster charge-up, letting abilities work at 100%
+- Versus mode in development (competing teams on shared mine)
+
+**GoDig Learning**:
+- Surface visits MUST provide genuine relief
+- Vary tension rhythm - not constant high pressure
+- Plan for community-driven balance iteration
+
+### New Implementation Priorities (Session 10)
+
+Based on this research, these gaps need attention:
+
+| Gap | Priority | Impact |
+|-----|----------|--------|
+| Haptic feedback for ore discovery | P2 | Mobile game feel |
+| One-hand friendly HUD layout | P1 | Accessibility |
+| Surface as genuine relief (cozy signals) | P2 | Tension rhythm |
+| Post-launch economy tuning plan | P0 | Long-term retention |
+| Day 3 monetization gate | P1 | Trust building |
+| Difficulty scaling after mastery | P3 | Replayability |
+
+### Sources (Session 10)
+
+- [Balatro Blueprint for Indie Success - Cubix](https://www.cubix.co/blog/balatro-card-game-a-blueprint-for-indie-success/)
+- [The Allure of Balatro - Oreate AI](https://www.oreateai.com/blog/the-allure-of-balatro-why-this-minimalist-game-captivates-players/)
+- [GDCA 2025 Awards - GD Magazine](https://www.gamedeveloper.com/design/-balatro-plays-winning-hand-at-gdca-2025-receiving-game-of-the-year)
+- [Best Cozy Games 2025 - Plarium](https://plarium.com/en/blog/best-cozy-games/)
+- [Best Relaxing Mining Games - GameRant](https://gamerant.com/best-relaxing-mining-games/)
+- [Mining Games Hidden Gems - The Cozy Gaming Nook](https://thecozygamingnook.com/mining-games/)
+- [Haptics for Mobile Games - Interhaptics](https://interhaptics.medium.com/enhance-player-immersion-with-haptics-for-ios-and-android-games-using-interhaptics-for-mobile-d01b2f160543)
+- [2025 Guide to Haptics - Saropa](https://saropa-contacts.medium.com/2025-guide-to-haptics-enhancing-mobile-ux-with-tactile-feedback-676dd5937774)
+- [Marvel Snap Haptics - XDA Developers](https://www.xda-developers.com/marvel-snap-mobile-game-haptics/)
+- [Touch Control Design - Mobile Free To Play](https://mobilefreetoplay.com/control-mechanics/)
+- [Design for One-Hand Usage - Smashing Magazine](https://www.smashingmagazine.com/2020/02/design-mobile-apps-one-hand-usage/)
+- [Hades 2 Best Route - GameRant](https://gamerant.com/hades-2-1-0-release-best-route-underworld-why/)
+- [Hades 2 1.0 Changes - The Flagship Eclipse](https://www.theflagshipeclipse.com/2025/09/25/4-biggest-changes-hades-2s-1-0-launch-makes-to-the-early-access-version-how-its-so-much-better/)
+- [Idle Game Engagement 2025 - Gamigion](https://www.gamigion.com/idle/)
+- [Mobile Monetization Trends 2025 - ContextSDK](https://contextsdk.com/blogposts/monetization-trends-in-mobile-gaming-whats-shaping-2025)
+- [Dome Keeper Feedback - Steam Community](https://steamcommunity.com/app/1637320/discussions/0/)

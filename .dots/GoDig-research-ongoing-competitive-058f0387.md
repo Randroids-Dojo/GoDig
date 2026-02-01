@@ -1,9 +1,9 @@
 ---
 title: "research: Ongoing competitive analysis - mining/digging games"
-status: open
+status: active
 priority: 3
 issue-type: research
-created-at: "2026-02-01T07:56:09.847420-06:00"
+created-at: "\"2026-02-01T07:56:09.847420-06:00\""
 ---
 
 ## Purpose
@@ -80,20 +80,95 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Veinrider: incremental journey into depths
 - Competition growing but few do mobile well
 
+### Session 10 (2026-02-01)
+
+**Balatro Variable Reward System (GDCA 2025 Game of the Year)**:
+- Exponential growth via multipliers creates "making numbers go up" satisfaction
+- Variable ratio reinforcement: uncertainty keeps players engaged
+- Randomness + player agency: "You cannot pay to win here. You have to learn how to use the chaos."
+- Meta-progression: even failures yield permanent rewards
+- **GoDig Application**: Each block mined is a micro-uncertainty moment. Ore discovery parallels card draw excitement.
+
+**Terraria Biome Discovery Lessons**:
+- 64M+ copies sold - biome priority system creates exploration tension
+- Evil biomes (Corruption/Crimson) spread and infect - creates dynamic world
+- Board game adaptation uses tile-based world generation for replayability
+- **GoDig Application**: Our 7 layers serve as "biomes" - each should have distinct visual/mechanical identity
+
+**Cozy Mining Games & Casual Market (2025)**:
+- Casual games: $24.2B in 2025, 31% of global downloads
+- 45+ demographic fastest growing, drawn to cozy simulations
+- 70% likelihood upcoming mining games will blend with management elements
+- Forager: "fast-paced loop makes mining feel satisfying"
+- **GoDig Application**: Our active mining is differentiated from idle games - but we can learn from cozy pacing
+
+**Haptic Feedback Best Practices (iOS/Android)**:
+- iOS significantly outperforms Android for haptic quality/control
+- Marvel Snap example: "feel the weight of each move" creates memorable interactions
+- Haptics must sync precisely with visuals - even small delays feel unnatural
+- Reserve custom haptic patterns for high-value scenarios (ore discovery, upgrades)
+- **GoDig Implementation**: Add haptic feedback for ore discovery (short burst), upgrade celebration (longer rumble), ladder placement (subtle tap)
+
+**One-Hand Mobile Controls Research**:
+- 49-75% of smartphone users operate one-handed
+- "Subway Thumb" is most casual grip - game must support this
+- 59% of users disengage if controls are physically uncomfortable
+- Green zone (easy reach) vs yellow (manageable) vs red (hard) - design for thumb arc
+- **GoDig Application**: Dig controls are already tap-based. HUD elements must be in thumb-reachable zones.
+
+**Hades 2 Progression Pacing (Metacritic 94/100)**:
+- Early Access used to tune balance based on player feedback
+- Boons rebalanced: "Rare and Epic feel even more special now"
+- New foes spawn in completed areas to maintain challenge
+- Ending reworked based on player feedback post-launch
+- **GoDig Lesson**: Plan for post-launch economy tuning. Start with generous progression, tighten later.
+
+**Idle Game Monetization 2025**:
+- Rewarded videos = 60-70% of idle game revenue
+- Best practice: don't front-load monetization - wait until Day 3
+- "Ads that bail players out, not slow them down" = 42% engagement (vs 25-30% average)
+- Hybrid models work: ads + IAPs + battle passes
+- **GoDig Application**: First upgrade free, monetization gates only after player is invested
+
+**Dome Keeper 2025 Community Feedback**:
+- Assessor character complaints: "too much downtime waiting"
+- Players want rhythm variation: "If pressure is always max, it's just exhausting"
+- Developer response: community feedback integral to development success
+- Versus mode in development: competing teams on shared mine
+- **GoDig Learning**: Vary tension rhythm - surface visits should provide genuine relief
+
+**itch.io Mining Games 2025**:
+- Terminal Descent: "Mine, drill, blast to deepest depths" - validates incremental core loop
+- Space Miner: asteroid mining clicker - casual/strategy hybrid
+- PlanetCore: drill + survive + upgrade missions
+- Mine is Life: 2025 game jam entry - fresh competition emerging
+- **Competitive Position**: GoDig's ladder-based risk system is unique differentiator
+
 ### Topics for Future Research
 - [x] Analyze Spelunky 2's "secrets and lessons" retention (Session 9)
-- [ ] Study Terraria's biome discovery system
-- [ ] Review idle game monetization patterns
-- [ ] Research haptic feedback patterns on iOS/Android
-- [ ] Study one-hand mobile controls in similar games
-- [ ] Analyze Hades 2 early access feedback on progression pacing
-- [ ] Study Balatro's variable reward system (card game mining parallel)
-- [ ] Research "cozy mining" games for casual appeal patterns
+- [x] Study Terraria's biome discovery system (Session 10)
+- [x] Review idle game monetization patterns (Session 10)
+- [x] Research haptic feedback patterns on iOS/Android (Session 10)
+- [x] Study one-hand mobile controls in similar games (Session 10)
+- [x] Analyze Hades 2 early access feedback on progression pacing (Session 10)
+- [x] Study Balatro's variable reward system (Session 10)
+- [x] Research "cozy mining" games for casual appeal patterns (Session 10)
+- [ ] Study Satisfactory/Factorio automation for v1.1 features
+- [ ] Research vertical slice playtesting methodologies
+- [ ] Analyze Cult of the Lamb retention mechanics
+- [ ] Study Vampire Survivors for minimalist "just one more" design
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
 - `GoDig-implement-guaranteed-first-99e15302` - First ore within 30 seconds
 - `GoDig-implement-ladder-placement-2b7d760f` - Decision feedback
+- `GoDig-implement-haptic-feedback-2abf435a` - Mobile haptics for ore/upgrades (Session 10)
+- `GoDig-implement-one-hand-5bfe1242` - One-hand friendly HUD layout (Session 10)
+- `GoDig-implement-surface-home-81016105` - Surface cozy signals (Session 10)
+- `GoDig-implement-monetization-gate-43da3d31` - Day 3 monetization gate (Session 10)
+- `GoDig-implement-post-launch-37e1e607` - Remote economy tuning framework (Session 10)
+- `GoDig-implement-ore-discovery-5f8102ab` - Balatro-style ore micro-celebrations (Session 10)
+- `GoDig-implement-block-adjacent-ef98f7e1` - Near-miss ore shimmer hints (Session 10)
 
 ## How to Use This Task
 

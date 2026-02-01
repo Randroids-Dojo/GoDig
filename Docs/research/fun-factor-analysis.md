@@ -194,7 +194,28 @@ From [Number Analytics](https://www.numberanalytics.com/blog/ultimate-guide-inve
 
 **GoDig Application**: 8 starting slots is correct. Players must choose: keep 3 coal or drop for 1 gold? This is meaningful decision-making.
 
-### Game Feel / Juice Best Practices
+### Game Feel / Juice Best Practices (Session 3 Deep Dive)
+
+From [Wayline](https://www.wayline.io/blog/the-perils-of-over-juicing) and [Wardrome](https://wardrome.com/game-feel-the-secret-sauce-behind-addictive-indie-gameplay/):
+
+**Core Techniques**:
+- **Screen shake**: Adds impact weight (block break, damage)
+- **Particles**: Dust, sparkles, debris give motion feedback
+- **Squash/stretch**: Makes characters/UI feel organic
+- **Sound variation**: Randomize pitch/volume to avoid repetition
+
+**Critical Warning - Over-Juicing**:
+- "Constant visual stimulation leads to sensory overload"
+- "Reserve intense effects for special occasions"
+- "Responsiveness should always come first" - tight controls > flashy effects
+- "Juice can't fix bad design" - core loop must be fun without any juice
+
+**GoDig Application**:
+- Mining is CONSTANT - effects must not fatigue players
+- Save big celebrations for rare finds (jackpot moments)
+- Ensure controls feel tight before adding juice
+
+### Game Feel / Juice Best Practices (Original)
 
 From [GameAnalytics](https://www.gameanalytics.com/blog/squeezing-more-juice-out-of-your-game-design):
 

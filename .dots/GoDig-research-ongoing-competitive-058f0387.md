@@ -913,11 +913,105 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Study mobile first upgrade psychology (Session 19)
 - [x] Analyze permadeath and fair punishment design (Session 19)
 - [x] Research game feel / juice best practices 2025 (Session 19)
-- [ ] Analyze Windblown (Dead Cells devs new roguelike) for co-op mining potential
-- [ ] Study mobile game "offline progress reveal" animation patterns
-- [ ] Research Cogmind's extended game challenges for v1.1 mastery content
+- [x] Analyze Windblown (Dead Cells devs new roguelike) for co-op design (Session 20)
+- [x] Study mobile game "offline progress reveal" animation patterns (Session 20)
+- [x] Research Cogmind's extended game challenges for v1.1 mastery content (Session 20)
 - [ ] Analyze Cryptical Path's "build the dungeon" mechanic for player agency
-- [ ] Study Core Keeper's mining skill progression system
+- [x] Study Core Keeper's mining skill progression system (Session 20)
+- [ ] Research Retromine's card-based mining progression system
+- [ ] Study UnderMine's action-adventure roguelike mining blend
+- [ ] Analyze SpaceRat Miner for fast-paced mobile mining roguelite patterns
+
+### Session 20 (2026-02-01)
+
+**Windblown (Dead Cells Devs) - Co-op Roguelite Design**:
+- Motion Twin's new 3-player co-op roguelite launched Early Access October 2024, full 1.0 planned 2026
+- Core design goal: "Match intensity of Devil May Cry/Bayonetta but with friends"
+- Progression philosophy: "Flow in and out of multiplayer" with drop-in/drop-out + scaling difficulty
+- Meta-progression: Memories of fallen players absorbed for build-defining powers
+- Endless Mode planned: continue after final boss with current build, stacks infinitely
+- "Plan was to make a bigger game than Dead Cells" + "easier to come into" for non-roguelite players
+- Hub called "the Ark" - cozy home base for permanent upgrades between runs
+- **GoDig Learning**: Our surface is our "Ark" - make it feel like home base with permanent progression visible
+
+**Core Keeper Mining Skill System Analysis**:
+- Mining damage increases by +1 per level (up to +100 at level 100)
+- Talent points every 5 levels - meaningful skill tree choices
+- Key talents: Efficient Excavation (+10% damage), Meticulous Miner (+20% extra ore), Night Vision (+10 tile visibility)
+- Movement boost after mining creates satisfying flow
+- "Bags & Blasts" update (March 2025) added Explosives Skill Tree - new way to play
+- XP based on "swings to break" not blocks - using efficient tools slows XP gain (interesting tradeoff)
+- Ore Boulders require Drills - automated mining as mid-game unlock
+- **GoDig Application**: Consider mining skill progression for v1.1 - each level gives small damage boost, talents unlock special abilities
+
+**Roguelite Mastery Design (Cogmind/Grid Sage Games)**:
+- "Extended game" concept: optional challenges after normal completion (Brogue lumenstones, DCSS runes)
+- "Metaprogression of the mind" - players grow in understanding, not just stats
+- Mastery Challenges (Idle Champions): Enable optional restrictions for bonus rewards
+- Prestige cosmetics as mastery rewards - Card Sleeves example
+- **GoDig v1.1 Application**: Add optional depth challenges - "reach 500m with only 3 ladders" for cosmetic rewards
+
+**Idle Game Offline Progress Patterns**:
+- Idle Slayer: Minions accumulate resources automatically, upgrades boost offline efficiency
+- Clicker Heroes: Heroes defeat monsters while logged off, big pile of gold waiting on return
+- Core pattern: "Return-from-idle" moment is key satisfaction point
+- Coin Idle: 3-hour timer creates anticipation for collection
+- UI clarity matters: "shows gold income, hero upgrades, DPS, stage progress"
+- **GoDig Learning**: Even active games benefit from "welcome back" moments - show depth record, coins earned last session, progress toward next upgrade
+
+**"One More Run" Psychology Deep Dive**:
+- Core hook: "endless loop of defeat and determination"
+- "Feeds into same part of brain that likes gambling - never know if THIS run is the one"
+- Learning through failure: "Every run teaches something new - enemy patterns, loot strategies"
+- Dead Cells carry-forward upgrades: "doesn't carry same sting" when reset, makes new run tempting
+- Hades narrative progression: "Even when you fail, you're rewarded with narrative progression"
+- **GoDig Critical Insight**: Our emergency rescue should feel like a "lesson learned" not punishment. Show what was lost + what was gained (knowledge).
+
+**Power Fantasy & Upgrade Satisfaction (2025 Research)**:
+- Definition: "virtual context where person can do something they wouldn't in real life"
+- Screen shake, sound effects make combat "feel weighty and powerful"
+- Progression must feel EARNED: "each victory feels earned and meaningful"
+- Hades foundation: "responsive controls make combat satisfying BEFORE upgrades"
+- Mobile loops: "enter short challenge, make choices, earn resources, upgrade, repeat"
+- "Moment-to-moment must be juicy - crisp timings, responsive effects"
+- **GoDig Priority**: Core tap-to-mine must feel satisfying with NO upgrades. Then each upgrade amplifies already-fun activity.
+
+**FTUE and Core Loop Retention (2025-2026 Data)**:
+- FTUE = first 60 seconds + first 15 minutes (kinesthetic learning)
+- Worst games lose 46% by minute 5; best lose only 17%
+- "Core loop should complete within 3-5 minutes"
+- "88% of users return after experiencing satisfying cycle"
+- Free to play: "midterm motivation loop must be established within 5-7 minutes"
+- D1-D3 drop = FTUE problem; D7 cliff = core loop lacks depth; D30 slide = missing late-game content
+- Target retention: D1 26% average, D7 10%, D30 <4%; Top performers: D1 35%+, D7 12%+
+- **GoDig Target**: Complete dig-find-sell-upgrade cycle in under 3 minutes. First upgrade within 5 minutes.
+
+**New Indie Mining Games 2025-2026 Update**:
+- **ITER** (2025): Mining roguelite tower defense, 2D-3D dimension shifting, Warsaw 2-person studio
+- **UnderMine**: Action-adventure roguelike with mining, "Mine gold, die, upgrade, try again"
+- **SpaceRat Miner** (Playdate): Fast-paced roguelite mining - collect gems, dodge rocks, beat bosses
+- **Retromine**: Card-based mining with 50+ resource/tool/action cards - novel approach
+- **Hollow Mine**: Action roguelite combining mining, crafting, 2D top-down combat
+- **GoDig Competitive Position**: Still unique with ladder-based push-your-luck on mobile
+
+**Push-Your-Luck Design Validation**:
+- "Push-your-luck is DIFFERENT from pure luck - requires meaningful CHOICES"
+- Progressive risk: "longer engaged in risky behavior = higher stakes"
+- Banking mechanic: "accumulated points temporarily reside in BANK - uncashed, vulnerable"
+- Balance principle: "At beginning, risk low but so are rewards - most keep going"
+- Middle area: "moderate risk, greater reward - should be rewarded for stopping"
+- Tension is key: "If no chance of failure, no tension. If success impossible, players avoid risk."
+- **GoDig Validation**: Our ladder depletion creates perfect progressive risk curve
+
+### Topics for Future Research
+- [ ] Analyze Cryptical Path's "build the dungeon" mechanic for player agency
+- [ ] Research Retromine's card-based mining progression system
+- [ ] Study UnderMine's action-adventure roguelike mining blend
+- [ ] Analyze SpaceRat Miner for fast-paced mobile mining roguelite patterns
+- [ ] Study Hollow Mine's mining + crafting + combat integration
+- [ ] Research idle game "return animation" patterns for surface arrival
+- [ ] Analyze Windblown's "Endless Mode" for post-game content ideas
+- [ ] Study how Core Keeper balances XP gain vs efficient tools
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -964,6 +1058,11 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-block-crack-c5b298f2` - Block crack progression visual feedback (Session 19)
 - `GoDig-implement-wall-jump-ec117d74` - Wall-jump mastery celebration feedback (Session 19)
 - `GoDig-implement-emergency-rescue-c0e6b975` - Emergency rescue fee proportional to depth (Session 19)
+- `GoDig-implement-mining-combo-5de8f33a` - Mining combo/streak feedback (Session 20)
+- `GoDig-implement-surface-home-6963fed9` - Surface home base comfort signals (Session 20)
+- `GoDig-implement-risk-indicator-b563b726` - Risk indicator for deep dives (Session 20)
+- `GoDig-implement-mining-streak-1de66c2b` - Mining streak/combo subtle feedback (Session 20)
+- `GoDig-implement-subtle-tension-0b659daa` - Subtle tension audio layer (Session 20)
 
 ## How to Use This Task
 

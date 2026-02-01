@@ -3,7 +3,7 @@ title: "research: Ongoing competitive analysis - mining/digging games"
 status: active
 priority: 3
 issue-type: research
-created-at: "\"\\\"2026-02-01T07:56:09.847420-06:00\\\"\""
+created-at: "\"\\\"\\\\\\\"2026-02-01T07:56:09.847420-06:00\\\\\\\"\\\"\""
 ---
 
 ## Purpose
@@ -1136,13 +1136,102 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Sound + visual sync essential: music feels "like reverberating from subwoofer"
 - **GoDig Sell Animation Priority**: This is one of most-repeated moments. Needs satisfying coin cascade + sound + brief celebration. Each sale should feel rewarding.
 
+### Session 22 (2026-02-01)
+
+**Deep Rock Galactic: Rogue Core (Q2 2026) - Major Competitor Analysis**:
+- Roguelite spinoff where players start with ONLY their pickaxe - must scavenge weapons/equipment
+- The "Grayout Barrier" disables technology on contact - forces scavenging gameplay
+- Crafting via Expenite harvesting creates progression within runs
+- 1-4 player co-op with roguelite meta-progression: unlock new weapons, suits, mods between runs
+- The Reclaimers team must restore lost dig sites and uncover "The Greyout" mystery
+- **GoDig Distinction**: Our game is mobile-first with ladder economy. DRG:RC is PC co-op shooter with extraction focus.
+
+**The Over-Juicing Problem (Wayline/Game Design Research)**:
+- "Exaggerated feedback is harming game design" - when every hit feels like nuclear explosion
+- Screen shake "creates engaging game feel if used correctly; if overused, players feel nauseous"
+- Juice as smokescreen: "If combat lacks strategic depth, designers might just add more screen shake"
+- Animation communicates weight better than particle effects - Dark Souls feels significant through animation, not particles
+- **GoDig Application**: Reserve intense effects for discoveries and upgrades. Regular mining should have subtle, satisfying feedback only.
+
+**Push-Your-Luck Design Principles (BoardGameGeek/BGDF)**:
+- "Push your luck is different than pure luck" - requires meaningful DECISIONS
+- Core tension: "decide whether to keep going to gain more... and risk losing it all or stopping"
+- Self-balancing mechanics: "fewer players still in = greater potential reward"
+- Classic examples: Can't Stop (dice), Zombie Dice (3 strikes), Incan Gold (hazard cards)
+- Quacks of Quedlinburg adds mitigation: chip return mechanic reduces bad luck impact
+- **GoDig Validation**: Our ladder depletion creates superior progressive risk vs sudden bust mechanics.
+
+**Dome Keeper Player Feedback Polarization**:
+- Negative: "too slow, repetitive, grindy" + "so much back and forth" + "tediously inefficient input"
+- Positive: "addicting mix of tower defence and Dig Dug" + "10/10 gameplay loop" + "nothing feels better than getting back to base with a second to spare"
+- Critical: Pacing matters - players who love it praise the tension, players who hate it cite tedium
+- 90% positive with 9,500+ reviews despite mixed individual experiences
+- **GoDig Learning**: Our return trip must feel like achievement. Wall-jump + ladders = skill expression. Elevator = late-game convenience.
+
+**SteamWorld Dig Series - Upgrade Pacing Gold Standard**:
+- Core flow: "enter mine → dig → uncover ore/gems → return to surface → sell → upgrade tools"
+- Each upgrade has noticeable effect: "just one more trip to hit next tier" mentality
+- SteamWorld Dig 2 praised as "impeccably paced, new powers opening up just when comfortable"
+- Fastest pickaxe creates "immensely satisfying" feeling of "blasting through mines at super-sonic speed"
+- Cog system adds customization layer beyond straight stat upgrades
+- **GoDig Implementation**: Each pickaxe tier must feel dramatically different. Not just faster - DIFFERENT (visual, audio, particle effects).
+
+**Dopamine and Mobile Retention Psychology (2025-2026 Research)**:
+- Dopamine released during ANTICIPATION, not just receipt - uncertainty creates engagement
+- Variable ratio reinforcement: unpredictable rewards are more engaging than fixed schedules
+- Progression "taps into brain's dopamine system" - every small reward reinforces positive experience
+- First few minutes determine retention: "easy victory early activates sense of accomplishment"
+- Warning: 93% of free mobile games popular with children contain "potentially manipulative" design elements
+- **GoDig Ethical Approach**: Satisfy through genuine game feel, not psychological exploitation. First upgrade = real achievement, not manipulation.
+
+**Core Loop Fundamentals (2025-2026 Consensus)**:
+- "If your core loop isn't fun, it doesn't matter how great your narrative or physics interactions are"
+- Core loop = "set of actions player takes to get rewards that can be reinvested"
+- Four pillars: Satisfaction, Viscerality, Strategy, Fantasy
+- D1-D3 drop = FTUE problem; D7 cliff = core loop lacks depth; D30 slide = missing late-game content
+- **GoDig Critical Test**: Does tap-to-mine feel fun with NO systems? If not, no amount of progression can save it.
+
+**Dig Dig Boom - Turn-Based Mining Puzzle (Godot Engine)**:
+- "Time only moves when you do" - blend of real-time and turn-based
+- Combines grid-based puzzle, turn-based strategy, and dungeon crawler elements
+- Both handcrafted puzzles AND procedurally generated caves
+- Handcrafted = introduction to techniques, procedural = application
+- Made with Godot Engine (same as GoDig)
+- **GoDig Insight**: Handcrafted "tutorial chunks" mixed with procedural generation is validated approach.
+
+**Inventory as Decision-Making Mechanic**:
+- "Limited inventory forces players to make decisions" - this is feature, not limitation
+- Creates prioritization: "carry large item to merchant, discard other loot"
+- Resident Evil 4 briefcase: "puzzle-like mechanic rewarding players who maximized space"
+- Limits add creative constraint: "if they have small inventory, they'll start getting creative"
+- Real-time inventory tension: "managing items while remaining vulnerable"
+- **GoDig Full Inventory Design**: When inventory is full, player faces decision: keep digging (can't collect) or return. This IS the push-your-luck moment.
+
+**Mobile Session Length Reality (Reinforced)**:
+- Average session: 5-6 minutes median
+- Players average 4-6 sessions daily, 3-5 min each
+- First session 10-20 minutes is vital for F2P retention
+- "Core loop should complete within 3-5 minutes"
+- "88% of users return after experiencing satisfying cycle"
+- **GoDig Target**: Complete dig-find-sell-upgrade cycle in under 3 minutes for first run.
+
+**Ladder/Rope Mechanics in Mining Games**:
+- Minecraft rope ladder proposal: "click on existing piece to extend it downwards" (like scaffolding)
+- Stonehearth: auto-unrolling rope ladder when terrain is dug up next to it
+- TerraFirmaCraft: anchor section + extension mechanic
+- Hytale: rope for high places, ladders when rope can't reach ceiling
+- **GoDig Differentiation**: Our ladders are consumable resources creating push-your-luck tension. This is unique.
+
 ### Topics for Future Research
 - [x] Analyze Cryptical Path's "build the dungeon" mechanic for player agency (Session 21)
 - [x] Research Retromine's card-based mining progression system (Session 21)
 - [x] Study UnderMine's action-adventure roguelike mining blend (Session 21)
 - [x] Analyze SpaceRat Miner for fast-paced mobile mining roguelite patterns (Session 21)
 - [x] Study Hollow Mine's mining + crafting + combat integration (Session 21)
-- [ ] Research idle game "return animation" patterns for surface arrival
+- [x] Research idle game "return animation" patterns for surface arrival (Session 22 partial)
+- [x] Analyze Dome Keeper player feedback polarization (Session 22)
+- [x] Study SteamWorld Dig upgrade pacing (Session 22)
+- [x] Research Deep Rock Galactic Rogue Core for 2026 (Session 22)
 - [ ] Analyze Windblown's "Endless Mode" for post-game content ideas
 - [ ] Study how Core Keeper balances XP gain vs efficient tools
 - [ ] Research "inventory Tetris" satisfaction patterns (Resident Evil, Diablo)
@@ -1150,6 +1239,8 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [ ] Analyze vertical/horizontal progression balance in successful mobile games
 - [ ] Research Dome Keeper multiplayer design when released (Q1 2026)
 - [ ] Study Cryptical Path player reviews for "rogue-builder" reception
+- [ ] Analyze Dig Dig Boom full release reception when available
+- [ ] Research DRG: Rogue Core player feedback when Early Access launches Q2 2026
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -1205,6 +1296,9 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-full-inventory-8ac866d7` - Full inventory decision moment design (Session 21)
 - `GoDig-implement-emergency-rescue-aa6fc471` - Emergency rescue "lesson learned" framing (Session 21)
 - `GoDig-implement-surface-warm-3b40fce7` - Surface warm colors and cozy visual distinction (Session 21)
+- `GoDig-implement-juice-tiered-system` - Two-tier juice: subtle mining vs discovery celebration (Session 22)
+- `GoDig-implement-pickaxe-feel-distinct` - Each pickaxe tier visually/aurally distinct (Session 22)
+- `GoDig-implement-scavenged-equipment` - Rare equipment finds underground (inspired by DRG:RC) (Session 22)
 
 ## How to Use This Task
 

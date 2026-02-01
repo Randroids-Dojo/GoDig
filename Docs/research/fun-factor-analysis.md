@@ -1,7 +1,7 @@
 # Fun Factor Analysis - Mining Game Core Loop
 
 > Research compilation from game design analysis, forums, and similar games.
-> Last updated: 2026-02-01 (Session 17: Animal Well, Rain World, Nine Sols, Dead Cells, FTUE)
+> Last updated: 2026-02-01 (Session 22: DRG:RC, Over-Juicing, Push-Your-Luck, Dome Keeper Feedback)
 
 ## Core Loop Summary
 
@@ -2318,3 +2318,128 @@ Based on Session 18 research synthesis:
 - [Keep Digging - Steam](https://store.steampowered.com/app/3585800/Keep_Digging/)
 - [Idle Mining Games Addiction - Mr. Mine Blog](https://mrmine.com/blog/what-are-idle-mining-games-and-why-are-they-soaddictive//)
 - [Fun Grind Progression - NotebookCheck](https://www.notebookcheck.net/Fun-grind-and-addictive-progression-these-games-motivate-with-more-than-just-the-endgame.1086973.0.html)
+
+## Session 22: Core Loop Validation & Competitor Updates (2026-02-01)
+
+### Deep Rock Galactic: Rogue Core (Q2 2026 Early Access)
+
+Major new competitor entering the mining roguelite space:
+- Players start with ONLY their pickaxe - must scavenge weapons/equipment
+- The "Grayout Barrier" disables technology on contact - forces survival gameplay
+- Expenite harvesting enables crafting progression within runs
+- 1-4 player co-op with meta-progression between runs
+
+**GoDig Competitive Position**: Our mobile-first ladder economy remains unique. DRG:RC is a PC co-op shooter with extraction focus - different target audience but validates the mining roguelite space continues to grow.
+
+### The Over-Juicing Problem
+
+Critical design insight from Wayline and game design research:
+- "Exaggerated feedback is harming game design" - when every hit feels like nuclear explosion
+- Screen shake creates engaging feel "if used correctly; if overused, players feel nauseous"
+- Juice as smokescreen: "If combat lacks strategic depth, designers might just add more screen shake"
+- Animation communicates weight better than particle effects
+- Dark Souls feels significant through animation, not particles
+
+**GoDig Application**:
+- Reserve intense effects for discoveries and upgrades
+- Regular mining should have subtle, satisfying feedback only
+- Test by playing for 5+ minutes - does feedback feel fatiguing?
+
+### Push-Your-Luck Design Validation
+
+BoardGameGeek and BGDF research confirms our ladder mechanic is well-designed:
+- "Push your luck is different than pure luck" - requires meaningful DECISIONS
+- Core tension: "decide whether to keep going to gain more... and risk losing it all or stopping"
+- Self-balancing mechanics: "fewer players still in = greater potential reward"
+- Quacks of Quedlinburg adds mitigation: chip return mechanic reduces bad luck impact
+
+**GoDig Validation**: Our ladder depletion creates superior progressive risk vs sudden bust mechanics. The gradual tension buildup is better than binary "you're dead" moments.
+
+### Dome Keeper Player Feedback Polarization
+
+Analysis of 9,500+ reviews (90% positive) reveals key insights:
+
+**Negative Feedback**:
+- "too slow, repetitive, grindy"
+- "so much back and forth"
+- "tediously inefficient input"
+
+**Positive Feedback**:
+- "addicting mix of tower defence and Dig Dug"
+- "10/10 gameplay loop"
+- "nothing feels better than getting back to base with a second to spare"
+
+**Key Learning**: Players who love it praise the TENSION. Players who hate it cite TEDIUM. The difference is whether return trips feel like achievement or chore.
+
+**GoDig Application**: Our return trip must feel like achievement through:
+1. Wall-jump = skill expression
+2. Ladder placement = strategic decision
+3. Elevator unlock = late-game convenience reward
+
+### SteamWorld Dig Upgrade Pacing (Gold Standard)
+
+Deep dive into why upgrades feel satisfying:
+- Core flow: "enter mine -> dig -> uncover ore/gems -> return to surface -> sell -> upgrade tools"
+- Each upgrade has noticeable effect creating "just one more trip" mentality
+- SteamWorld Dig 2: "impeccably paced, new powers opening up just when comfortable"
+- Fastest pickaxe: "immensely satisfying to just blast through the mines at super-sonic speed"
+
+**GoDig Implementation Requirement**: Each pickaxe tier must be dramatically different:
+- Not just faster stats
+- Different visual appearance
+- Different sound effects
+- Different particle effects
+- Player should know which pickaxe they have by FEEL alone
+
+### Core Loop Greybox Test Requirement
+
+2025-2026 research consensus is clear:
+- "If your core loop isn't fun, it doesn't matter how great your narrative or physics interactions are"
+- "Without tight and emotionally satisfying gameplay, no amount of progression can sustain engagement"
+
+**GoDig Critical Validation**: We MUST test tap-to-mine with NO systems:
+1. Create greybox test level (no textures, no progression)
+2. Playtest with 3+ people
+3. Ask: "Is breaking a single block satisfying?"
+4. If no, fix core feel before adding systems
+
+### Inventory Full as Decision Moment
+
+Research shows inventory limits are design feature, not limitation:
+- "Limited inventory forces players to make decisions"
+- "Is it worth the risk to grab that rare loot or head back to camp and unload?"
+- Resident Evil 4 briefcase: "puzzle-like mechanic rewarding players who maximized space"
+
+**GoDig Application**: When inventory is full, create decision moment:
+- Show what ore would be collected
+- Options: Drop item / Return to Surface / Keep Mining
+- This IS our push-your-luck moment
+- Make the decision feel meaningful, not annoying
+
+### Session 22 Implementation Specs
+
+| Spec ID | Feature | Priority |
+|---------|---------|----------|
+| GoDig-implement-two-tier-614931d2 | Two-tier juice system | P1 |
+| GoDig-implement-pickaxe-tier-d9f2b6a2 | Pickaxe tier differentiation | P1 |
+| GoDig-implement-full-inventory-cf22e045 | Full inventory decision moment | P1 |
+| GoDig-implement-core-loop-bfedf6c9 | Core loop greybox validation | P0 |
+
+## Sources (Session 22)
+
+- [DRG: Rogue Core - Steam](https://store.steampowered.com/app/2605790/Deep_Rock_Galactic_Rogue_Core/)
+- [DRG:RC Gameplay Info - Game8](https://game8.co/articles/reviews/deep-rock-galactic-rogue-core-gameplay-and-story-info)
+- [Over-Juicing Problem - Wayline](https://www.wayline.io/blog/the-juice-problem-how-exaggerated-feedback-is-harming-game-design)
+- [Game Feel Guide - Blood Moon Interactive](https://www.bloodmooninteractive.com/articles/juice.html)
+- [Push Your Luck Mechanics - Board Game Design Course](https://boardgamedesigncourse.com/game-mechanics-sometimes-you-want-to-push-your-luck/)
+- [Push Your Luck - BoardGameGeek](https://boardgamegeek.com/boardgamemechanic/2661/push-your-luck)
+- [Dome Keeper Reviews - Metacritic](https://www.metacritic.com/game/dome-keeper/user-reviews/)
+- [Dome Keeper Steam Reviews](https://steamcommunity.com/app/1637320/reviews/)
+- [SteamWorld Dig Review - Play Critically](https://playcritically.com/2021/11/22/steamworld-dig-review/)
+- [SteamWorld Dig 2 - Game Informer](https://gameinformer.com/games/steamworld_dig_2/b/switch/archive/2017/09/28/steamworld-dig-2-review.aspx)
+- [Core Loop Design - GameAnalytics](https://www.gameanalytics.com/blog/how-to-perfect-your-games-core-loop)
+- [Mobile Retention Strategies - Segwise](https://segwise.ai/blog/boost-mobile-game-retention-strategies)
+- [Dopamine Loops in Games - JCOMA](https://jcoma.com/index.php/JCM/article/download/352/192)
+- [Inventory Systems - Meegle](https://www.meegle.com/en_us/topics/game-design/inventory-systems)
+- [Resource Management - Meegle](https://www.meegle.com/en_us/topics/game-design/resource-management)
+- [Dig Dig Boom - Steam](https://store.steampowered.com/app/2026040/Dig_Dig_Boom/)

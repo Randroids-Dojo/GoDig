@@ -849,6 +849,53 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Return-from-idle animation creates anticipation and satisfaction
 - **GoDig Simplification**: Single resource (coins) is correct for MVP. Avoid premature complexity.
 
+**Procedural Discovery Design (2025 Synthesis)**:
+- "One of the most important elements: fostering belief that there is something exciting around the corner"
+- Minecraft: "simple elements can come together in vast cave systems hidden underground"
+- No Man's Sky: "never-ending journey of discovery... sense of wonder and curiosity"
+- Key insight: "engaging gameplay loops distract player from seeing underlying predictability"
+- Player feedback reveals unexpected interactions - plan for iteration
+- **GoDig Application**: Our caves need handcrafted "set pieces" mixed with procedural generation. Guarantee interesting finds, not just random blocks.
+
+**Mobile First Upgrade Psychology (2025 Data)**:
+- "First 60 seconds determine whether users will come back"
+- Candy Crush: "immediate rewards like free boosters or easy matches early on boost confidence"
+- Royal Match: "minimize initial friction by skipping logins... every tap leads to meaningful action"
+- Retention increase: "up to 50% with effective onboarding"
+- Old reward model (one-time) has "nearly zero retention value" - must be spaced and dynamic
+- Gamification (streaks, badges) can increase D30 retention by 15-30%
+- **GoDig Critical**: First upgrade must happen within 5 minutes. Frame it as achievement, not purchase.
+
+**Permadeath and Fair Punishment Design (Roguelike Best Practices)**:
+- "Permadeath places heavy burden on designers to ensure every element is balanced"
+- Key insight: "permadeath works when there are NOT sudden-death situations"
+- Softer implementations: "retain money or items while introducing repercussions for failure"
+- Non-death failures create challenge without frustration: "losing valuable item, getting levels drained"
+- Hades "God Mode": damage resistance increases with each death - accessibility without removing consequence
+- Creative death: "death woven into story provides in-universe explanation for coming back"
+- Customization via death: "take two acquired buffs to next run - death becomes opportunity"
+- **GoDig Emergency Rescue Design**:
+  1. NOT a sudden-death - player sees ladder count depleting, makes choices
+  2. Rescue costs SOME cargo, not ALL - learn from failure without starting over
+  3. Frame as "emergency rescue service fee" not punishment
+  4. Deeper = higher rescue cost = natural risk scaling
+  5. Consider: rare drop (emergency flare) reduces rescue cost when used
+
+**Game Feel / Juice Deep Dive (2025 Research)**:
+- "Juice doesn't change rules of game, but changes how it feels... turns inputs into interactions"
+- "Better to juice moment-to-moment events" rather than one-time occurrences
+- Research finding: "outcome binding ('my action caused this effect') is precondition of competence"
+- Curiosity is "strongest enjoyment and only playtime predictor"
+- Warning: "amplification unexpectedly reduced motives, possibly impeding sense of agency"
+- Hitstop: "Brief slow-motion can turn ordinary moment into memorable one... 0.2 seconds after critical hit"
+- Sound design: "Crisp satisfying sounds for actions like jumping, landing... reinforces effort of perfect jump"
+- **GoDig Implementation Priority**:
+  1. Each dig hit: small particle burst, crisp sound
+  2. Block break: larger particle explosion, screen shake (subtle), satisfying crack
+  3. Ore discovery: 0.1s hitstop, glow effect, distinct celebratory sound
+  4. Upgrade purchase: big celebration (reserved juice)
+  5. Avoid over-juicing regular mining - reserve impact for discoveries
+
 **Topics for Future Research**
 - [x] Analyze Keep Digging (Jan 2026) for depth/layer design (Session 18)
 - [x] Study push-your-luck board game balance mechanics (Session 18)
@@ -862,6 +909,10 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Research return journey solutions (Motherload/SteamWorld) (Session 19)
 - [x] Analyze ITER roguelite design (Session 19)
 - [x] Study Idle Miner Tycoon economy balance (Session 19)
+- [x] Research procedural discovery design principles (Session 19)
+- [x] Study mobile first upgrade psychology (Session 19)
+- [x] Analyze permadeath and fair punishment design (Session 19)
+- [x] Research game feel / juice best practices 2025 (Session 19)
 - [ ] Analyze Windblown (Dead Cells devs new roguelike) for co-op mining potential
 - [ ] Study mobile game "offline progress reveal" animation patterns
 - [ ] Research Cogmind's extended game challenges for v1.1 mastery content
@@ -912,6 +963,7 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-elevator-unlock-a0099585` - Elevator unlock celebration/discovery framing (Session 19)
 - `GoDig-implement-block-crack-c5b298f2` - Block crack progression visual feedback (Session 19)
 - `GoDig-implement-wall-jump-ec117d74` - Wall-jump mastery celebration feedback (Session 19)
+- `GoDig-implement-emergency-rescue-c0e6b975` - Emergency rescue fee proportional to depth (Session 19)
 
 ## How to Use This Task
 

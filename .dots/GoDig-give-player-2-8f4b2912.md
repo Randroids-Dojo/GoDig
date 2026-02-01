@@ -35,6 +35,14 @@ Starting with enough ladders teaches the mechanic and enables a comfortable firs
 ## Files
 - scripts/autoload/save_manager.gd (new_game function)
 
+## Why This is P0 (Critical for Core Loop)
+From Session 4 research:
+- "First few minutes determine whether user stays or churns"
+- Without starting ladders, players WILL get stuck on first dive
+- 5 ladders = ~25-30m depth safely (with wall-jumping)
+- First trip must be PROFITABLE, not break-even
+- This enables first upgrade in 2-3 trips (5-minute target)
+
 ## Verify
 - [ ] New game starts with 5 ladders in inventory
 - [ ] HUD shows ladder count (5) immediately
@@ -42,3 +50,4 @@ Starting with enough ladders teaches the mechanic and enables a comfortable firs
 - [ ] Tutorial hint suggests trying to place a ladder
 - [ ] Existing saves not affected (only new games)
 - [ ] First dive with 5 ladders reaches ~25m comfortably
+- [ ] Player can return to surface with inventory containing ore

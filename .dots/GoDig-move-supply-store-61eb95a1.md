@@ -33,8 +33,16 @@ Change Supply Store unlock from 100m to 0m. This is the cleanest solution becaus
 ## Files to modify
 - scripts/surface.gd (BUILDING_SLOTS unlock_depth on line 17)
 
+## Why This is P0 (Critical for Core Loop)
+From Session 4 research:
+- "Worst performing games lose 46% of installs by minute 5"
+- First complete loop (dig -> sell -> upgrade) must happen in under 5 minutes
+- Without Supply Store at 0m, players can't buy escape resources before getting stuck
+- This is THE gate blocking the entire core loop from functioning
+
 ## Verify
 - [ ] Supply Store building visible at game start
 - [ ] Player can enter Supply Store immediately
-- [ ] Ladders purchasable for $50
+- [ ] Ladders purchasable for $10 each
+- [ ] Player can afford 3+ ladders after selling first trip's ore
 - [ ] Tutorial mentions Supply Store exists

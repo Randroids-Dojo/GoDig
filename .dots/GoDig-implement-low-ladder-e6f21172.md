@@ -41,5 +41,17 @@ Research shows 'investment protection' is a core motivator. Players deep undergr
 
 **NOTE**: This is a SIMPLIFIED version of the ladder warning. For the full depth-aware version with scaling formula, see:
 - `GoDig-implement-depth-aware-00ae8542` (Depth-aware ladder warning system)
+- `GoDig-implement-return-route-86fe3653` (Visual hints for return routes - Session 13)
 
 For MVP, implement THIS spec first (simple fixed thresholds). The depth-aware version is a P2 polish enhancement.
+
+## Session 13 Research Context
+
+From Deep Sea Adventure analysis:
+- "Double whammy of moving slower and the end accelerating on you punishes hubris"
+- Players need to KNOW they're in trouble before it's too late
+- Our ladder depletion creates gradual tension (better than sudden bust)
+
+From Motherload/Dome Keeper:
+- "Mining underground is strangely peaceful... but tension always hangs in background"
+- The return trip is where FUN can die - warnings prevent frustration

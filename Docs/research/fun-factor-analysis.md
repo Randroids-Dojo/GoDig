@@ -1893,3 +1893,129 @@ Based on accumulated research, prioritized implementation needs:
 - [Motherload - TVTropes](https://tvtropes.org/pmwiki/pmwiki.php/VideoGame/Motherload)
 - [Upgrade Games Analysis - NuMuKi](https://www.numuki.com/games/upgrade/)
 - [Risk vs Reward Board Games - Brain Games](https://brain-games.com/en-us/blogs/board-game-explorer/risk-vs-reward-balancing-strategies-in-board-games)
+
+## Session 13 Research: Discovery, Automation, and Player Return
+
+> Last updated: 2026-02-01 (Session 13)
+
+### Astroneer Terrain Deformation Design
+
+From [Gamedeveloper](https://www.gamedeveloper.com/design/what-i-astroneer-i-s-devs-learned-while-leaving-early-access):
+
+- "Sculpting the terrain is what people want to do in the game. It's kind of like the output valve."
+- The entire game was built around terrain deformation from day one
+- "Full ground deformation with your digging tool" creates "simple joy to creating and finding things"
+- Can "dig right to the core of each planet" - validates infinite depth appeal
+- Uses marching cubes algorithm + chunk-based rebuilding for performance
+
+**GoDig Application**: Our block-based digging is simpler but each dig should still feel impactful. The "making a mark on the world" feeling is key to satisfaction.
+
+### Factory Builder Automation Design (Satisfactory/Factorio)
+
+From [ThinkYGames](https://thinkygames.com/features/a-satisfactory-result-how-factory-builders-use-logic-puzzles-to-revolutionise-the-management-genre/):
+
+- Satisfactory: "glossier, more accessible experience, effectively streamlining many of the ideas Factorio pioneered"
+- Infinite resource deposits remove tedious "seek new veins" loop
+- "Overseeing a system of interconnected machines is its own type of logic puzzle"
+- Player quote: "I don't know where the factory ends and I begin" - deeply immersive
+
+**GoDig v1.1 Application**: Auto-Miner Station should create simple optimization puzzles without over-complicating. Satisfactory succeeded by streamlining - we should do the same.
+
+### Procedural Generation Discovery Principles
+
+From [Slavna Studio](https://www.slavnastudio.com/blog/top-strategies-for-implementing-procedural-generation-in-games/):
+
+- "The key is control: randomness should surprise players, but never betray them. Think of it like jazz."
+- Cellular automata mimics natural cave erosion - creates believable chambers
+- Wave Function Collapse creates "unpredictable but still cohesive" results
+- Hidden corridors offer "alternative routes if discovered"
+
+From [EditorialGE](https://editorialge.com/mind-blowing-procedural-generation-games/):
+
+- Deep Rock Galactic: completely destructible procedural caves are "key feature"
+- Spelunky 2: "no two expeditions are identical" - keeps runs fresh
+- Terraria: "unique secrets, including hidden chests, underground temples"
+
+**GoDig Application**: Our procedural generation should include discoverable secrets - hidden treasure rooms, rare structure spawns, mini-puzzles. These create stories players tell.
+
+### Discovery as Core Design Element
+
+From [GamersLearn](https://www.gamerslearn.com/design/curiosity-exploration-and-discovery-in-video-games):
+
+- "It's not just exploration that's required, but also the sense of discovery that makes these games magical"
+- Discovery = "going out into the game to find things you didn't know were there"
+- Games need "narrative or mechanical branching" to create true exploration feel
+
+From [MrMineBlog](https://blog.mrmine.com/free-mining-games-mr-mine-idle-clicker-adventure/):
+
+- "These moments break the routine and add depth to your mining journey"
+- "They make the game feel more like an adventure than a numbers game"
+- Hidden journals, audio logs, artifacts tell tales of the underground
+
+**GoDig Implementation**: Add discoverable lore elements - old mining journals, strange artifacts, abandoned equipment. These create emotional investment beyond pure progression.
+
+### Mobile Player Re-engagement & Comeback Mechanics
+
+From [GameRefinery](https://www.gamerefinery.com/four-ways-how-mobile-games-re-engage-lapsed-players/):
+
+- 77% of mobile app users churn within first 3 days - re-engagement critical
+- "Welcome back" campaigns: 3-7 days for users who haven't played in X days
+- "Claim your 1,000 free gems now!" feels like gift, not ad
+- Clash Royale's "Season Reset" gives lapsed players fresh start
+
+From [AppSamurai](https://appsamurai.com/blog/retargeting-in-mobile-gaming-how-to-win-back-players-and-boost-ltv-in-2025/):
+
+- Effective rewards: premium currency, gacha tickets, exclusive items
+- Timed boosts create urgency without guilt
+- Personalized messages: "You were so close to unlocking a new character! Come back and finish"
+- ML-driven segmentation: at-risk mid-value, high-value whales, low-value free players
+
+From [Mistplay](https://business.mistplay.com/resources/player-retention):
+
+- Mistplay removed streak pressure from daily rewards - "players were happier"
+- **Key insight**: Don't punish absence. Streaks create guilt, not joy.
+
+**GoDig Implementation**: Welcome back rewards should include ladders (core resource), premium ore, and progress reminder. NO daily login streaks.
+
+### 2025 Mobile Retention Benchmarks
+
+From [NudgeNow](https://www.nudgenow.com/blogs/mobile-game-retention-benchmarks-industry):
+
+- Average Day 1 retention: 26%
+- Average Day 7 retention: 10%
+- Average Day 30 retention: <4%
+- Top performers (puzzle/casual): 35%+ Day 1, 12%+ Day 7
+- Genshin Impact: 40%+ Day 30 through exploration, events, character upgrades
+
+**GoDig Target**: Aim for casual-tier retention (30%+ D1, 12%+ D7) through satisfying core loop.
+
+## Implementation Priorities Update (Session 13)
+
+### New High-Priority Features Identified
+
+| Feature | Priority | Rationale |
+|---------|----------|-----------|
+| Discoverable lore (journals) | P2 | Breaks routine, creates adventure feel |
+| Hidden treasure rooms | P2 | "Surprise but never betray" discovery |
+| Welcome back rewards | P2 | Critical for re-engagement |
+| v1.1: Simple automation | P3 | Streamlined like Satisfactory |
+
+### Implementation Specs Created
+
+- `GoDig-implement-discoverable-lore-67646ab4` - Journals, artifacts, equipment
+- `GoDig-implement-welcome-back-f99d9b0d` - Return player rewards
+- `GoDig-implement-hidden-treasure-9fd6f4c2` - Procedural treasure rooms
+- `GoDig-implement-automation-building-496db9d0` - Auto-Miner v1.1
+
+## Sources (Session 13)
+
+- [What Astroneer's Devs Learned - Gamedeveloper](https://www.gamedeveloper.com/design/what-i-astroneer-i-s-devs-learned-while-leaving-early-access)
+- [Satisfactory Factory Builders - ThinkYGames](https://thinkygames.com/features/a-satisfactory-result-how-factory-builders-use-logic-puzzles-to-revolutionise-the-management-genre/)
+- [Procedural Generation Strategies - Slavna Studio](https://www.slavnastudio.com/blog/top-strategies-for-implementing-procedural-generation-in-games/)
+- [Procedural Generation Games - EditorialGE](https://editorialge.com/mind-blowing-procedural-generation-games/)
+- [Curiosity and Discovery - GamersLearn](https://www.gamerslearn.com/design/curiosity-exploration-and-discovery-in-video-games)
+- [Mr Mine Analysis - MrMineBlog](https://blog.mrmine.com/free-mining-games-mr-mine-idle-clicker-adventure/)
+- [Re-engaging Lapsed Players - GameRefinery](https://www.gamerefinery.com/four-ways-how-mobile-games-re-engage-lapsed-players/)
+- [Retargeting in Mobile Gaming 2025 - AppSamurai](https://appsamurai.com/blog/retargeting-in-mobile-gaming-how-to-win-back-players-and-boost-ltv-in-2025/)
+- [Player Retention Guide - Mistplay](https://business.mistplay.com/resources/player-retention)
+- [Mobile Retention Benchmarks - NudgeNow](https://www.nudgenow.com/blogs/mobile-game-retention-benchmarks-industry)

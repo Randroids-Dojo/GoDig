@@ -99,7 +99,7 @@ jobs:
       - name: Setup Godot Engine
         uses: chickensoft-games/setup-godot@v2
         with:
-          version: 4.4.1
+          version: 4.6.0
           use-dotnet: false
           include-templates: true
 
@@ -181,7 +181,7 @@ jobs:
       - name: Setup Godot Engine
         uses: chickensoft-games/setup-godot@v2
         with:
-          version: 4.4.1
+          version: 4.6.0
           use-dotnet: false
           include-templates: true
 

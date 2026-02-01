@@ -13,8 +13,8 @@ signal settings_opened
 @onready var settings_btn: Button = $CenterContainer/VBox/ButtonContainer/SettingsButton
 @onready var version_label: Label = $VersionLabel
 
-## Game version from project settings
-var _game_version: String = "v0.1.0"
+## Game version (loaded from project settings in _setup_version)
+var _game_version: String = ""
 
 ## Error dialog for save/load failures
 var error_dialog: AcceptDialog = null

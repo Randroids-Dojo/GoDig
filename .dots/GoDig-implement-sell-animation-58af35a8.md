@@ -65,3 +65,20 @@ From [Game Economist research](https://www.gameeconomistconsulting.com/the-best-
 - [ ] Performance: works with 20+ items sold at once
 - [ ] Coins spread/arc, not straight line
 - [ ] Brief pause when coins reach wallet
+- [ ] Large sells (100+ coins) feel special (Session 13)
+- [ ] Player cannot spam-sell during animation (Session 13)
+
+## Related Session 13 Research
+
+From sell animation psychology research:
+- "Accumulated coin piles accompanied by sparkling sounds evoke feelings of achievement"
+- "Vivid visuals - shining coins, flashing lights - amplify perceived reward"
+- The sell moment is a KEY REWARD BEAT in the core loop
+
+From Idle Miner Tycoon analysis:
+- Players love the "return-from-idle" animation showing earnings
+- "Satisfying loop where small actions support big goals"
+- The visual feedback IS the reward, not just the number
+
+## Related Specs
+- See `GoDig-implement-satisfying-sell-150bde42` for additional Session 13 context

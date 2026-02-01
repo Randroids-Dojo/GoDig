@@ -825,9 +825,11 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-distinct-layer-a60843e5` - Dead Cells-style distinct layer identities (Session 17)
 - `GoDig-implement-optional-danger-cc87675c` - Optional high-risk high-reward danger zones (Session 17)
 - `GoDig-implement-ftue-60-94baf4fa` - FTUE: Dig-find-return in first 60 seconds (Session 17)
-- `GoDig-implement-upgrade-solves-frustration-PENDING` - Each upgrade solves specific recent frustration (Session 18)
-- `GoDig-implement-juice-accessibility-PENDING` - Accessibility options for visual/audio intensity (Session 18)
-- `GoDig-implement-5-min-complete-loop-PENDING` - Ensure complete loop fits in 5 minutes (Session 18)
+- `GoDig-implement-upgrade-solves-92eac94a` - Each upgrade solves specific recent frustration (Session 18)
+- `GoDig-implement-game-juice-8a70d20e` - Accessibility options for visual/audio intensity (Session 18)
+- `GoDig-implement-5-minute-655909a4` - Ensure complete loop fits in 5 minutes (Session 18)
+- `GoDig-implement-subtle-mining-7540eb96` - Two-tier juice system (subtle mining vs discovery) (Session 18)
+- `GoDig-research-keep-digging-512417e2` - Keep Digging competitive differentiation (Session 18)
 
 ## How to Use This Task
 

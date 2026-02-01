@@ -62,33 +62,60 @@ Do not consider a push successful until CI is green.
 
 ## Version Management
 
-**Update the version before committing significant changes.**
+**⚠️ CRITICAL: Bump the version BEFORE every commit that changes game code.**
 
-The game version is stored in `project.godot`:
+This is mandatory. Do not commit without updating the version first.
+
+### Version Location
 
 ```ini
-config/version="0.1.0"
+# In project.godot:
+config/version="X.Y.Z"
 ```
 
-### When to Update Version
+### Version Bump Rules
 
-- **Patch (0.0.X)**: Bug fixes, minor tweaks
-- **Minor (0.X.0)**: New features, gameplay changes
-- **Major (X.0.0)**: Breaking changes, major milestones
+| Change Type | Bump | Examples |
+|-------------|------|----------|
+| **Patch (Z)** | 0.2.0 → 0.2.1 | Bug fixes, typo fixes, minor tweaks, config changes |
+| **Minor (Y)** | 0.2.1 → 0.3.0 | New features, UI changes, gameplay changes, new systems |
+| **Major (X)** | 0.3.0 → 1.0.0 | Breaking changes, major milestones, public releases |
 
-### How to Update
+### When to Bump
 
-Edit `project.godot` line 14:
+**ALWAYS bump for:**
+- Any change to `.gd` scripts
+- Any change to `.tscn` scenes
+- Any change to `.tres` resources
+- Any gameplay or UI modifications
+
+**Skip version bump ONLY for:**
+- Documentation-only changes (`.md` files)
+- CI/tooling changes (`.yml`, hooks)
+- Test-only changes that don't affect game code
+
+### How to Bump
 
 ```bash
-# Check current version
+# 1. Check current version
 grep "config/version" project.godot
 
-# Update manually or with sed
-sed -i '' 's/config\/version="[^"]*"/config\/version="0.2.0"/' project.godot
+# 2. Update version (replace X.Y.Z with new version)
+sed -i '' 's/config\/version="[^"]*"/config\/version="X.Y.Z"/' project.godot
+
+# 3. Include project.godot in your commit
+git add project.godot
 ```
 
-Always update the version BEFORE committing, not after.
+### Commit Workflow
+
+1. Make your code changes
+2. **Bump version in project.godot**
+3. Stage all files including project.godot
+4. Commit with descriptive message
+5. Push
+
+**Never commit code changes without bumping the version first.**
 
 ## Task Management with Dots
 

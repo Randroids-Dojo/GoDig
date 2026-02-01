@@ -32,3 +32,7 @@ Make surface feel like a safe, rewarding home base to contrast with underground 
 - [ ] Returning after dive feels rewarding
 - [ ] Music/ambient transitions smoothly
 - [ ] No jarring contrast (smooth not sudden)
+
+## Note: Duplicate Spec
+
+**This spec is superseded by `GoDig-implement-surface-home-547bf147`** which has more detailed implementation notes. Implement that spec instead; this one can be closed as duplicate when the other is complete.

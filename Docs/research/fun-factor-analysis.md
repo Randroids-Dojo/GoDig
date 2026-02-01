@@ -767,10 +767,139 @@ From [Segwise](https://segwise.ai/blog/boost-mobile-game-retention-strategies) a
 - [Push Your Luck Mechanic - BoardGameGeek](https://boardgamegeek.com/boardgamemechanic/2661/push-your-luck)
 - [Push Your Luck Games - Board Game Design Course](https://boardgamedesigncourse.com/game-mechanics-sometimes-you-want-to-push-your-luck/)
 - [Best Roguelike Games - PCGamesN](https://www.pcgamesn.com/best-roguelike-games)
-- [Why Roguelikes Are Engaging - RetroStyleGames](https://retrostylegames.com/blog/why-are-roguelike-games-so-engaging/)
+- [Why Roguelikes Are Engaging - RetroStyleGames](https://retrostylegames.com/blog/why-are-roguelikes-so-engaging/)
 - [Compulsion Loops - GameDeveloper](https://www.gamedeveloper.com/design/compulsion-loops-dopamine-in-games-and-gamification)
 - [What is a Core Loop - Superscale](https://superscale.com/resources/what-is-a-core-loop/)
 - [Tension and Release - GameDeveloper](https://www.gamedeveloper.com/design/addressing-conflict-tension-and-release-in-games)
 - [Mobile Game Retention - Segwise](https://segwise.ai/blog/boost-mobile-game-retention-strategies)
 - [Player Retention Tips - Felgo](https://blog.felgo.com/mobile-game-development/10-simple-tips-that-will-boost-your-player-retention)
 - [Dome Keeper Reviews - TheXboxHub](https://www.thexboxhub.com/dome-keeper-review/)
+
+## Session 8 Research: Ladder Economy & Risk-Reward Decision Timing
+
+### The "Venture Deeper or Return" Decision
+
+From [Playercounter](https://playercounter.com/blog/why-risk-reward-cycles-dominate-modern-game-design/) and [Game Wisdom](https://game-wisdom.com/general/games-retain-players-using-risk-reward):
+
+- "Do we venture deeper or return to safety?" - THE core question our game must pose
+- This decision triggers "anticipation, tension, and satisfaction" - the emotional trifecta
+- **Balance is critical**: If odds of success are too low or penalties too high, players abandon
+- **Player perception of fairness matters**: Outcomes must feel justified, not arbitrary
+- **Timing is everything**: Skilled players reduce exposure to bad outcomes while maximizing gains
+
+### Ladder as "Risk Budget"
+
+Our ladder system creates a unique risk-reward dynamic:
+- **Each ladder placed is a sunk cost**: Can't get it back
+- **But each ladder also reduces future risk**: Creates escape route
+- **Decision point every ~5-10 blocks**: "Do I place one here or save it?"
+- **Key insight**: Unlike fuel (Motherload) which depletes passively, ladders require ACTIVE decisions
+
+This is BETTER than fuel because:
+1. Player feels agency in every ladder placement
+2. Ladders are visible infrastructure - player sees their safety net
+3. Creates "I made this escape route" ownership feeling
+4. Reusable (can climb back down) unlike consumed fuel
+
+### SteamWorld Dig Core Loop Excellence
+
+From [Medium Review](https://medium.com/@KlaraMelinaca/steam-world-dig-review-3558033741b8) and [Gold-Plated Games](https://goldplatedgames.com/2022/06/03/review-steamworld-dig/):
+
+- Core: "mine down, return topside, sell, upgrade" - identical to ours
+- "Right amount of simple" - complexity in route decisions, not mechanics
+- **Perfect length**: 3-4 hours before formula wears welcome - pacing matters
+- "Best platforming mechanics not made by Nintendo" - wall-jump must feel AMAZING
+- Drilling powerup "cuts digging to a fraction of time" - upgrades must be dramatic
+
+### Dome Keeper 2024-2025 Player Feedback
+
+From [Indiecator Review](https://indiecator.org/2024/11/29/indietail-dome-keeper/):
+
+- Hit 1 million players - validates the mining + resource management loop
+- **What players love**: "Terrific sci-fi aesthetic, satisfying risk-reward system"
+- **What players hate**: "Too slow, repetitive, grindy" and "back and forth tedium"
+
+**GoDig Mitigation for Tedium**:
+- Quick-buy ladder button (no shop visit needed)
+- Future: Elevator for express return
+- Procedural variety prevents pattern recognition
+
+### Mobile Onboarding Critical Window
+
+From [Plotline](https://www.plotline.so/blog/boost-player-retention-in-mobile-games) and [Medium](https://medium.com/@amol346bhalerao/mobile-game-onboarding-top-ux-strategies-that-boost-retention-6ef266f433cb):
+
+- "First few minutes often determine whether player continues or uninstalls"
+- **Poor onboarding = major Day 1 retention killer**
+- Onboarding must create "first win" ensuring players feel rewarded
+- Too long = bored, too short = confused
+- **5 minutes max** for tutorial, with skip option
+- Core loop (action -> reward -> progression) should complete in 3-5 minutes
+
+### Push-Your-Luck Board Game Insights
+
+From [Board Game Design Course](https://boardgamedesigncourse.com/game-mechanics-sometimes-you-want-to-push-your-luck/) and [Game Ideas](https://www.gameideas.net/push-your-luck):
+
+- **Distinct from pure luck**: Push-your-luck gives players meaningful CHOICES
+- **Incan Gold**: Self-balancing - fewer players staying in = greater potential reward
+- **Zombie Dice**: "3 strikes and you're out" - clear bust threshold
+- **Deep Sea Adventure**: Shared oxygen supply - interesting twist where greed affects all players
+
+**GoDig Application**: Our "bust threshold" is running out of ladders while deep. Unlike sudden bust, it's a slow, insidious pressure like Deep Sea Adventure - you feel it building.
+
+### Implementation Priority Refinement (Session 8)
+
+Based on accumulated research, the CRITICAL PATH for fun factor:
+
+#### P0 - Core Loop Enablers (BLOCKING)
+These features MUST exist for the game to function:
+
+| Feature | Status | Blocker For |
+|---------|--------|-------------|
+| Supply Store at 0m | Spec exists | First ladder purchase |
+| 5 Starting Ladders | Spec exists | Profitable first trip |
+| First upgrade < 5 min | Need economy tuning | Retention gate |
+
+#### P1 - Core Tension Mechanics
+These features create the risk-reward feeling:
+
+| Feature | Impact | Notes |
+|---------|--------|-------|
+| Low ladder warning | Creates anxiety | Visual + audio cue |
+| Forfeit Cargo option | Accessible recovery | Middle-ground between death and reload |
+| One-tap ladder placement | Reduces friction | Touch-friendly action |
+| Instant respawn | Quick restart | Under 3 seconds death-to-dig |
+| Quick-buy ladder | Seamless economy | Don't break flow |
+
+#### P2 - Reward Satisfaction
+These features make rewards feel good:
+
+| Feature | Impact | Notes |
+|---------|--------|-------|
+| First ore celebration | Hook moment | Extra sparkles, special sound |
+| Sell animation (coin arc) | Tangible reward | Rolling counter, satisfying |
+| Upgrade comparison UI | Power fantasy | Before/after numbers |
+| Safe return celebration | Relief arc | "Cargo secured!" |
+
+### Missing Spec Identified: Upgrade Economy Tuning
+
+Research reveals first upgrade timing is CRITICAL for retention. Currently no spec addresses the actual NUMBERS for:
+- Starting coins (0?)
+- Ore sell values in first 50m
+- Copper Pickaxe cost (currently 500)
+- Expected time to first upgrade
+
+**Need new spec**: Economy balance pass for first 5 minutes.
+
+## Sources (Session 8)
+
+- [Risk-Reward Cycles Dominate Game Design - Playercounter](https://playercounter.com/blog/why-risk-reward-cycles-dominate-modern-game-design/)
+- [Risk and Reward Shape Game Strategies - Minifiniti](https://minifiniti.com/blogs/game-talk/how-risk-and-reward-shape-game-strategies)
+- [Games Retain Players Using Risk Reward - Game Wisdom](https://game-wisdom.com/general/games-retain-players-using-risk-reward)
+- [SteamWorld Dig Review - Medium](https://medium.com/@KlaraMelinaca/steam-world-dig-review-3558033741b8)
+- [Review SteamWorld Dig - Gold Plated Games](https://goldplatedgames.com/2022/06/03/review-steamworld-dig/)
+- [Indietail Dome Keeper 2024 - Indiecator](https://indiecator.org/2024/11/29/indietail-dome-keeper/)
+- [Mobile Game Onboarding UX - Medium](https://medium.com/@amol346bhalerao/mobile-game-onboarding-top-ux-strategies-that-boost-retention-6ef266f433cb)
+- [Boost Player Retention - Plotline](https://www.plotline.so/blog/boost-player-retention-in-mobile-games)
+- [Push Your Luck - Game Ideas](https://www.gameideas.net/push-your-luck)
+- [Ladder Mechanics in Games - Pav Creations](https://pavcreations.com/climbing-ladders-mechanic-in-unity-2d-platformer-games/)
+- [Video Games vs Ladders Analysis - Parry Everything](https://parryeverything.com/2023/01/31/video-games-vs-ladders/)

@@ -441,3 +441,136 @@ Based on accumulated research, here's the refined priority order for maximum fun
 - [Currency Animations - Game Economist](https://www.gameeconomistconsulting.com/the-best-currency-animations-of-all-time/)
 - [Idle Game Psychology - Artifex Terra](https://artifexterra.com/the-psychology-behind-idle-game-addictiveness/)
 - [Game Juice Guide - Blood Moon Interactive](https://www.bloodmooninteractive.com/articles/juice.html)
+
+## Session 5 Research: Quick Restart & Compulsion Loop Design
+
+### The "Just One More" Psychology
+
+From [GameDeveloper](https://www.gamedeveloper.com/design/compulsion-loop-is-withdrawal-driven) and [Medium](https://medium.com/@luc_chaoui/understanding-game-design-the-psychology-of-addiction-41128565305f):
+
+- **Core loop completable in 30 seconds to 3 minutes** - This range maximizes the "just one more" effect
+- **Compulsion is withdrawal-driven** - Game degrades tool efficiency, creating need to restore reward schedule
+- **Variable Ratio Reinforcement** - Unpredictable rewards (like loot boxes) are more motivating than fixed rewards
+- **"This will be the time it pays off"** mentality keeps players engaged
+
+**GoDig Application**: Each mining trip should complete in 3-8 minutes. Full inventory = natural completion. The variability of ore discovery (not every block has treasure) creates the slot-machine psychology.
+
+### Quick Restart Mechanics (Roguelike Lessons)
+
+From [RetroStyleGames](https://retrostylegames.com/blog/why-are-roguelike-games-so-engaging/) and [GameDeveloper](https://www.gamedeveloper.com/design/death-in-gaming-roguelikes-and-quot-rogue-legacy-quot-):
+
+- **Near-instant restart after failure** - Menus getting in the way antagonizes frustrated players
+- **Permadeath creates meaningful stakes** - Every decision significant, victories more satisfying
+- **Meta-progression softens the blow** - Rogue Legacy: death is part of narrative AND necessity for progress
+- **"Always another chance" feeling** - Each failure is learning experience, success feels valuable
+
+**GoDig Application**:
+- After death/forfeit: Instant respawn at surface with shop visible
+- After selling: "Quick Dive" button returns to last depth instantly
+- After upgrade: Show before/after comparison, immediate urge to test new power
+
+### Dome Keeper's Systems Feeding Each Other
+
+From [Gamedeveloper](https://www.gamedeveloper.com/business/how-dome-keeper-focuses-on-systems-that-feed-into-one-another):
+
+- Mining needed to survive battles, battles constrain mining time
+- **"Do you risk digging deeper for that juicy cobalt vein, or hightail it back?"** - THE core tension
+- Carrying capacity affects transport efficiency (visible progress)
+- Developer: "I wanted real gameplay reason to go mining. The monsters create that pressure."
+
+**GoDig Application**: Our pressure is ladder scarcity + distance from surface. Unlike Dome Keeper's external time pressure (waves), ours is internal resource pressure (ladders). Both create the "push your luck" decision.
+
+### SteamWorld Dig's Accessibility Compromise
+
+From [Gamedeveloper](https://www.gamedeveloper.com/design/game-design-deep-dive-the-digging-mechanic-in-i-steamworld-dig-i-):
+
+- Original intent: Constant risk of getting stuck as MAIN tension source
+- Reality: Most players didn't want to play that way
+- **Wall-jumping transformed "stuck" from binary to gray zone** - Players use wits to escape
+- Sweet spot: Testers fell into holes, sweated, found clever escape, felt awesome
+- No mid-air digging for balance reasons (would allow zig-zag upward tunnels)
+
+**GoDig Application**: Wall-jumping is critical for converting "stuck = frustration" into "stuck = challenge". Our wall-jump must be reliable and learnable. Forfeit Cargo is the safety valve for truly stuck situations.
+
+### Mobile Onboarding Critical Metrics
+
+From [Medium/Adrian Crook](https://adriancrook.com/best-practices-for-mobile-game-onboarding/) and [Segwise](https://segwise.ai/blog/boost-mobile-game-retention-strategies):
+
+- **40% session length increase** when players master controls within 5 minutes
+- **"Keep it balanced"** - Too long = bored, too short = confused
+- **Marvel Snap**: Complex CCG showcased in under 4 minutes
+- **Candy Crush**: Immediate rewards (free boosters, easy matches) boost confidence
+
+**GoDig Application**: Tutorial must be under 5 minutes. By minute 5, player should have: mined ore, returned to surface, sold resources, seen upgrade possibility. Starting with 5 ladders enables this.
+
+### Resource Management as Decision Pressure
+
+From [Smoothie Wars](https://www.smoothiewars.com/blog/resource-management-mechanics-guide):
+
+- **Opportunity cost is crucial** - Choosing one option prevents others
+- **"I can't do everything" creates tension** - This is where fun lives
+- **Good tension**: "I wish I could do both, but I must choose"
+- **Bad frustration**: "I can't do anything meaningful; I'm just blocked"
+- **Scarcity should feel like "never quite enough"** - Drives decisions
+
+**GoDig Application**: 8 inventory slots + limited ladders = constant decisions. "Do I pick up this coal or save space for gold?" and "Do I place a ladder here or save it for deeper?"
+
+## Session 5 Implementation Insights
+
+### Quick Restart Cycle Design
+
+After player death or forfeit cargo:
+1. Instant fade to black (0.5s)
+2. Respawn at surface (no loading screen)
+3. Shop building visible immediately
+4. Notification: "Cargo lost. Ready for another dive?"
+5. Player can start digging within 3 seconds
+
+After selling resources:
+1. Coin animation plays (satisfying)
+2. If upgrade affordable: "New pickaxe available!" prompt
+3. "Quick Dive" button appears: returns to last depth marker
+4. Player can restart loop within 5 seconds
+
+### The Tension Curve Per Session
+
+```
+TENSION
+   ^
+   |                    * Inventory 100%, deep, 1 ladder
+   |                  **
+   |                 *    Low ladder warning
+   |               *
+   |             *   Inventory 60%
+   |           *
+   |         *
+   |       *
+   |     *   First ore found (excitement spike)
+   |   *
+   | *   Start dive (5 ladders = confidence)
+---+----------------------------------------> TIME
+   |
+   |  * Back on surface (relief)
+   v
+RELIEF
+```
+
+### Missing Implementation Specs Identified
+
+1. **Quick Dive Button** - Return to last depth after selling (already spec'd: implement-quick-dive-0cb05828)
+2. **Instant Respawn Flow** - No loading screen between death and surface
+3. **Upgrade Prompt After Sell** - If player can afford upgrade, nudge them
+4. **Controls Mastery in 5 Minutes** - Tutorial timing verification
+
+## Sources (Session 5)
+
+- [Compulsion Loop is Withdrawal-Driven - GameDeveloper](https://www.gamedeveloper.com/design/compulsion-loop-is-withdrawal-driven)
+- [Psychology of Addiction in Games - Medium](https://medium.com/@luc_chaoui/understanding-game-design-the-psychology-of-addiction-41128565305f)
+- [Why Roguelikes Are Addictive - RetroStyleGames](https://retrostylegames.com/blog/why-are-roguelike-games-so-engaging/)
+- [Roguelikes and Rogue Legacy - GameDeveloper](https://www.gamedeveloper.com/design/death-in-gaming-roguelikes-and-quot-rogue-legacy-quot-)
+- [Dome Keeper Systems Design - Gamedeveloper](https://www.gamedeveloper.com/business/how-dome-keeper-focuses-on-systems-that-feed-into-one-another)
+- [SteamWorld Dig Deep Dive - Gamedeveloper](https://www.gamedeveloper.com/design/game-design-deep-dive-the-digging-mechanic-in-i-steamworld-dig-i-)
+- [Mobile Onboarding Best Practices - Adrian Crook](https://adriancrook.com/best-practices-for-mobile-game-onboarding/)
+- [Boost Mobile Retention - Segwise](https://segwise.ai/blog/boost-mobile-game-retention-strategies)
+- [Resource Management Guide - Smoothie Wars](https://www.smoothiewars.com/blog/resource-management-mechanics-guide)
+- [Designing for Mastery in Roguelikes - Grid Sage Games](https://www.gridsagegames.com/blog/2025/08/designing-for-mastery-in-roguelikes-w-roguelike-radio/)

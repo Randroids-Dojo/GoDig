@@ -1643,3 +1643,253 @@ Key Insight: Unlike Dome Keeper where "pressure is always max," GoDig must have 
 - [SteamWorld Dig 2 Addiction - ResetEra](https://www.resetera.com/threads/steamworld-dig-2-why-is-it-so-addicting.33518/)
 - [Mobile Onboarding - Adrian Crook](https://adriancrook.com/best-practices-for-mobile-game-onboarding/)
 - [FTUE Definition - Mobile Game Doctor](https://mobilegamedoctor.com/2025/05/30/ftue-onboarding-whats-in-a-name/)
+
+## Session 12 Research: Metrics-Driven Design, Mining Feel, Economy Fundamentals
+
+### Slay the Spire's Metrics-Driven Development (GDC Vault)
+
+From [GDC Vault](https://www.gdcvault.com/play/1025731/-Slay-the-Spire-Metrics) and [Gamedeveloper](https://www.gamedeveloper.com/design/how-i-slay-the-spire-i-s-devs-use-data-to-balance-their-roguelike-deck-builder):
+
+**The Data-Driven Approach**:
+- Sold 1M+ copies in first year, now 3M+ on Steam with 97% positive rating
+- "Metrics-driven design and balance from early development"
+- Heavy use of data throughout 14-month Early Access
+- Weekly updates - consistent iteration is key
+- Community feedback integral but filtered through data
+
+**Design Philosophy**:
+- "Allowing for combos and strong synergies is definitely a hallmark"
+- Designed thousands of cards, cut "chaff down to designs with most impact"
+- 10-card starting deck (mostly Strikes/Defends) ensures approachable start
+- Easy to learn new characters because foundation is familiar
+
+**GoDig Application**:
+- Our tools function like Slay the Spire's cards - start simple, unlock complexity
+- Each upgrade tier should enable new "combos" (grappling hook + deep dive, etc.)
+- Track metrics: time to first upgrade, death locations, ladder usage patterns
+
+### Loop Hero's Retention Through Commit-or-Retreat
+
+From [Gamedeveloper Postmortem](https://www.gamedeveloper.com/design/postmortem-loop-hero) and [Medium Analysis](https://medium.com/@sacitsivri/game-design-breakdown-loop-hero-4a86d55142b8):
+
+**The Brilliant Hybrid**:
+- "Straddles the line between roguelike and idle game"
+- "Deceptively increases necessary grind while making every decision important"
+- Resource retention varies by exit method: die=30%, retreat early=60%, camp=100%
+- Creates "commit or retreat" decision at natural stopping points
+
+**What Worked**:
+- Idle design with roguelite persistence
+- "Mental training on how to make idle games more engaging"
+- Won 2025 Pegases Award for Best Foreign Mobile Game
+
+**What Players Criticized**:
+- "On the hard side due to RNG and idle combat"
+- "Grinding required for major buildings is very high"
+- "Feels like one right way to play each class"
+
+**GoDig Application**:
+- Our Forfeit Cargo option parallels Loop Hero's retreat system
+- Forfeit = lose 100% of cargo but keep ladders/tools (similar to retreat penalty)
+- Death = lose some cargo + tool durability (harsher but not devastating)
+- This creates meaningful "commit or retreat" decisions
+
+### Vertical Slice Playtesting (GDC 2025)
+
+From [GDC Schedule 2025](https://schedule.gdconf.com/session/building-the-perfect-vertical-slice-essential-strategies-for-developers/907576) and [Indie Bandits](https://indiebandits.com/2023/02/13/why-your-indie-game-needs-a-vertical-slice/):
+
+**Why Vertical Slices Matter**:
+- "Becoming more important than ever" for publisher attention
+- "Standing out in increasingly crowded market is biggest challenge"
+- Publishers want polished demonstration of final game feel
+
+**Best Practices**:
+- "Make First 10 Seconds Count" - bold visual, set tone with sound, give control quickly
+- "Polish Core Mechanic" - focus on ONE mechanic that defines your game
+- Core mechanic must "produce repeatable fun across multiple playtests"
+- Show player validation: "ran three playtests with 200 players, 30-40% completed surveys"
+
+**What Publishers Look For**:
+- A polished 10-30 minute vertical slice
+- Pitch deck with clear budget and timeline
+- Player validation data - "real feedback, not assumptions"
+- Studios that "iterate based on data, not just gut feeling"
+
+**GoDig Application**:
+- Our MVP IS the vertical slice - core loop must be fun before any expansion
+- Test: Does mining feel satisfying without any systems?
+- Test: Does return-trip tension work with just ladders?
+- Gather real playtest data before adding complexity
+
+### What Makes Mining Satisfying (2025 Forum Consensus)
+
+From [ResetEra](https://www.resetera.com/threads/more-satisfying-mining-in-games.1128900/) and [Gfinity Hytale](https://www.gfinityesports.com/article/hytale-creator-says-mining-isnt-fun-enough-and-notes-thousands-of-feedback-based-changes):
+
+**The Core Insight (Hytale)**:
+- Developer publicly stated mining "isn't fun enough"
+- Goal: "More fun, more satisfying, and less grindy"
+- Key: "If mining isn't fun, the entire loop feels like repetitive grind"
+
+**What Players Cite as Satisfying**:
+- Deep Rock Galactic: "digging away and finding caverns is so much fun"
+- Stardew Valley: "time limit, enemies, shortcuts, bombs, better loot deeper"
+- SteamWorld Dig: "best platforming mechanics not made by Nintendo"
+- Astroneer: "digging and finding caverns" - the exploration discovery
+
+**Common Thread**:
+- **Discovery and exploration**, not just extraction
+- Finding hidden things (caves, ore veins, treasures)
+- Variety in what you find (not just "more of same")
+- Ability to create shortcuts (Stardew bombs, SteamWorld drill)
+
+**GoDig Application**:
+- Mining MUST be inherently satisfying before any upgrades
+- Cave discovery should be a mini-event (special sound, brief celebration)
+- Each layer needs visually distinct ores - not just "harder version of same"
+- Consider: explosive items for late-game satisfaction
+
+### Mobile Economy Design: The First 5 Minutes
+
+From [Udonis](https://www.blog.udonis.co/mobile-marketing/mobile-games/balanced-mobile-game-economy) and [GameAnalytics](https://www.gameanalytics.com/):
+
+**Critical Statistics**:
+- 62% of players abandon due to lack of currency/resources
+- Dual currency systems in 78% of successful titles
+- 30% increase in engagement from steady reward tapering
+
+**The Balance Challenge**:
+- "Too generous = blast through content, get bored"
+- "Too stingy = frustrated, quit"
+- Goal: "Never quite enough" feeling that drives decisions
+
+**Layered Approach**:
+- "Perfect for mobile" - meaningful play in 5 min OR 1 hour
+- Core loop completable in 3-5 minutes
+- 88% of users return after experiencing satisfying cycle
+- Top performers lose only 17% by minute 5 (worst lose 46%)
+
+**GoDig Economy Implications**:
+- First ore discovery: under 30 seconds
+- First sale: under 2 minutes
+- First upgrade visible: under 4 minutes
+- First upgrade purchase: under 5 minutes
+- After first upgrade: player should FEEL the difference immediately
+
+### Motherload's Underground Stations Pattern
+
+From [TVTropes](https://tvtropes.org/pmwiki/pmwiki.php/VideoGame/Motherload) and [GameFAQs Guide](https://gamefaqs.gamespot.com/flash/933421-motherload/faqs/53229):
+
+**The Tedium Problem**:
+- "Going up and down so many times gets increasingly tedious"
+- First "screw this game" moment: realizing trips get longer and longer
+- "Best part is upgrading, everything in between is grind"
+
+**The Solution - Underground Stations**:
+- "Stations at various levels so don't have to go all the way back up"
+- They charge more (justified as transport cost)
+- Appear as REWARD: "Make a few more boring trips and... underground outpost appears"
+
+**Key Design Insight**:
+- The relief of finding a station turns tedium into reward
+- Player anticipates stations at certain depths
+- Creates milestone feelings beyond just "went deeper"
+
+**GoDig Application**:
+- Elevator unlock should feel like ACHIEVEMENT, not just purchase
+- Consider: rare pre-placed ladder clusters as "discovery rewards"
+- Deep stations could sell ladders at premium (convenience tax)
+- Station discovery = mini-celebration + save point
+
+### The First Upgrade Hook
+
+From [NuMuKi Analysis](https://www.numuki.com/games/upgrade/) and [Udonis Progression](https://www.blog.udonis.co/mobile-marketing/mobile-games/progression-systems):
+
+**The Psychology**:
+- "First few rounds feel tedious as characters move slowly"
+- "Players who prove patience won't go unrewarded"
+- "Satisfaction of seeing hero improve keeps players glued"
+
+**Mobile Validation**:
+- 40% session length increase when controls mastered in 5 min
+- First upgrade is THE retention gate
+- If player doesn't feel progression, they quit
+
+**The Moment of Truth**:
+- First upgrade must be FELT immediately
+- Not just "numbers went up" but "this plays differently"
+- Visual, audio, and mechanical feedback all matter
+
+**GoDig First Upgrade Design**:
+- Copper Pickaxe (Tier 2) must feel notably faster than Rusty Pickaxe
+- Show before/after comparison UI
+- Play celebratory sound + screen effect
+- First block mined with new pickaxe should feel satisfying
+
+### Risk vs Reward: Board Game Insights Applied
+
+From [Board Game Design Course](https://boardgamedesigncourse.com/game-mechanics-sometimes-you-want-to-push-your-luck/) and [Brain Games](https://brain-games.com/en-us/blogs/board-game-explorer/risk-vs-reward-balancing-strategies-in-board-games):
+
+**Push-Your-Luck vs Pure Luck**:
+- Distinct mechanics: Push-your-luck requires meaningful CHOICES
+- "Thrill of potentially enormous success, devastation of losing all"
+- Self-balancing: risk naturally increases as rewards do (Incan Gold)
+
+**Good Tension vs Bad Frustration**:
+- Good: "I wish I could do both but must choose"
+- Bad: "I can't do anything meaningful, just blocked"
+- Scarcity should feel like "never quite enough," not "impossible"
+
+**Mathematical Balancing**:
+- For 50% bust rate overall with 3 push-your-luck moments: each needs ~80% success
+- Cumulative risk creates tension without individual moments feeling unfair
+
+**GoDig Application**:
+- Each ladder placement is a meaningful choice (not pure luck)
+- At any moment, player has ~80% confidence they can return
+- But cumulative risk builds: 3 ladders left + deep = real tension
+- Unlike sudden bust (dice roll), our tension is gradual (ladder count depleting)
+
+## Implementation Checklist Update (Session 12)
+
+Based on accumulated research, prioritized implementation needs:
+
+### P0 - Core Loop Validation (Before Any Polish)
+- [ ] Test: Is mining satisfying with placeholder audio/visuals?
+- [ ] Test: Does ladder tension create meaningful decisions?
+- [ ] Test: Does first upgrade feel like power increase?
+- [ ] Metric: Time to first ore discovery (<30 sec target)
+- [ ] Metric: Time to first upgrade (<5 min target)
+
+### P1 - First Session Flow
+- [ ] Supply Store at 0m depth
+- [ ] 5 starting ladders (or Supply Store sells them immediately)
+- [ ] First ore visible within 3 blocks of surface
+- [ ] Sell transaction completes by minute 2
+- [ ] Upgrade prompt visible by minute 4
+
+### P2 - Tension/Relief Cycle
+- [ ] Low ladder warning (visual + audio)
+- [ ] Surface arrival celebration
+- [ ] Genuine relief signals on surface (music change, lighting)
+- [ ] Forfeit Cargo option for recovery
+
+### P3 - Reward Satisfaction
+- [ ] Ore discovery celebration (sparkles, sound, toast)
+- [ ] Sell animation with coin arc
+- [ ] Upgrade comparison UI (before/after)
+- [ ] Immediate power feel after upgrade
+
+## Sources (Session 12)
+
+- [Slay the Spire Metrics Driven Design - GDC Vault](https://www.gdcvault.com/play/1025731/-Slay-the-Spire-Metrics)
+- [How Slay the Spire Uses Data - Gamedeveloper](https://www.gamedeveloper.com/design/how-i-slay-the-spire-i-s-devs-use-data-to-balance-their-roguelike-deck-builder)
+- [Loop Hero Postmortem - Gamedeveloper](https://www.gamedeveloper.com/design/postmortem-loop-hero)
+- [Loop Hero Game Design Breakdown - Medium](https://medium.com/@sacitsivri/game-design-breakdown-loop-hero-4a86d55142b8)
+- [Building Perfect Vertical Slice - GDC 2025](https://schedule.gdconf.com/session/building-the-perfect-vertical-slice-essential-strategies-for-developers/907576)
+- [Why Your Indie Game Needs a Vertical Slice - Indie Bandits](https://indiebandits.com/2023/02/13/why-your-indie-game-needs-a-vertical-slice/)
+- [More Satisfying Mining - ResetEra](https://www.resetera.com/threads/more-satisfying-mining-in-games.1128900/)
+- [Hytale Mining Rework - Gfinity](https://www.gfinityesports.com/article/hytale-creator-says-mining-isnt-fun-enough-and-notes-thousands-of-feedback-based-changes)
+- [Mobile Game Economy - Udonis](https://www.blog.udonis.co/mobile-marketing/mobile-games/balanced-mobile-game-economy)
+- [Motherload - TVTropes](https://tvtropes.org/pmwiki/pmwiki.php/VideoGame/Motherload)
+- [Upgrade Games Analysis - NuMuKi](https://www.numuki.com/games/upgrade/)
+- [Risk vs Reward Board Games - Brain Games](https://brain-games.com/en-us/blogs/board-game-explorer/risk-vs-reward-balancing-strategies-in-board-games)

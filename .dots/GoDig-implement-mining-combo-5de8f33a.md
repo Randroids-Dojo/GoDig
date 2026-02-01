@@ -32,3 +32,7 @@ Add satisfying feedback for consecutive mining - builds rhythm and engagement.
 - [ ] Combo builds satisfyingly
 - [ ] Combo break feels like closure, not punishment
 - [ ] Performance: no frame drops during combo
+
+## Note: Duplicate Spec
+
+**This spec is superseded by `GoDig-implement-mining-streak-1de66c2b`** which has more detailed implementation notes and emphasis on SUBTLETY. Implement that spec instead; this one can be closed as duplicate when the other is complete.

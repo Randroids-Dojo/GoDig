@@ -15,11 +15,24 @@ Add celebratory moments when reaching depth milestones - critical retention hook
 - Milestones create natural stopping points (good for mobile)
 
 ## Implementation
-1. Define milestone depths: 25m, 50m, 100m, 250m, 500m, 1000m
+1. Define milestone depths with associated rewards/content:
+   - **25m**: "Getting deeper!" + First layer transition preview
+   - **50m**: "Stone layer reached!" + New ore type available (iron)
+   - **100m**: "Deep explorer!" + Supply Store unlocks (moved to 0m, but announces availability of better supplies)
+   - **250m**: "Into the depths!" + New biome hint
+   - **500m**: "Deep dive master!" + Elevator unlock hint
+   - **1000m**: "Mile marker!" + Special achievement
+
 2. Trigger celebration on first reach of each milestone
-3. Show 'NEW DEPTH RECORD!' notification
+3. Show 'NEW DEPTH RECORD!' notification with milestone-specific message
 4. Store milestone achievements in PlayerData
-5. Optional: small coin bonus for first-time reach
+5. **Tie milestones to content unlocks** (Mr. Mine pattern):
+   - Milestones should feel like progress gates, not just numbers
+   - Each milestone should unlock or preview something NEW
+6. Optional: small coin bonus for first-time reach (scales with depth)
+
+## Key Insight (Session 8 Research)
+From Mr. Mine analysis: "Mr Mine doesn't just reward you with cash and upgrades. It packs in surprises that trigger at specific depth milestones." Each milestone should feel like discovering a new chapter, not just incrementing a counter.
 
 ## Files
 - scripts/autoload/game_manager.gd (track milestones)

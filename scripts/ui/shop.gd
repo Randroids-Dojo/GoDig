@@ -553,7 +553,7 @@ func _create_warehouse_upgrade_section() -> Control:
 
 	# Next upgrade
 	if current_level < warehouse_upgrades.size():
-		var next := warehouse_upgrades[current_level]
+		var next = warehouse_upgrades[current_level]
 		var next_info := Label.new()
 		next_info.text = "-> Level %d: +%d total bonus slots" % [current_level + 1, next.bonus_slots]
 		vbox.add_child(next_info)
@@ -584,12 +584,12 @@ func _on_warehouse_upgrade() -> void:
 	if current_level >= warehouse_upgrades.size():
 		return
 
-	var next := warehouse_upgrades[current_level]
+	var next = warehouse_upgrades[current_level]
 	if GameManager.spend_coins(next.cost):
 		PlayerData.warehouse_level = current_level + 1
 		# Calculate slot bonus (difference from previous level)
-		var prev_bonus := 0 if current_level == 0 else warehouse_upgrades[current_level - 1].bonus_slots
-		var new_slots := next.bonus_slots - prev_bonus
+		var prev_bonus = 0 if current_level == 0 else warehouse_upgrades[current_level - 1].bonus_slots
+		var new_slots = next.bonus_slots - prev_bonus
 		InventoryManager.upgrade_capacity(InventoryManager.get_total_slots() + new_slots)
 		print("[Shop] Warehouse upgraded to level %d (+%d slots)" % [current_level + 1, new_slots])
 		_refresh_upgrades_tab()

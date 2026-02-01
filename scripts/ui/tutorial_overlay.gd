@@ -92,12 +92,11 @@ func _build_ui() -> void:
 	background.gui_input.connect(_on_background_input)
 	add_child(background)
 
-	# Panel container
+	# Panel container - auto-sizes to content
 	panel = PanelContainer.new()
 	panel.name = "Panel"
 	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.custom_minimum_size = Vector2(320, 180)
-	panel.position = Vector2(-160, -90)
+	panel.custom_minimum_size = Vector2(280, 0)  # Min width only, height auto-sizes
 	add_child(panel)
 
 	# Margin container
@@ -127,12 +126,8 @@ func _build_ui() -> void:
 	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	message_label.add_theme_font_size_override("font_size", 16)
 	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	message_label.custom_minimum_size = Vector2(240, 0)  # Min width for text wrapping
 	vbox.add_child(message_label)
-
-	# Spacer
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 10)
-	vbox.add_child(spacer)
 
 	# Button container
 	var btn_container := HBoxContainer.new()
@@ -198,32 +193,29 @@ func show_step(step: int) -> void:
 	print("[TutorialOverlay] Showing step: %d" % step)
 
 
-func _position_panel(pos: String) -> void:
-	## Position the panel on screen, ensuring it stays within viewport bounds
+func _position_panel(_pos: String = "center") -> void:
+	## Position the panel centered on screen
+	# Wait for panel to calculate its actual size based on content
+	await get_tree().process_frame
+
 	var viewport_size := get_viewport().get_visible_rect().size
-	var panel_width := panel.custom_minimum_size.x
-	var panel_height := panel.custom_minimum_size.y
+	var panel_size := panel.size  # Use actual size after layout
 
 	# Ensure panel isn't wider than viewport (with margins)
 	var margin := 20.0
 	var max_width := viewport_size.x - (margin * 2)
-	if panel_width > max_width:
+	if panel_size.x > max_width:
 		panel.custom_minimum_size.x = max_width
-		panel_width = max_width
+		await get_tree().process_frame
+		panel_size = panel.size
 
 	# Use TOP_LEFT preset for predictable positioning
 	panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 
-	# Calculate centered X position
-	var center_x := (viewport_size.x - panel_width) / 2.0
-
-	match pos:
-		"top":
-			panel.position = Vector2(center_x, 80)
-		"bottom":
-			panel.position = Vector2(center_x, viewport_size.y - panel_height - margin)
-		_:  # center
-			panel.position = Vector2(center_x, (viewport_size.y - panel_height) / 2.0)
+	# Always center the panel
+	var center_x := (viewport_size.x - panel_size.x) / 2.0
+	var center_y := (viewport_size.y - panel_size.y) / 2.0
+	panel.position = Vector2(center_x, center_y)
 
 
 func hide_tutorial() -> void:

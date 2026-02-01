@@ -52,6 +52,7 @@ const VIGNETTE_MAX_ALPHA: float = 0.4
 var upgrade_goal_container: Control = null
 var upgrade_goal_label: Label = null
 var upgrade_goal_progress: ProgressBar = null
+var upgrade_goal_value_label: Label = null
 var _upgrade_goal_tween: Tween = null
 
 ## Time since save indicator (created programmatically)
@@ -74,11 +75,39 @@ var teleport_quickslot: Control = null
 var teleport_count_label: Label = null
 var teleport_button: Button = null
 
+## Standard outline settings for HUD text
+const HUD_OUTLINE_SIZE := 3
+const HUD_OUTLINE_COLOR := Color(0.0, 0.0, 0.0, 0.9)
+
+## HUD panel colors
+const HUD_PANEL_COLOR := Color(0.1, 0.1, 0.15, 0.85)
+const HUD_BUTTON_COLOR := Color(0.15, 0.15, 0.2, 0.9)
+
+## Left panel backdrop
+var left_panel_bg: ColorRect = null
+
+
+## Apply standard dark outline to a label for readability
+static func apply_text_outline(label: Label, outline_size: int = HUD_OUTLINE_SIZE, outline_color: Color = HUD_OUTLINE_COLOR) -> void:
+	label.add_theme_constant_override("outline_size", outline_size)
+	label.add_theme_color_override("font_outline_color", outline_color)
+
 
 func _ready() -> void:
+	# Create dark backdrop panel for left-side HUD (must be first so it's behind other elements)
+	_setup_left_panel_backdrop()
+
 	# Initialize display
 	_update_health_display(100, 100)
 	low_health_vignette.visible = false
+
+	# Apply outlines to scene-defined labels for readability against any background
+	if health_label:
+		apply_text_outline(health_label)
+	if coins_label:
+		apply_text_outline(coins_label)
+	if depth_label:
+		apply_text_outline(depth_label)
 
 	# Connect to GameManager signals
 	if GameManager:
@@ -217,7 +246,7 @@ func _update_health_display(current_hp: int, max_hp: int) -> void:
 
 	# Update label
 	if health_label:
-		health_label.text = "%d/%d" % [current_hp, max_hp]
+		health_label.text = "HP %d/%d" % [current_hp, max_hp]
 
 	# Show/hide low health warning
 	var is_low := float(current_hp) / float(max_hp) <= 0.25 if max_hp > 0 else false
@@ -246,7 +275,7 @@ func _on_depth_updated(depth_meters: int) -> void:
 
 func _update_coins_display(amount: int) -> void:
 	if coins_label:
-		coins_label.text = "Coins: %d" % amount
+		coins_label.text = "$%d" % amount
 
 		# Pulse animation when coins increase
 		if _last_coins >= 0 and amount > _last_coins:
@@ -304,9 +333,9 @@ func _setup_quick_sell_button() -> void:
 	quick_sell_button.text = "Sell All"
 	quick_sell_button.visible = false  # Hidden until items exist
 
-	# Position below coins label
-	quick_sell_button.position = Vector2(16, 100)
-	quick_sell_button.custom_minimum_size = Vector2(100, 40)
+	# Position below inventory label
+	quick_sell_button.position = Vector2(16, 170)
+	quick_sell_button.custom_minimum_size = Vector2(120, 36)
 
 	# Style the button
 	quick_sell_button.add_theme_color_override("font_color", Color.GOLD)
@@ -393,15 +422,16 @@ func _setup_tool_indicator() -> void:
 	tool_label = Label.new()
 	tool_label.name = "ToolLabel"
 
-	# Position below the depth label (right side)
-	tool_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	tool_label.position = Vector2(-200, 60)
-	tool_label.custom_minimum_size = Vector2(184, 30)
+	# Position below the coins label (left side)
+	tool_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	tool_label.position = Vector2(16, 96)
+	tool_label.custom_minimum_size = Vector2(200, 20)
 
 	# Style the label
-	tool_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	tool_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	tool_label.add_theme_font_size_override("font_size", 16)
-	tool_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	tool_label.add_theme_color_override("font_color", Color.WHITE)
+	apply_text_outline(tool_label)
 
 	add_child(tool_label)
 
@@ -421,7 +451,9 @@ func _update_tool_indicator() -> void:
 
 	var tool_data = PlayerData.get_equipped_tool()
 	if tool_data != null:
-		tool_label.text = "Tool: %s" % tool_data.display_name
+		# Show tool name and damage stat
+		var dmg := int(tool_data.damage)
+		tool_label.text = "%s (DMG:%d)" % [tool_data.display_name, dmg]
 	else:
 		tool_label.text = "Tool: None"
 
@@ -456,7 +488,8 @@ func _setup_tool_durability() -> void:
 	tool_durability_label.custom_minimum_size = Vector2(39, 16)
 	tool_durability_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	tool_durability_label.add_theme_font_size_override("font_size", 12)
-	tool_durability_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	tool_durability_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	apply_text_outline(tool_durability_label)
 	tool_durability_container.add_child(tool_durability_label)
 
 	# Hide by default (only show if tool has durability)
@@ -514,15 +547,16 @@ func _setup_inventory_indicator() -> void:
 	inventory_label = Label.new()
 	inventory_label.name = "InventoryLabel"
 
-	# Position below coins label, next to quick-sell button area
+	# Position below tool label
 	inventory_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	inventory_label.position = Vector2(130, 100)
-	inventory_label.custom_minimum_size = Vector2(80, 40)
+	inventory_label.position = Vector2(16, 118)
+	inventory_label.custom_minimum_size = Vector2(100, 24)
 
 	# Style the label
 	inventory_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	inventory_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	inventory_label.add_theme_font_size_override("font_size", 20)
+	apply_text_outline(inventory_label)
 
 	add_child(inventory_label)
 
@@ -535,13 +569,13 @@ func _update_inventory_indicator() -> void:
 	if inventory_label == null:
 		return
 	if InventoryManager == null:
-		inventory_label.text = "0/8"
+		inventory_label.text = "Bag: 0/8"
 		return
 
 	var used := InventoryManager.get_used_slots()
 	var total := InventoryManager.get_total_slots()
 
-	inventory_label.text = "%d/%d" % [used, total]
+	inventory_label.text = "Bag: %d/%d" % [used, total]
 
 	# Color code based on fullness
 	var fill_ratio := float(used) / float(total) if total > 0 else 0.0
@@ -551,6 +585,24 @@ func _update_inventory_indicator() -> void:
 		inventory_label.add_theme_color_override("font_color", Color.ORANGE)
 	else:
 		inventory_label.add_theme_color_override("font_color", Color.WHITE)
+
+
+# ============================================
+# LEFT PANEL BACKDROP
+# ============================================
+
+func _setup_left_panel_backdrop() -> void:
+	## Create a dark semi-transparent panel behind the left HUD elements
+	left_panel_bg = ColorRect.new()
+	left_panel_bg.name = "LeftPanelBackdrop"
+	left_panel_bg.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	left_panel_bg.position = Vector2(8, 8)
+	left_panel_bg.size = Vector2(330, 166)  # Wider to match HP bar, includes all status info
+	left_panel_bg.color = HUD_PANEL_COLOR
+	left_panel_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(left_panel_bg)
+	# Move to back so other elements render on top
+	move_child(left_panel_bg, 0)
 
 
 # ============================================
@@ -594,26 +646,48 @@ func _setup_upgrade_goal_display() -> void:
 	upgrade_goal_container = Control.new()
 	upgrade_goal_container.name = "UpgradeGoalContainer"
 	upgrade_goal_container.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	upgrade_goal_container.position = Vector2(16, 150)
-	upgrade_goal_container.custom_minimum_size = Vector2(200, 50)
+	upgrade_goal_container.position = Vector2(8, 178)  # Aligned with main panel, closer spacing
+	upgrade_goal_container.custom_minimum_size = Vector2(330, 55)
 	add_child(upgrade_goal_container)
+
+	# Add dark background to this container
+	var upgrade_bg := ColorRect.new()
+	upgrade_bg.name = "UpgradeBackground"
+	upgrade_bg.position = Vector2(0, 0)
+	upgrade_bg.size = Vector2(330, 55)
+	upgrade_bg.color = HUD_PANEL_COLOR
+	upgrade_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	upgrade_goal_container.add_child(upgrade_bg)
 
 	# Create label for upgrade name and cost
 	upgrade_goal_label = Label.new()
 	upgrade_goal_label.name = "UpgradeGoalLabel"
-	upgrade_goal_label.position = Vector2(0, 0)
-	upgrade_goal_label.custom_minimum_size = Vector2(200, 20)
+	upgrade_goal_label.position = Vector2(8, 4)
+	upgrade_goal_label.custom_minimum_size = Vector2(314, 20)
 	upgrade_goal_label.add_theme_font_size_override("font_size", 14)
-	upgrade_goal_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	upgrade_goal_label.add_theme_color_override("font_color", Color.WHITE)
+	apply_text_outline(upgrade_goal_label)
 	upgrade_goal_container.add_child(upgrade_goal_label)
 
 	# Create progress bar
 	upgrade_goal_progress = ProgressBar.new()
 	upgrade_goal_progress.name = "UpgradeGoalProgress"
-	upgrade_goal_progress.position = Vector2(0, 22)
-	upgrade_goal_progress.custom_minimum_size = Vector2(180, 16)
+	upgrade_goal_progress.position = Vector2(8, 28)
+	upgrade_goal_progress.custom_minimum_size = Vector2(314, 18)
 	upgrade_goal_progress.show_percentage = false
 	upgrade_goal_container.add_child(upgrade_goal_progress)
+
+	# Create progress value label (shows $current/$goal)
+	upgrade_goal_value_label = Label.new()
+	upgrade_goal_value_label.name = "UpgradeGoalValueLabel"
+	upgrade_goal_value_label.position = Vector2(8, 28)
+	upgrade_goal_value_label.custom_minimum_size = Vector2(314, 18)
+	upgrade_goal_value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	upgrade_goal_value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	upgrade_goal_value_label.add_theme_font_size_override("font_size", 11)
+	upgrade_goal_value_label.add_theme_color_override("font_color", Color.WHITE)
+	apply_text_outline(upgrade_goal_value_label, 2)
+	upgrade_goal_container.add_child(upgrade_goal_value_label)
 
 	# Initial update
 	_update_upgrade_goal_display()
@@ -648,21 +722,26 @@ func _update_upgrade_goal_display() -> void:
 	var can_afford := current_coins >= cost
 	var depth_ok: bool = PlayerData.max_depth_reached >= next_tool.unlock_depth
 
-	# Update label
+	# Update label - show tool name, damage, and requirements
+	var next_dmg := int(next_tool.damage)
 	if not depth_ok:
-		upgrade_goal_label.text = "Next: %s (Reach %dm)" % [next_tool.display_name, next_tool.unlock_depth]
+		upgrade_goal_label.text = "Next: %s (DMG:%d) - Dig to %dm" % [next_tool.display_name, next_dmg, next_tool.unlock_depth]
 		upgrade_goal_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 	elif can_afford:
-		upgrade_goal_label.text = "Next: %s - READY!" % next_tool.display_name
+		upgrade_goal_label.text = "Next: %s (DMG:%d) - READY!" % [next_tool.display_name, next_dmg]
 		upgrade_goal_label.add_theme_color_override("font_color", Color.GREEN)
 		_pulse_upgrade_label()
 	else:
-		upgrade_goal_label.text = "Next: %s ($%d)" % [next_tool.display_name, cost]
+		upgrade_goal_label.text = "Next: %s (DMG:%d)" % [next_tool.display_name, next_dmg]
 		upgrade_goal_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
 
 	# Update progress bar
 	upgrade_goal_progress.max_value = cost
 	upgrade_goal_progress.value = mini(current_coins, cost)
+
+	# Update value label
+	if upgrade_goal_value_label:
+		upgrade_goal_value_label.text = "$%d / $%d" % [mini(current_coins, cost), cost]
 
 	# Color progress bar
 	if can_afford:
@@ -698,15 +777,16 @@ func _setup_save_indicator() -> void:
 	save_indicator_label = Label.new()
 	save_indicator_label.name = "SaveIndicatorLabel"
 
-	# Position in top-right area, below pause button
-	save_indicator_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	save_indicator_label.position = Vector2(-150, 90)
-	save_indicator_label.custom_minimum_size = Vector2(134, 20)
+	# Position below inventory label
+	save_indicator_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	save_indicator_label.position = Vector2(16, 142)
+	save_indicator_label.custom_minimum_size = Vector2(150, 18)
 
 	# Style
-	save_indicator_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	save_indicator_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	save_indicator_label.add_theme_font_size_override("font_size", 12)
-	save_indicator_label.add_theme_color_override("font_color", Color(0.6, 0.8, 0.6))
+	save_indicator_label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.6))  # Bright green
+	apply_text_outline(save_indicator_label)
 
 	add_child(save_indicator_label)
 
@@ -715,33 +795,34 @@ func _setup_save_indicator() -> void:
 
 
 func _update_save_indicator() -> void:
-	## Update the save indicator with time since last save
+	## Update the save indicator - only show briefly after save to reduce clutter
 	if save_indicator_label == null:
 		return
 	if SaveManager == null or not SaveManager.is_game_loaded():
-		save_indicator_label.text = ""
+		save_indicator_label.visible = false
 		return
 
 	var seconds := SaveManager.get_seconds_since_last_save()
 
+	# Only show for 10 seconds after save, then hide
 	if seconds < 0:
+		save_indicator_label.visible = true
 		save_indicator_label.text = "Not saved"
 		save_indicator_label.add_theme_color_override("font_color", Color.RED)
-	elif seconds < 10:
-		save_indicator_label.text = "Saved just now"
+		save_indicator_label.modulate.a = 1.0
+	elif seconds < 5:
+		save_indicator_label.visible = true
+		save_indicator_label.text = "Saved"
 		save_indicator_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
-	elif seconds < 60:
-		save_indicator_label.text = "Saved %ds ago" % seconds
-		save_indicator_label.add_theme_color_override("font_color", Color(0.6, 0.8, 0.6))
-	elif seconds < 120:
-		save_indicator_label.text = "Saved 1m ago"
-		save_indicator_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.4))
-	elif seconds < 300:
-		save_indicator_label.text = "Saved %dm ago" % (seconds / 60)
-		save_indicator_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.4))
+		save_indicator_label.modulate.a = 1.0
+	elif seconds < 10:
+		save_indicator_label.visible = true
+		save_indicator_label.text = "Saved"
+		save_indicator_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+		# Fade out
+		save_indicator_label.modulate.a = 1.0 - ((seconds - 5.0) / 5.0)
 	else:
-		save_indicator_label.text = "Saved %dm ago" % (seconds / 60)
-		save_indicator_label.add_theme_color_override("font_color", Color(1.0, 0.5, 0.3))
+		save_indicator_label.visible = false
 
 
 func _on_save_completed(success: bool) -> void:
@@ -772,32 +853,33 @@ func _setup_ladder_quickslot() -> void:
 	ladder_quickslot = Control.new()
 	ladder_quickslot.name = "LadderQuickSlot"
 	ladder_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	ladder_quickslot.position = Vector2(-80, 120)
-	ladder_quickslot.custom_minimum_size = Vector2(64, 64)
+	ladder_quickslot.position = Vector2(-72, 90)
+	ladder_quickslot.custom_minimum_size = Vector2(56, 56)
 	add_child(ladder_quickslot)
 
 	# Background panel
 	var bg := ColorRect.new()
 	bg.name = "Background"
-	bg.color = Color(0.2, 0.2, 0.2, 0.8)
-	bg.size = Vector2(64, 64)
+	bg.color = HUD_BUTTON_COLOR
+	bg.size = Vector2(56, 56)
 	ladder_quickslot.add_child(bg)
 
-	# Ladder icon (placeholder - text for now)
+	# Ladder icon label
 	var icon_label := Label.new()
 	icon_label.name = "IconLabel"
-	icon_label.text = "🪜"
-	icon_label.position = Vector2(8, 4)
-	icon_label.add_theme_font_size_override("font_size", 28)
+	icon_label.text = "LADDER"
+	icon_label.position = Vector2(2, 4)
+	icon_label.add_theme_font_size_override("font_size", 11)
+	icon_label.add_theme_color_override("font_color", Color.WHITE)
 	ladder_quickslot.add_child(icon_label)
 
 	# Count label
 	ladder_count_label = Label.new()
 	ladder_count_label.name = "CountLabel"
-	ladder_count_label.position = Vector2(40, 40)
-	ladder_count_label.custom_minimum_size = Vector2(24, 20)
-	ladder_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	ladder_count_label.add_theme_font_size_override("font_size", 16)
+	ladder_count_label.position = Vector2(0, 36)
+	ladder_count_label.custom_minimum_size = Vector2(56, 18)
+	ladder_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ladder_count_label.add_theme_font_size_override("font_size", 14)
 	ladder_count_label.add_theme_color_override("font_color", Color.WHITE)
 	ladder_quickslot.add_child(ladder_count_label)
 
@@ -805,7 +887,7 @@ func _setup_ladder_quickslot() -> void:
 	ladder_button = Button.new()
 	ladder_button.name = "LadderButton"
 	ladder_button.flat = true
-	ladder_button.size = Vector2(64, 64)
+	ladder_button.size = Vector2(56, 56)
 	ladder_button.pressed.connect(_on_ladder_quickslot_pressed)
 	ladder_quickslot.add_child(ladder_button)
 
@@ -830,8 +912,8 @@ func _update_ladder_quickslot() -> void:
 		ladder_quickslot.modulate = Color.WHITE
 	else:
 		ladder_count_label.text = "x0"
-		ladder_count_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-		ladder_quickslot.modulate = Color(0.5, 0.5, 0.5, 0.8)
+		ladder_count_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		ladder_quickslot.modulate = Color(0.7, 0.7, 0.7, 1.0)  # Less dim, still opaque
 
 
 func _get_ladder_count() -> int:
@@ -879,32 +961,33 @@ func _setup_rope_quickslot() -> void:
 	rope_quickslot = Control.new()
 	rope_quickslot.name = "RopeQuickSlot"
 	rope_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	rope_quickslot.position = Vector2(-80, 190)  # Below ladder
-	rope_quickslot.custom_minimum_size = Vector2(64, 64)
+	rope_quickslot.position = Vector2(-72, 152)  # Below ladder
+	rope_quickslot.custom_minimum_size = Vector2(56, 56)
 	add_child(rope_quickslot)
 
 	# Background panel
 	var bg := ColorRect.new()
 	bg.name = "Background"
-	bg.color = Color(0.2, 0.15, 0.1, 0.8)  # Brown tint for rope
-	bg.size = Vector2(64, 64)
+	bg.color = HUD_BUTTON_COLOR
+	bg.size = Vector2(56, 56)
 	rope_quickslot.add_child(bg)
 
-	# Rope icon (placeholder - text for now)
+	# Rope icon (text abbreviation)
 	var icon_label := Label.new()
 	icon_label.name = "IconLabel"
-	icon_label.text = "🪢"
-	icon_label.position = Vector2(8, 4)
-	icon_label.add_theme_font_size_override("font_size", 28)
+	icon_label.text = "ROPE"
+	icon_label.position = Vector2(4, 8)
+	icon_label.add_theme_font_size_override("font_size", 16)
+	icon_label.add_theme_color_override("font_color", Color.WHITE)
 	rope_quickslot.add_child(icon_label)
 
 	# Count label
 	rope_count_label = Label.new()
 	rope_count_label.name = "CountLabel"
-	rope_count_label.position = Vector2(40, 40)
-	rope_count_label.custom_minimum_size = Vector2(24, 20)
-	rope_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	rope_count_label.add_theme_font_size_override("font_size", 16)
+	rope_count_label.position = Vector2(0, 36)
+	rope_count_label.custom_minimum_size = Vector2(56, 18)
+	rope_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	rope_count_label.add_theme_font_size_override("font_size", 14)
 	rope_count_label.add_theme_color_override("font_color", Color.WHITE)
 	rope_quickslot.add_child(rope_count_label)
 
@@ -912,7 +995,7 @@ func _setup_rope_quickslot() -> void:
 	rope_button = Button.new()
 	rope_button.name = "RopeButton"
 	rope_button.flat = true
-	rope_button.size = Vector2(64, 64)
+	rope_button.size = Vector2(56, 56)
 	rope_button.pressed.connect(_on_rope_quickslot_pressed)
 	rope_quickslot.add_child(rope_button)
 
@@ -937,8 +1020,8 @@ func _update_rope_quickslot() -> void:
 		rope_quickslot.modulate = Color.WHITE
 	else:
 		rope_count_label.text = "x0"
-		rope_count_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-		rope_quickslot.modulate = Color(0.5, 0.5, 0.5, 0.8)
+		rope_count_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		rope_quickslot.modulate = Color(0.7, 0.7, 0.7, 1.0)
 
 
 func _get_rope_count() -> int:
@@ -970,32 +1053,33 @@ func _setup_teleport_quickslot() -> void:
 	teleport_quickslot = Control.new()
 	teleport_quickslot.name = "TeleportQuickSlot"
 	teleport_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	teleport_quickslot.position = Vector2(-80, 260)  # Below rope
-	teleport_quickslot.custom_minimum_size = Vector2(64, 64)
+	teleport_quickslot.position = Vector2(-72, 214)  # Below rope
+	teleport_quickslot.custom_minimum_size = Vector2(56, 56)
 	add_child(teleport_quickslot)
 
 	# Background panel
 	var bg := ColorRect.new()
 	bg.name = "Background"
-	bg.color = Color(0.15, 0.1, 0.25, 0.8)  # Purple tint for magic scroll
-	bg.size = Vector2(64, 64)
+	bg.color = HUD_BUTTON_COLOR
+	bg.size = Vector2(56, 56)
 	teleport_quickslot.add_child(bg)
 
-	# Teleport icon (placeholder - text for now)
+	# Teleport icon label
 	var icon_label := Label.new()
 	icon_label.name = "IconLabel"
-	icon_label.text = "📜"
-	icon_label.position = Vector2(8, 4)
-	icon_label.add_theme_font_size_override("font_size", 28)
+	icon_label.text = "WARP"
+	icon_label.position = Vector2(4, 6)
+	icon_label.add_theme_font_size_override("font_size", 14)
+	icon_label.add_theme_color_override("font_color", Color.WHITE)
 	teleport_quickslot.add_child(icon_label)
 
 	# Count label
 	teleport_count_label = Label.new()
 	teleport_count_label.name = "CountLabel"
-	teleport_count_label.position = Vector2(40, 40)
-	teleport_count_label.custom_minimum_size = Vector2(24, 20)
-	teleport_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	teleport_count_label.add_theme_font_size_override("font_size", 16)
+	teleport_count_label.position = Vector2(0, 36)
+	teleport_count_label.custom_minimum_size = Vector2(56, 18)
+	teleport_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	teleport_count_label.add_theme_font_size_override("font_size", 14)
 	teleport_count_label.add_theme_color_override("font_color", Color.WHITE)
 	teleport_quickslot.add_child(teleport_count_label)
 
@@ -1003,7 +1087,7 @@ func _setup_teleport_quickslot() -> void:
 	teleport_button = Button.new()
 	teleport_button.name = "TeleportButton"
 	teleport_button.flat = true
-	teleport_button.size = Vector2(64, 64)
+	teleport_button.size = Vector2(56, 56)
 	teleport_button.pressed.connect(_on_teleport_quickslot_pressed)
 	teleport_quickslot.add_child(teleport_button)
 
@@ -1028,8 +1112,8 @@ func _update_teleport_quickslot() -> void:
 		teleport_quickslot.modulate = Color.WHITE
 	else:
 		teleport_count_label.text = "x0"
-		teleport_count_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-		teleport_quickslot.modulate = Color(0.5, 0.5, 0.5, 0.8)
+		teleport_count_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		teleport_quickslot.modulate = Color(0.7, 0.7, 0.7, 1.0)
 
 
 func _get_teleport_count() -> int:
@@ -1065,11 +1149,11 @@ var _mining_fade_tween: Tween = null
 
 
 func _setup_mining_progress() -> void:
-	## Create the mining progress indicator
+	## Create the mining progress indicator (positioned at bottom-center to avoid overlap)
 	mining_progress_container = Control.new()
 	mining_progress_container.name = "MiningProgressContainer"
-	mining_progress_container.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	mining_progress_container.position = Vector2(-100, 200)
+	mining_progress_container.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	mining_progress_container.position = Vector2(-100, -100)  # 100px above bottom
 	mining_progress_container.custom_minimum_size = Vector2(200, 40)
 	mining_progress_container.modulate.a = 0.0  # Start hidden
 	add_child(mining_progress_container)
@@ -1088,7 +1172,8 @@ func _setup_mining_progress() -> void:
 	mining_progress_label.position = Vector2(8, 2)
 	mining_progress_label.custom_minimum_size = Vector2(184, 16)
 	mining_progress_label.add_theme_font_size_override("font_size", 12)
-	mining_progress_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	mining_progress_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0))
+	apply_text_outline(mining_progress_label)
 	mining_progress_container.add_child(mining_progress_label)
 
 	# Progress bar
@@ -1128,7 +1213,7 @@ func _update_mining_progress() -> void:
 		_hide_mining_progress()
 		return
 
-	var progress := dirt_grid.get_block_mining_progress(mining_target)
+	var progress = dirt_grid.get_block_mining_progress(mining_target)
 	if progress < 0:
 		_hide_mining_progress()
 		return

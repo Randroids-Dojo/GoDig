@@ -60,6 +60,36 @@ gh run view <run-id> --log-failed        # See failure details
 
 Do not consider a push successful until CI is green.
 
+## Version Management
+
+**Update the version before committing significant changes.**
+
+The game version is stored in `project.godot`:
+
+```ini
+config/version="0.1.0"
+```
+
+### When to Update Version
+
+- **Patch (0.0.X)**: Bug fixes, minor tweaks
+- **Minor (0.X.0)**: New features, gameplay changes
+- **Major (X.0.0)**: Breaking changes, major milestones
+
+### How to Update
+
+Edit `project.godot` line 14:
+
+```bash
+# Check current version
+grep "config/version" project.godot
+
+# Update manually or with sed
+sed -i '' 's/config\/version="[^"]*"/config\/version="0.2.0"/' project.godot
+```
+
+Always update the version BEFORE committing, not after.
+
 ## Task Management with Dots
 
 **Use `dot` for tracking work items during sessions.**
@@ -321,4 +351,168 @@ Do NOT add `*.uid` to `.gitignore`.
 2. **Check timeouts** - increase if scene loading is slow
 3. **Verify node paths** - use Godot editor to confirm exact paths
 4. **Run single test** with verbose output: `pytest tests/test_file.py::test_name -v -s`
+
+## Local Web Build Testing
+
+**Test web builds locally before deploying to Vercel.**
+
+### Building for Web
+
+```bash
+# Export web build (requires Godot 4.6+ non-Mono version)
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --export-release "Web" build/index.html
+```
+
+**Note**: The Mono/C# version of Godot cannot export to web. Use the standard GDScript version.
+
+### Running Locally with Required Headers
+
+Godot web builds require `Cross-Origin-Opener-Policy` and `Cross-Origin-Embedder-Policy` headers for SharedArrayBuffer support. A simple Python server won't work.
+
+Use the included server script:
+
+```bash
+cd build && python3 serve.py
+# Opens at http://localhost:8080
+```
+
+Or create a server with headers:
+
+```python
+#!/usr/bin/env python3
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+class CORSHandler(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
+        self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
+        SimpleHTTPRequestHandler.end_headers(self)
+
+HTTPServer(('', 8080), CORSHandler).serve_forever()
+```
+
+### Web Export Compatibility
+
+**DirAccess doesn't work in web builds.** Files are packed into `.pck` and can't be enumerated at runtime.
+
+```gdscript
+# BAD - DirAccess.open() returns null in web builds
+var dir := DirAccess.open("res://resources/items/")
+dir.list_dir_begin()  # Fails on web
+
+# GOOD - Preload resources explicitly
+const ITEM_RESOURCES := [
+    preload("res://resources/items/rope.tres"),
+    preload("res://resources/items/ladder.tres"),
+]
+```
+
+See `scripts/autoload/data_registry.gd` for the pattern.
+
+### Godot 4.6 Stricter Type Inference
+
+Godot 4.6 is stricter about type inference. These patterns fail:
+
+```gdscript
+# BAD - for...else is Python syntax, not GDScript
+for item in items:
+    if condition:
+        break
+else:
+    return false  # Parse error!
+
+# GOOD - Use a flag
+var found := false
+for item in items:
+    if condition:
+        found = true
+        break
+if not found:
+    return false
+```
+
+## UI Development Rules
+
+**Follow these rules to prevent common UI issues.**
+
+### Notification Stacking
+
+Multiple notifications (achievements, pickups, hints) can trigger simultaneously. **Always implement stacking:**
+
+```gdscript
+# Track active notifications
+var _active_notification_count: int = 0
+const STACK_OFFSET := 40.0
+
+func show_notification(text: String, base_pos: Vector2) -> void:
+    var offset := _active_notification_count * STACK_OFFSET
+    var pos := Vector2(base_pos.x, base_pos.y + offset)
+
+    _active_notification_count += 1
+    notification.tree_exited.connect(func():
+        _active_notification_count = maxi(0, _active_notification_count - 1))
+
+    notification.show(text, pos)
+```
+
+### UI Element Positioning
+
+Position UI elements to avoid overlap:
+
+| Element | Position | Notes |
+|---------|----------|-------|
+| Achievement notifications | Top center (y=60+) | Stack downward |
+| Item pickups | Above player | Stack upward |
+| Mining progress | Bottom center | Avoid notification areas |
+| Tutorial overlays | True center | Auto-size to content |
+
+### CanvasLayer Input Handling on Web
+
+**Setting `visible = false` doesn't fully disable input on web builds.** Always explicitly disable input:
+
+```gdscript
+func hide_overlay() -> void:
+    # CRITICAL: Disable input BEFORE hiding
+    if background:
+        background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+    # Then animate/hide
+    visible = false
+
+func show_overlay() -> void:
+    visible = true
+    # Re-enable input when showing
+    if background:
+        background.mouse_filter = Control.MOUSE_FILTER_STOP
+```
+
+### Auto-sizing Panels
+
+Don't use fixed heights for content panels. Let them auto-size:
+
+```gdscript
+# BAD - Fixed size may be too tall or too short
+panel.custom_minimum_size = Vector2(320, 180)
+
+# GOOD - Min width only, height auto-sizes to content
+panel.custom_minimum_size = Vector2(280, 0)
+
+# Wait for layout before positioning
+await get_tree().process_frame
+var actual_size := panel.size
+```
+
+### Touch Events on Mobile Web
+
+Handle both mouse and touch events for cross-platform support:
+
+```gdscript
+func _on_background_input(event: InputEvent) -> void:
+    # Desktop mouse clicks
+    if event is InputEventMouseButton and event.pressed:
+        _handle_tap()
+    # Mobile touch events
+    elif event is InputEventScreenTouch and event.pressed:
+        _handle_tap()
+```
 

@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.5", "GL Compatibility")
 
 [autoload]
 
+DebugLogger="*res://scripts/autoload/debug_logger.gd"
 SettingsManager="*res://scripts/autoload/settings_manager.gd"
 GameManager="*res://scripts/autoload/game_manager.gd"
 DataRegistry="*res://scripts/autoload/data_registry.gd"

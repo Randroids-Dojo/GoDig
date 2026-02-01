@@ -16,15 +16,19 @@ signal settings_opened
 ## Game version from project settings
 var _game_version: String = "v0.1.0"
 
-
 ## Error dialog for save/load failures
 var error_dialog: AcceptDialog = null
+
+## Loading indicator
+var loading_label: Label = null
+var _is_loading: bool = false
 
 
 func _ready() -> void:
 	_setup_version()
 	_setup_buttons()
 	_setup_error_dialog()
+	_setup_loading_indicator()
 	_update_continue_visibility()
 
 	# Connect to SaveManager error signals
@@ -33,6 +37,34 @@ func _ready() -> void:
 		SaveManager.save_error.connect(_on_save_error)
 
 	print("[MainMenu] Ready")
+
+
+func _setup_loading_indicator() -> void:
+	## Create a loading indicator that shows during scene transitions
+	loading_label = Label.new()
+	loading_label.name = "LoadingLabel"
+	loading_label.text = "Loading..."
+	loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	loading_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	loading_label.add_theme_font_size_override("font_size", 24)
+	loading_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))  # Gold color
+	loading_label.set_anchors_preset(Control.PRESET_CENTER)
+	loading_label.position = Vector2(-60, 100)  # Below center
+	loading_label.visible = false
+	add_child(loading_label)
+
+
+func _show_loading() -> void:
+	## Show loading indicator and disable buttons
+	_is_loading = true
+	if loading_label:
+		loading_label.visible = true
+	if new_game_btn:
+		new_game_btn.disabled = true
+	if continue_btn:
+		continue_btn.disabled = true
+	if settings_btn:
+		settings_btn.disabled = true
 
 
 func _setup_version() -> void:
@@ -68,8 +100,17 @@ func _update_continue_visibility() -> void:
 
 
 func _on_new_game_pressed() -> void:
+	if _is_loading:
+		return  # Prevent double-click
+
 	print("[MainMenu] New Game pressed")
 	new_game_started.emit()
+
+	# Show loading immediately
+	_show_loading()
+
+	# Wait a frame for UI to update before heavy operations
+	await get_tree().process_frame
 
 	# Start new game in first available slot
 	var slot := _find_empty_or_oldest_slot()
@@ -80,8 +121,17 @@ func _on_new_game_pressed() -> void:
 
 
 func _on_continue_pressed() -> void:
+	if _is_loading:
+		return  # Prevent double-click
+
 	print("[MainMenu] Continue pressed")
 	continue_game.emit()
+
+	# Show loading immediately
+	_show_loading()
+
+	# Wait a frame for UI to update before heavy operations
+	await get_tree().process_frame
 
 	# Load the most recent save
 	var slot := _find_most_recent_save()

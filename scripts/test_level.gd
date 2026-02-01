@@ -14,6 +14,15 @@ var _particle_pool: Array = []
 var _inventory_full_cooldown: float = 0.0
 const INVENTORY_FULL_COOLDOWN_DURATION := 2.0
 
+# Notification stacking system to prevent overlap
+var _active_pickup_count: int = 0
+const NOTIFICATION_STACK_OFFSET := 40.0  # Vertical spacing between stacked notifications
+const MAX_STACKED_NOTIFICATIONS := 5  # Limit to prevent too many on screen
+
+# Achievement notification queue (shows one at a time)
+var _achievement_queue: Array = []
+var _achievement_showing: bool = false
+
 @onready var surface: Node2D = $Surface
 @onready var dirt_grid: Node2D = $DirtGrid
 @onready var player: CharacterBody2D = $Player
@@ -181,13 +190,22 @@ func _on_item_added(item, amount: int) -> void:
 	if floating_text_layer == null:
 		return
 
+	# Limit stacked notifications
+	if _active_pickup_count >= MAX_STACKED_NOTIFICATIONS:
+		return
+
 	var floating := FloatingTextScene.instantiate()
 	floating_text_layer.add_child(floating)
 
-	# Get screen position from player world position
+	# Get screen position from player world position with stacking offset
 	var screen_pos := get_viewport().get_canvas_transform() * player.global_position
-	# Offset slightly upward from player center
-	screen_pos.y -= 64.0
+	var stack_offset := _active_pickup_count * NOTIFICATION_STACK_OFFSET
+	# Offset upward from player center, stacking upward
+	screen_pos.y -= 64.0 + stack_offset
+
+	# Track active notification
+	_active_pickup_count += 1
+	floating.tree_exited.connect(func(): _active_pickup_count = maxi(0, _active_pickup_count - 1))
 
 	# Get color from ore data if available, otherwise use white
 	var color := Color.WHITE
@@ -258,24 +276,48 @@ func _on_layer_entered(layer_name: String) -> void:
 
 
 func _on_achievement_unlocked(achievement: Dictionary) -> void:
-	## Show floating notification when an achievement is unlocked
+	## Queue achievement notification (shows one at a time)
+	_achievement_queue.append(achievement)
+	_process_achievement_queue()
+	print("[TestLevel] Achievement unlocked: %s" % achievement.name)
+
+
+func _process_achievement_queue() -> void:
+	## Process the achievement queue, showing one at a time
+	if _achievement_showing or _achievement_queue.is_empty():
+		return
+
 	if floating_text_layer == null:
 		return
+
+	_achievement_showing = true
+	var achievement: Dictionary = _achievement_queue.pop_front()
 
 	var floating := FloatingTextScene.instantiate()
 	floating_text_layer.add_child(floating)
 
-	# Center the notification on screen, slightly higher than other notifications
+	# Position in upper-middle area of screen (below HUD elements)
 	var viewport_size := get_viewport().get_visible_rect().size
-	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 5.0)
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y * 0.25)
 
 	# Purple/magenta color for achievement notifications
 	var color := Color(0.9, 0.6, 1.0)  # Light purple
 
 	# Format the achievement message
 	var text := "ACHIEVEMENT: %s" % achievement.name
-	floating.show_pickup(text, color, screen_pos)
-	print("[TestLevel] Achievement unlocked: %s" % achievement.name)
+
+	# Connect to know when this one finishes so we can show the next
+	floating.animation_finished.connect(_on_achievement_animation_finished)
+
+	floating.show_achievement(text, color, screen_pos)
+
+
+func _on_achievement_animation_finished() -> void:
+	## Called when an achievement notification finishes, process next in queue
+	_achievement_showing = false
+	# Small delay before showing next
+	await get_tree().create_timer(0.3).timeout
+	_process_achievement_queue()
 
 
 func _show_inventory_full_notification() -> void:

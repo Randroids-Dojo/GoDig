@@ -775,19 +775,98 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - **Kin and Quarry** (Jan 2026): Mining focus, recent release
 - **GoDig Competitive Landscape**: Competition growing but mobile-focused ladder-risk games remain rare.
 
-### Topics for Future Research
+### Session 19 (2026-02-01)
+
+**Core Loop Fundamentals (2025-2026 Consensus)**:
+- "A well-crafted core gameplay loop sits at the center of every great game, driving both player retention and monetization"
+- "If your core loop isn't fun, it doesn't matter how great your narrative or physics interactions are"
+- Players must have fun "minute to minute" or they will drop off
+- Keep on Mining: praised for "smooth and satisfying core gameplay loop of mining and upgrading"
+- Criticism: "gameplay tends to become repetitive and grind-heavy midway through"
+- **GoDig Critical Insight**: Our core loop must pass the "greybox test" - is tap-to-mine fun with NO systems?
+
+**Chipmatic (2025): Cozy Mining Automation**:
+- "Mining incremental inspired by Motherload, Dome Keeper and Super Mining Mechs with added automation"
+- Player controls Chip, a robot digging to Earth's core
+- Demo received 500+ playtest requests - validates interest in cozy mining
+- Features: coal/solar power, ore smelting, production chain automation
+- "Go underground for coal, iron, and other useful minerals. Refill fuel manually or automate energy"
+- **GoDig v1.1 Learning**: Automation should unlock mid-game as reward, not starting mechanic
+
+**Push-Your-Luck Design Deep Dive**:
+- "Push your luck is different than pure luck" - requires meaningful DECISIONS
+- Core tension: "decide whether to keep going to gain more... and risk losing it all or stopping"
+- Board game balance: ~50% chance per step means 25% chance of two successful steps
+- "Players consider 25% total chance to be very low" - design for gradual pressure buildup
+- Self-balancing: "fewer players still in = greater potential reward"
+- **GoDig Application**: Our ladder mechanic is superior to sudden bust - gradual depletion creates sustained tension
+
+**What Makes Mining Satisfying (Forum/Review Synthesis)**:
+- Sound design critical: "In Minecraft, the satisfaction comes mostly because of the sounds"
+- VR insight: "See texture becoming more cracked... until they shatter and release precious ore"
+- Stardew Valley success: "time limit + enemies + shortcuts + bombs = variety"
+- SteamWorld Dig 2: "Every improvement feels impactful. Pacing is tight - never stuck waiting."
+- Discovery + automation: "The promise of finding something new keeps you hooked"
+- **GoDig Implementation**: Each pickaxe tier should have unique crack patterns, sounds, particle effects
+
+**Currency Animation Psychology (Game Economist Consulting)**:
+- "Currency animations may play hundreds of thousands of times during player lifecycle"
+- "Animations stitch action into experience - draw cause-effect loop between action and reward"
+- Beatstar: "coins flip and spin, reflecting light when they enter balance"
+- "Classically conditioned injection of dopamine" similar to Pavlov's bell
+- **GoDig Priority**: Sell animation needs satisfying coin cascade + sound. This is played repeatedly - must be polished.
+
+**Mobile Game Retention Psychology (2025 Data)**:
+- Hook Model: Trigger → Action → Variable Reward → Investment → Loop
+- Loss aversion leveraged heavily: "players feel stopping would result in missed benefits"
+- Sunk cost fallacy: "continue investing to avoid feeling previous efforts were wasted"
+- Day 1 retention average: 26%, Day 7: 10%, Day 30: <4%
+- Top performers (puzzle/casual): 35%+ D1, 12%+ D7
+- **GoDig Target**: Design for casual-tier retention through satisfying core loop, not manipulation
+
+**Return Journey Problem (Motherload/SteamWorld Analysis)**:
+- "Repetition of going up and down gets increasingly tedious"
+- SteamWorld Dig solution: "generous with shortcuts... warp points and droppable teleporters"
+- Super Motherload: "subterranean bases with all amenities... cutting out long treks"
+- Critical quote: "depths between outposts get longer, until by the end you're spending many minutes just to reach site"
+- **GoDig Implementation Priority**:
+  1. Early game: Wall-jump mastery makes return feel skillful
+  2. Mid-game: Elevator unlock as REWARD for reaching certain depth
+  3. Late-game: Teleport scroll for emergency bailout (premium feel)
+
+**ITER (2025): Mining Roguelite Competitor**:
+- 2D to 3D dimension shifting for puzzles and exploration
+- Mine resources → enhance capabilities → build base defenses
+- "Death is one of the potential career paths... but you're totally replaceable!"
+- Roguelite meta-progression: replacement operative picks up where you left
+- **GoDig Differentiation**: We're mobile-first with ladder economy. ITER is PC roguelite with defense.
+
+**Idle Miner Tycoon Economy Design Lessons**:
+- Three-tier bottleneck: miners → elevator → transporter
+- "Balancing these three ensures steady growth. Over-invest in one = bottleneck"
+- New player trap: "dump coins into miners, leaving elevators overwhelmed"
+- Economy health: "money constantly moving through it" - give Super Cash free to encourage spending
+- Return-from-idle animation creates anticipation and satisfaction
+- **GoDig Simplification**: Single resource (coins) is correct for MVP. Avoid premature complexity.
+
+**Topics for Future Research**
 - [x] Analyze Keep Digging (Jan 2026) for depth/layer design (Session 18)
 - [x] Study push-your-luck board game balance mechanics (Session 18)
 - [x] Research mobile session length reality vs assumptions (Session 18)
 - [x] Analyze FTUE best practices 2025 (Session 18)
 - [x] Study SteamWorld Dig 2 upgrade pacing in detail (Session 18)
 - [x] Research game juice over-juicing warnings (Session 18)
+- [x] Research core loop fundamentals 2025-2026 (Session 19)
+- [x] Analyze Chipmatic automation design (Session 19)
+- [x] Study currency animation psychology (Session 19)
+- [x] Research return journey solutions (Motherload/SteamWorld) (Session 19)
+- [x] Analyze ITER roguelite design (Session 19)
+- [x] Study Idle Miner Tycoon economy balance (Session 19)
 - [ ] Analyze Windblown (Dead Cells devs new roguelike) for co-op mining potential
 - [ ] Study mobile game "offline progress reveal" animation patterns
 - [ ] Research Cogmind's extended game challenges for v1.1 mastery content
 - [ ] Analyze Cryptical Path's "build the dungeon" mechanic for player agency
 - [ ] Study Core Keeper's mining skill progression system
-- [ ] Analyze ITER's 2D-3D dimension shifting for gameplay variety ideas
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -830,6 +909,9 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-5-minute-655909a4` - Ensure complete loop fits in 5 minutes (Session 18)
 - `GoDig-implement-subtle-mining-7540eb96` - Two-tier juice system (subtle mining vs discovery) (Session 18)
 - `GoDig-research-keep-digging-512417e2` - Keep Digging competitive differentiation (Session 18)
+- `GoDig-implement-elevator-unlock-a0099585` - Elevator unlock celebration/discovery framing (Session 19)
+- `GoDig-implement-block-crack-c5b298f2` - Block crack progression visual feedback (Session 19)
+- `GoDig-implement-wall-jump-ec117d74` - Wall-jump mastery celebration feedback (Session 19)
 
 ## How to Use This Task
 

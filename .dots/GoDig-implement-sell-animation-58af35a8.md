@@ -12,13 +12,43 @@ Add satisfying visual/audio feedback when selling resources - coins fly from inv
 ## Context
 Research shows currency animations are 'classically conditioned reward triggers'. The sell moment is where accumulated mining effort becomes tangible reward. This must feel satisfying to motivate another run.
 
-## Implementation
-1. When sell button clicked, spawn coin sprites from sold item positions
-2. Coins arc toward wallet counter in HUD
-3. Use 'spread' pattern not straight line (more visual drama)
-4. Counter rolls up with slot-machine effect
-5. Sound pitch increases with larger amounts
-6. Brief pause (0.1s) when coins reach counter (Brawl Stars pattern)
+From [Game Economist research](https://www.gameeconomistconsulting.com/the-best-currency-animations-of-all-time/):
+> "Currency animations function as classically conditioned injection of dopamine, linking player actions to visible rewards."
+
+## Implementation Details
+
+### Visual Flow (Most Important)
+1. Coins must visually flow FROM sold items TO wallet location
+2. Use 'spread' pattern (arc outward then converge) - NOT straight lines
+3. Coins should spin/rotate and reflect light
+4. 5-15 coin sprites, staggered timing (not all at once)
+5. Brief 0.1s pause when first coin reaches wallet (Brawl Stars pattern)
+
+### Counter Animation
+1. Number ROLLS up, never snaps instantly
+2. Rolling speed proportional to amount (bigger = faster increments)
+3. Show exact amount being added (+$250)
+4. Pulse/glow effect on wallet icon during count-up
+
+### Audio Design
+1. Coin "clink" sounds, slightly randomized pitch
+2. Volume/intensity scales with sell amount
+3. Final "completion" sound when counter stops
+4. Consider bass undertone for large sales (>$500)
+
+### Timing Guidelines
+| Event | Duration | Notes |
+|-------|----------|-------|
+| Coins spawn | 0.0s | Immediate on button press |
+| First coin arrives | 0.3-0.4s | Arc trajectory |
+| All coins collected | 0.6-0.8s | Staggered arrival |
+| Counter finishes | 0.2-0.5s | Rolling increment |
+| Total animation | 0.8-1.3s | Not too slow |
+
+### Performance Optimization
+- Pool coin sprites (don't instantiate each time)
+- Max 20 coin sprites even for large sales
+- Use tweens, not physics simulation
 
 ## Affected Files
 - `scripts/ui/shop.gd` - Trigger sell animation
@@ -33,3 +63,5 @@ Research shows currency animations are 'classically conditioned reward triggers'
 - [ ] Sound pitch scales with amount
 - [ ] Animation feels 'juicy' not annoying
 - [ ] Performance: works with 20+ items sold at once
+- [ ] Coins spread/arc, not straight line
+- [ ] Brief pause when coins reach wallet

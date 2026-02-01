@@ -1,7 +1,7 @@
 # Fun Factor Analysis - Mining Game Core Loop
 
 > Research compilation from game design analysis, forums, and similar games.
-> Last updated: 2026-02-01 (Session 3: Return Trip Tension & Sell Satisfaction)
+> Last updated: 2026-02-01 (Session 7: Push-Your-Luck & Quick Restart)
 
 ## Core Loop Summary
 
@@ -649,3 +649,128 @@ From [Steam Discussions](https://steamcommunity.com/app/252410/discussions/0/666
 - [Why Was Dome Keeper So Good - RetroStyleGames](https://retrostylegames.com/blog/why-dome-keeper-so-good/)
 - [SteamWorld Dig vs Terraria Discussion](https://steamcommunity.com/app/252410/discussions/0/666828126638941484/)
 - [Dome Keeper Reviews - Steambase](https://steambase.io/games/dome-keeper/reviews)
+
+## Session 7 Research: Push-Your-Luck & Quick Restart Design
+
+### The Motherload Core Loop - Why It's Addictive
+
+From [Meeple Mountain](https://www.meeplemountain.com/reviews/super-motherload/) and [PlayStation Blog](https://blog.playstation.com/2013/11/08/super-motherload-on-ps4-exploring-the-story-and-game-modes/):
+
+- Core feedback loop: dig -> collect -> sell -> refuel/repair -> upgrade -> dig deeper
+- "Getting money to get more stuff, which you then use to get more money" - the dopamine loop
+- The further you dig, the more difficult to progress - upgradeable mining pod suits play style
+- Initially, vehicle can't travel far - must resurface frequently (natural session pacing)
+- "Four years of concepting, experimentation, and refinement" - iteration matters
+
+**GoDig Application**: Our ladder system replaces fuel as the limiting resource. Similar tension: can't go far without supplies, must return frequently. Key difference: ladders are reusable infrastructure, fuel is consumed.
+
+### Push-Your-Luck Mechanics from Board Games
+
+From [BoardGameGeek](https://boardgamegeek.com/boardgamemechanic/2661/push-your-luck) and [Board Game Design Course](https://boardgamedesigncourse.com/game-mechanics-sometimes-you-want-to-push-your-luck/):
+
+- **Definition**: Decide between settling for existing gains OR risking them for further rewards
+- **Distinct from pure luck**: Push-your-luck gives players meaningful CHOICES
+- "The thrill of potentially enormous success, and the devastation of losing it all"
+- **Can't Stop** (Sid Sackson): Simple mechanics, feels like gambling
+- **Zombie Dice**: "3 strikes and you're out" - clear bust threshold
+- **Quacks of Quedlinburg**: Bag-building with white chips = bust risk
+
+**Self-Balancing Insight** (Incan Gold): Deck reshuffles each round - fewer players staying in = greater potential reward. Risk naturally increases as rewards do.
+
+**GoDig Application**: Our inventory fill + depth creates the push-your-luck pressure. At 80% inventory, player weighs: "One more vein?" vs "Lose all this if I die." Ladders are the escape hatch that makes the gamble feel fair.
+
+### Quick Restart - Roguelike Best Practices
+
+From [PCGamesN](https://www.pcgamesn.com/best-roguelike-games) and [RetroStyleGames](https://retrostylegames.com/blog/why-are-roguelike-games-so-engaging/):
+
+- "Just one more turn. Next time, I'll get it right."
+- **Dead Cells** pattern: Carry certain upgrades across runs - progress doesn't fully reset
+- **Rogue Legacy 2**: Death spawns as heir - family manor progression
+- Key principle: "Getting to know characters a bit more after every run makes death less disheartening"
+- Procedural generation = fresh experiences, no repetitive replays
+
+**Critical Design Point**: Death should feel like an opportunity, not punishment. The faster players can restart, the more likely they try again.
+
+### Compulsion Loop Psychology
+
+From [GameDeveloper](https://www.gamedeveloper.com/design/compulsion-loops-dopamine-in-games-and-gamification) and [Superscale](https://superscale.com/resources/what-is-a-core-loop/):
+
+- **Dopamine during anticipation**: Counter-intuitively, dopamine is released BEFORE reward
+- Core loop simplified: PLAY -> GET resources -> UPGRADE -> repeat
+- Mobile games use multiple interlocking loops (Clash Royale example)
+- "Increase difficulty gradually, allow player to 'fix' it with progression systems"
+
+**GoDig Application**: Our core loop is tight (3-8 minutes). Upgrades "fix" the difficulty. The anticipation of "what ore is behind this block?" triggers dopamine before discovery.
+
+### Tension and Release Cycle
+
+From [GameDeveloper](https://www.gamedeveloper.com/design/addressing-conflict-tension-and-release-in-games):
+
+- "Right amount of peril = fear combined with knowledge of safety"
+- Players enjoy scary places AS LONG AS they feel secure
+- Perfect balance: player confidence in mechanics + underlying anxiety
+- **Half-Life 2 Antlions**: Struggle against foes, then gain control of them = emotional release
+- **Oblivion's Opening**: Dank prison -> vast colorful landscape = environmental release
+
+**GoDig Application**: Underground is tension (darkness, limited resources, distance from safety). Surface is release (bright, shops, HP regen). The contrast makes both feel meaningful.
+
+### Mobile Retention Critical Insights
+
+From [Segwise](https://segwise.ai/blog/boost-mobile-game-retention-strategies) and [Felgo](https://blog.felgo.com/mobile-game-development/10-simple-tips-that-will-boost-your-player-retention):
+
+- Keep tutorials under 5 minutes, with skip option
+- 70% challenge / 30% reward ratio prevents frustration
+- Players who master controls in 5 minutes: +40% session length
+- **Candy Crush pattern**: Immediate rewards (free boosters) build confidence
+- Marvel Snap: Complex CCG showcased in under 4 minutes
+
+**GoDig Application**: First complete loop (dig -> sell -> see upgrade) must happen in under 5 minutes. Starting with 5 ladders + Supply Store at 0m enables this.
+
+## Implementation Priority Update (Session 7)
+
+### Critical Path for Fun (Must-Have for Launch)
+
+| Priority | Feature | Impact |
+|----------|---------|--------|
+| P0 | Supply Store at 0m | Enables core loop |
+| P0 | 5 Starting Ladders | Enables safe first trip |
+| P0 | First upgrade < 5 min | Retention gate |
+| P1 | Low ladder warning | Creates tension |
+| P1 | Forfeit Cargo option | Recovery without full loss |
+| P1 | One-tap ladder placement | Reduces friction |
+| P1 | Instant respawn | Quick restart flow |
+| P1 | Quick-buy ladder from HUD | Seamless economy |
+
+### High-Value Polish (Should-Have)
+
+| Priority | Feature | Impact |
+|----------|---------|--------|
+| P2 | Sell animation with coins | Reward satisfaction |
+| P2 | First ore celebration | Hook moment |
+| P2 | Upgrade power feel | Power fantasy |
+| P2 | Safe return celebration | Tension release |
+| P2 | Close-call recognition | Near-miss excitement |
+
+### Nice-to-Have (v1.1+)
+
+| Priority | Feature | Impact |
+|----------|---------|--------|
+| P3 | Mining combo/streak | Flow state |
+| P3 | Surface comfort signals | Contrast building |
+| P3 | Near-miss ore hints | Variable reward |
+| P3 | Depth record tracking | Personal goals |
+
+## Sources (Session 7)
+
+- [Super Motherload Review - Meeple Mountain](https://www.meeplemountain.com/reviews/super-motherload/)
+- [Super Motherload on PS4 - PlayStation Blog](https://blog.playstation.com/2013/11/08/super-motherload-on-ps4-exploring-the-story-and-game-modes/)
+- [Push Your Luck Mechanic - BoardGameGeek](https://boardgamegeek.com/boardgamemechanic/2661/push-your-luck)
+- [Push Your Luck Games - Board Game Design Course](https://boardgamedesigncourse.com/game-mechanics-sometimes-you-want-to-push-your-luck/)
+- [Best Roguelike Games - PCGamesN](https://www.pcgamesn.com/best-roguelike-games)
+- [Why Roguelikes Are Engaging - RetroStyleGames](https://retrostylegames.com/blog/why-are-roguelike-games-so-engaging/)
+- [Compulsion Loops - GameDeveloper](https://www.gamedeveloper.com/design/compulsion-loops-dopamine-in-games-and-gamification)
+- [What is a Core Loop - Superscale](https://superscale.com/resources/what-is-a-core-loop/)
+- [Tension and Release - GameDeveloper](https://www.gamedeveloper.com/design/addressing-conflict-tension-and-release-in-games)
+- [Mobile Game Retention - Segwise](https://segwise.ai/blog/boost-mobile-game-retention-strategies)
+- [Player Retention Tips - Felgo](https://blog.felgo.com/mobile-game-development/10-simple-tips-that-will-boost-your-player-retention)
+- [Dome Keeper Reviews - TheXboxHub](https://www.thexboxhub.com/dome-keeper-review/)

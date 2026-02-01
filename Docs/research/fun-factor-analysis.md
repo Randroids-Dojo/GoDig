@@ -562,6 +562,74 @@ RELIEF
 3. **Upgrade Prompt After Sell** - If player can afford upgrade, nudge them
 4. **Controls Mastery in 5 Minutes** - Tutorial timing verification
 
+## Session 6: Player Feedback Analysis
+
+### What Players Love in Mining Games (Community Analysis)
+
+From [Steam Reviews](https://steamcommunity.com/app/1637320/reviews/) and [Dome Keeper Analysis](https://retrostylegames.com/blog/why-dome-keeper-so-good/):
+
+**Compelling Core Loop**:
+- "Very replayable game with a compelling gameplay loop"
+- "Addicting mix of tower defence and Dig Dug in rogue-lite flavour"
+- Players appreciate clear resource -> upgrade -> progress cycle
+
+**Accessible Entry**:
+- "Easy to jump into for 20-45 mins"
+- "Simple enough to master quickly"
+- Works well on mobile (Steam Deck references)
+
+**Strategic Unlocks**:
+- "New unlockables keeps this game fresh for a long time"
+- Upgrades that "actually affect gameplay, not just make the game easier"
+- Variety through unlocked content
+
+### What Players Dislike (Avoid These Mistakes)
+
+**Repetitiveness Concerns**:
+- "Way too slow, repetitive, and grindy"
+- "Fairly small amount of content"
+- Runs feeling "very similar to each other"
+
+**GoDig Mitigation**: Procedural variety, depth milestones with unique events, biome transitions
+
+**Predictable Mining Strategy**:
+- "Obvious winning digging strategy removes the joy of exploration"
+- "Takes one minute to realize the ideal pattern. And then what?"
+
+**GoDig Mitigation**: Our vertical-only digging is different from Dome Keeper's free-form. The challenge is route planning for return trip, not optimal mining pattern. This is BETTER for variety.
+
+**Interface Inefficiency**:
+- "Tediously inefficient input requirements"
+- "Excessively slow to acquire or move resources"
+
+**GoDig Mitigation**: Auto-pickup, quick-sell, streamlined HUD. Every action should be ONE tap.
+
+### SteamWorld Dig Player Feedback
+
+From [Steam Discussions](https://steamcommunity.com/app/252410/discussions/0/666828126638941484/):
+
+**What Worked**:
+- "Best platforming mechanics not made by Nintendo"
+- "Wall-jump mechanic couldn't be easier"
+- "Coherence - digging is not a sideshow but the main focus"
+
+**What Players Wanted More**:
+- "Expected additional layers like lava layer or underground jungle"
+- "More content before credits"
+- Deeper exploration depth
+
+**GoDig Opportunity**: Our infinite procedural depth + 7 layers addresses the "wanted more content" feedback directly.
+
+### Key Design Lessons for GoDig
+
+| Player Complaint | Our Solution |
+|-----------------|--------------|
+| "Too short" | Infinite depth, prestige system |
+| "Predictable mining" | Route planning for return trip is the strategy |
+| "Repetitive runs" | Depth biomes, layer transitions, treasure chests |
+| "Slow interface" | One-tap actions, auto-pickup, quick-sell |
+| "No plot progression" | Depth milestones, building unlocks, achievements |
+
 ## Sources (Session 5)
 
 - [Compulsion Loop is Withdrawal-Driven - GameDeveloper](https://www.gamedeveloper.com/design/compulsion-loop-is-withdrawal-driven)
@@ -574,3 +642,10 @@ RELIEF
 - [Boost Mobile Retention - Segwise](https://segwise.ai/blog/boost-mobile-game-retention-strategies)
 - [Resource Management Guide - Smoothie Wars](https://www.smoothiewars.com/blog/resource-management-mechanics-guide)
 - [Designing for Mastery in Roguelikes - Grid Sage Games](https://www.gridsagegames.com/blog/2025/08/designing-for-mastery-in-roguelikes-w-roguelike-radio/)
+
+## Sources (Session 6)
+
+- [Dome Keeper Steam Reviews](https://steamcommunity.com/app/1637320/reviews/)
+- [Why Was Dome Keeper So Good - RetroStyleGames](https://retrostylegames.com/blog/why-dome-keeper-so-good/)
+- [SteamWorld Dig vs Terraria Discussion](https://steamcommunity.com/app/252410/discussions/0/666828126638941484/)
+- [Dome Keeper Reviews - Steambase](https://steambase.io/games/dome-keeper/reviews)

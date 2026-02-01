@@ -1,7 +1,7 @@
 # Fun Factor Analysis - Mining Game Core Loop
 
 > Research compilation from game design analysis, forums, and similar games.
-> Last updated: 2026-02-01 (Session 11: Vampire Survivors Psychology, Session Design, Push-Your-Luck)
+> Last updated: 2026-02-01 (Session 17: Animal Well, Rain World, Nine Sols, Dead Cells, FTUE)
 
 ## Core Loop Summary
 
@@ -2019,3 +2019,152 @@ From [NudgeNow](https://www.nudgenow.com/blogs/mobile-game-retention-benchmarks-
 - [Retargeting in Mobile Gaming 2025 - AppSamurai](https://appsamurai.com/blog/retargeting-in-mobile-gaming-how-to-win-back-players-and-boost-ltv-in-2025/)
 - [Player Retention Guide - Mistplay](https://business.mistplay.com/resources/player-retention)
 - [Mobile Retention Benchmarks - NudgeNow](https://www.nudgenow.com/blogs/mobile-game-retention-benchmarks-industry)
+
+## Session 17 Research: Discovery Design, Layer Identity, and FTUE
+
+> Last updated: 2026-02-01 (Session 17)
+
+### Animal Well: Layered Secrets & Minimalist Discovery
+
+From [NoisyPixel](https://noisypixel.net/animal-well-2024-indie-game-success/) and [ThinkYGames](https://thinkygames.com/features/how-animal-wells-environmental-design-taps-into-our-need-for-puzzle-solving-satisfaction/):
+
+- Solo developer created over 7 years with custom C++ engine - no external libraries
+- Inspired by Fez, The Witness, Tunic - games that hide secrets in plain sight
+- **Three-layer structure**:
+  - Layer 1: Puzzle game for all players (accessible)
+  - Layer 2: Hidden discoveries for keen explorers
+  - Layer 3: ARG elements requiring 50+ player collaboration
+- No cutscenes - "trusts the player to discover the game world firsthand"
+- Level design makes "discovery feel like intuitive play even when it's secretly giving you a well-planned tutorial"
+- Encrypted assets with puzzle solutions as decryption keys - prevents data mining spoilers
+- 650,000 copies sold by August 2024, ranked #2 highest-rated Switch game of 2024
+
+**GoDig Application**: Layer our secrets - basic ore for all, rare finds for explorers, community puzzles for hardcore. Don't explain everything; let players feel smart discovering.
+
+### Rain World: Anti-Agency as Design Philosophy
+
+From [Experienced Machine](https://experiencedmachine.wordpress.com/2019/09/16/rain-world-reaching-enlightenment-through-unfairness-part-ii/):
+
+- "The most anti-videogame idea there is" - player agency is deliberately robbed
+- World "exists entirely on its own, completely separate from player's influence and desires"
+- Slugcat in "middle of food chain" - avoids combat, emphasizes stealth and flight
+- No upgrades, no new weapons, no skill points - "progress is not the goal"
+- Creatures "learn to recognize you" - scavengers ally if player provides pearls
+- 95% emergent gameplay - "tells players absolutely nothing about mechanics"
+
+**GoDig Contrast**: We EMPOWER through upgrades, but learn from Rain World: make the underground feel alive and independent of the player. Creatures should have their own goals.
+
+### Nine Sols: Combat-Focused Metroidvania Flow State
+
+From [Lords of Gaming](https://lordsofgaming.net/2025/02/nine-sols-review-a-near-masterpiece-metroidvania/):
+
+- Parry system creates "flow state that feels supremely rewarding" once mastered
+- Risk/reward: Must "spend" built-up Talisman attacks or waste damage opportunities
+- Grappling hook from start enables vertical exploration
+- Map design: "Clear and accessible" with collectible tracking per zone
+- Called "not only one of the best games of 2024, but one of the best modern 2D games ever made"
+
+**GoDig Application**: Combat-free design needs satisfaction from mining itself. Each pickaxe tier should feel like achieving "parry mastery" - a tangible skill upgrade.
+
+### Dead Cells: Biome Variety & Path Choice
+
+From [DeepNight](https://deepnight.net/tutorial/the-level-design-of-dead-cells-a-hybrid-approach/):
+
+- Each biome has unique identity: Toxic Sewers = careful positioning, Ramparts = vertical combat
+- Concept graph approach: Entrance/exit placed first, then special rooms, then connecting tiles
+- Self-directed difficulty: "Safe path vs dangerous detours" for better rewards
+- **Cursed Biome mechanic**: +10% cursed chest chance, +1 loot level, but harder enemies
+- Player always has non-cursed path option - choice, not forced difficulty
+- 70+ unique enemies, 20+ biomes, 50+ weapons prevents comfort zone builds
+
+**GoDig Application**: Each layer should have distinct identity. Optional danger zones (collapsed mine, lava pocket) for better rewards. Always give safe path option.
+
+### Drill Core (July 2025): Mining Roguelite Analysis
+
+From [GameLuster](https://gameluster.com/drill-core-review-the-finest-roguelite-mining/):
+
+- Day/night split: Mine resources by day, defend from aliens by night
+- Core risk/reward: "Drill down fast or risk another night for more resources"
+- Push too far and core explodes, losing workers and loot
+- Run length: 30-50 minutes - creates frustration when late run fails
+- Criticism: "Lack of deeper complexity causes burnout after few hours"
+
+**GoDig Advantage**: Our 5-minute loops prevent late-run frustration. Variety from depth tiers, not just cosmetics.
+
+### Core Gameplay Loop Best Practices (2025-2026)
+
+From [GameDistribution](https://blog.gamedistribution.com/core-gameplay-loop-design-small-tweaks-big-engagement/):
+
+- "Micro loop must be satisfying or no progression system can save your game"
+- Build micro loop first in isolation - "Does movement/input/feedback feel fun with greyboxes?"
+- Misaligned loops = why games don't feel "tight" - not art/narrative problem
+- Understanding Micro/Macro/Meta loops = "most powerful framework in game design"
+
+**GoDig Validation**: Our micro loop (tap-mine-collect) must feel great BEFORE adding systems.
+
+### Mobile FTUE vs Full Onboarding
+
+From [Mobile Game Doctor](https://mobilegamedoctor.com/2025/05/30/ftue-onboarding-whats-in-a-name/):
+
+- **FTUE** = First 60 seconds + first 15 minutes (kinesthetic learning)
+- **Full Onboarding** = First 7 days (introduce longer-term systems)
+- "First thing players need is to PLAY! Don't make them click/choose/sign in"
+- Epic WOW moment early creates attention hook
+- Progressive disclosure: Hide systems not needed for first 15 minutes
+- Clash Royale: 5 short tutorials at relevant moments, building on previous
+
+**GoDig Implementation**: FTUE = dig, find ore, return, sell in 60 seconds. Day 2+ = shop details, upgrades, deeper systems.
+
+### Roguelike Mastery Design
+
+From [Grid Sage Games](https://www.gridsagegames.com/blog/2025/08/designing-for-mastery-in-roguelikes-w-roguelike-radio/):
+
+- "We want more!" - skilled players demand harder challenges, extended content
+- Extended game: Optional challenges after "normal" completion
+- Cogmind has 10 endings with unique preparation/execution requirements
+- Every upward connection = permanent decision leaving other possibilities behind
+
+**GoDig v1.1**: Add extended goals - depth records, achievement challenges, rare drop collections.
+
+### Mobile Push Notification Ethics
+
+From [ContextSDK](https://contextsdk.com/blogposts/gaming-push-strategy-overcoming-the-63-5-industry-opt-in-challenge):
+
+- Gaming has lowest opt-in rate: 63.5% (37% rejection rate)
+- Best times: 12pm-1pm and 7pm-9pm, but personalization matters
+- Personalized notifications improve reaction rates by 400%
+- "Sustainable engagement vs Player Burnout" - burnout destroys LTV
+- Send same number of notifications as player session frequency
+
+**GoDig v1.1**: Match notification frequency to play frequency. Never spam absent players.
+
+## Implementation Priorities Update (Session 17)
+
+### New Critical Features Identified
+
+| Feature | Priority | Rationale |
+|---------|----------|-----------|
+| FTUE 60-second hook | P0 | "First thing players need is to PLAY" |
+| Distinct layer identity | P1 | Dead Cells proved biome variety critical |
+| Layered secret system | P2 | Animal Well's 3-tier discovery model |
+| Optional danger zones | P2 | Self-directed difficulty scaling |
+
+### Implementation Specs Created (Session 17)
+
+- `GoDig-implement-ftue-60-94baf4fa` - FTUE: Dig-find-return in 60 seconds
+- `GoDig-implement-distinct-layer-a60843e5` - Dead Cells-style layer identities
+- `GoDig-implement-layered-secret-8ba7afe0` - Animal Well 3-tier secret system
+- `GoDig-implement-optional-danger-cc87675c` - High-risk/high-reward danger zones
+
+## Sources (Session 17)
+
+- [Animal Well Success - NoisyPixel](https://noisypixel.net/animal-well-2024-indie-game-success/)
+- [Animal Well Design - ThinkYGames](https://thinkygames.com/features/how-animal-wells-environmental-design-taps-into-our-need-for-puzzle-solving-satisfaction/)
+- [Rain World Design - ExperiencedMachine](https://experiencedmachine.wordpress.com/2019/09/16/rain-world-reaching-enlightenment-through-unfairness-part-ii/)
+- [Nine Sols Review - Lords of Gaming](https://lordsofgaming.net/2025/02/nine-sols-review-a-near-masterpiece-metroidvania/)
+- [Dead Cells Level Design - DeepNight](https://deepnight.net/tutorial/the-level-design-of-dead-cells-a-hybrid-approach/)
+- [Drill Core Review - GameLuster](https://gameluster.com/drill-core-review-the-finest-roguelite-mining/)
+- [Core Loop Design - GameDistribution](https://blog.gamedistribution.com/core-gameplay-loop-design-small-tweaks-big-engagement/)
+- [FTUE vs Onboarding - Mobile Game Doctor](https://mobilegamedoctor.com/2025/05/30/ftue-onboarding-whats-in-a-name/)
+- [Roguelike Mastery - Grid Sage Games](https://www.gridsagegames.com/blog/2025/08/designing-for-mastery-in-roguelikes-w-roguelike-radio/)
+- [Gaming Push Strategy - ContextSDK](https://contextsdk.com/blogposts/gaming-push-strategy-overcoming-the-63-5-industry-opt-in-challenge)

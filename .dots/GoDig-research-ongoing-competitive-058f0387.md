@@ -556,6 +556,98 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Regulatory landscape: FTC settlement with Epic Games for "dark patterns" - transparency requirements increasing
 - **GoDig v1.1**: If implementing battle pass, make free track genuinely valuable. Premium = cosmetics + convenience, not power.
 
+### Session 17 (2026-02-01)
+
+**Animal Well: Layered Secrets & Minimalist Discovery (2024 GotY Contender)**:
+- Solo developer Billy Basso created over 7 years with custom C++ engine, no external libraries
+- Inspired by Fez, The Witness, Tunic, and Super Mario Bros. 2's "aggressively nonsensical" secrets
+- Three-layer structure: Layer 1 (puzzle game for all), Layer 2 (discovery for keen players), Layer 3 (ARG requiring 50+ players to collaborate)
+- No cutscenes - "trusts the player to discover the game world firsthand"
+- Level design makes "discovery feel like intuitive play even when it's secretly giving you a well-planned tutorial"
+- Encrypted assets with puzzle solutions as decryption keys - prevents data mining
+- 650,000 copies sold by August 2024, ranked #2 highest-rated Switch game of 2024
+- **GoDig Application**: Layer our secrets - basic ore for all, rare finds for explorers, community puzzles for hardcore players
+
+**Rain World: Anti-Agency as Design Philosophy**:
+- "The most anti-videogame idea there is" - player agency is deliberately robbed
+- World "exists entirely on its own, completely separate from player's influence and desires"
+- Slugcat is "in the middle of the food chain" - avoids combat, emphasizes stealth and flight
+- No upgrades, no new weapons, no skill points - "progress is not the goal"
+- Creatures "learn to recognize you" - scavengers ally if player provides pearls
+- PC Gamer: cumbersome controls "thematically appropriate" for disempowerment
+- 95% emergent gameplay - "tells players absolutely nothing about mechanics"
+- **GoDig Contrast**: Our game EMPOWERS through upgrades. But learning Rain World's ecosystem lesson: make the underground feel alive and independent of the player.
+
+**Nine Sols: Combat-Focused Metroidvania (2024 Standout)**:
+- "Execution nothing short of astonishing" - Metroidvania + Sekiro parry combat in 2D
+- Parry system: Perfect parry = satisfying clang + negates damage + grants Qi charge
+- Risk/reward: Must "spend" built-up Talisman attacks or waste damage opportunities
+- "Flow state" achieved when countering/parrying becomes natural
+- Grappling hook from start enables vertical exploration (like our wall-jump)
+- Map design: "Clear and accessible" with collectible tracking per zone
+- Criticism: "Metroidvania-lite" - rarely need to return to previous areas
+- Combat and progression praised as "best parts" that overcome map design weaknesses
+- **GoDig Application**: Our combat-free design needs the satisfaction to come from mining itself. Each tier of pickaxe should feel like a "parry mastery" moment.
+
+**Dead Cells: Biome Variety & Path Choice Design**:
+- Biomes have unique identities: Toxic Sewers require careful positioning, Ramparts emphasize vertical combat
+- Concept graph approach: Entrance/exit placed first, then special rooms, then connecting tiles
+- Self-directed difficulty: "Safe path vs dangerous detours" for better rewards
+- Cursed Biome mechanic: +10% cursed chest chance, +1 loot level, but harder enemies
+- Player always has non-cursed path option - choice, not forced difficulty
+- 70+ unique enemies, 20+ biomes, 50+ weapons - prevents "comfort zone" builds
+- Procedural generation "altered feeling of combat" - emphasizes instincts over rote learning
+- **GoDig Application**: Each layer should have distinct identity. Optional danger zones (collapsed mine, lava pocket) for better rewards.
+
+**Drill Core (July 2025): Mining Roguelite Analysis**:
+- Day/night split: Mine resources by day, defend from aliens by night
+- Core risk/reward: "Drill down as fast as possible or risk another night for more resources"
+- Push too far and core explodes, losing workers and loot
+- Roguelite progression: Materials from contracts fund permanent upgrades
+- Run length: 30-50 minutes - creates frustration when poor choice kills late run
+- Criticism: Variations "don't change gameplay enough" - dwarves on ice still feels same
+- Lesson: "Core loop engaging but lack of deeper complexity causes burnout after a few hours"
+- **GoDig Advantage**: Our 5-minute loops prevent late-run frustration. Variety comes from depth tiers, not just cosmetic changes.
+
+**Core Gameplay Loop Design Best Practices (2025-2026)**:
+- "Micro loop must be satisfying or no progression system can save your game"
+- Build micro loop first in isolation - "Does movement/input/feedback feel fun with greyboxes?"
+- Misaligned loops = why games don't feel "tight" - not art or narrative problem
+- Understanding Micro/Macro/Meta loops = "most powerful framework in game design"
+- Core Keeper: "Digging through walls, setting up base, mastering skills is rewarding"
+- Progressive upgrades essential: upgrade tools to dig deeper to seek better resources
+- Deep exploration hook: "Thrill comes from seeing what lies just one layer further down"
+- **GoDig Validation**: Our micro loop (tap-mine-collect) must feel great BEFORE systems
+
+**Mobile Onboarding: FTUE vs Full Onboarding (2025)**:
+- FTUE = first 60 seconds + first 15 minutes (kinesthetic learning - learn by doing)
+- Full Onboarding = first 7 days (introduce longer-term systems and goals)
+- "First thing players need is to PLAY! Don't make them click/choose/sign in"
+- Epic WOW moment early creates attention hook
+- Progressive disclosure: Hide systems not needed for first 15 minutes
+- Clash Royale model: 5 short tutorials at relevant moments, each building on previous
+- First win + reason to return tomorrow = retention foundation
+- **GoDig Implementation**: FTUE = dig, find ore, return. Day 2+ = shop, upgrades, deeper dives.
+
+**Roguelike Mastery Design (Grid Sage Games/Cogmind 2025)**:
+- "We want more!" - skilled players demand harder challenges, extended content
+- Extended game concept: Optional challenges after "normal" completion (Brogue lumenstones, DCSS runes)
+- Cogmind has 10 endings with unique preparation/execution requirements
+- Every upward connection = permanent decision leaving other possibilities behind
+- Community engagement via Discord where developer helps players and discusses design
+- **GoDig v1.1 Application**: Add extended goals for mastery players - depth records, achievement challenges, rare drop collections
+
+**Mobile Push Notification Ethical Design (2025)**:
+- Gaming has lowest opt-in rate: 63.5% (37% rejection rate)
+- Best times: 12pm-1pm and 7pm-9pm on average, but personalization matters
+- Personalized notifications improve reaction rates by up to 400%
+- Optimal timing based on user activity improves reaction rates by 40%
+- Ethical guideline: "Sustainable engagement (Flow) vs Player Burnout (Dissociation)"
+- Player burnout = "Short-term revenue spikes, but trust erosion inevitable"
+- Best practice: Send same number of daily notifications as player session frequency
+- One push per week = 10% disable notifications, 6% uninstall
+- **GoDig v1.1**: Match notification frequency to play frequency. Never notify absent players aggressively.
+
 ### Topics for Future Research
 - [x] Analyze Spelunky 2's "secrets and lessons" retention (Session 9)
 - [x] Study Terraria's biome discovery system (Session 10)
@@ -588,11 +680,16 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Analyze Hollow Knight's exploration reward structure (Session 16)
 - [x] Research procedural "set pieces" that feel handcrafted (Session 16)
 - [x] Study mobile battle pass design for ethical implementation (Session 16)
-- [ ] Analyze Animal Well's minimalist discovery design
-- [ ] Study Rain World's emergent ecosystem and player agency
-- [ ] Research Nine Sols combat and exploration balance
-- [ ] Analyze Dead Cells' biome variety and path choice system
-- [ ] Study mobile game notification timing for ethical engagement
+- [x] Analyze Animal Well's minimalist discovery design (Session 17)
+- [x] Study Rain World's emergent ecosystem and player agency (Session 17)
+- [x] Research Nine Sols combat and exploration balance (Session 17)
+- [x] Analyze Dead Cells' biome variety and path choice system (Session 17)
+- [x] Study mobile game notification timing for ethical engagement (Session 17)
+- [ ] Analyze Windblown (Dead Cells devs new roguelike) for co-op mining potential
+- [ ] Study mobile game "offline progress reveal" animation patterns
+- [ ] Research Cogmind's extended game challenges for v1.1 mastery content
+- [ ] Analyze Cryptical Path's "build the dungeon" mechanic for player agency
+- [ ] Study Core Keeper's mining skill progression system
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -626,6 +723,10 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-risk-gradient-62fd403a` - Risk gradient scaling by depth (Session 16)
 - `GoDig-implement-handcrafted-cave-812a8dfa` - Spelunky-style pre-designed cave chunks (Session 16)
 - `GoDig-implement-exploration-fog-ba6cb120` - Exploration fog with map reveal (Session 16)
+- `GoDig-implement-layered-secret-8ba7afe0` - Animal Well-style 3-tier secret system (Session 17)
+- `GoDig-implement-distinct-layer-a60843e5` - Dead Cells-style distinct layer identities (Session 17)
+- `GoDig-implement-optional-danger-cc87675c` - Optional high-risk high-reward danger zones (Session 17)
+- `GoDig-implement-ftue-60-94baf4fa` - FTUE: Dig-find-return in first 60 seconds (Session 17)
 
 ## How to Use This Task
 

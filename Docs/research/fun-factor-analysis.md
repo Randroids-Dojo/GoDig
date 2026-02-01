@@ -1,7 +1,7 @@
 # Fun Factor Analysis - Mining Game Core Loop
 
 > Research compilation from game design analysis, forums, and similar games.
-> Last updated: 2026-02-01 (Session 2: Variable Reward Deep Dive)
+> Last updated: 2026-02-01 (Session 3: Return Trip Tension & Sell Satisfaction)
 
 ## Core Loop Summary
 
@@ -127,6 +127,73 @@ From [Hearthstone](https://hearthstone-decks.net/one-more-run-the-most-addictive
 - Meta-progression (Rogue Legacy style) reduces sting of death
 - "Just one more run" itch from death + immediate retry
 
+## Session 3 Research: Return Trip Tension & Sell Satisfaction
+
+### Extraction Phase Design - Deep Rock Galactic
+
+From [TheSixthAxis](https://www.thesixthaxis.com/2020/05/13/deep-rock-galactic-review-pc-steam-xbox-early-access/) and [Gaming Trend](https://gamingtrend.com/reviews/deep-rock-galactic-review-rock-solid/):
+
+- "Most missions end in a delightfully tense fashion"
+- Limited time to return while fighting enemies creates urgency
+- "Working against the clock to get back in time feels incredible"
+- If you don't prepare escape routes (tunnels, ziplines), you get stranded
+
+**GoDig Application**: The return trip must feel like an achievement, not tedium. Ladders placed earlier become your escape route. Running low on ladders while deep = tension.
+
+### The Dome Keeper Lift Pattern
+
+From [Steam Community](https://steamcommunity.com/sharedfiles/filedetails/?id=2869939597):
+
+- Lift gadget automates part of the return trip
+- "As you dig further deep, this gadget becomes all the more useful"
+- Secondary function: Movement speed boost toward dome
+- "Can cut down time to go from mines to dome exponentially"
+
+**GoDig Application**: Late-game should reduce return tedium. Elevator building serves this purpose. Consider: ladder express lanes (rapid climb upgrade)?
+
+### Sell Screen "Juice" - Currency Animations
+
+From [Game Economist Consulting](https://www.gameeconomistconsulting.com/the-best-currency-animations-of-all-time/):
+
+- Currency animations play thousands of times; benefits compound
+- "A well-designed coin animation is genuinely satisfying"
+- "Coins flip and spin, reflecting light when they enter balance" (Beatstar)
+- Flow must be tight: "Players should hit main menu after receiving gold so connection between reward and balance is tight"
+
+**Critical Insight**: The sell moment is where all mining effort becomes tangible. This must be satisfying or the loop fails.
+
+### Early Game Hook - Onboarding Psychology
+
+From [Udonis](https://www.blog.udonis.co/mobile-marketing/mobile-games/best-idle-games) and [Felgo](https://blog.felgo.com/mobile-game-development/10-simple-tips-that-will-boost-your-player-retention):
+
+- "First few minutes determine whether user stays or churns"
+- Give "easy victory early" to activate sense of accomplishment
+- "Generous rewards - even if mostly cosmetic" in first session
+- "Positive reinforcement animations (sparkles, sound effects, confetti)"
+- "This isn't just dopamine - it's anchoring a positive emotional memory"
+
+**GoDig Application**: First ore discovery needs to feel amazing. First upgrade needs celebration. These moments hook the player.
+
+### Power Fantasy Through Permanent Progression
+
+From [Indiecator](https://indiecator.org/2022/03/30/on-roguelikes-and-progression-systems/) and [Eneba](https://www.eneba.com/hub/games/best-roguelite-games/):
+
+- Rogue Legacy "injected character-building power fantasy into roguelikes"
+- "Players get stronger and struggle less - bosses that brought them close to death appear like normal enemies later"
+- The appeal: "Not only getting better at playing, but entering with a more capable character"
+
+**GoDig Application**: Pickaxe upgrades must be dramatic. Tier 1 vs Tier 3 should feel like night and day. This is the reward for the grind.
+
+### Inventory as Decision Pressure
+
+From [Number Analytics](https://www.numberanalytics.com/blog/ultimate-guide-inventory-management-game-design):
+
+- "Limiting inventory slots forces decisions about what to keep"
+- "Every choice is important" (Darkest Dungeon)
+- Resident Evil 4: briefcase system added "puzzle-like mechanic, rewarding players who maximized space"
+
+**GoDig Application**: 8 starting slots is correct. Players must choose: keep 3 coal or drop for 1 gold? This is meaningful decision-making.
+
 ### Game Feel / Juice Best Practices
 
 From [GameAnalytics](https://www.gameanalytics.com/blog/squeezing-more-juice-out-of-your-game-design):
@@ -138,6 +205,7 @@ From [GameAnalytics](https://www.gameanalytics.com/blog/squeezing-more-juice-out
 
 ## Sources
 
+### Session 1-2 Sources
 - [Game Design Deep Dive: SteamWorld Dig](https://www.gamedeveloper.com/design/game-design-deep-dive-the-digging-mechanic-in-i-steamworld-dig-i-)
 - [Design Dive: Dome Keeper](https://joshanthony.info/2023/05/24/design-dive-dome-keeper/)
 - [The Psychology Behind Idle Game Addictiveness](https://artifexterra.com/the-psychology-behind-idle-game-addictiveness/)
@@ -148,6 +216,17 @@ From [GameAnalytics](https://www.gameanalytics.com/blog/squeezing-more-juice-out
 - [PMC: Loot Boxes and Arousal](https://pmc.ncbi.nlm.nih.gov/articles/PMC7882574/)
 - [Psychology of Games: Near Miss Effect](https://www.psychologyofgames.com/2016/09/the-near-miss-effect-and-game-rewards/)
 - [Gamedeveloper: Compulsion Loops & Dopamine](https://www.gamedeveloper.com/design/compulsion-loops-dopamine-in-games-and-gamification)
+
+### Session 3 Sources
+- [Deep Rock Galactic Review - TheSixthAxis](https://www.thesixthaxis.com/2020/05/13/deep-rock-galactic-review-pc-steam-xbox-early-access/)
+- [Deep Rock Galactic Review - Gaming Trend](https://gamingtrend.com/reviews/deep-rock-galactic-review-rock-solid/)
+- [Dome Keeper Strategy Guide - Steam](https://steamcommunity.com/sharedfiles/filedetails/?id=2869939597)
+- [Best Currency Animations - Game Economist](https://www.gameeconomistconsulting.com/the-best-currency-animations-of-all-time/)
+- [Idle Games Player Retention - Udonis](https://www.blog.udonis.co/mobile-marketing/mobile-games/best-idle-games)
+- [Boost Player Retention - Felgo](https://blog.felgo.com/mobile-game-development/10-simple-tips-that-will-boost-your-player-retention)
+- [Roguelikes and Progression - Indiecator](https://indiecator.org/2022/03/30/on-roguelikes-and-progression-systems/)
+- [Inventory Management Guide - Number Analytics](https://www.numberanalytics.com/blog/ultimate-guide-inventory-management-game-design)
+- [Motherload vs SteamWorld - Steam Discussions](https://steamcommunity.com/app/252410/discussions/0/666828126470686482/)
 
 ## Implementation Checklist for Fun Factor
 
@@ -177,3 +256,29 @@ From [GameAnalytics](https://www.gameanalytics.com/blog/squeezing-more-juice-out
 - [ ] First-discovery bonus system
 - [ ] Cave treasure chests
 - [ ] Deep dive tension meter (unified indicator)
+
+### Phase 5: Satisfaction Polish (P5 - New from Session 3)
+- [ ] Sell animation with coin arc + rolling counter
+- [ ] First ore discovery celebration (sparkles, sound)
+- [ ] Pickaxe upgrade "before/after" comparison UI
+- [ ] Ladder count warning when low (<3 while deep)
+- [ ] "Safe return" celebration when reaching surface with full inventory
+
+## Core Loop Tension Model
+
+```
+                    TENSION
+                       ^
+                       |     *** Full inventory, deep, few ladders
+                       |   **
+                       |  *
+                       | *       Inventory filling
+                       |*
+        Surface -------|-----------------------> DEPTH
+                       |
+                       |   Safe with ladders
+                       v
+                    COMFORT
+```
+
+The ideal experience oscillates: comfort at surface, rising tension underground, relief on safe return, satisfaction when selling, empowerment after upgrade, then back down with new confidence.

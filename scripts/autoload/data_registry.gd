@@ -126,22 +126,19 @@ func _ready() -> void:
 
 func _load_all_layers() -> void:
 	## Load all layer resources from preloaded array
-	print("[DataRegistry] Loading %d layer resources..." % LAYER_RESOURCES.size())
-	for i in range(LAYER_RESOURCES.size()):
-		var resource = LAYER_RESOURCES[i]
+	## NOTE: We don't use "is LayerData" check because it fails in web exports
+	for resource in LAYER_RESOURCES:
 		if resource == null:
-			push_error("[DataRegistry] Layer resource %d is null!" % i)
+			push_error("[DataRegistry] Layer resource is null!")
 			continue
-		if resource is LayerData:
-			layers.append(resource)
-			_layers_by_id[resource.id] = resource
-			print("[DataRegistry] Loaded layer: %s" % resource.id)
-		else:
-			push_error("[DataRegistry] Layer resource %d is not LayerData: %s" % [i, typeof(resource)])
+		if not resource.has_method("get_hardness_at"):
+			push_error("[DataRegistry] Layer resource missing get_hardness_at method")
+			continue
+		layers.append(resource)
+		_layers_by_id[resource.id] = resource
 
 	# Sort by min_depth for proper depth lookup
 	layers.sort_custom(func(a, b): return a.min_depth < b.min_depth)
-	print("[DataRegistry] Sorted %d layers by depth" % layers.size())
 
 
 ## Get a layer by its ID
@@ -219,12 +216,13 @@ func is_transition_zone(grid_pos: Vector2i) -> bool:
 
 func _load_all_ores() -> void:
 	## Load all ore and gem resources from preloaded arrays
+	## NOTE: We don't use "is OreData" check because it fails in web exports
 	for resource in ORE_RESOURCES:
-		if resource is OreData:
+		if resource != null and resource.has_method("can_spawn_at_depth"):
 			ores[resource.id] = resource
 
 	for resource in GEM_RESOURCES:
-		if resource is OreData:
+		if resource != null and resource.has_method("can_spawn_at_depth"):
 			ores[resource.id] = resource
 
 	# Also register ores as items for inventory/shop compatibility
@@ -269,8 +267,9 @@ func get_all_ore_ids() -> Array:
 
 func _load_all_items() -> void:
 	## Load all item resources from preloaded array
+	## NOTE: We don't use "is ItemData" check because it fails in web exports
 	for resource in ITEM_RESOURCES:
-		if resource is ItemData:
+		if resource != null and "id" in resource and "display_name" in resource:
 			items[resource.id] = resource
 
 
@@ -306,8 +305,9 @@ func get_all_artifacts() -> Array:
 
 func _load_all_tools() -> void:
 	## Load all tool resources from preloaded array
+	## NOTE: We don't use "is ToolData" check because it fails in web exports
 	for resource in TOOL_RESOURCES:
-		if resource is ToolData:
+		if resource != null and "tier" in resource and "damage" in resource:
 			tools[resource.id] = resource
 
 	# Sort tools by tier for ordered display
@@ -408,8 +408,9 @@ func get_all_layer_ids() -> Array:
 
 func _load_all_equipment() -> void:
 	## Load all equipment resources from preloaded array
+	## NOTE: We don't use "is EquipmentData" check because it fails in web exports
 	for resource in EQUIPMENT_RESOURCES:
-		if resource is EquipmentData:
+		if resource != null and "slot" in resource and "tier" in resource:
 			equipment[resource.id] = resource
 
 	# Sort equipment by tier for ordered display

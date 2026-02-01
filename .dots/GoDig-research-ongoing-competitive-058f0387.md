@@ -1,9 +1,9 @@
 ---
 title: "research: Ongoing competitive analysis - mining/digging games"
-status: active
+status: open
 priority: 3
 issue-type: research
-created-at: "\"\\\"\\\\\\\"\\\\\\\\\\\\\\\"2026-02-01T07:56:09.847420-06:00\\\\\\\\\\\\\\\"\\\\\\\"\\\"\""
+created-at: "2026-02-01T07:56:09.847420-06:00"
 ---
 
 ## Purpose
@@ -1337,10 +1337,126 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [ ] Study Cryptical Path player reviews for "rogue-builder" reception
 - [ ] Analyze Dig Dig Boom full release reception when available
 - [ ] Research DRG: Rogue Core player feedback when Early Access launches Q2 2026
-- [ ] Study Jusant's climbing stamina system for ladder/traversal inspiration
+- [x] Study Jusant's climbing stamina system for ladder/traversal inspiration (Session 24)
 - [ ] Research Cairn's climbing feedback when full release available (2026)
-- [ ] Analyze Starbound's underground layer variety system in depth
+- [x] Analyze Starbound's underground layer variety system in depth (Session 24)
 - [ ] Study Under A Rock's cave resource harvesting design when released
+- [x] Analyze Windblown's Endless Mode for post-game content ideas (Session 24)
+- [x] Study Core Keeper XP vs efficient tools balance (Session 24)
+- [x] Research inventory tetris satisfaction patterns (Session 24)
+- [x] Study mobile game abundance/scarcity cycle timing (Session 24)
+- [ ] Analyze Cryptical Path player reviews for "rogue-builder" reception when more reviews available
+- [ ] Study DRG: Rogue Core player feedback when Early Access launches Q2 2026
+
+### Session 24 (2026-02-01)
+
+**Windblown Endless Mode Design (Motion Twin - Dead Cells Devs)**:
+- Endless Mode launched March 4th, 2025 - allows continuing after beating final boss
+- Key feature: players keep weapons, power-ups, and stat boosts from completed run
+- "Stack infinitely" design for bragging rights and build optimization
+- Gear reforging added: change/upgrade trinkets and weapons between loops
+- Codex tracks meta-stats: enemies killed, runs played - creates collection motivation
+- 2026 roadmap includes New Game Plus, new boss, improved mid/late game meta systems
+- The Ark (hub) serves as cozy home base for permanent progression
+- **GoDig v1.1 Application**: Consider "Endless Dig" mode after main progression - keep upgrades, deeper layers unlock
+
+**Core Keeper Mining XP vs Efficient Tools Paradox**:
+- XP awarded per HIT, not per block destroyed - critical balancing insight
+- Using efficient pickaxes actually SLOWS XP gain (fewer hits per block)
+- Testing showed: Ancient Pickaxe (one-hit kills) = half level per 20 blocks; no pickaxe (6 hits each) = 2.5 levels
+- Creates interesting tradeoff: speed vs skill progression
+- Level 89 with half to 90 = actual midpoint of level 100 (exponential curve)
+- Best mining gear: Cosmos Armor (+274 block damage) vs Miner's Set (+40% and +120 flat)
+- **GoDig Design Decision**: If we add mining skill, efficient pickaxes should NOT slow XP. Our game values player time over artificial grind.
+
+**Inventory Tetris Satisfaction (Resident Evil / Diablo Analysis)**:
+- Core appeal: "bizarre satisfaction to Feng shui'ing your attache case"
+- "Just lining up items or making things look pretty is more satisfying than entire video games"
+- 3D grid naturally limits items while communicating item scale (sword > dagger)
+- Save Room (indie game) turned inventory Tetris into core mechanic - validates standalone appeal
+- Criticism: difficult to find items, requires periodic shuffling, can feel tedious
+- **GoDig Application**: Our slot-based inventory is simpler than Tetris - CORRECT for mobile. But consider "full inventory" as decision moment, not frustration.
+
+**Mobile Economy Abundance/Scarcity Cycles (2025 Best Practices)**:
+- Core strategy: alternate between resource abundance (rewarding) and scarcity (planning/purchasing)
+- Genshin Impact model: event rewards create abundance, then scarcity encourages farming/purchasing
+- 40% higher engagement with limited-time offers (scarcity + urgency)
+- Circular economy: earn → spend → need more → earn (Clash of Clans raid loop)
+- 78% of successful titles use dual currency (soft earned, hard premium)
+- 62% abandon due to currency/resource shortage - scarcity must not feel unfair
+- Critical balance: too generous = blast through content, too stingy = frustrated quit
+- **GoDig Ladder Economy**: Ladders are our scarcity lever. Early game = abundance (5 starting), mid-game = tension (must buy wisely), late-game = elevator unlocks abundance again.
+
+**Jusant Climbing Stamina System Deep Dive**:
+- Left/right triggers control left/right hands - "perfect control over character with bit of pressure"
+- Stamina depletes on grab (tiny) and jump (large) - creates moment-to-moment decisions
+- Small portion regenerates mid-climb if player rests - safety net without removing consequence
+- Developer iterated through: independent arm stamina, chunk system, rope-only regen - none worked
+- Playtesters rejected punitive versions - "disrupted climbing flow"
+- Environmental variety: sun biome drains stamina faster, vegetation creates alternate handholds
+- Accessibility: No Stamina mode, Simplified Climbing (stick only), Jump Assistance
+- **GoDig Application**: Our wall-jump doesn't need stamina (too punitive for mobile). But ladder placement creates similar "when to commit" decisions.
+
+**Starbound Underground Layer Variety System**:
+- Three underground layer types: Shallow (Tarpit, Mushrooms), Mid (Luminous, Bone, Ice Caves), Deep (Cell, Flesh, Slime Caves)
+- Each layer has primary biome + optional secondary biomes + possible sub-biomes
+- Underground type is INDEPENDENT of surface biome - creates discovery surprise
+- Underground caves can spawn "in place of" generic layer - special rare zones
+- Unique characteristics: plants, monsters, blocks distinct per biome
+- Modding system: region types describe terrain, liquid, ore generators
+- **GoDig Layer Design Validation**: Our 7 layers should have distinct visual identities AND surprise cave biomes that override normal generation.
+
+**Push-Your-Luck Tension Mechanics (Board Game Wisdom)**:
+- Core insight: push-your-luck is DIFFERENT from pure luck - requires meaningful CHOICES
+- Banking mechanic creates strategic depth: accumulated points are "vulnerable" until cashed
+- Self-balancing: fewer players remaining = greater potential reward (Incan Gold)
+- Quacks of Quedlinburg: chip return mechanic mitigates bad luck - cost to refresh
+- Zombie Dice "3 strikes" rule: incremental failure, not sudden bust
+- RPG implementation (PbtA games): "potential of enormous success or terrible disaster"
+- **GoDig Validation**: Our ladder depletion is GRADUAL tension (superior to sudden bust). Player sees warnings, makes informed choices.
+
+**Subnautica Depth-Fear Design Principles**:
+- Four fear metrics: brightness, depth, hostility, visibility - all worsen as player descends
+- Key quote: "Every aspect intentionally designed to make players feel they do not belong"
+- 3D space means "dangers come from any direction, including behind, above and below"
+- Creature design: color, behaviour, size create terror without breaking immersion
+- Sound design creates dread BEFORE visual contact (Reaper Leviathan roar)
+- Fear diminishes with mastery: known quantity becomes "respected but not feared"
+- Developer intent: preserve "shiver of the unknown" - never feel truly complete
+- **GoDig Tension Model**: Our depth layers should increase unfamiliarity. Surface = safe/known, deep = uncertain/hostile. Mastery (upgrades) reduces fear.
+
+**Numbers Go Up Psychology (Idle Game Retention)**:
+- Core insight: "seeing numbers go up creates very positive feedback loop of micro-dopamine hits"
+- Retention power is "unmistakable" - keeps players coming back
+- Works even when player isn't actively engaged (idle accumulation)
+- **GoDig Implementation**: Depth counter, coin total, ore count, upgrade progress - all should be visible and satisfying. Each increment = tiny reward.
+
+**Vertical Slice Playtesting (GDC 2025 / SLICE Conference)**:
+- GDC 2025 session: vertical slices "more important than ever" for publisher attention
+- SLICE Expo 2025: one-day B2B conference for indie/AA developers (August 27, Seattle)
+- Speakers include Eric Barone (Stardew Valley), Kim Swift (Portal)
+- Key insight: "First impressions decide whether players lean in or tune out"
+- Best practices: bold visual first, set tone with sound, give players control quickly
+- Pitfalls: scope creep, placeholders, failing to polish - "cut scope, not quality"
+- 30-40% of playtesters complete feedback surveys - validation data critical
+- **GoDig Priority**: Before any polish, validate core mining feel with greybox playtest.
+
+**Roguelite Death Penalty Design (2025 Consensus)**:
+- Roguelites retain "spirit of format but allow players to retain SOME progress"
+- Hades innovation: death advances narrative - "dying was no longer failure"
+- Resources that don't reset fund permanent upgrades (meta-progression)
+- Key insight: "knowledge carries forward" - learning from failure is the loop
+- Death creates resilience: "constantly encouraged to push through setbacks"
+- **GoDig Emergency Rescue Refinement**: Frame as learning moment. Show depth reached, ores collected, map revealed. "You learned something valuable."
+
+### Topics for Future Research
+- [ ] Research Cairn's climbing feedback when full release available (2026)
+- [ ] Study Under A Rock's cave resource harvesting design when released
+- [ ] Analyze Cryptical Path player reviews for "rogue-builder" reception
+- [ ] Study DRG: Rogue Core player feedback when Early Access launches Q2 2026
+- [ ] Research SLICE Expo 2025 talks when recordings available
+- [ ] Analyze Windblown 1.0 launch reception (2026)
+- [ ] Study mobile game "prestige" system timing and player satisfaction
 
 ### Implementation Specs Created from Research
 - `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
@@ -1403,6 +1519,10 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-visual-ladder-3119af69` - Visual urgency indicator for low ladder count (Session 23)
 - `GoDig-implement-upgrade-instant-a98283f7` - Upgrades must be FELT immediately after purchase (Session 23)
 - `GoDig-implement-coin-flow-4c1b405e` - Coin flow sell animation with satisfying sound cascade (Session 23)
+- `GoDig-implement-endless-dig-mode` - v1.1 Endless mode after main progression (Session 24)
+- `GoDig-implement-layer-cave-biomes` - Surprise cave biomes that override normal generation (Session 24)
+- `GoDig-implement-greybox-playtest` - Core mining feel validation before polish (Session 24)
+- `GoDig-implement-depth-unfamiliarity` - Increasing visual unfamiliarity with depth (Session 24)
 
 ## How to Use This Task
 

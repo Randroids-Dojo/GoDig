@@ -23,6 +23,9 @@ signal quit_requested
 ## Stats label (created programmatically)
 var stats_label: Label = null
 
+## Debug button (created programmatically)
+var copy_logs_btn: Button = null
+
 ## Confirmation dialog for dangerous actions
 var _confirm_dialog: ConfirmationDialog = null
 var _pending_action: String = ""
@@ -44,6 +47,9 @@ func _ready() -> void:
 
 	# Create stats label
 	_create_stats_label()
+
+	# Create debug section
+	_create_debug_section()
 
 	visible = false
 	print("[PauseMenu] Ready")
@@ -75,6 +81,45 @@ func _create_stats_label() -> void:
 		separator.custom_minimum_size = Vector2(0, 10)
 		vbox.add_child(separator)
 		vbox.add_child(stats_label)
+
+
+func _create_debug_section() -> void:
+	"""Create debug tools section at the bottom of the pause menu."""
+	var vbox := $Panel/VBox as VBoxContainer
+	if vbox == null:
+		return
+
+	# Add separator before debug section
+	var separator := HSeparator.new()
+	separator.custom_minimum_size = Vector2(0, 10)
+	vbox.add_child(separator)
+
+	# Debug section label
+	var debug_label := Label.new()
+	debug_label.text = "Debug Tools"
+	debug_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	debug_label.add_theme_font_size_override("font_size", 12)
+	debug_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+	vbox.add_child(debug_label)
+
+	# Copy Logs button
+	copy_logs_btn = Button.new()
+	copy_logs_btn.name = "CopyLogsButton"
+	copy_logs_btn.text = "Copy Console Logs"
+	copy_logs_btn.pressed.connect(_on_copy_logs)
+	vbox.add_child(copy_logs_btn)
+
+
+func _on_copy_logs() -> void:
+	"""Copy debug logs to clipboard."""
+	if DebugLogger:
+		DebugLogger.copy_to_clipboard()
+		# Update button text briefly to show success
+		copy_logs_btn.text = "Copied!"
+		await get_tree().create_timer(1.5).timeout
+		copy_logs_btn.text = "Copy Console Logs"
+	else:
+		copy_logs_btn.text = "Logger not available"
 
 
 func _update_stats_display() -> void:

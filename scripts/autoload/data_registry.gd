@@ -3,12 +3,86 @@ extends Node
 ##
 ## Loads and provides access to all layer and ore definitions at startup.
 ## Use DataRegistry.get_layer(), get_ore(), get_ores_at_depth() to access.
+##
+## NOTE: Resources are explicitly preloaded for web export compatibility.
+## DirAccess doesn't work in web builds (files are packed into .pck).
 
 const LayerData = preload("res://resources/layers/layer_data.gd")
 const OreData = preload("res://resources/ores/ore_data.gd")
 const ItemData = preload("res://resources/items/item_data.gd")
 const ToolData = preload("res://resources/tools/tool_data.gd")
 const EquipmentData = preload("res://resources/equipment/equipment_data.gd")
+
+# Explicit resource preloads for web export compatibility
+const LAYER_RESOURCES := [
+	preload("res://resources/layers/topsoil.tres"),
+	preload("res://resources/layers/subsoil.tres"),
+	preload("res://resources/layers/clay.tres"),
+	preload("res://resources/layers/stone.tres"),
+	preload("res://resources/layers/granite.tres"),
+	preload("res://resources/layers/deep_stone.tres"),
+	preload("res://resources/layers/crystal_caves.tres"),
+	preload("res://resources/layers/obsidian_core.tres"),
+	preload("res://resources/layers/magma_zone.tres"),
+	preload("res://resources/layers/void_depths.tres"),
+]
+
+const ORE_RESOURCES := [
+	preload("res://resources/ores/coal.tres"),
+	preload("res://resources/ores/copper.tres"),
+	preload("res://resources/ores/iron.tres"),
+	preload("res://resources/ores/silver.tres"),
+	preload("res://resources/ores/gold.tres"),
+	preload("res://resources/ores/platinum.tres"),
+	preload("res://resources/ores/titanium.tres"),
+	preload("res://resources/ores/obsidian.tres"),
+	preload("res://resources/ores/void_crystal.tres"),
+]
+
+const GEM_RESOURCES := [
+	preload("res://resources/gems/ruby.tres"),
+	preload("res://resources/gems/sapphire.tres"),
+	preload("res://resources/gems/emerald.tres"),
+	preload("res://resources/gems/diamond.tres"),
+]
+
+const ITEM_RESOURCES := [
+	preload("res://resources/items/rope.tres"),
+	preload("res://resources/items/ladder.tres"),
+	preload("res://resources/items/teleport_scroll.tres"),
+	preload("res://resources/items/fossil_common.tres"),
+	preload("res://resources/items/fossil_rare.tres"),
+	preload("res://resources/items/fossil_legendary.tres"),
+	preload("res://resources/items/fossil_amber.tres"),
+	preload("res://resources/items/artifact_ancient_coin.tres"),
+	preload("res://resources/items/artifact_crystal_skull.tres"),
+	preload("res://resources/items/artifact_fossilized_crown.tres"),
+	preload("res://resources/items/artifact_obsidian_tablet.tres"),
+]
+
+const TOOL_RESOURCES := [
+	preload("res://resources/tools/rusty_pickaxe.tres"),
+	preload("res://resources/tools/copper_pickaxe.tres"),
+	preload("res://resources/tools/iron_pickaxe.tres"),
+	preload("res://resources/tools/steel_pickaxe.tres"),
+	preload("res://resources/tools/silver_pickaxe.tres"),
+	preload("res://resources/tools/gold_pickaxe.tres"),
+	preload("res://resources/tools/diamond_pickaxe.tres"),
+	preload("res://resources/tools/mythril_pickaxe.tres"),
+	preload("res://resources/tools/void_pickaxe.tres"),
+]
+
+const EQUIPMENT_RESOURCES := [
+	preload("res://resources/equipment/leather_boots.tres"),
+	preload("res://resources/equipment/iron_boots.tres"),
+	preload("res://resources/equipment/steel_boots.tres"),
+	preload("res://resources/equipment/obsidian_boots.tres"),
+	preload("res://resources/equipment/basic_headlamp.tres"),
+	preload("res://resources/equipment/miners_helmet.tres"),
+	preload("res://resources/equipment/engineers_helmet.tres"),
+	preload("res://resources/equipment/crystal_helm.tres"),
+	preload("res://resources/equipment/mining_drill.tres"),
+]
 
 ## All loaded layer definitions, sorted by min_depth
 var layers: Array[LayerData] = []
@@ -51,27 +125,11 @@ func _ready() -> void:
 
 
 func _load_all_layers() -> void:
-	## Load all .tres files from the layers directory
-	var layers_path := "res://resources/layers/"
-	var dir := DirAccess.open(layers_path)
-
-	if dir == null:
-		push_error("[DataRegistry] Cannot open layers directory: %s" % layers_path)
-		return
-
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-
-	while file_name != "":
-		if file_name.ends_with(".tres"):
-			var resource_path := layers_path + file_name
-			var resource = load(resource_path)
-			if resource is LayerData:
-				layers.append(resource)
-				_layers_by_id[resource.id] = resource
-		file_name = dir.get_next()
-
-	dir.list_dir_end()
+	## Load all layer resources from preloaded array
+	for resource in LAYER_RESOURCES:
+		if resource is LayerData:
+			layers.append(resource)
+			_layers_by_id[resource.id] = resource
 
 	# Sort by min_depth for proper depth lookup
 	layers.sort_custom(func(a, b): return a.min_depth < b.min_depth)
@@ -151,9 +209,14 @@ func is_transition_zone(grid_pos: Vector2i) -> bool:
 # ============================================
 
 func _load_all_ores() -> void:
-	## Load all .tres files from ores and gems directories
-	_load_ores_from_directory("res://resources/ores/")
-	_load_ores_from_directory("res://resources/gems/")
+	## Load all ore and gem resources from preloaded arrays
+	for resource in ORE_RESOURCES:
+		if resource is OreData:
+			ores[resource.id] = resource
+
+	for resource in GEM_RESOURCES:
+		if resource is OreData:
+			ores[resource.id] = resource
 
 	# Also register ores as items for inventory/shop compatibility
 	# OreData extends ItemData, so ores can be used directly as items
@@ -163,26 +226,6 @@ func _load_all_ores() -> void:
 	# Sort by min_depth for efficient depth queries
 	_ores_by_depth = ores.values()
 	_ores_by_depth.sort_custom(func(a, b): return a.min_depth < b.min_depth)
-
-
-func _load_ores_from_directory(path: String) -> void:
-	var dir := DirAccess.open(path)
-	if dir == null:
-		push_warning("[DataRegistry] Cannot open directory: %s" % path)
-		return
-
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-
-	while file_name != "":
-		if file_name.ends_with(".tres"):
-			var resource_path := path + file_name
-			var resource = load(resource_path)
-			if resource is OreData:
-				ores[resource.id] = resource
-		file_name = dir.get_next()
-
-	dir.list_dir_end()
 
 
 ## Get an ore by its ID
@@ -216,26 +259,10 @@ func get_all_ore_ids() -> Array:
 # ============================================
 
 func _load_all_items() -> void:
-	## Load all .tres files from items directory
-	var items_path := "res://resources/items/"
-	var dir := DirAccess.open(items_path)
-
-	if dir == null:
-		push_warning("[DataRegistry] Cannot open items directory: %s" % items_path)
-		return
-
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-
-	while file_name != "":
-		if file_name.ends_with(".tres"):
-			var resource_path := items_path + file_name
-			var resource = load(resource_path)
-			if resource is ItemData:
-				items[resource.id] = resource
-		file_name = dir.get_next()
-
-	dir.list_dir_end()
+	## Load all item resources from preloaded array
+	for resource in ITEM_RESOURCES:
+		if resource is ItemData:
+			items[resource.id] = resource
 
 
 ## Get an item by its ID
@@ -269,26 +296,10 @@ func get_all_artifacts() -> Array:
 # ============================================
 
 func _load_all_tools() -> void:
-	## Load all .tres files from tools directory
-	var tools_path := "res://resources/tools/"
-	var dir := DirAccess.open(tools_path)
-
-	if dir == null:
-		push_warning("[DataRegistry] Cannot open tools directory: %s" % tools_path)
-		return
-
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-
-	while file_name != "":
-		if file_name.ends_with(".tres"):
-			var resource_path := tools_path + file_name
-			var resource = load(resource_path)
-			if resource is ToolData:
-				tools[resource.id] = resource
-		file_name = dir.get_next()
-
-	dir.list_dir_end()
+	## Load all tool resources from preloaded array
+	for resource in TOOL_RESOURCES:
+		if resource is ToolData:
+			tools[resource.id] = resource
 
 	# Sort tools by tier for ordered display
 	_tools_by_tier = tools.values()
@@ -387,26 +398,10 @@ func get_all_layer_ids() -> Array:
 # ============================================
 
 func _load_all_equipment() -> void:
-	## Load all .tres files from equipment directory
-	var equipment_path := "res://resources/equipment/"
-	var dir := DirAccess.open(equipment_path)
-
-	if dir == null:
-		push_warning("[DataRegistry] Cannot open equipment directory: %s" % equipment_path)
-		return
-
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-
-	while file_name != "":
-		if file_name.ends_with(".tres"):
-			var resource_path := equipment_path + file_name
-			var resource = load(resource_path)
-			if resource is EquipmentData:
-				equipment[resource.id] = resource
-		file_name = dir.get_next()
-
-	dir.list_dir_end()
+	## Load all equipment resources from preloaded array
+	for resource in EQUIPMENT_RESOURCES:
+		if resource is EquipmentData:
+			equipment[resource.id] = resource
 
 	# Sort equipment by tier for ordered display
 	_equipment_by_tier = equipment.values()

@@ -289,7 +289,7 @@ func get_placed_objects_dict() -> Dictionary:
 func load_placed_objects_dict(data: Dictionary) -> void:
 	_placed_objects.clear()
 	for key in data:
-		var parts := key.split(",")
+		var parts = key.split(",")
 		if parts.size() == 2:
 			var pos := Vector2i(int(parts[0]), int(parts[1]))
 			_placed_objects[pos] = data[key]

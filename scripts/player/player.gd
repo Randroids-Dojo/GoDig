@@ -1255,13 +1255,15 @@ func use_rope() -> bool:
 	# Check if we can actually move there (no solid block)
 	if dirt_grid and dirt_grid.has_block(target):
 		# Try to find closest empty space above
+		var found_spot := false
 		for y in range(grid_position.y - 1, target_y - 1, -1):
 			var check_pos := Vector2i(grid_position.x, y)
 			if not dirt_grid.has_block(check_pos):
 				target = check_pos
 				ascent_blocks = grid_position.y - y
+				found_spot = true
 				break
-		else:
+		if not found_spot:
 			return false  # No valid landing spot
 
 	# Consume the rope

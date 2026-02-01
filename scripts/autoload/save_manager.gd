@@ -263,8 +263,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 	if EnemyManager:
 		EnemyManager.reset()
 
-	# Initial save
-	var success := save_game()
+	# Initial save (force=true to bypass debounce)
+	var success := save_game(true)
 
 	if success:
 		save_slot_changed.emit(current_slot)

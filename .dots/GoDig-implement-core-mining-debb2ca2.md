@@ -38,3 +38,23 @@ Create a validation test sequence:
 - [ ] Core digging feels satisfying without ore discovery
 - [ ] No identified 'this feels bad' moments
 - [ ] Tester wants to keep digging (intrinsic motivation)
+
+## Session 13 Research Context
+
+From SteamWorld Dig analysis:
+- Sound design critical: "tinkling noise becomes clearer with higher tempo with every subsequent hit"
+- "When you get that newest upgrade so you can dig through each block with only one hit, it's immensely satisfying"
+- Sound helps player know when a block is about to break
+
+From Vampire Survivors pattern:
+- Minimal input but MAXIMUM feedback (constant visual rewards)
+- Our tap-to-dig is simple; feedback (particles, sounds, toasts) must be rich
+
+From mining game consensus:
+- Deep Rock Galactic: "digging away and finding caverns is so much fun"
+- Discovery and exploration, not just extraction
+- Mining must be inherently satisfying BEFORE any systems/upgrades
+
+## Related Specs
+- `GoDig-implement-distinct-audio-09fbd1b1` - Distinct audio/visual per pickaxe tier (Session 13)
+- `GoDig-implement-mining-sound-54915d26` - Mining sound design system

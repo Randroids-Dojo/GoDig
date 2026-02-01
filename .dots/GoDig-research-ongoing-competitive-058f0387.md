@@ -1,6 +1,6 @@
 ---
 title: "research: Ongoing competitive analysis - mining/digging games"
-status: open
+status: active
 priority: 3
 issue-type: research
 created-at: "2026-02-01T07:56:09.847420-06:00"
@@ -1523,6 +1523,114 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - `GoDig-implement-layer-cave-biomes` - Surprise cave biomes that override normal generation (Session 24)
 - `GoDig-implement-greybox-playtest` - Core mining feel validation before polish (Session 24)
 - `GoDig-implement-depth-unfamiliarity` - Increasing visual unfamiliarity with depth (Session 24)
+
+### Session 25 (2026-02-01)
+
+**Mining Game Fun Factor - The Decision Moment Theory**:
+- Forum consensus: "Digging is not the fun part... it's merely the means to get resources"
+- Counter: "Something satisfying about digging, discovery, and using those discoveries to enable more digging"
+- SteamWorld Dig cited: "quite satisfying just to dig dig dig, without any further concerns"
+- Motherload appeal: "surviving in dangerous environment while accumulating wealth, constantly making decisions about risks vs rewards"
+- Classic tension quote: "My air tank is just about gone, I need to return to surface, but there's two diamond ores right there"
+- **GoDig Critical Insight**: The FUN comes from the DECISION MOMENT, not the digging itself. Ladder scarcity creates decision moments.
+
+**Deep Sea Adventure - Gold Standard for Shared Tension**:
+- Shared oxygen is "probably the smartest part of this game"
+- Players calculate: grab treasure close for quick return, or risk diving deep?
+- Each treasure reduces air by 1 per turn for that player - greed affects everyone
+- Movement reduced by 1 per treasure held - the greedier you are, the harder the ascent
+- Creates "ever-growing sense of tension" as players push luck
+- Social dynamic: "trying to tell people not to take treasure" sparks laughter
+- Dead simple to learn, "absolute blast to play" - few games "capture the fun, tension, and greed"
+- **GoDig Application**: Our solo ladder economy removes social blame. Player only blames themselves = cleaner mobile experience.
+
+**"One More Run" Addiction Loop (2025-2026 Analysis)**:
+- Core quote: "This endless loop of defeat and determination has made roguelikes one of the most addictive genres"
+- "The thrill isn't just about survival—it's about growth"
+- "Every run teaches you something new, whether it's enemy patterns, loot strategies, or the best time to risk everything"
+- Gambling parallel: "feeds into that same part of our brain that likes gambling; you never know if that run will be the one"
+- Quick runs matter: "runs are pretty quick which helps too because you can go from doing great to dead pretty fast"
+- Against the Storm quote: "Game is like heroin... 'Finished another settlement, I might play something else now... But maybe one more.'"
+- **GoDig Application**: Our 5-minute loops enable "one more run" psychology. Emergency rescue should teach, not punish.
+
+**Push-Your-Luck Game Design Principles (Board Game Deep Dive)**:
+- Definition: "Decide whether to stop or keep going... get too greedy, end up with nothing"
+- Critical distinction: "Push your luck is DIFFERENT from pure luck - requires meaningful CHOICES"
+- Probability math: 50% success per step = only 25% chance of two successful steps - players perceive 25% as "very low"
+- Self-balancing mechanic: "fewer players still in = greater potential reward" (Incan Gold)
+- Banking mechanic: "accumulated points temporarily reside in BANK - uncashed, vulnerable"
+- Best games add mitigation: Quacks of Quedlinburg chip return reduces bad luck impact
+- **GoDig Validation**: Our ladder economy creates superior progressive risk vs sudden bust mechanics.
+
+**Mobile Game Economy - First Upgrade Psychology**:
+- Currency systems should be introduced early with dual-tier: soft currency (earned) + hard currency (paid)
+- Early onboarding should be "designer controlled" - player investment is small, require minimal effort
+- Monopoly Go! example: "offers generous dice rolls early on... allows them to get hooked on the loop without friction"
+- Common mistake: "over-rewarding early progression" or failing to consider motivation
+- Balance is tricky: "too generous = blast through content and get bored; too stingy = frustrated and quit"
+- Rewards must scale with effort - tough levels should reward more than simple tasks
+- Include "sinks" (item upgrades, unlocks) to prevent inflation and hoarding
+- **GoDig Application**: First pickaxe upgrade should be achievable quickly but FEEL transformative. Not 10% better - dramatically different.
+
+**Why Mining Games Are Addictive (2025 Consensus)**:
+- Progress loop: "Each layer you uncover feels like a small win"
+- Core cycle: "dig, collect, upgrade, repeat" - found in idle mining AND clicker games
+- Satisfaction feedback: combination of clicking for resources, passive generation, and production boosts
+- Discovery and exploration: "There's just something satisfying about digging, discovery, and using those discoveries to enable more digging"
+- Power progression: "progressively increasing power" as tools unlock faster mining and deeper exploration
+- Depth as narrative: "digging isn't just a number that goes up, it's a journey downward. The deeper you go, the more the game opens up."
+- **GoDig Validation**: Our depth = narrative approach is validated. Each layer should feel like entering new territory.
+
+**New Mining Roguelikes 2025-2026 Landscape**:
+- **Kin and Quarry** (January 2026): New mining indie, validates ongoing interest
+- **Dig Dig Boom**: "Time only moves when you do" - roguelike mining puzzle (Godot engine)
+- **ITER**: Mining roguelite with 2D-3D dimension shifting, announced for 2025
+- itch.io growing: asteroid mining roguelikes, ant mining roguelikes, Blast Mining Co. (steampunk)
+- 2026 trend: "long-term content updates, season-style progression, deeper simulation systems"
+- Co-op mining keeping momentum with "season drops and new biomes/events"
+- **GoDig Competitive Position**: Mobile-first ladder-based push-your-luck remains unique differentiator.
+
+**Core Loop Design Fundamentals (2025-2026)**:
+- Three elements: Challenge (obstacle), Action (player response), Reward (feedback)
+- "This triad creates a feedback loop that motivates the player to keep playing"
+- Core loop is "engagement engine which, when properly built, is the driving force behind revenue and long-term retention"
+- FTUE critical: "first few minutes often determine whether a player will continue or uninstall"
+- Get players into game quickly: "if first few minutes are not interesting... vast majority drop out"
+- Poor onboarding = major cause of low D1 retention: players feel lost, don't see fun fast enough
+- D1 drop = fix FTUE/tutorial; D7 cliff = core loop lacks depth; D30 slide = missing late-game content
+- **GoDig Implementation**: First block breaks within 5 seconds. First ore within 30 seconds. First sell within 60 seconds. First upgrade within 5 minutes.
+
+**SteamWorld Dig Upgrade Satisfaction Analysis**:
+- Positive: "good deal of satisfaction from collecting every bit of ore" - upgrades keep things fresh
+- Pacing praised: just when pickaxe fails against bedrock, drill enables continued descent
+- Loop satisfaction: "wallet empty, return to mine, new upgrades let me travel deeper. This satisfying loop continues."
+- Sequel (SteamWorld Dig 2) improvements: "difference in capabilities between start and end is monumental"
+- Upgrade choice: "trouble choosing among available upgrades, because each has noticeable effect"
+- **Criticism**: special orbs "too rare at beginning, too common at end" - pacing issue
+- **Criticism**: progression walls require either story caves or grinding runs for upgrades
+- **GoDig Learning**: Each upgrade should solve specific frustration player just experienced. Pacing must be consistent.
+
+**Dome Keeper Player Feedback Polarization**:
+- Negative: "too slow, repetitive, grindy" + "so much back and forth" + "tediously inefficient input"
+- Positive: "addicting mix of tower defence and Dig Dug" + "10/10 gameplay loop" + "nothing feels better than getting back to base with a second to spare"
+- Critical insight: Pacing matters - lovers praise tension, haters cite tedium
+- Despite polarization: 92% positive recent reviews (9,700+ total)
+- **GoDig Learning**: Return trip must feel like ACHIEVEMENT. Wall-jump + ladders = skill expression. Elevator = late convenience.
+
+### Topics for Future Research
+- [ ] Analyze Windblown's "Endless Mode" for post-game content ideas
+- [ ] Study how Core Keeper balances XP gain vs efficient tools
+- [ ] Research "inventory Tetris" satisfaction patterns (Resident Evil, Diablo)
+- [ ] Study mobile game "abundance/scarcity" cycle timing
+- [ ] Analyze Keep Digging (2026) player reception post-launch
+- [ ] Research Balatro sequel/DLC for variable reward evolution
+- [ ] Study mobile game "comeback" mechanics after 7+ day absence
+- [ ] Analyze Mr. Mine depth-surprise system for GoDig layer design
+
+### Implementation Dots Created from Session 25
+- `GoDig-implement-decision-moment-design` - Design for decision moments, not just digging satisfaction
+- `GoDig-implement-first-60-seconds` - First block breaks in 5 seconds, first ore in 30 seconds, first sell in 60 seconds
+- `GoDig-implement-first-upgrade-dramatic` - First upgrade (Copper Pickaxe) must feel dramatically different, not incremental
 
 ## How to Use This Task
 

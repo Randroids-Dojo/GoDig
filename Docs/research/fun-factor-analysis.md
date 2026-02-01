@@ -970,3 +970,169 @@ Mr. Mine succeeds because depth isn't just a number - it's a **content unlock sy
 - [Mr. Mine Genre Reinvention - Mr. Mine](https://blog.mrmine.com/mining-game-spotlight-mr-mine-and-the-reinvention-of-the-idle-genre/)
 - [Top Idle Mining Games 2026 - Mr. Mine](https://blog.mrmine.com/top-idle-mining-clicker-games-to-play-in-2025/)
 - [Idle Miner Tycoon vs Mr. Mine - Mr. Mine](https://blog.mrmine.com/idle-miner-tycoon-vs-mr-mine/)
+
+## Session 9 Research: Spelunky Risk Design & Mobile Onboarding Excellence
+
+### Spelunky's Information-Based Decision Making
+
+From [Gamedeveloper Spelunky Analysis](https://www.gamedeveloper.com/design/a-spelunky-game-design-analysis---pt-2) and [Fairness, Discovery & Spelunky](https://www.gamedeveloper.com/design/fairness-discovery-spelunky):
+
+**The Core Insight**: "Spelunky looks like a game of execution, but it's really a game about information and decision-making. How good are you at looking at a situation and understanding what it means?"
+
+**Risk-Based Micro-Decisions**:
+- Do I deliberately trigger the dart trap below me in advance?
+- Do I throw the urn against the wall, risking a monster breaking out?
+- Do I wait for one more cycle of enemy movement or act now?
+- Every decision is subject to constant time pressure
+
+**Risk Management vs. Execution**: Risk management is what separates Spelunky from Super Mario Bros. Once you beat a Mario game, you can do so any time without much trouble. But Spelunky is never truly beaten.
+
+**Player Decision Framework**: Players can blitz towards the finish (minimizing death risk but missing upgrades) OR explore thoroughly (better tools but more danger). Players can even attack shopkeepers - is it worth angering NPCs that can kill you for a good item?
+
+**GoDig Application**: Our ladder placement is similar - do you place one here (using a resource) or save it (risking being stuck)? Unlike Spelunky's time pressure, ours is resource pressure. Both create meaningful decisions.
+
+### The "One More Run" Psychology Deep Dive
+
+From [Hearthstone Guest Post](https://hearthstone-decks.net/one-more-run-the-most-addictive-roguelike-pc-games/) and [Pocket-lint Analysis](https://www.pocket-lint.com/roguelike-games/):
+
+**Why Players Restart Immediately**:
+- You fight tooth and nail for survival
+- Make it just a little further than last time
+- Lose it all in a single misstep
+- Hit "retry" immediately
+- This endless loop of defeat and determination is addictive
+
+**The Growth Thrill**: The thrill isn't just about survival - it's about growth. Every run teaches you something new - enemy patterns, loot strategies, best times to risk everything.
+
+**Meta-Progression is Critical**: Rogue Legacy established the winning formula - invest gold into upgrades, unlock new characters, gain new buffs. Prior to this, most roguelikes had nothing carry over.
+
+**GoDig Application**:
+- Our meta-progression: pickaxe upgrades, building unlocks, equipment
+- Death loses some resources but NEVER tools or buildings
+- Every run should teach the player about efficient ladder placement
+- Quick restart is essential - no loading screens between death and surface
+
+### Push-Your-Luck as Board Game Design Philosophy
+
+From [BoardGameGeek](https://boardgamegeek.com/boardgamemechanic/2661/push-your-luck) and [Board Game Design Course](https://boardgamedesigncourse.com/game-mechanics-sometimes-you-want-to-push-your-luck/):
+
+**Definition**: Players decide between settling for existing gains OR risking them for further rewards. Distinct from pure luck because it gives players meaningful CHOICES.
+
+**Emotional Appeal**: "The thrill of potentially enormous success, and the devastation of losing it all."
+
+**Self-Balancing Mechanism (Incan Gold)**: Fewer players staying in = greater potential reward. Risk naturally increases as rewards do.
+
+**Mathematical Balancing**: If targeting 50% bust rate across a whole game with 3 push-your-luck moments, each moment needs ~80% success rate. The cumulative bust risk creates tension.
+
+**GoDig Application**:
+- Our "bust" = running out of ladders while deep
+- Unlike sudden bust (card draw), ours is gradual (ladder count depleting)
+- This is BETTER for tension - you feel it building like Deep Sea Adventure
+- Self-balancing: deeper = better ore but more ladders needed
+
+### Mobile Onboarding Excellence (2025 Best Practices)
+
+From [Adrian Crook](https://adriancrook.com/best-practices-for-mobile-game-onboarding/) and [Udonis](https://www.blog.udonis.co/mobile-marketing/mobile-games/mobile-game-tutorial):
+
+**Progressive Onboarding Framework**:
+1. Launch & Instant Play - Game opens directly into first action
+2. Core Control Tutorial - Teach one mechanic in under 10 seconds
+3. Quick Win & Reward - Give players an easy victory
+4. Story Hook - Show glimpse of game's world
+5. Second Mechanic Introduction - Add complexity gradually
+
+**The One-Minute Rule**: In mobile gaming, you often have less than a minute to win a player's heart. Onboarding is your best opportunity.
+
+**Successful Examples**:
+- **Clash Royale**: Five short tutorials, each introducing new elements building on previous
+- **Candy Crush**: Tutorial levels that ARE fun gameplay, early wins, colorful feedback
+- **Pokemon GO**: Integrates tutorial into actual gameplay with immediate objectives
+
+**Critical Mistake - Forcing Monetization**: Never ask for purchases before players feel invested. This kills retention.
+
+**GoDig Application**:
+- Frame 1: Player on surface, shop visible, "Tap to dig"
+- First ore in under 30 seconds
+- First sell transaction by minute 2
+- First upgrade offer by minute 4
+- NO monetization until after first upgrade
+
+### Dome Keeper 2025-2026 Update Analysis
+
+From [Steam Community](https://steamcommunity.com/app/1637320/allnews/) and [Dome Keeper Wiki](https://domekeeper.wiki.gg/wiki/Version_History):
+
+**What's Working (1M+ Players)**:
+- "Terrific sci-fi aesthetic, satisfying risk-reward system"
+- New dome types (Artillery, Tesla) add strategic variety
+- Dome Supplements system allows customization
+
+**What's Being Fixed**:
+- Multiplayer mode in development (competing teams, shared mine)
+- Quality-of-life improvements from community feedback
+- Drilling difficulty being rebalanced
+
+**Community Complaints Being Addressed**:
+- "Randomness of gadgets impacts runs too much" - Adding guaranteed category options
+- "Drilling feels unnecessarily hard" - Rebalancing
+
+**GoDig Learning**: Even successful games need ongoing balancing. Plan for post-launch economy tuning based on player feedback.
+
+### Terraria Underground Exploration Lessons
+
+From [Carl's Guides](https://www.carlsguides.com/terraria/walkthrough/exploring-underground-caverns.php) and [Terraria Wiki](https://terraria.wiki.gg/wiki/Guide:Mining_techniques):
+
+**Cave System Design**: "Why dig holes yourself when nature has dug them for you?" Finding cave systems and following them is recommended.
+
+**Lighting as Progress Marker**: Lighting explored areas helps return later AND allows players to see ore behind walls.
+
+**Hellevator Pattern**: A vertical shaft to deep areas becomes essential infrastructure. Once created, reveals many new areas.
+
+**GoDig Application**:
+- Our ladder columns serve as "hellevators" - player-built infrastructure
+- Consider: shimmer effect on blocks adjacent to ore (like Spelunker Potion)
+- Cave systems could have pre-placed ladders or shortcuts
+
+### Idle Game Dopamine Loop Mechanics
+
+From [GameDeveloper](https://www.gamedeveloper.com/design/compulsion-loops-dopamine-in-games-and-gamification) and [Gamers Heart](https://videogameheart.com/the-dopamine-loop-how-game-design-keeps-players-hooked/):
+
+**The Three-Part Cycle**:
+1. Anticipation of reward (dopamine created)
+2. Activity to earn reward
+3. Obtaining reward (dopamine released)
+
+**Key Finding**: Dopamine is created during ANTICIPATION, not just receipt. The uncertainty is what drives engagement.
+
+**Variable Ratio Reinforcement**: Loot boxes work because unpredictable rewards cause higher dopamine production than fixed rewards.
+
+**GoDig Application**:
+- Each block broken is a micro-anticipation moment
+- Ore distribution should be unpredictable enough to maintain anticipation
+- Near-miss mechanics (shimmer on adjacent blocks) extend anticipation phase
+
+### New Implementation Priorities Identified (Session 9)
+
+Based on this research, the following gaps need implementation specs:
+
+| Gap | Priority | Impact |
+|-----|----------|--------|
+| Tutorial teaches one mechanic at a time | P0 | Retention gate |
+| First ore in under 30 seconds | P0 | Early hook |
+| No monetization until after first upgrade | P0 | Trust building |
+| Shimmer on blocks adjacent to ore | P2 | Anticipation extension |
+| Pre-placed ladders in early caves | P2 | Teaches mechanic safely |
+| Quick restart after death (under 3 sec) | P1 | "One more run" psychology |
+
+### Sources (Session 9)
+
+- [Spelunky Game Design Analysis - Gamedeveloper](https://www.gamedeveloper.com/design/a-spelunky-game-design-analysis---pt-2)
+- [Fairness, Discovery & Spelunky - Gamedeveloper](https://www.gamedeveloper.com/design/fairness-discovery-spelunky)
+- [One More Run Roguelikes - Hearthstone](https://hearthstone-decks.net/one-more-run-the-most-addictive-roguelike-pc-games/)
+- [Addictive Roguelike Games - Pocket-lint](https://www.pocket-lint.com/roguelike-games/)
+- [Push Your Luck Mechanic - BoardGameGeek](https://boardgamegeek.com/boardgamemechanic/2661/push-your-luck)
+- [Push Your Luck Design - Board Game Design Course](https://boardgamedesigncourse.com/game-mechanics-sometimes-you-want-to-push-your-luck/)
+- [Mobile Game Onboarding - Adrian Crook](https://adriancrook.com/best-practices-for-mobile-game-onboarding/)
+- [Mobile Game Tutorial Design - Udonis](https://www.blog.udonis.co/mobile-marketing/mobile-games/mobile-game-tutorial)
+- [Dome Keeper Updates - Steam Community](https://steamcommunity.com/app/1637320/allnews/)
+- [Terraria Mining Guide - Carl's Guides](https://www.carlsguides.com/terraria/walkthrough/exploring-underground-caverns.php)
+- [Compulsion Loops & Dopamine - Gamedeveloper](https://www.gamedeveloper.com/design/compulsion-loops-dopamine-in-games-and-gamification)

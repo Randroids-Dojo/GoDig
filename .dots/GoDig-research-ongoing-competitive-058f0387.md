@@ -1,9 +1,9 @@
 ---
 title: "research: Ongoing competitive analysis - mining/digging games"
-status: open
+status: active
 priority: 3
 issue-type: research
-created-at: "2026-02-01T07:56:09.847420-06:00"
+created-at: "\"2026-02-01T07:56:09.847420-06:00\""
 ---
 
 ## Purpose
@@ -43,12 +43,57 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Complaints: "too slow, repetitive, grindy"
 - Mitigation: Quick-buy, elevator, procedural variety
 
+### Session 9 (2026-02-01)
+**Spelunky Risk Design Analysis**:
+- Core insight: "game of information and decision-making, not execution"
+- Every micro-decision has risk/reward calculation
+- Risk management separates great games from good games
+- Our ladder system creates similar meaningful decisions
+
+**Push-Your-Luck Board Game Mechanics**:
+- Self-balancing: deeper = better rewards but higher risk
+- Gradual tension buildup (like Deep Sea Adventure) beats sudden bust
+- Mathematical balance: ~80% success per moment for 50% overall bust
+- Our gradual ladder depletion creates superior tension curve
+
+**Mobile Onboarding 2025 Best Practices**:
+- Progressive onboarding: one mechanic at a time
+- "One-minute rule": win player's heart in first 60 seconds
+- Tutorial levels should BE fun gameplay (Candy Crush)
+- Never monetize before first upgrade
+
+**"One More Run" Psychology**:
+- Defeat + determination = addictive loop
+- Every run teaches something new
+- Meta-progression critical (Rogue Legacy pattern)
+- Quick restart is essential
+
+**Dome Keeper 2025-2026 Updates**:
+- Multiplayer mode in development
+- Artillery and Tesla domes add strategic variety
+- Community feedback: gadget randomness being addressed
+- Lesson: plan for post-launch economy tuning
+
+**itch.io Mining Game Landscape**:
+- Terminal Descent: idle mining robots - validates core loop
+- Astropop: asteroid mining roguelike - space setting
+- Veinrider: incremental journey into depths
+- Competition growing but few do mobile well
+
 ### Topics for Future Research
-- [ ] Analyze Spelunky 2's "secrets and lessons" retention
+- [x] Analyze Spelunky 2's "secrets and lessons" retention (Session 9)
 - [ ] Study Terraria's biome discovery system
 - [ ] Review idle game monetization patterns
 - [ ] Research haptic feedback patterns on iOS/Android
 - [ ] Study one-hand mobile controls in similar games
+- [ ] Analyze Hades 2 early access feedback on progression pacing
+- [ ] Study Balatro's variable reward system (card game mining parallel)
+- [ ] Research "cozy mining" games for casual appeal patterns
+
+### Implementation Specs Created from Research
+- `GoDig-implement-progressive-tutorial-3a7f7301` - One mechanic at a time
+- `GoDig-implement-guaranteed-first-99e15302` - First ore within 30 seconds
+- `GoDig-implement-ladder-placement-2b7d760f` - Decision feedback
 
 ## How to Use This Task
 

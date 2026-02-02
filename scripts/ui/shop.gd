@@ -6,12 +6,17 @@ extends Control
 
 const ShopBuilding = preload("res://scripts/surface/shop_building.gd")
 const SellAnimationScript = preload("res://scripts/effects/sell_animation.gd")
+const UpgradeCelebrationScript = preload("res://scripts/effects/upgrade_celebration.gd")
 
 signal closed
+signal upgrade_purchased(upgrade_type: String, old_value: float, new_value: float)  ## Emitted when any upgrade is purchased
 signal dive_again_requested  ## Emitted when player wants to dive again after selling
 
 ## Sell animation instance
 var _sell_animation: CanvasLayer = null
+
+## Upgrade celebration instance
+var _upgrade_celebration: CanvasLayer = null
 
 @onready var coins_label: Label = $Panel/VBox/Header/CoinsLabel
 @onready var shop_title: Label = $Panel/VBox/Header/ShopTitle
@@ -62,6 +67,9 @@ func _ready() -> void:
 	# Create sell animation instance
 	_setup_sell_animation()
 
+	# Create upgrade celebration instance
+	_setup_upgrade_celebration()
+
 
 func _setup_sell_animation() -> void:
 	## Create the sell animation CanvasLayer
@@ -70,6 +78,14 @@ func _setup_sell_animation() -> void:
 	_sell_animation.name = "SellAnimation"
 	add_child(_sell_animation)
 	_sell_animation.animation_complete.connect(_on_sell_animation_complete)
+
+
+func _setup_upgrade_celebration() -> void:
+	## Create the upgrade celebration CanvasLayer
+	_upgrade_celebration = CanvasLayer.new()
+	_upgrade_celebration.set_script(UpgradeCelebrationScript)
+	_upgrade_celebration.name = "UpgradeCelebration"
+	add_child(_upgrade_celebration)
 
 
 func open(shop_type: int = ShopBuilding.ShopType.GENERAL_STORE) -> void:
@@ -619,7 +635,8 @@ func _on_tool_upgrade() -> void:
 
 	# Capture old tool stats for before/after comparison
 	var old_tool: ToolData = PlayerData.get_equipped_tool()
-	var old_damage: float = old_tool.damage if old_tool else 0.0
+	var old_damage: float = old_tool.damage if old_tool else 10.0
+	var new_damage: float = next_tool.damage
 	var is_first_upgrade := SaveManager != null and not SaveManager.has_first_upgrade_purchased()
 
 	if GameManager.spend_coins(next_tool.cost):
@@ -630,10 +647,16 @@ func _on_tool_upgrade() -> void:
 		if SoundManager:
 			SoundManager.play_tool_upgrade()
 
-		# First upgrade gets special enhanced celebration
+		# First upgrade gets special enhanced celebration overlay
 		if is_first_upgrade:
 			_show_first_upgrade_celebration(old_tool, next_tool)
 			SaveManager.set_first_upgrade_purchased()
+		else:
+			# Standard upgrade celebration for subsequent upgrades
+			_trigger_upgrade_celebration(0, old_damage, new_damage, "Damage")
+
+		# Emit signal for external listeners
+		upgrade_purchased.emit("tool", old_damage, new_damage)
 
 		_refresh_upgrades_tab()
 		# Track for achievements
@@ -798,10 +821,23 @@ func _show_first_upgrade_celebration(old_tool: ToolData, new_tool: ToolData) -> 
 func _on_backpack_upgrade() -> void:
 	var current_level := _get_current_backpack_level()
 	if current_level < backpack_upgrades.size():
+		var current: Dictionary = backpack_upgrades[current_level - 1] if current_level > 0 else {"slots": 8}
 		var next: Dictionary = backpack_upgrades[current_level]
+		var old_slots: float = float(current.slots)
+		var new_slots: float = float(next.slots)
+
 		if GameManager.spend_coins(next.cost):
 			InventoryManager.upgrade_capacity(next.slots)
 			print("[Shop] Backpack upgraded to %d slots" % next.slots)
+
+			# Play upgrade celebration
+			if SoundManager:
+				SoundManager.play_level_up()
+			_trigger_upgrade_celebration(1, old_slots, new_slots, "Slots")
+
+			# Emit signal
+			upgrade_purchased.emit("backpack", old_slots, new_slots)
+
 			_refresh_upgrades_tab()
 			# Track for achievements
 			if AchievementManager:
@@ -819,6 +855,30 @@ func close() -> void:
 	_dismiss_dive_confirmation()  # Clean up any open confirmation
 	visible = false
 	closed.emit()
+
+
+# ============================================
+# UPGRADE CELEBRATION
+# ============================================
+
+## Trigger the upgrade celebration effect
+## upgrade_type: 0=Tool, 1=Backpack, 2=Warehouse, 3=Equipment, 4=Gadget
+## old_value: Previous stat value
+## new_value: New stat value after upgrade
+## stat_name: Display name for the stat being compared
+func _trigger_upgrade_celebration(upgrade_type: int, old_value: float, new_value: float, stat_name: String) -> void:
+	if _upgrade_celebration == null:
+		return
+
+	# Get screen center position for particle burst
+	var screen_pos := Vector2.ZERO
+	var viewport := get_viewport()
+	if viewport:
+		screen_pos = viewport.get_visible_rect().size / 2.0
+
+	# Call celebrate on the UpgradeCelebration instance
+	if _upgrade_celebration.has_method("celebrate"):
+		_upgrade_celebration.celebrate(upgrade_type, old_value, new_value, stat_name, screen_pos)
 
 
 # ============================================
@@ -898,10 +958,20 @@ func _on_warehouse_upgrade() -> void:
 	if GameManager.spend_coins(next.cost):
 		PlayerData.warehouse_level = current_level + 1
 		# Calculate slot bonus (difference from previous level)
-		var prev_bonus = 0 if current_level == 0 else warehouse_upgrades[current_level - 1].bonus_slots
-		var new_slots = next.bonus_slots - prev_bonus
+		var prev_bonus: float = 0.0 if current_level == 0 else float(warehouse_upgrades[current_level - 1].bonus_slots)
+		var new_bonus: float = float(next.bonus_slots)
+		var new_slots = int(new_bonus - prev_bonus)
 		InventoryManager.upgrade_capacity(InventoryManager.get_total_slots() + new_slots)
 		print("[Shop] Warehouse upgraded to level %d (+%d slots)" % [current_level + 1, new_slots])
+
+		# Play upgrade celebration
+		if SoundManager:
+			SoundManager.play_level_up()
+		_trigger_upgrade_celebration(2, prev_bonus, new_bonus, "Bonus Slots")
+
+		# Emit signal
+		upgrade_purchased.emit("warehouse", prev_bonus, new_bonus)
+
 		_refresh_upgrades_tab()
 		if AchievementManager:
 			AchievementManager.track_upgrade()
@@ -972,8 +1042,30 @@ func _on_buy_gadget(gadget_id: String, cost: int) -> void:
 	if GameManager.spend_coins(cost):
 		PlayerData.add_gadget(gadget_id, 1)
 		print("[Shop] Purchased gadget: %s" % gadget_id)
+
+		# Play minor celebration for gadget purchase
+		if SoundManager:
+			SoundManager.play_purchase()
+		_trigger_minor_celebration()
+
 		_refresh_upgrades_tab()
 		SaveManager.save_game()
+
+
+## Trigger a minor celebration for consumable/gadget purchases
+func _trigger_minor_celebration() -> void:
+	if _upgrade_celebration == null:
+		return
+
+	# Get screen center position
+	var screen_pos := Vector2.ZERO
+	var viewport := get_viewport()
+	if viewport:
+		screen_pos = viewport.get_visible_rect().size / 2.0
+
+	# Call celebrate_minor on the UpgradeCelebration instance
+	if _upgrade_celebration.has_method("celebrate_minor"):
+		_upgrade_celebration.celebrate_minor(screen_pos, Color(0.8, 0.3, 1.0))  # Purple for gadgets
 
 
 # ============================================
@@ -1223,6 +1315,15 @@ func _on_buy_equipment(equip_id: String, equip_type: String, cost: int) -> void:
 			PlayerData.unlock_helmet(equip_id)
 			PlayerData.equip_helmet(equip_id)
 		print("[Shop] Purchased and equipped %s: %s" % [equip_type, equip_id])
+
+		# Play upgrade celebration for equipment purchase
+		if SoundManager:
+			SoundManager.play_level_up()
+		_trigger_upgrade_celebration(3, 0.0, 1.0, equip_type.capitalize())
+
+		# Emit signal
+		upgrade_purchased.emit("equipment", 0.0, 1.0)
+
 		_refresh_upgrades_tab()
 		SaveManager.save_game()
 

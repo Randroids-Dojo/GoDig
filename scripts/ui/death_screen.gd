@@ -44,6 +44,12 @@ var _quick_retry_timer: Timer = null
 ## Minimum ladders required to show "Dive Again" prompt
 const MIN_LADDERS_FOR_DIVE := 3
 
+## Death penalty configuration (based on Loop Hero's retreat system research)
+## - Surface return = keep 100% (player climbed back safely)
+## - Emergency rescue = keep 50-80% (implemented in pause_menu.gd with depth scaling)
+## - Death = keep 30% (lose 70%)
+const DEATH_PENALTY_PERCENT := 70.0  # Lose 70% of inventory on death
+
 
 func _ready() -> void:
 	if process_mode_paused:
@@ -132,7 +138,7 @@ func _create_ui() -> void:
 	# Respawn cost label
 	var respawn_cost_label := Label.new()
 	respawn_cost_label.name = "RespawnCostLabel"
-	respawn_cost_label.text = "(Lose 50% of inventory)"
+	respawn_cost_label.text = "(Lose %d%% of cargo)" % int(DEATH_PENALTY_PERCENT)
 	respawn_cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	respawn_cost_label.add_theme_font_size_override("font_size", 12)
 	respawn_cost_label.add_theme_color_override("font_color", Color(0.7, 0.6, 0.6))
@@ -190,7 +196,7 @@ func _create_quick_retry_ui() -> void:
 	# Hint label
 	quick_retry_hint = Label.new()
 	quick_retry_hint.name = "QuickRetryHint"
-	quick_retry_hint.text = "(Respawn at surface, lose 50% cargo)"
+	quick_retry_hint.text = "(Respawn at surface, lose %d%% cargo)" % int(DEATH_PENALTY_PERCENT)
 	quick_retry_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	quick_retry_hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	quick_retry_hint.position = Vector2(0, -40)
@@ -280,7 +286,7 @@ func _update_stats_display() -> void:
 	var inv_value := _calculate_inventory_value()
 	if inv_value > 0:
 		lines.append("Inventory value: $%d" % inv_value)
-		lines.append("Loss on respawn: $%d" % int(inv_value * 0.5))
+		lines.append("Loss on death: $%d" % int(inv_value * (DEATH_PENALTY_PERCENT / 100.0)))
 
 	# Death count
 	if SaveManager and SaveManager.current_save:
@@ -336,26 +342,24 @@ func _on_respawn_pressed() -> void:
 
 
 func _apply_respawn_penalty() -> void:
-	## Remove 50% of inventory items (by value or by slot)
+	## Remove DEATH_PENALTY_PERCENT% of inventory items
+	## Death penalty is harsher than rescue (70% vs 20-80% depth-scaled)
+	## This follows Loop Hero's tiered preservation: safe return > rescue > death
 	if InventoryManager == null:
 		return
 
-	var slots_to_clear := InventoryManager.get_used_slots() / 2
-	var cleared := 0
+	var total_items := InventoryManager.get_total_item_count()
+	if total_items == 0:
+		return
 
-	# Remove items from slots, prioritizing lower-value items
-	for i in range(InventoryManager.slots.size()):
-		if cleared >= slots_to_clear:
-			break
+	# Calculate items to lose (death penalty is harsh but keeps at least 1 item)
+	var items_to_lose := int(ceil(total_items * (DEATH_PENALTY_PERCENT / 100.0)))
+	items_to_lose = mini(items_to_lose, total_items - 1)  # Always keep at least 1
 
-		var slot = InventoryManager.slots[i]
-		if not slot.is_empty() and slot.item != null:
-			# Remove half the quantity or all if quantity is 1
-			var remove_qty := maxi(1, slot.quantity / 2)
-			InventoryManager.remove_items_at_slot(i, remove_qty)
-			cleared += 1
+	# Use InventoryManager's random removal for fairness
+	var lost := InventoryManager.remove_random_items(items_to_lose)
 
-	print("[DeathScreen] Applied respawn penalty: cleared %d slots" % cleared)
+	print("[DeathScreen] Applied death penalty: lost %d of %d items (%d%% penalty)" % [lost, total_items, int(DEATH_PENALTY_PERCENT)])
 
 
 func _on_reload_pressed() -> void:

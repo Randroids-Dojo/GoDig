@@ -9,6 +9,7 @@ const ToolDataClass = preload("res://resources/tools/tool_data.gd")
 const EquipmentDataClass = preload("res://resources/equipment/equipment_data.gd")
 
 signal tool_changed(tool)  # ToolData
+signal tool_upgraded(old_tool, new_tool)  # Emitted when upgrading to a better tool
 signal equipment_changed(slot: int, equipment)  # EquipmentData or null
 signal max_depth_updated(depth: int)
 signal tool_durability_changed(current: int, max_val: int)
@@ -49,6 +50,9 @@ var unlocked_helmets: Array[String] = []
 
 ## Elevator saved depths (for fast travel)
 var elevator_depths: Array[int] = []
+
+## Flag tracking if player just upgraded their tool (for first-dig celebration)
+var just_upgraded_tool: bool = false
 
 
 func _ready() -> void:
@@ -111,10 +115,34 @@ func equip_tool(tool_id: String) -> bool:
 		push_warning("[PlayerData] Cannot equip unknown tool: %s" % tool_id)
 		return false
 
+	# Get old tool for comparison (to detect upgrades)
+	var old_tool: ToolDataClass = get_equipped_tool()
+	var is_upgrade := old_tool != null and tool_data.tier > old_tool.tier
+
 	equipped_tool_id = tool_id
 	tool_changed.emit(tool_data)
-	print("[PlayerData] Equipped: %s (Damage: %.1f)" % [tool_data.display_name, tool_data.damage])
+
+	# If this is an upgrade, emit upgrade signal and set celebration flag
+	if is_upgrade:
+		just_upgraded_tool = true
+		tool_upgraded.emit(old_tool, tool_data)
+		print("[PlayerData] UPGRADED: %s -> %s (Damage: %.1f -> %.1f, Speed: %.2f -> %.2f)" % [
+			old_tool.display_name, tool_data.display_name,
+			old_tool.damage, tool_data.damage,
+			old_tool.speed_multiplier, tool_data.speed_multiplier
+		])
+	else:
+		print("[PlayerData] Equipped: %s (Damage: %.1f)" % [tool_data.display_name, tool_data.damage])
 	return true
+
+
+## Check and consume the just_upgraded flag (for first-dig celebration)
+## Returns true if player just upgraded and this is their first action since
+func consume_upgrade_celebration() -> bool:
+	if just_upgraded_tool:
+		just_upgraded_tool = false
+		return true
+	return false
 
 
 ## Check if a tool can be purchased (depth requirement and not already owned)

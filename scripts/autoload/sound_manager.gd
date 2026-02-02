@@ -176,10 +176,12 @@ func play_dig(hardness: float) -> void:
 		play_sfx_varied(SOUND_DIG_HARD, 0.0)
 
 
-## Play block break sound with intensity
-func play_block_break(hardness: float = 10.0) -> void:
+## Play block break sound with intensity, affected by tool tier for satisfying feel
+func play_block_break(hardness: float = 10.0, tool_tier: int = 1) -> void:
 	var volume := clampf(hardness / 50.0, 0.5, 1.5) * -3.0
-	play_sfx_varied(SOUND_BLOCK_BREAK, volume)
+	# Higher tier tools have higher-pitched, more satisfying break sounds
+	var tier_pitch := 1.0 + (tool_tier - 1) * 0.08  # Tier 1=1.0, Tier 2=1.08, Tier 3=1.16...
+	play_sfx_varied(SOUND_BLOCK_BREAK, volume, tier_pitch - 0.05, tier_pitch + 0.05)
 
 
 ## Play ore discovery sound
@@ -275,6 +277,15 @@ func play_milestone() -> void:
 ## Play level up / upgrade sound
 func play_level_up() -> void:
 	play_sfx(SOUND_LEVEL_UP, -3.0)
+
+
+## Play tool upgrade celebration sound - dramatic and satisfying
+func play_tool_upgrade() -> void:
+	# Play the level up sound with higher pitch for extra impact
+	play_sfx(SOUND_LEVEL_UP, -1.0, 1.1)
+	# Also play a purchase confirmation for layered audio
+	await get_tree().create_timer(0.1).timeout
+	play_sfx(SOUND_UI_SUCCESS, -3.0, 1.2)
 
 
 # ============================================

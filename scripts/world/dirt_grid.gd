@@ -6,6 +6,7 @@ extends Node2D
 const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 const OreSparkleScene = preload("res://scenes/effects/ore_sparkle.tscn")
 const RarityBorderScene = preload("res://scenes/effects/rarity_border.tscn")
+const NearOreHintScene = preload("res://scenes/effects/near_ore_hint.tscn")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
@@ -36,6 +37,8 @@ var _placed_objects: Dictionary = {}  # Dictionary[Vector2i, int tile_type] - la
 var _dirty_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] - chunks with unsaved changes
 var _sparkles: Dictionary = {}  # Dictionary[Vector2i, CPUParticles2D] - sparkle effects for ore blocks
 var _rarity_borders: Dictionary = {}  # Dictionary[Vector2i, Node2D] - rarity border effects for ore blocks
+var _near_ore_hints: Dictionary = {}  # Dictionary[Vector2i, CPUParticles2D] - subtle hints for near-ore blocks
+var _near_ore_blocks: Dictionary = {}  # Dictionary[Vector2i, bool] - tracks blocks adjacent to ore
 var _player: Node2D = null
 var _surface_row: int = 0
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -129,6 +132,7 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 	var start_x := chunk_pos.x * CHUNK_SIZE
 	var start_y := chunk_pos.y * CHUNK_SIZE
 
+	# First pass: Generate blocks and determine ore spawns
 	for local_x in range(CHUNK_SIZE):
 		for local_y in range(CHUNK_SIZE):
 			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
@@ -146,6 +150,15 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 				if not _active.has(grid_pos):
 					_acquire(grid_pos)
 					_determine_ore_spawn(grid_pos)
+
+	# Second pass: Apply near-ore hints to blocks that were marked
+	# (ore placement marks adjacent blocks, but those blocks may have been
+	# generated in a different order or in adjacent chunks)
+	for local_x in range(CHUNK_SIZE):
+		for local_y in range(CHUNK_SIZE):
+			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
+			if _active.has(grid_pos) and _near_ore_blocks.has(grid_pos):
+				_check_and_add_near_ore_hint(grid_pos)
 
 
 func _cleanup_distant_chunks(center_chunk: Vector2i) -> void:
@@ -180,11 +193,14 @@ func _unload_chunk(chunk_pos: Vector2i) -> void:
 				to_remove.append(grid_pos)
 
 	for pos in to_remove:
-		# Clean up ore map entry, sparkle, and border when unloading
+		# Clean up ore map entry, sparkle, border, and near-ore hints when unloading
 		if _ore_map.has(pos):
 			_ore_map.erase(pos)
+		if _near_ore_blocks.has(pos):
+			_near_ore_blocks.erase(pos)
 		_remove_ore_sparkle(pos)
 		_remove_rarity_border(pos)
+		_remove_near_ore_hint(pos)
 		_release(pos)
 
 	# Clear dug tiles memory for this chunk (will reload from save when needed)
@@ -397,11 +413,14 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 				streak_pitch = MiningBonusManager.get_streak_pitch_multiplier()
 			SoundManager.play_block_break(block.max_health, tool_tier, streak_pitch)
 
-		# Clean up ore map entry, sparkle, and border
+		# Clean up ore map entry, sparkle, border, and near-ore hints
 		if _ore_map.has(pos):
 			_ore_map.erase(pos)
+		if _near_ore_blocks.has(pos):
+			_near_ore_blocks.erase(pos)
 		_remove_ore_sparkle(pos)
 		_remove_rarity_border(pos)
+		_remove_near_ore_hint(pos)
 
 		# Mark tile as dug for persistence
 		_dug_tiles[pos] = true
@@ -605,6 +624,9 @@ func _place_ore_at(pos: Vector2i, ore) -> void:
 		_add_ore_sparkle(pos, ore)
 		_add_rarity_border(pos, ore)
 
+	# Mark adjacent blocks as "near ore" for subtle hints
+	_mark_adjacent_near_ore(pos)
+
 
 func _should_spawn_guaranteed_ore(pos: Vector2i, depth: int) -> bool:
 	## Check if this position should have the guaranteed first ore for new players
@@ -755,6 +777,99 @@ func _remove_rarity_border(pos: Vector2i) -> void:
 	if is_instance_valid(border):
 		border.queue_free()
 	_rarity_borders.erase(pos)
+
+
+# ============================================
+# NEAR-ORE HINT SYSTEM
+# ============================================
+
+## Directions for adjacent block checks (cardinal + diagonal)
+const ADJACENT_DIRECTIONS := [
+	Vector2i(1, 0),   # Right
+	Vector2i(-1, 0),  # Left
+	Vector2i(0, 1),   # Down
+	Vector2i(0, -1),  # Up
+	Vector2i(1, 1),   # Down-Right
+	Vector2i(-1, 1),  # Down-Left
+	Vector2i(1, -1),  # Up-Right
+	Vector2i(-1, -1), # Up-Left
+]
+
+## Depth at which hints start becoming subtle (players have learned the pattern)
+const HINT_LEARNING_DEPTH := 100
+
+
+func _mark_adjacent_near_ore(ore_pos: Vector2i) -> void:
+	## Mark blocks adjacent to an ore position as "near ore" for subtle hints.
+	## Only marks blocks that don't already contain ore.
+	for dir: Vector2i in ADJACENT_DIRECTIONS:
+		var adj_pos: Vector2i = ore_pos + dir
+
+		# Skip if this position already has ore
+		if _ore_map.has(adj_pos):
+			continue
+
+		# Skip if already marked as near-ore
+		if _near_ore_blocks.has(adj_pos):
+			continue
+
+		# Skip if the block was already dug
+		if _dug_tiles.has(adj_pos):
+			continue
+
+		# Mark as near-ore
+		_near_ore_blocks[adj_pos] = true
+
+		# Add hint visual if block is active (loaded)
+		if _active.has(adj_pos):
+			_add_near_ore_hint(adj_pos)
+
+
+func _add_near_ore_hint(pos: Vector2i) -> void:
+	## Add a subtle near-ore hint effect to a block
+	if not _active.has(pos):
+		return
+	if _near_ore_hints.has(pos):
+		return  # Already has a hint
+
+	# Don't add hints to blocks that have ore themselves
+	if _ore_map.has(pos):
+		return
+
+	var block = _active[pos]
+	var hint = NearOreHintScene.instantiate()
+
+	# Calculate depth factor - hints become subtler as player learns
+	var depth := pos.y - GameManager.SURFACE_ROW
+	var depth_factor := 1.0
+	if depth > HINT_LEARNING_DEPTH:
+		# Gradually reduce hint obviousness with depth (skill development)
+		depth_factor = maxf(0.3, 1.0 - (float(depth - HINT_LEARNING_DEPTH) / 400.0))
+
+	hint.configure(depth_factor)
+	block.add_child(hint)
+	_near_ore_hints[pos] = hint
+
+
+func _remove_near_ore_hint(pos: Vector2i) -> void:
+	## Remove near-ore hint effect from a position
+	if not _near_ore_hints.has(pos):
+		return
+
+	var hint = _near_ore_hints[pos]
+	if is_instance_valid(hint):
+		hint.queue_free()
+	_near_ore_hints.erase(pos)
+
+
+func _check_and_add_near_ore_hint(pos: Vector2i) -> void:
+	## Check if a position should have a near-ore hint and add it.
+	## Called when blocks are activated to handle hints for pre-existing ore.
+	if not _near_ore_blocks.has(pos):
+		return
+	if _ore_map.has(pos):
+		return  # Don't add hints to ore blocks
+	_add_near_ore_hint(pos)
 
 
 # ============================================

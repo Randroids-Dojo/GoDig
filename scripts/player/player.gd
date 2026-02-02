@@ -372,6 +372,10 @@ func _on_animation_finished() -> void:
 		# Haptic feedback for block break
 		if HapticFeedback:
 			HapticFeedback.on_block_destroyed()
+
+		# Check for first-dig-after-upgrade celebration
+		_check_upgrade_celebration()
+
 		# Block destroyed, move into the space
 		_start_move(mining_target)
 	else:
@@ -898,6 +902,9 @@ func _hit_tap_target() -> void:
 		if HapticFeedback:
 			HapticFeedback.on_block_destroyed()
 
+		# Check for first-dig-after-upgrade celebration (tap-to-dig path)
+		_check_upgrade_celebration()
+
 		# Check if we should move into the space (if it was adjacent and in a movable direction)
 		var diff := _tap_target_tile - grid_position
 		if current_state == State.IDLE and abs(diff.x) + abs(diff.y) == 1:
@@ -960,6 +967,38 @@ func _get_tool_speed_multiplier() -> float:
 	if PlayerData == null:
 		return 1.0
 	return PlayerData.get_tool_speed_multiplier()
+
+
+func _check_upgrade_celebration() -> void:
+	## Check if this is the first dig after upgrading and trigger celebration
+	if PlayerData == null:
+		return
+
+	if PlayerData.consume_upgrade_celebration():
+		# This is the first block broken after an upgrade - celebrate!
+		_play_upgrade_first_dig_celebration()
+
+
+func _play_upgrade_first_dig_celebration() -> void:
+	## Play a micro-celebration for the first dig after upgrading
+	## This reinforces the feeling of power from the new tool
+
+	# Extra screen shake for impact
+	if camera:
+		camera.shake(2.5)
+
+	# Extra squash-stretch for juicy feel
+	_squash_stretch(
+		Vector2(1.3, 0.7),  # Wide squash
+		Vector2(0.85, 1.15),  # Tall stretch
+		0.04, 0.12
+	)
+
+	# Extra haptic feedback burst (success pattern)
+	if HapticFeedback:
+		HapticFeedback.trigger(HapticFeedback.HapticType.SUCCESS)
+
+	print("[Player] First dig with new tool - POWER!")
 
 
 # ============================================

@@ -509,6 +509,11 @@ func _on_tool_upgrade() -> void:
 	if GameManager.spend_coins(next_tool.cost):
 		PlayerData.equip_tool(next_tool.id)
 		print("[Shop] Tool upgraded to: %s" % next_tool.display_name)
+
+		# Play dramatic upgrade celebration sound
+		if SoundManager:
+			SoundManager.play_tool_upgrade()
+
 		_refresh_upgrades_tab()
 		# Track for achievements
 		if AchievementManager:

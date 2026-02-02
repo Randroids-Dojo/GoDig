@@ -360,9 +360,12 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		)
 		block_destroyed.emit(world_pos, block.base_color, block.max_health)
 
-		# Play sound effect
+		# Play sound effect with tool tier for satisfying feel differentiation
 		if SoundManager:
-			SoundManager.play_block_break(block.max_health)
+			var tool_tier := 1
+			if PlayerData:
+				tool_tier = PlayerData.get_tool_tier()
+			SoundManager.play_block_break(block.max_health, tool_tier)
 
 		# Clean up ore map entry, sparkle, and border
 		if _ore_map.has(pos):

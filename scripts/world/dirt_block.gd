@@ -10,12 +10,16 @@ const DEFAULT_TOOL_DAMAGE := 5.0  # Base tool damage (tier 1 pickaxe)
 const SHAKE_INTENSITY := 4.0  # Max shake offset in pixels
 const SHAKE_DURATION := 0.15  # Total shake animation time
 
+# Crack overlay scene for visual damage feedback
+const CrackOverlayScene = preload("res://scenes/effects/block_crack_overlay.tscn")
+
 var grid_position: Vector2i = Vector2i.ZERO
 var max_health: float = 10.0
 var current_health: float = 10.0
 var base_color: Color = Color.BROWN
 var _base_position: Vector2 = Vector2.ZERO  # Original position for shake effect
 var _shake_tween: Tween = null  # Active shake animation
+var _crack_overlay: Node2D = null  # Crack overlay visual effect
 
 
 func _init() -> void:
@@ -42,6 +46,9 @@ func activate(pos: Vector2i) -> void:
 		_shake_tween.kill()
 		_shake_tween = null
 
+	# Initialize crack overlay (create if needed)
+	_init_crack_overlay()
+
 
 func deactivate() -> void:
 	visible = false
@@ -51,6 +58,9 @@ func deactivate() -> void:
 		_shake_tween = null
 	# Reset position to base
 	position = _base_position
+	# Reset crack overlay for reuse
+	if _crack_overlay:
+		_crack_overlay.reset()
 
 
 func take_hit(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> bool:
@@ -62,6 +72,9 @@ func take_hit(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> bool:
 	var damage_ratio := 1.0 - (current_health / max_health)
 	damage_ratio = clamp(damage_ratio, 0.0, 1.0)
 	modulate = Color.WHITE.lerp(Color(0.3, 0.3, 0.3), damage_ratio)
+
+	# Update crack overlay to show progressive damage
+	_update_crack_overlay(damage_ratio)
 
 	# Shake effect for mining feedback
 	_play_shake_effect(damage_ratio)
@@ -110,3 +123,21 @@ func _grid_to_world(grid_pos: Vector2i) -> Vector2:
 		grid_pos.x * BLOCK_SIZE + GameManager.GRID_OFFSET_X,
 		grid_pos.y * BLOCK_SIZE
 	)
+
+
+func _init_crack_overlay() -> void:
+	## Initialize or reset the crack overlay for this block.
+	## Creates the overlay node on first use, then reuses it.
+	if _crack_overlay == null:
+		_crack_overlay = CrackOverlayScene.instantiate()
+		add_child(_crack_overlay)
+
+	# Reset and configure for current block
+	_crack_overlay.reset()
+	_crack_overlay.set_crack_color(base_color)
+
+
+func _update_crack_overlay(damage_ratio: float) -> void:
+	## Update the crack overlay based on current damage ratio (0.0 to 1.0).
+	if _crack_overlay:
+		_crack_overlay.update_damage(damage_ratio)

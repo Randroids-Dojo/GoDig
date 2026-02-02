@@ -12,10 +12,10 @@ anchor_bottom = 0.5
 offset_left = -200.0
 offset_top = -200.0
 offset_right = 200.0
-offset_bottom = 0.0
+offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 0
-pivot_offset = Vector2(200, 40)
+pivot_offset = Vector2(200, 60)
 mouse_filter = 2
 script = ExtResource("1_milestone")
 
@@ -26,19 +26,44 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -180.0
-offset_top = -30.0
-offset_right = 180.0
-offset_bottom = 30.0
+offset_left = -200.0
+offset_top = -50.0
+offset_right = 200.0
+offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="Panel"]
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Label" type="Label" parent="Panel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 32
-text = "DEPTH MILESTONE: 100m!"
+theme_override_font_sizes/font_size = 28
+text = "DEPTH MILESTONE!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+text = "Keep digging - riches await!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BonusLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 18
+text = "+$100"
 horizontal_alignment = 1
 vertical_alignment = 1

@@ -8,6 +8,7 @@ const ShopBuilding = preload("res://scripts/surface/shop_building.gd")
 const SellAnimationScript = preload("res://scripts/effects/sell_animation.gd")
 
 signal closed
+signal dive_again_requested  ## Emitted when player wants to dive again after selling
 
 ## Sell animation instance
 var _sell_animation: CanvasLayer = null
@@ -368,6 +369,12 @@ func _on_sell_all_pressed() -> void:
 var _pending_sale_total: int = 0
 var _pending_sale_is_single: bool = false
 
+## Dive again confirmation overlay
+var _dive_confirmation_overlay: CanvasLayer = null
+
+## Minimum ladders required for quick dive
+const MIN_LADDERS_FOR_DIVE := 3
+
 
 func _get_sell_panel_center() -> Vector2:
 	## Get the center position of the sell panel for coin spawn
@@ -393,6 +400,10 @@ func _finalize_sale(total: int) -> void:
 	_check_tutorial_sale_complete()
 	# Auto-save after transaction
 	SaveManager.save_game()
+
+	# Show dive again confirmation for General Store (main selling spot)
+	if current_shop_type == ShopBuilding.ShopType.GENERAL_STORE:
+		_show_dive_confirmation(total)
 
 
 func _check_tutorial_sale_complete() -> void:
@@ -800,6 +811,12 @@ func _on_backpack_upgrade() -> void:
 
 
 func _on_close_pressed() -> void:
+	close()
+
+
+func close() -> void:
+	## Close the shop UI
+	_dismiss_dive_confirmation()  # Clean up any open confirmation
 	visible = false
 	closed.emit()
 
@@ -1373,3 +1390,172 @@ func _on_add_elevator_stop(depth: int) -> void:
 	print("[Shop] Added elevator stop at %dm" % depth)
 	_refresh_upgrades_tab()
 	SaveManager.save_game()
+
+
+# ============================================
+# QUICK DIVE CONFIRMATION
+# ============================================
+
+func _show_dive_confirmation(sale_total: int) -> void:
+	## Show dive again confirmation after a successful sale
+	## Only shows if player has enough ladders for safe diving
+	if _dive_confirmation_overlay != null:
+		return  # Already showing
+
+	# Get ladder count
+	var ladder_count := InventoryManager.get_item_count_by_id("ladder") if InventoryManager else 0
+	var has_enough_ladders := ladder_count >= MIN_LADDERS_FOR_DIVE
+
+	# Create overlay
+	_dive_confirmation_overlay = CanvasLayer.new()
+	_dive_confirmation_overlay.name = "DiveConfirmation"
+	_dive_confirmation_overlay.layer = 90  # Above shop UI
+
+	# Semi-transparent background that doesn't block clicks outside panel
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.color = Color(0, 0, 0, 0.3)  # Subtle darkening
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE  # Don't block input outside panel
+	_dive_confirmation_overlay.add_child(bg)
+
+	# Confirmation panel
+	var panel := PanelContainer.new()
+	panel.name = "ConfirmationPanel"
+	panel.custom_minimum_size = Vector2(300, 0)  # Width only, height auto-sizes
+	_dive_confirmation_overlay.add_child(panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	margin.add_child(vbox)
+
+	# Sale summary header
+	var header := Label.new()
+	header.text = "SOLD!"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 24)
+	header.add_theme_color_override("font_color", Color.GOLD)
+	vbox.add_child(header)
+
+	# Earnings display
+	var earnings := Label.new()
+	earnings.text = "+$%d" % sale_total
+	earnings.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	earnings.add_theme_font_size_override("font_size", 20)
+	earnings.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))  # Green
+	vbox.add_child(earnings)
+
+	# Current balance
+	var balance := Label.new()
+	balance.text = "Balance: $%d" % GameManager.get_coins()
+	balance.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	balance.add_theme_font_size_override("font_size", 14)
+	balance.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	vbox.add_child(balance)
+
+	# Spacer
+	var spacer := Control.new()
+	spacer.custom_minimum_size.y = 8
+	vbox.add_child(spacer)
+
+	# Buttons container
+	var btn_container := HBoxContainer.new()
+	btn_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_container.add_theme_constant_override("separation", 12)
+	vbox.add_child(btn_container)
+
+	# Browse Shop button (secondary)
+	var browse_btn := Button.new()
+	browse_btn.text = "Browse Shop"
+	browse_btn.custom_minimum_size = Vector2(120, 40)
+	browse_btn.pressed.connect(_on_browse_shop_pressed)
+	btn_container.add_child(browse_btn)
+
+	# Dive Again button (primary, if enough ladders)
+	var dive_btn := Button.new()
+	if has_enough_ladders:
+		dive_btn.text = "DIVE AGAIN!"
+		dive_btn.custom_minimum_size = Vector2(140, 45)
+		dive_btn.pressed.connect(_on_dive_again_pressed)
+		# Make it stand out with a green tint
+		dive_btn.add_theme_color_override("font_color", Color(0.2, 0.9, 0.3))
+	else:
+		dive_btn.text = "Need Ladders"
+		dive_btn.tooltip_text = "Visit Supply Store for ladders"
+		dive_btn.disabled = true
+		dive_btn.custom_minimum_size = Vector2(140, 45)
+	btn_container.add_child(dive_btn)
+
+	# Ladder count indicator
+	var ladder_info := Label.new()
+	if has_enough_ladders:
+		ladder_info.text = "%d ladders ready" % ladder_count
+		ladder_info.add_theme_color_override("font_color", Color(0.5, 1.0, 0.5))
+	else:
+		ladder_info.text = "%d/%d ladders (need %d more)" % [ladder_count, MIN_LADDERS_FOR_DIVE, MIN_LADDERS_FOR_DIVE - ladder_count]
+		ladder_info.add_theme_color_override("font_color", Color(1.0, 0.7, 0.3))
+	ladder_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ladder_info.add_theme_font_size_override("font_size", 12)
+	vbox.add_child(ladder_info)
+
+	# Add to scene tree
+	add_child(_dive_confirmation_overlay)
+
+	# Position panel at center after adding to tree
+	await get_tree().process_frame
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_size := panel.size
+	panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	panel.position = Vector2(
+		(viewport_size.x - panel_size.x) / 2.0,
+		(viewport_size.y - panel_size.y) / 2.0
+	)
+
+	# Animate entrance
+	panel.modulate.a = 0.0
+	panel.scale = Vector2(0.9, 0.9)
+	panel.pivot_offset = panel_size / 2.0
+
+	var tween := create_tween()
+	tween.tween_property(panel, "modulate:a", 1.0, 0.2)
+	tween.parallel().tween_property(panel, "scale", Vector2(1.0, 1.0), 0.2) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+
+func _dismiss_dive_confirmation() -> void:
+	## Remove the dive confirmation overlay
+	if _dive_confirmation_overlay != null:
+		_dive_confirmation_overlay.queue_free()
+		_dive_confirmation_overlay = null
+
+
+func _on_browse_shop_pressed() -> void:
+	## Player chose to continue browsing the shop
+	_dismiss_dive_confirmation()
+
+
+func _on_dive_again_pressed() -> void:
+	## Player chose to dive again - close shop and teleport to mine entrance
+	print("[Shop] Dive again requested")
+
+	# Dismiss confirmation overlay
+	_dismiss_dive_confirmation()
+
+	# Close shop UI
+	visible = false
+
+	# Auto-save before diving
+	SaveManager.save_game()
+
+	# Emit signal for test_level to handle teleportation
+	dive_again_requested.emit()
+
+	# Close shop
+	closed.emit()

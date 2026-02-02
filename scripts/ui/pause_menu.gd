@@ -7,6 +7,7 @@ extends CanvasLayer
 signal resumed
 signal settings_opened
 signal rescue_requested(cargo_lost_count: int)  # Emits number of items lost as fee
+signal forfeit_cargo_requested(cargo_lost_count: int)  # Emits number of ore/gem items lost
 signal reload_requested
 signal quit_requested
 
@@ -23,6 +24,7 @@ const RESCUE_MIN_ITEMS_KEPT := 1  # Always keep at least 1 item if player has an
 @onready var panel: PanelContainer = $Panel
 @onready var resume_btn: Button = $Panel/VBox/ResumeButton
 @onready var settings_btn: Button = $Panel/VBox/SettingsButton
+@onready var forfeit_btn: Button = $Panel/VBox/ForfeitCargoButton
 @onready var rescue_btn: Button = $Panel/VBox/RescueButton
 @onready var reload_btn: Button = $Panel/VBox/ReloadButton
 @onready var quit_btn: Button = $Panel/VBox/QuitButton
@@ -45,6 +47,7 @@ func _ready() -> void:
 
 	resume_btn.pressed.connect(_on_resume)
 	settings_btn.pressed.connect(_on_settings)
+	forfeit_btn.pressed.connect(_on_forfeit_cargo)
 	rescue_btn.pressed.connect(_on_rescue)
 	reload_btn.pressed.connect(_on_reload)
 	quit_btn.pressed.connect(_on_quit)
@@ -275,6 +278,36 @@ func _calculate_items_to_lose(total_items: int, fee_percent: float) -> int:
 	return mini(items_to_lose, max_loseable)
 
 
+func _on_forfeit_cargo() -> void:
+	"""Show confirmation dialog before forfeiting cargo."""
+	_pending_action = "forfeit"
+	_confirm_dialog.title = "Forfeit Cargo & Escape?"
+
+	# Get cargo and utility counts
+	var cargo_count := InventoryManager.get_cargo_count() if InventoryManager else 0
+	var utility_count := InventoryManager.get_utility_count() if InventoryManager else 0
+
+	# Build dialog message
+	var dialog_text: String
+	if cargo_count == 0:
+		dialog_text = "You have no ore or gems to lose!\nYou will return to the surface safely."
+	else:
+		dialog_text = "You will LOSE:\n"
+		dialog_text += "- All ore items\n"
+		dialog_text += "- All gem items\n"
+		dialog_text += "(%d items total)\n\n" % cargo_count
+		dialog_text += "You will KEEP:\n"
+		dialog_text += "- Ladders, ropes, tools\n"
+		dialog_text += "- Equipment and coins\n"
+		if utility_count > 0:
+			dialog_text += "(%d utility items)\n" % utility_count
+
+	_confirm_dialog.dialog_text = dialog_text
+	_confirm_dialog.ok_button_text = "Forfeit & Escape"
+	_confirm_dialog.cancel_button_text = "Cancel"
+	_confirm_dialog.popup_centered()
+
+
 func _on_reload() -> void:
 	"""Show confirmation dialog before reloading save."""
 	_pending_action = "reload"
@@ -289,6 +322,15 @@ func _on_reload() -> void:
 func _on_confirm_dialog_confirmed() -> void:
 	"""Handle confirmation of dangerous action."""
 	match _pending_action:
+		"forfeit":
+			# Clear cargo (ore/gems) but keep utility items
+			var lost := 0
+			if InventoryManager:
+				lost = InventoryManager.clear_cargo()
+				print("[PauseMenu] Forfeited cargo: lost %d ore/gem items" % lost)
+
+			forfeit_cargo_requested.emit(lost)
+			hide_menu()
 		"rescue":
 			# Apply depth-proportional rescue fee (lose some cargo, not all)
 			var depth := GameManager.current_depth if GameManager else 0

@@ -96,6 +96,9 @@ var _scale_tween: Tween
 
 
 func _ready() -> void:
+	# Add to player group so other nodes (like HUD) can find us
+	add_to_group("player")
+
 	grid_position = _world_to_grid(position)
 	sprite.animation_finished.connect(_on_animation_finished)
 	# Emit initial HP state
@@ -1487,6 +1490,90 @@ func use_grappling_hook_to(screen_pos: Vector2) -> bool:
 		direction = Vector2i(0, signi(direction.y))
 
 	return use_grappling_hook(direction)
+
+
+# ============================================
+# LADDER PLACEMENT
+# ============================================
+
+signal ladder_placed(grid_pos: Vector2i)
+
+## Place a ladder at the player's current position
+## Called from the HUD quickslot for one-tap ladder placement
+## Returns true if ladder was placed successfully
+func place_ladder_at_position() -> bool:
+	# Can't place while falling or wall jumping (safety)
+	if current_state in [State.FALLING, State.WALL_JUMPING]:
+		return false
+
+	# Check if we have a ladder in inventory
+	if not InventoryManager.has_item_by_id("ladder"):
+		return false
+
+	# Check if dirt_grid is available
+	if dirt_grid == null:
+		return false
+
+	# Check if there's already a ladder at current position
+	if dirt_grid.has_ladder(grid_position):
+		return false
+
+	# Check if current position has a solid block (can't place ladder inside block)
+	if dirt_grid.has_block(grid_position):
+		return false
+
+	# Try to place the ladder
+	if not dirt_grid.place_ladder(grid_position):
+		return false
+
+	# Consume the ladder from inventory
+	if not InventoryManager.remove_item_by_id("ladder", 1):
+		# Failed to remove ladder - this shouldn't happen, but undo the placement
+		dirt_grid.remove_ladder(grid_position)
+		return false
+
+	# Play sound effect for placement
+	if SoundManager:
+		SoundManager.play_item_pickup()
+
+	# Brief visual feedback (subtle squash-stretch)
+	_squash_stretch(
+		Vector2(1.1, 0.9),
+		Vector2.ONE,
+		0.02, 0.08
+	)
+
+	# Emit signal for other systems to react
+	ladder_placed.emit(grid_position)
+
+	print("[Player] Placed ladder at %s" % str(grid_position))
+	return true
+
+
+## Check if player can place a ladder at current position
+## Used by HUD to determine if quickslot should be disabled
+func can_place_ladder() -> bool:
+	# Can't place while falling or wall jumping
+	if current_state in [State.FALLING, State.WALL_JUMPING]:
+		return false
+
+	# Check if we have a ladder in inventory
+	if not InventoryManager.has_item_by_id("ladder"):
+		return false
+
+	# Check if dirt_grid is available
+	if dirt_grid == null:
+		return false
+
+	# Check if there's already a ladder at current position
+	if dirt_grid.has_ladder(grid_position):
+		return false
+
+	# Check if current position has a solid block
+	if dirt_grid.has_block(grid_position):
+		return false
+
+	return true
 
 
 # ============================================

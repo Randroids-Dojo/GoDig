@@ -52,6 +52,9 @@ const CURRENT_VERSION := 1
 @export var tutorial_state: int = 0
 @export var tutorial_complete: bool = false
 
+## First ore guarantee flag (ensures new players find ore quickly)
+@export var first_ore_spawned: bool = false
+
 
 ## Create a new save with default starting state
 static func create_new(slot_name: String = ""):

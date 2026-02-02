@@ -427,6 +427,12 @@ func _generate_cave_noise(pos: Vector2i) -> float:
 # ORE SPAWNING LOGIC
 # ============================================
 
+## Player spawn position (grid x coordinate)
+const PLAYER_SPAWN_X := 4  # Based on SpawnPoint at 512px / 128 block size = 4
+
+## Guaranteed first ore position (3 blocks below surface, directly under spawn)
+const FIRST_ORE_DEPTH := 2  # SURFACE_ROW + 2 = 3 blocks below spawn
+
 func _determine_ore_spawn(pos: Vector2i) -> void:
 	## Determine if this position should contain ore based on depth and rarity
 	## Uses vein expansion (random walk) to create ore clusters
@@ -436,6 +442,12 @@ func _determine_ore_spawn(pos: Vector2i) -> void:
 
 	# Skip if already has ore (from vein expansion)
 	if _ore_map.has(pos):
+		return
+
+	# GUARANTEED FIRST ORE: Ensure new players find ore quickly
+	# Place coal at (PLAYER_SPAWN_X, SURFACE_ROW + FIRST_ORE_DEPTH) for new games
+	if _should_spawn_guaranteed_ore(pos, depth):
+		_spawn_guaranteed_first_ore(pos)
 		return
 
 	# Get all ores that can spawn at this depth
@@ -559,6 +571,43 @@ func _place_ore_at(pos: Vector2i, ore) -> void:
 		_apply_ore_hardness(pos, ore)
 		_add_ore_sparkle(pos, ore)
 		_add_rarity_border(pos, ore)
+
+
+func _should_spawn_guaranteed_ore(pos: Vector2i, depth: int) -> bool:
+	## Check if this position should have the guaranteed first ore for new players
+	## Returns true only for new games at the specific first-ore position
+	if SaveManager == null:
+		return false
+
+	# Only spawn guaranteed ore if it hasn't been spawned yet
+	if SaveManager.has_first_ore_spawned():
+		return false
+
+	# Check if this is the guaranteed ore position (directly below spawn, 2 blocks deep)
+	if pos.x != PLAYER_SPAWN_X:
+		return false
+	if depth != FIRST_ORE_DEPTH:
+		return false
+
+	return true
+
+
+func _spawn_guaranteed_first_ore(pos: Vector2i) -> void:
+	## Spawn the guaranteed first ore (coal) for new players
+	## This ensures players find ore within their first few blocks of mining
+	var coal_ore = DataRegistry.get_ore("coal")
+	if coal_ore == null:
+		push_warning("[DirtGrid] Could not find coal ore for guaranteed first ore")
+		return
+
+	# Place the coal ore
+	_place_ore_at(pos, coal_ore)
+
+	# Mark as spawned so it doesn't happen again
+	if SaveManager:
+		SaveManager.set_first_ore_spawned()
+
+	print("[DirtGrid] Guaranteed first ore (coal) spawned at %s" % str(pos))
 
 
 func _generate_ore_noise(pos: Vector2i, frequency: float) -> float:

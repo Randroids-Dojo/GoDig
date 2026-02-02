@@ -263,6 +263,12 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 	if EnemyManager:
 		EnemyManager.reset()
 
+	# Give player starting supplies (5 ladders for first dive)
+	if InventoryManager and DataRegistry:
+		var ladder_item = DataRegistry.get_item("ladder")
+		if ladder_item:
+			InventoryManager.add_item(ladder_item, 5)
+
 	# Initial save (force=true to bypass debounce)
 	var success := save_game(true)
 
@@ -678,6 +684,19 @@ func get_time_since_save_text() -> String:
 		return "1 minute ago"
 	else:
 		return "%d minutes ago" % (seconds / 60)
+
+
+## Check if the guaranteed first ore has been spawned for new players
+func has_first_ore_spawned() -> bool:
+	if current_save == null:
+		return false
+	return current_save.first_ore_spawned
+
+
+## Mark the guaranteed first ore as spawned
+func set_first_ore_spawned() -> void:
+	if current_save != null:
+		current_save.first_ore_spawned = true
 
 
 # ============================================

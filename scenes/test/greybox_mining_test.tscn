@@ -1,0 +1,88 @@
+[gd_scene load_steps=5 format=3 uid="uid://c7yqx3wb8rmkl"]
+
+[ext_resource type="Script" path="res://scripts/test/greybox_mining_test.gd" id="1_test"]
+[ext_resource type="Script" path="res://scripts/test/greybox_grid.gd" id="2_grid"]
+[ext_resource type="Script" path="res://scripts/test/greybox_player.gd" id="3_player"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(64, 120)
+
+[node name="GreyboxMiningTest" type="Node2D"]
+script = ExtResource("1_test")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_left = -1000.0
+offset_top = -1000.0
+offset_right = 4000.0
+offset_bottom = 5000.0
+color = Color(0.15, 0.15, 0.2, 1)
+
+[node name="GreyboxGrid" type="Node2D" parent="."]
+script = ExtResource("2_grid")
+
+[node name="GreyboxPlayer" type="CharacterBody2D" parent="."]
+position = Vector2(1280, 512)
+script = ExtResource("3_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GreyboxPlayer"]
+shape = SubResource("RectangleShape2D_player")
+
+[node name="Sprite" type="ColorRect" parent="GreyboxPlayer"]
+offset_left = -32.0
+offset_top = -60.0
+offset_right = 32.0
+offset_bottom = 60.0
+color = Color(0.2, 0.6, 0.9, 1)
+
+[node name="Camera2D" type="Camera2D" parent="GreyboxPlayer"]
+zoom = Vector2(0.7, 0.7)
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="BlocksLabel" type="Label" parent="UI"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 50.0
+theme_override_font_sizes/font_size = 24
+text = "Blocks: 0"
+
+[node name="TimeLabel" type="Label" parent="UI"]
+offset_left = 20.0
+offset_top = 55.0
+offset_right = 200.0
+offset_bottom = 85.0
+theme_override_font_sizes/font_size = 24
+text = "Time: 0.0s"
+
+[node name="HintLabel" type="Label" parent="UI"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -150.0
+offset_top = 100.0
+offset_right = 150.0
+offset_bottom = 140.0
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
+theme_override_font_sizes/font_size = 28
+text = "TAP BLOCKS TO MINE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Instructions" type="Label" parent="UI"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -80.0
+offset_right = 200.0
+offset_bottom = -20.0
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 16
+text = "WASD/Arrows: Move | Space: Jump | R: Restart | Escape: Quit
+Playtest Checklist: Does mining feel satisfying? Any 'one more block' urge?"
+horizontal_alignment = 1
+vertical_alignment = 1

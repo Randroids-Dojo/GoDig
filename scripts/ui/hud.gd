@@ -132,11 +132,13 @@ var _ladder_warning_pulse_time: float = 0.0
 var _ladder_warning_visible: bool = false
 var _last_ladder_warning_level: int = 0  # 0=none, 1=warning, 2=urgent
 
-## Low ladder warning thresholds
-const LADDER_WARNING_DEPTH := 30  # Warning when depth > 30m
-const LADDER_WARNING_COUNT := 3   # Warning when ladders < 3
-const LADDER_URGENT_DEPTH := 50   # Urgent warning when depth > 50m
-const LADDER_URGENT_COUNT := 2    # Urgent warning when ladders < 2
+## Low ladder warning thresholds (depth-aware)
+## Formula: safe_ladders = ceil(depth / 5) accounting for wall-jump every 3-5 tiles
+## Yellow warning at 80% of safe minimum, Red at 50%
+const LADDER_SAFETY_DIVISOR := 5  # 1 ladder per 5m of depth
+const LADDER_WARNING_RATIO := 0.8  # Yellow warning below 80% of safe minimum
+const LADDER_URGENT_RATIO := 0.5   # Red warning below 50% of safe minimum
+const LADDER_MIN_DEPTH_FOR_WARNING := 15  # Don't warn until at least 15m deep
 const LADDER_WARNING_PULSE_SPEED := 2.5  # Pulse speed for warning
 
 
@@ -1812,20 +1814,28 @@ func _setup_ladder_warning() -> void:
 
 func _check_ladder_warning() -> void:
 	## Check if low ladder warning should be shown based on depth and ladder count
+	## Uses depth-aware formula: safe_ladders = ceil(depth / 5)
 	if ladder_warning_container == null or GameManager == null:
 		return
 
 	var depth := GameManager.current_depth
 	var ladder_count := _get_ladder_count()
 
-	# Determine warning level
+	# Calculate safe ladder minimum based on current depth
+	# Formula: ceil(depth / 5) - roughly 1 ladder per 5m accounting for wall-jumps
+	var safe_minimum := ceili(float(depth) / float(LADDER_SAFETY_DIVISOR))
+	var warning_threshold := int(float(safe_minimum) * LADDER_WARNING_RATIO)
+	var urgent_threshold := int(float(safe_minimum) * LADDER_URGENT_RATIO)
+
+	# Determine warning level based on depth-scaled thresholds
 	var warning_level := 0
-	if depth > LADDER_URGENT_DEPTH and ladder_count < LADDER_URGENT_COUNT:
-		warning_level = 2  # Urgent
-	elif depth > LADDER_WARNING_DEPTH and ladder_count < LADDER_WARNING_COUNT:
-		warning_level = 1  # Warning
-	else:
-		warning_level = 0  # No warning
+
+	# Only warn if deep enough to matter
+	if depth >= LADDER_MIN_DEPTH_FOR_WARNING:
+		if ladder_count <= urgent_threshold:
+			warning_level = 2  # Urgent - red warning
+		elif ladder_count < safe_minimum:
+			warning_level = 1  # Warning - yellow warning
 
 	# If at surface, always clear warning
 	if depth <= 0:

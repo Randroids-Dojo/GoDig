@@ -178,22 +178,32 @@ func _refresh_sell_tab() -> void:
 		var item = data.item
 		var qty: int = data.quantity
 		var multiplier := _get_sell_multiplier(item)
-		var value: int = int(item.sell_value * qty * multiplier)
+		var base_value: int = item.sell_value * qty
+		var value: int = int(base_value * multiplier)
 		total_value += value
 		sellable_count += qty
 
-		var item_panel := _create_sell_item_panel(item, qty, value, multiplier > 1.0)
+		var item_panel := _create_sell_item_panel(item, qty, base_value, value, multiplier)
 		sell_items_container.add_child(item_panel)
 
-	# Update total
+	# Update total with depth bonus display
 	var total_text := "Total: $%d" % total_value
+
+	# Show depth multiplier if active
+	var depth_mult := PlayerData.get_depth_sell_multiplier() if PlayerData else 1.0
+	if depth_mult > 1.0:
+		var depth_bonus := int((depth_mult - 1.0) * 100)
+		total_text += " (+%d%% depth bonus!)" % depth_bonus
+
+	# Show gem appraiser bonus
 	if current_shop_type == ShopBuilding.ShopType.GEM_APPRAISER:
 		total_text += " (Gems +50%!)"
+
 	sell_total_label.text = total_text
 	sell_all_button.disabled = sellable_count == 0
 
 
-func _create_sell_item_panel(item, quantity: int, total_value: int, has_bonus: bool = false) -> Control:
+func _create_sell_item_panel(item, quantity: int, base_value: int, total_value: int, multiplier: float) -> Control:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = Vector2(150, 120)
 
@@ -213,10 +223,11 @@ func _create_sell_item_panel(item, quantity: int, total_value: int, has_bonus: b
 	qty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(qty_label)
 
-	# Value (with bonus indicator)
+	# Value (with multiplier indicator)
 	var value_label := Label.new()
-	if has_bonus:
-		value_label.text = "$%d (+50%%)" % total_value
+	if multiplier > 1.0:
+		var bonus_pct := int((multiplier - 1.0) * 100)
+		value_label.text = "$%d (+%d%%)" % [total_value, bonus_pct]
 		value_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))  # Green for bonus
 	else:
 		value_label.text = "$%d" % total_value
@@ -233,13 +244,20 @@ func _create_sell_item_panel(item, quantity: int, total_value: int, has_bonus: b
 	return panel
 
 
-## Get sell price multiplier based on shop type and item category
+## Get sell price multiplier based on shop type, item category, and dive depth
 func _get_sell_multiplier(item) -> float:
-	## Gem Appraiser gives 50% bonus on gems
+	var multiplier := 1.0
+
+	## Depth-based multiplier from current dive (deeper = more valuable)
+	if PlayerData:
+		multiplier = PlayerData.get_depth_sell_multiplier()
+
+	## Gem Appraiser gives additional 50% bonus on gems
 	if current_shop_type == ShopBuilding.ShopType.GEM_APPRAISER:
 		if item.category == "gem":
-			return 1.5  # 50% bonus for gems at Gem Appraiser
-	return 1.0
+			multiplier *= 1.5  # 50% bonus for gems at Gem Appraiser
+
+	return multiplier
 
 
 func _on_sell_item(item) -> void:

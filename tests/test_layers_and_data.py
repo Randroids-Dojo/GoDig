@@ -204,6 +204,34 @@ async def test_player_data_has_max_depth_reached(game):
     assert isinstance(max_depth, int), f"max_depth_reached should be int, got {type(max_depth)}"
 
 
+@pytest.mark.asyncio
+async def test_player_data_has_current_dive_max_depth(game):
+    """Verify PlayerData tracks current dive max depth for sell multiplier."""
+    dive_depth = await game.get_property(PATHS["player_data"], "current_dive_max_depth")
+    assert dive_depth is not None, "PlayerData should have current_dive_max_depth"
+    assert isinstance(dive_depth, int), f"current_dive_max_depth should be int, got {type(dive_depth)}"
+
+
+@pytest.mark.asyncio
+async def test_player_data_has_depth_sell_multiplier_method(game):
+    """Verify PlayerData provides depth-based sell multiplier."""
+    has_method = await game.call(PATHS["player_data"], "has_method", ["get_depth_sell_multiplier"])
+    assert has_method, "PlayerData should have get_depth_sell_multiplier method"
+
+
+@pytest.mark.asyncio
+async def test_depth_sell_multiplier_formula(game):
+    """Verify depth sell multiplier returns correct value at surface.
+
+    Formula: 1.0 + (dive_depth / 100)
+    At surface (depth 0), multiplier should be 1.0
+    """
+    multiplier = await game.call(PATHS["player_data"], "get_depth_sell_multiplier")
+    assert multiplier is not None, "get_depth_sell_multiplier should return a value"
+    # At fresh game start, dive depth is 0, so multiplier should be 1.0
+    assert multiplier == 1.0, f"Multiplier at surface should be 1.0, got {multiplier}"
+
+
 # =============================================================================
 # INVENTORY MANAGER PROPERTY TESTS
 # =============================================================================

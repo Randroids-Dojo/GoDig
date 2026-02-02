@@ -304,6 +304,13 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 		_show_first_ore_celebration(item)
 		SaveManager.set_first_ore_collected()
 
+	# Check for PER-ORE-TYPE first discovery (separate from first ore ever)
+	var is_new_discovery := false
+	if PlayerData and not PlayerData.has_discovered_ore(item_id):
+		is_new_discovery = PlayerData.discover_ore(item_id)
+		if is_new_discovery:
+			_show_new_ore_type_discovery(item)
+
 	# Check for lucky strike (bonus ore)
 	var amount := 1
 	if MiningBonusManager:
@@ -513,6 +520,63 @@ func _show_first_ore_celebration(item) -> void:
 			hint.show_pickup("Sell at the General Store!", Color.WHITE, Vector2(viewport_size.x / 2.0, viewport_size.y * 0.45))
 
 	print("[TestLevel] First ore celebration shown for: %s" % item.display_name)
+
+
+func _show_new_ore_type_discovery(item) -> void:
+	## Show celebration for discovering a new type of ore!
+	## Different from first ore ever - this triggers for each NEW ore type.
+	## Awards bonus coins (50% of sell value) to reward exploration.
+	if floating_text_layer == null:
+		return
+
+	# Calculate bonus coins (50% of item's sell value)
+	var bonus_coins := 0
+	var ore = DataRegistry.get_ore(item.id)
+	if ore != null and "sell_value" in item:
+		bonus_coins = int(item.sell_value * 0.5)
+		if bonus_coins < 1:
+			bonus_coins = 1  # Minimum 1 coin bonus
+
+	# Award the discovery bonus
+	if bonus_coins > 0 and GameManager:
+		GameManager.add_coins(bonus_coins)
+
+	# Play special discovery fanfare sound
+	if SoundManager:
+		SoundManager.play_milestone()
+
+	# Trigger haptic feedback for mobile
+	if HapticFeedback:
+		HapticFeedback.on_ore_collected()
+
+	# Create celebratory floating text
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Position in upper portion of screen
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.5)
+
+	# Get ore color for visual impact
+	var color := Color(0.2, 1.0, 0.6)  # Bright green for discovery
+	if ore != null:
+		color = Color(0.2, 1.0, 0.6).lerp(ore.color, 0.4)
+
+	# Show NEW DISCOVERY text with ore name
+	var text := "NEW DISCOVERY!"
+	floating.show_achievement(text, color, screen_pos)
+
+	# Show bonus coins notification after a brief delay
+	if bonus_coins > 0:
+		await get_tree().create_timer(0.4).timeout
+		if floating_text_layer:
+			var bonus_floating := FloatingTextScene.instantiate()
+			floating_text_layer.add_child(bonus_floating)
+
+			var bonus_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 2.8)
+			bonus_floating.show_pickup("+$%d Discovery Bonus!" % bonus_coins, Color.GOLD, bonus_pos)
+
+	print("[TestLevel] New ore type discovered: %s (+%d bonus coins)" % [item.display_name, bonus_coins])
 
 
 func _show_inventory_full_notification() -> void:

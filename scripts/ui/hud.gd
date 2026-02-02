@@ -260,6 +260,9 @@ func _ready() -> void:
 	if GameManager:
 		GameManager.max_depth_updated.connect(_on_max_depth_updated)
 
+	# Setup button visual feedback (must be deferred to ensure buttons exist)
+	call_deferred("_setup_button_feedback")
+
 
 func _process(delta: float) -> void:
 	# Pulse the low health vignette
@@ -280,6 +283,9 @@ func _process(delta: float) -> void:
 
 	# Update low ladder warning pulse
 	_update_ladder_warning_pulse(delta)
+
+	# Update upgrade goal glow effect
+	_update_upgrade_glow(delta)
 
 
 ## Connect to a player's HP signals
@@ -2294,3 +2300,171 @@ func _pulse_streak_label() -> void:
 		.set_ease(Tween.EASE_OUT)
 	tween.tween_property(streak_label, "scale", Vector2(1.0, 1.0), 0.1) \
 		.set_ease(Tween.EASE_IN_OUT)
+
+
+# ============================================
+# BUTTON VISUAL FEEDBACK (Hover/Press States)
+# ============================================
+
+## Upgrade goal glow pulse state
+var _upgrade_glow_time: float = 0.0
+var _upgrade_glow_active: bool = false
+
+func _setup_button_feedback() -> void:
+	## Connect button signals for visual feedback
+	# Ladder button feedback
+	if ladder_button:
+		ladder_button.mouse_entered.connect(_on_ladder_button_hover.bind(true))
+		ladder_button.mouse_exited.connect(_on_ladder_button_hover.bind(false))
+		ladder_button.button_down.connect(_on_ladder_button_pressed.bind(true))
+		ladder_button.button_up.connect(_on_ladder_button_pressed.bind(false))
+
+	# Rope button feedback
+	if rope_button:
+		rope_button.mouse_entered.connect(_on_rope_button_hover.bind(true))
+		rope_button.mouse_exited.connect(_on_rope_button_hover.bind(false))
+		rope_button.button_down.connect(_on_rope_button_pressed.bind(true))
+		rope_button.button_up.connect(_on_rope_button_pressed.bind(false))
+
+	# Teleport button feedback
+	if teleport_button:
+		teleport_button.mouse_entered.connect(_on_teleport_button_hover.bind(true))
+		teleport_button.mouse_exited.connect(_on_teleport_button_hover.bind(false))
+		teleport_button.button_down.connect(_on_teleport_button_pressed.bind(true))
+		teleport_button.button_up.connect(_on_teleport_button_pressed.bind(false))
+
+	# Pause button feedback
+	if pause_button:
+		pause_button.mouse_entered.connect(_on_pause_button_hover.bind(true))
+		pause_button.mouse_exited.connect(_on_pause_button_hover.bind(false))
+		pause_button.button_down.connect(_on_pause_button_pressed.bind(true))
+		pause_button.button_up.connect(_on_pause_button_pressed.bind(false))
+
+
+func _on_ladder_button_hover(is_hovering: bool) -> void:
+	## Apply hover effect to ladder quickslot
+	if ladder_quickslot == null:
+		return
+	var bg = ladder_quickslot.get_node_or_null("Background")
+	if bg:
+		if is_hovering:
+			bg.modulate = UIColors.BUTTON_HOVER
+		else:
+			bg.modulate = UIColors.BUTTON_NORMAL
+
+
+func _on_ladder_button_pressed(is_pressed: bool) -> void:
+	## Apply pressed effect to ladder quickslot
+	if ladder_quickslot == null:
+		return
+	var bg = ladder_quickslot.get_node_or_null("Background")
+	if bg:
+		if is_pressed:
+			bg.modulate = UIColors.BUTTON_PRESSED
+			# Also scale down slightly for "press in" feel
+			ladder_quickslot.scale = Vector2(0.95, 0.95)
+		else:
+			bg.modulate = UIColors.BUTTON_NORMAL
+			ladder_quickslot.scale = Vector2(1.0, 1.0)
+
+
+func _on_rope_button_hover(is_hovering: bool) -> void:
+	## Apply hover effect to rope quickslot
+	if rope_quickslot == null:
+		return
+	var bg = rope_quickslot.get_node_or_null("Background")
+	if bg:
+		if is_hovering:
+			bg.modulate = UIColors.BUTTON_HOVER
+		else:
+			bg.modulate = UIColors.BUTTON_NORMAL
+
+
+func _on_rope_button_pressed(is_pressed: bool) -> void:
+	## Apply pressed effect to rope quickslot
+	if rope_quickslot == null:
+		return
+	var bg = rope_quickslot.get_node_or_null("Background")
+	if bg:
+		if is_pressed:
+			bg.modulate = UIColors.BUTTON_PRESSED
+			rope_quickslot.scale = Vector2(0.95, 0.95)
+		else:
+			bg.modulate = UIColors.BUTTON_NORMAL
+			rope_quickslot.scale = Vector2(1.0, 1.0)
+
+
+func _on_teleport_button_hover(is_hovering: bool) -> void:
+	## Apply hover effect to teleport quickslot
+	if teleport_quickslot == null:
+		return
+	var bg = teleport_quickslot.get_node_or_null("Background")
+	if bg:
+		if is_hovering:
+			bg.modulate = UIColors.BUTTON_HOVER
+		else:
+			bg.modulate = UIColors.BUTTON_NORMAL
+
+
+func _on_teleport_button_pressed(is_pressed: bool) -> void:
+	## Apply pressed effect to teleport quickslot
+	if teleport_quickslot == null:
+		return
+	var bg = teleport_quickslot.get_node_or_null("Background")
+	if bg:
+		if is_pressed:
+			bg.modulate = UIColors.BUTTON_PRESSED
+			teleport_quickslot.scale = Vector2(0.95, 0.95)
+		else:
+			bg.modulate = UIColors.BUTTON_NORMAL
+			teleport_quickslot.scale = Vector2(1.0, 1.0)
+
+
+func _on_pause_button_hover(is_hovering: bool) -> void:
+	## Apply hover effect to pause button
+	if pause_button == null:
+		return
+	if is_hovering:
+		pause_button.modulate = UIColors.BUTTON_HOVER
+	else:
+		pause_button.modulate = UIColors.BUTTON_NORMAL
+
+
+func _on_pause_button_pressed(is_pressed: bool) -> void:
+	## Apply pressed effect to pause button
+	if pause_button == null:
+		return
+	if is_pressed:
+		pause_button.modulate = UIColors.BUTTON_PRESSED
+		pause_button.scale = Vector2(0.95, 0.95)
+	else:
+		pause_button.modulate = UIColors.BUTTON_NORMAL
+		pause_button.scale = Vector2(1.0, 1.0)
+
+
+func _update_upgrade_glow(delta: float) -> void:
+	## Update the upgrade goal glow effect when close to affordable
+	if upgrade_goal_progress == null or upgrade_goal_container == null:
+		return
+
+	# Only glow when visible and close to goal (80%+)
+	if not upgrade_goal_container.visible:
+		_upgrade_glow_active = false
+		return
+
+	var progress_ratio := upgrade_goal_progress.value / upgrade_goal_progress.max_value if upgrade_goal_progress.max_value > 0 else 0.0
+	var should_glow := progress_ratio >= 0.8 and progress_ratio < 1.0
+
+	if should_glow:
+		_upgrade_glow_active = true
+		_upgrade_glow_time += delta * 2.0  # Pulse speed
+
+		# Calculate pulse brightness
+		var pulse := (sin(_upgrade_glow_time) + 1.0) / 2.0  # 0 to 1
+		var brightness := lerpf(UIColors.UPGRADE_GLOW_PULSE_MIN, UIColors.UPGRADE_GLOW_PULSE_MAX, pulse)
+
+		# Apply glow to progress bar
+		upgrade_goal_progress.modulate = UIColors.UPGRADE_GLOW * brightness
+	else:
+		_upgrade_glow_active = false
+		_upgrade_glow_time = 0.0

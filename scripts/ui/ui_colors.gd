@@ -103,6 +103,24 @@ const SLOT_ALERT := Color(1.0, 0.4, 0.4)
 const LADDER := Color(0.9, 0.7, 0.4)
 
 # =============================================================================
+# BUTTON STATES - Hover and press feedback
+# =============================================================================
+
+## Button hover - slight brightening
+const BUTTON_HOVER := Color(1.15, 1.15, 1.15, 1.0)
+
+## Button pressed - gold-tinted feedback
+const BUTTON_PRESSED := Color(1.0, 0.9, 0.7, 1.0)
+
+## Button normal state
+const BUTTON_NORMAL := Color(1.0, 1.0, 1.0, 1.0)
+
+## Upgrade goal glow when close to affordable
+const UPGRADE_GLOW := Color(1.0, 0.9, 0.3)       # Gold glow
+const UPGRADE_GLOW_PULSE_MIN := 0.7              # Min brightness
+const UPGRADE_GLOW_PULSE_MAX := 1.0              # Max brightness
+
+# =============================================================================
 # PROGRESS BAR COLORS - Mining and upgrade progress
 # =============================================================================
 

@@ -164,6 +164,11 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 		push_warning("[TestLevel] Unknown item dropped: %s" % item_id)
 		return
 
+	# Check for FIRST ORE DISCOVERY - special celebration for new players
+	if SaveManager and not SaveManager.has_first_ore_been_collected():
+		_show_first_ore_celebration(item)
+		SaveManager.set_first_ore_collected()
+
 	# Check for lucky strike (bonus ore)
 	var amount := 1
 	if MiningBonusManager:
@@ -318,6 +323,49 @@ func _on_achievement_animation_finished() -> void:
 	# Small delay before showing next
 	await get_tree().create_timer(0.3).timeout
 	_process_achievement_queue()
+
+
+func _show_first_ore_celebration(item) -> void:
+	## Show special celebration for the player's FIRST ore discovery!
+	## This is a critical retention moment - make it feel amazing.
+	if floating_text_layer == null:
+		return
+
+	# Play special discovery sound
+	if SoundManager:
+		SoundManager.play_milestone()  # Use milestone sound for extra impact
+
+	# Trigger haptic feedback for mobile
+	if HapticFeedback:
+		HapticFeedback.on_ore_collected()
+
+	# Create celebratory floating text
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Center the celebration on screen
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+
+	# Golden color for discovery celebration
+	var color := Color.GOLD
+
+	# Get ore color for extra visual punch
+	var ore = DataRegistry.get_ore(item.id)
+	if ore != null:
+		color = Color.GOLD.lerp(ore.color, 0.3)
+
+	var text := "FIRST ORE FOUND!"
+	floating.show_achievement(text, color, screen_pos)
+
+	# Add secondary hint about selling
+	await get_tree().create_timer(1.0).timeout
+	if floating_text_layer:
+		var hint := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(hint)
+		hint.show_pickup("Sell at the General Store!", Color.WHITE, Vector2(viewport_size.x / 2.0, viewport_size.y * 0.45))
+
+	print("[TestLevel] First ore celebration shown for: %s" % item.display_name)
 
 
 func _show_inventory_full_notification() -> void:

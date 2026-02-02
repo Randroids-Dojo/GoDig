@@ -240,11 +240,19 @@ func _notify_ftue_block_mined() -> void:
 
 
 func _notify_ftue_ore_found() -> void:
-	## Notify FTUE that player found their first ore
+	## Notify FTUE that player found ore (first ore triggers special celebration)
 	if not _ftue_active or ftue_overlay == null:
 		return
 
 	ftue_overlay.on_first_ore_found()
+
+
+func _notify_ftue_ore_collected() -> void:
+	## Notify FTUE that player collected additional ore (after first)
+	if not _ftue_active or ftue_overlay == null:
+		return
+
+	ftue_overlay.on_ore_collected()
 
 
 func _notify_ftue_surface_with_ore() -> void:
@@ -331,6 +339,8 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 		_show_inventory_full_notification()
 	else:
 		print("[TestLevel] Added %d x %s to inventory" % [amount, item.display_name])
+		# Notify FTUE of additional ore collection (for inventory filling hint)
+		_notify_ftue_ore_collected()
 
 
 func _on_item_added(item, amount: int) -> void:

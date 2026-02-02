@@ -1387,3 +1387,46 @@ async def test_tutorial_overlay_has_viewport_resize_handler(game):
     # Test by calling the method directly (should not error)
     result = await game.call_method(overlay_path, "_on_viewport_resized")
     # Method should complete without error (returns void/null)
+
+
+# =============================================================================
+# INSTANT RESTART UX TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_death_screen_exists(game):
+    """Verify the death screen node exists."""
+    exists = await game.node_exists(PATHS["death_screen"])
+    assert exists, "DeathScreen should exist"
+
+
+@pytest.mark.asyncio
+async def test_death_screen_has_dive_again_signal(game):
+    """Verify death screen has dive_again_requested signal for quick restart."""
+    has_signal = await game.call(PATHS["death_screen"], "has_signal", ["dive_again_requested"])
+    assert has_signal is True, "DeathScreen should have dive_again_requested signal"
+
+
+@pytest.mark.asyncio
+async def test_death_screen_fade_duration_optimized(game):
+    """Verify death screen uses fast fade for quick restart (under 0.5s)."""
+    fade_duration = await game.get_property(PATHS["death_screen"], "FADE_IN_DURATION")
+    assert fade_duration is not None, "DeathScreen should have FADE_IN_DURATION constant"
+    assert fade_duration <= 0.5, f"Fade duration should be <= 0.5s for quick restart, got {fade_duration}"
+
+
+@pytest.mark.asyncio
+async def test_death_screen_has_dive_again_methods(game):
+    """Verify death screen has dive again methods for quick restart."""
+    # Check the _update_dive_again_button method exists
+    has_method = await game.call(PATHS["death_screen"], "has_method", ["_update_dive_again_button"])
+    assert has_method is True, "DeathScreen should have _update_dive_again_button method"
+
+
+@pytest.mark.asyncio
+async def test_death_screen_min_ladders_constant(game):
+    """Verify death screen has minimum ladders constant for dive again."""
+    min_ladders = await game.get_property(PATHS["death_screen"], "MIN_LADDERS_FOR_DIVE")
+    assert min_ladders is not None, "DeathScreen should have MIN_LADDERS_FOR_DIVE constant"
+    assert min_ladders == 3, f"MIN_LADDERS_FOR_DIVE should be 3, got {min_ladders}"

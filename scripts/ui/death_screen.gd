@@ -3,11 +3,17 @@ extends CanvasLayer
 ##
 ## Offers respawn options and displays death statistics.
 ## Respawn at surface costs half of inventory, reload loses progress since save.
+## Optimized for fast restart - under 2 seconds from death to moveable player.
 
 signal respawn_requested
 signal reload_requested
+signal dive_again_requested  # Quick dive if player has supplies
 
 @export var process_mode_paused: bool = true
+
+## Animation timings (optimized for fast restart)
+const FADE_IN_DURATION := 0.3  # Quick fade
+const PANEL_FADE_DELAY := 0.1
 
 ## UI Elements (created programmatically)
 var background: ColorRect = null
@@ -18,6 +24,7 @@ var stats_label: Label = null
 var respawn_btn: Button = null
 var reload_btn: Button = null
 var vbox: VBoxContainer = null
+var dive_again_btn: Button = null  # Quick dive button
 
 ## Death info
 var _death_cause: String = "unknown"
@@ -25,6 +32,9 @@ var _death_depth: int = 0
 
 ## Fade animation
 var _fade_tween: Tween = null
+
+## Minimum ladders required to show "Dive Again" prompt
+const MIN_LADDERS_FOR_DIVE := 3
 
 
 func _ready() -> void:
@@ -120,6 +130,15 @@ func _create_ui() -> void:
 	respawn_cost_label.add_theme_color_override("font_color", Color(0.7, 0.6, 0.6))
 	inner_vbox.add_child(respawn_cost_label)
 
+	# Dive Again button (shown if player has supplies)
+	dive_again_btn = Button.new()
+	dive_again_btn.name = "DiveAgainButton"
+	dive_again_btn.text = "DIVE AGAIN!"
+	dive_again_btn.custom_minimum_size = Vector2(200, 50)
+	dive_again_btn.pressed.connect(_on_dive_again_pressed)
+	dive_again_btn.add_theme_color_override("font_color", Color(0.2, 0.8, 0.2))
+	inner_vbox.add_child(dive_again_btn)
+
 	# Reload button
 	reload_btn = Button.new()
 	reload_btn.name = "ReloadButton"
@@ -144,10 +163,13 @@ func show_death(cause: String, depth: int) -> void:
 	# Update reload button state
 	_update_reload_button()
 
+	# Update dive again button state
+	_update_dive_again_button()
+
 	# Pause the game
 	get_tree().paused = true
 
-	# Fade in
+	# Fast fade in (optimized for quick restart)
 	visible = true
 	background.modulate.a = 0.0
 	panel.modulate.a = 0.0
@@ -156,8 +178,8 @@ func show_death(cause: String, depth: int) -> void:
 		_fade_tween.kill()
 
 	_fade_tween = create_tween()
-	_fade_tween.tween_property(background, "modulate:a", 1.0, 0.5)
-	_fade_tween.parallel().tween_property(panel, "modulate:a", 1.0, 0.5).set_delay(0.2)
+	_fade_tween.tween_property(background, "modulate:a", 1.0, FADE_IN_DURATION)
+	_fade_tween.parallel().tween_property(panel, "modulate:a", 1.0, FADE_IN_DURATION).set_delay(PANEL_FADE_DELAY)
 
 	print("[DeathScreen] Showing death screen - Cause: %s, Depth: %d" % [cause, depth])
 
@@ -282,3 +304,45 @@ func _on_reload_pressed() -> void:
 	hide_death()
 	reload_requested.emit()
 	print("[DeathScreen] Reload requested")
+
+
+func _update_dive_again_button() -> void:
+	## Update the Dive Again button visibility based on player supplies
+	if dive_again_btn == null:
+		return
+
+	var ladder_count := _get_ladder_count()
+	if ladder_count >= MIN_LADDERS_FOR_DIVE:
+		dive_again_btn.visible = true
+		dive_again_btn.text = "DIVE AGAIN! (%d ladders)" % ladder_count
+	else:
+		dive_again_btn.visible = false
+
+
+func _get_ladder_count() -> int:
+	## Get the number of ladders in inventory
+	if InventoryManager == null:
+		return 0
+
+	for slot in InventoryManager.slots:
+		if slot.is_empty() or slot.item == null:
+			continue
+		if slot.item.id == "ladder":
+			return slot.quantity
+
+	return 0
+
+
+func _on_dive_again_pressed() -> void:
+	## Quick respawn and dive again - same as respawn but with intention to dive
+	# Apply 50% inventory loss
+	_apply_respawn_penalty()
+
+	# Increment death counter
+	if SaveManager and SaveManager.current_save:
+		SaveManager.current_save.deaths += 1
+		SaveManager.save_game()
+
+	hide_death()
+	dive_again_requested.emit()
+	print("[DeathScreen] Dive again requested")

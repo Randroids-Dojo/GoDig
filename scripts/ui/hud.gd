@@ -322,6 +322,8 @@ func _on_coins_changed(new_amount: int) -> void:
 
 func _on_depth_updated(depth_meters: int) -> void:
 	_update_depth_display(depth_meters)
+	# Update upgrade goal visibility (only shown at surface)
+	_update_upgrade_goal_display()
 
 
 func _update_coins_display(amount: int) -> void:
@@ -814,9 +816,16 @@ func _on_coins_changed_for_upgrade(_amount: int) -> void:
 
 func _update_upgrade_goal_display() -> void:
 	## Update the next upgrade goal with current progress
+	## Only visible at surface to motivate "one more run"
 	if upgrade_goal_label == null or upgrade_goal_progress == null:
 		return
 	if PlayerData == null or GameManager == null:
+		upgrade_goal_container.visible = false
+		return
+
+	# Only show at surface (depth 0) - this is a key "one more run" trigger
+	var at_surface := GameManager.current_depth == 0
+	if not at_surface:
 		upgrade_goal_container.visible = false
 		return
 
@@ -832,6 +841,7 @@ func _update_upgrade_goal_display() -> void:
 	var cost: int = next_tool.cost
 	var can_afford := current_coins >= cost
 	var depth_ok: bool = PlayerData.max_depth_reached >= next_tool.unlock_depth
+	var progress_ratio := float(current_coins) / float(cost) if cost > 0 else 0.0
 
 	# Update label - show tool name, damage, and requirements
 	var next_dmg := int(next_tool.damage)
@@ -842,6 +852,10 @@ func _update_upgrade_goal_display() -> void:
 		upgrade_goal_label.text = "Next: %s (DMG:%d) - READY!" % [next_tool.display_name, next_dmg]
 		upgrade_goal_label.add_theme_color_override("font_color", Color.GREEN)
 		_pulse_upgrade_label()
+	elif progress_ratio >= 0.8:
+		# Almost there! - encouraging message at 80%+ progress
+		upgrade_goal_label.text = "Next: %s (DMG:%d) - Almost there!" % [next_tool.display_name, next_dmg]
+		upgrade_goal_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))  # Gold/yellow
 	else:
 		upgrade_goal_label.text = "Next: %s (DMG:%d)" % [next_tool.display_name, next_dmg]
 		upgrade_goal_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
@@ -850,14 +864,22 @@ func _update_upgrade_goal_display() -> void:
 	upgrade_goal_progress.max_value = cost
 	upgrade_goal_progress.value = mini(current_coins, cost)
 
-	# Update value label
+	# Update value label with motivational text when close to goal
 	if upgrade_goal_value_label:
-		upgrade_goal_value_label.text = "$%d / $%d" % [mini(current_coins, cost), cost]
+		var coins_needed := cost - current_coins
+		if can_afford:
+			upgrade_goal_value_label.text = "$%d / $%d" % [cost, cost]
+		elif progress_ratio >= 0.8:
+			upgrade_goal_value_label.text = "Just $%d more!" % coins_needed
+		else:
+			upgrade_goal_value_label.text = "$%d / $%d" % [current_coins, cost]
 
 	# Color progress bar
 	if can_afford:
 		upgrade_goal_progress.modulate = Color.GREEN
-	elif float(current_coins) / float(cost) >= 0.75:
+	elif progress_ratio >= 0.8:
+		upgrade_goal_progress.modulate = Color(1.0, 0.9, 0.3)  # Gold
+	elif progress_ratio >= 0.5:
 		upgrade_goal_progress.modulate = Color.YELLOW
 	else:
 		upgrade_goal_progress.modulate = Color.WHITE

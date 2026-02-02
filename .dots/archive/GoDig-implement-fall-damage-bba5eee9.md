@@ -1,12 +1,17 @@
 ---
 title: "implement: Fall damage calculation"
-status: closed
+status: done
 priority: 1
 issue-type: task
-created-at: "\"\\\"\\\\\\\"2026-01-19T00:52:30.847520-06:00\\\\\\\"\\\"\""
-closed-at: "2026-01-19T11:22:50.513337-06:00"
-close-reason: Implemented fall damage calculation with tracking and tests
+created-at: "2026-01-19T00:52:30.847520-06:00"
+completed-at: "2026-01-19T13:00:00-06:00"
 ---
+
+**NOTE: ALREADY IMPLEMENTED** - Fall damage system is fully implemented in `player.gd` with:
+- Fall tracking via `_is_tracking_fall` and `_fall_start_y`
+- Damage calculation in `_apply_fall_damage()`
+- Wall-slide reset of fall tracking
+- Integration with HP system
 
 ## Description
 

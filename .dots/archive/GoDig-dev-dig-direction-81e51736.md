@@ -1,11 +1,9 @@
 ---
 title: "implement: Dig direction restriction"
-status: closed
+status: done
 priority: 1
 issue-type: task
-created-at: "\"2026-01-16T01:05:01.654798-06:00\""
-closed-at: "2026-01-19T11:25:55.683913-06:00"
-close-reason: Already done - documented in spec
+created-at: "2026-01-16T01:05:01.654798-06:00"
 ---
 
 ## Status: ALREADY IMPLEMENTED

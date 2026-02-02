@@ -1,196 +1,99 @@
 ---
 title: "research: Fall damage and death"
-status: closed
+status: done
 priority: 0
 issue-type: task
-created-at: "\"\\\"2026-01-18T23:39:36.857819-06:00\\\"\""
-closed-at: "2026-01-19T00:53:07.892418-06:00"
-close-reason: "Documented fall damage thresholds (4+ tiles), damage formula (10 HP/tile), death/respawn flow with depth-scaled penalties. Created 4 implementation dots: HP system, fall damage, death/respawn, boots equipment."
+created-at: "2026-01-18T23:39:36.857819-06:00"
 ---
 
 How does fall damage and death work? Questions: What fall height triggers damage? Does damage scale with height? What happens on death? (respawn at surface, lose items, lose coins?) Is there a death animation? How does respawn work? Are there items that reduce fall damage? (boots, parachute)
 
----
+## Research Findings (Verified 2026-01-19)
 
-## Research Findings
+### Current Implementation Status: MOSTLY COMPLETE
 
-### Player Health System
+Fall damage and HP system are implemented in `scripts/player/player.gd`. Death signal exists but full death/respawn handling needs a separate system.
 
-**Base Health**: 100 HP (simple mental model for players)
+### Answer to Research Questions
 
-**Health Display**: Heart bar or HP number in HUD
-- Visual feedback when taking damage (screen flash, shake)
-- Low health warning at 25% (red tint, heartbeat sound)
+**1. What fall height triggers damage?**
+- `FALL_DAMAGE_THRESHOLD = 3` blocks
+- Falls of 3 or fewer blocks cause no damage
+- Damage starts at 4+ blocks
 
-### Fall Damage Thresholds
+**2. Does damage scale with height?**
+- YES: `DAMAGE_PER_BLOCK = 10.0`
+- Formula: `damage = (fall_blocks - 3) * 10`
+- Example: 6 block fall = (6-3) * 10 = 30 damage
+- `MAX_FALL_DAMAGE = 100.0` (caps damage)
 
-| Fall Distance | Damage | % of Max HP | Player Experience |
-|---------------|--------|-------------|-------------------|
-| 0-3 tiles (48px) | 0 | 0% | Safe jumps, normal gameplay |
-| 4-6 tiles | 10-20 HP | 10-20% | Warning zone, ouch but survivable |
-| 7-10 tiles | 30-50 HP | 30-50% | Dangerous, need to be careful |
-| 11+ tiles | 60-100 HP | 60-100% | Critical/lethal without mitigation |
+**3. What happens on death?**
+- `player_died` signal emitted with cause string
+- `TestLevel._on_player_died()` receives signal (currently just logs)
+- **NOT YET IMPLEMENTED**: Respawn, inventory loss, coin penalty
 
-**Tile Size**: 16x16 pixels, so 1 tile = 16 pixels of fall
+**4. Is there a death animation?**
+- No dedicated death animation
+- Just red flash on damage (`_start_damage_flash()`)
+- TODO: Add death animation/ragdoll
 
-### Fall Damage Formula
+**5. How does respawn work?**
+- `Player.revive(hp_amount)` method exists
+- Resets `is_dead` flag, restores HP
+- **NOT YET IMPLEMENTED**: Auto-respawn, respawn location, penalties
 
+**6. Are there items that reduce fall damage?**
+- Code has placeholder comment: `# damage *= (1.0 - boots_reduction)`
+- **NOT YET IMPLEMENTED**: Boots equipment system
+- See `GoDig-implement-boots-equipment-1d97d2fe`
+
+### HP System Implementation
+
+**Constants:**
 ```gdscript
-const FALL_DAMAGE_THRESHOLD: int = 3  # tiles before damage starts
-const DAMAGE_PER_TILE: float = 10.0   # base damage per tile above threshold
-const MAX_FALL_DAMAGE: float = 100.0  # caps at max health
-
-func calculate_fall_damage(fall_tiles: int) -> float:
-    if fall_tiles <= FALL_DAMAGE_THRESHOLD:
-        return 0.0
-
-    var excess_tiles = fall_tiles - FALL_DAMAGE_THRESHOLD
-    var damage = excess_tiles * DAMAGE_PER_TILE
-
-    # Apply boot reduction
-    damage *= (1.0 - equipment.boots_damage_reduction)
-
-    # Apply surface softness
-    damage *= get_surface_hardness_multiplier()
-
-    return min(damage, MAX_FALL_DAMAGE)
+const MAX_HP: int = 100
+const LOW_HP_THRESHOLD: float = 0.25  # 25% for low health warning
 ```
 
-### Surface Hardness Modifier
+**Key Methods:**
+- `take_damage(amount, source)` - Reduces HP, emits signal, calls die() if zero
+- `heal(amount)` - Increases HP up to max
+- `full_heal()` - Restores to MAX_HP
+- `die(cause)` - Sets is_dead flag, emits player_died signal
+- `revive(hp_amount)` - Resets death state, restores HP
 
-Landing surface affects damage:
+**Signals:**
+- `hp_changed(current_hp, max_hp)` - Emitted on any HP change
+- `player_died(cause)` - Emitted on death
 
-| Surface | Damage Multiplier | Notes |
-|---------|-------------------|-------|
-| Dirt/soil | 0.8x | Soft landing |
-| Stone | 1.0x | Normal |
-| Metal/ore | 1.2x | Hard landing |
-| Water | 0.3x | Cushions fall significantly |
+**Visual Feedback:**
+- Red flash on damage (0.1s duration)
+- HUD health bar connected via `hud.connect_to_player(player)`
 
-### Fall Damage Mitigation Items
+### Fall Tracking
 
-**Boots (Equipment Slot)**
+**State Variables:**
+- `_fall_start_y: float` - Y position when fall started
+- `_is_tracking_fall: bool` - Whether currently tracking a fall
 
-| Tier | Reduction | Cost | Unlock Depth |
-|------|-----------|------|--------------|
-| None | 0% | - | Start |
-| Leather Boots | 20% | 500 | 50m |
-| Sturdy Boots | 40% | 2,500 | 150m |
-| Shock Absorbers | 60% | 10,000 | 400m |
-| Anti-Grav Boots | 80% | 50,000 | 800m |
+**Flow:**
+1. `_start_falling()` - Sets `_is_tracking_fall = true`, records `_fall_start_y`
+2. `_handle_falling()` - Applies gravity, checks for landing
+3. `_start_wall_slide()` - Resets tracking (wall grab cancels fall damage)
+4. `_land_on_grid()` - Calculates fall distance, calls `_apply_fall_damage()`
 
-**Parachute (Late Game)**
-- Consumable or cooldown-based
-- Activates on long fall (player presses button)
-- Negates fall damage entirely
-- Unlocks at 500m depth
+### Gaps Identified
 
----
+1. **Death/Respawn System** - `player_died` signal exists but no handler
+   - Need: Respawn location, animation, penalties
+   - See: `GoDig-implement-death-and-fd4aaba6`
 
-## Death System
+2. **Boots Equipment** - Fall damage reduction not implemented
+   - See: `GoDig-implement-boots-equipment-1d97d2fe`
 
-### Death Triggers
-1. **HP reaches 0** from fall damage
-2. **HP reaches 0** from environmental damage (lava, gas, etc.)
-3. **Instant death** from lava contact (deep zones only)
+3. **Low Health Warning** - Threshold defined but no visual effect
+   - Need: Red vignette, heartbeat sound
 
-### Death Penalty (Already Decided in death-respawn-decision.md)
+### No Further Work Needed for This Research
 
-**Depth-Scaled Penalty:**
-
-| Depth Zone | Inventory Loss | Coin Loss | Equipment Damage |
-|------------|----------------|-----------|------------------|
-| 0-500m | 10% | 0% | Minor (5% durability) |
-| 500-2000m | 20% | 5% | Moderate (15% durability) |
-| 2000m+ | 30% | 10% | Heavy (25% durability) |
-
-### Respawn Flow
-
-```
-Player HP hits 0
-    |
-    v
-Death animation plays (1-2 seconds)
-    |
-    v
-Screen fades to black
-    |
-    v
-Calculate death penalty based on current depth
-    |
-    v
-Apply penalty (remove inventory %, coins, damage equipment)
-    |
-    v
-Teleport to surface spawn point
-    |
-    v
-Fade in with "You blacked out..." message
-    |
-    v
-Full HP restored, gameplay resumes
-```
-
-### Death Animation Options
-
-**Simple (MVP):**
-- Player sprite turns red/flashes
-- Falls/collapses in place
-- Poof/particle effect
-- Fade to black
-
-**Enhanced (v1.0):**
-- Specific death animations per cause:
-  - Fall: Splat, flattened briefly
-  - Lava: Burn up, ash particles
-  - Gas: Cough, collapse
-- Screen shake on impact deaths
-- Sound effect per death type
-
-### Death Message Examples
-
-- "You blacked out and woke up on the surface."
-- "The rescue team found you unconscious. Some of your cargo was lost."
-- "You barely escaped with your life. Better prepare next time."
-
----
-
-## Implementation Priority
-
-**MVP (Must Have):**
-1. Fall damage tracking (distance fallen)
-2. HP system with damage and death
-3. Simple death + respawn at surface
-4. Basic inventory loss penalty
-
-**v1.0 (Should Have):**
-1. Boots equipment reducing fall damage
-2. Surface hardness modifier
-3. Death animation
-4. Depth-scaled penalties
-5. Equipment durability damage
-
-**v1.1+ (Nice to Have):**
-1. Parachute item
-2. Per-cause death animations
-3. Death statistics tracking
-
----
-
-## Questions Resolved
-
-- [x] What fall height triggers damage? -> **4+ tiles (64+ pixels)**
-- [x] Does damage scale with height? -> **Yes, 10 HP per tile above threshold**
-- [x] What happens on death? -> **Respawn at surface, lose 10-30% inventory based on depth**
-- [x] Is there a death animation? -> **Yes, simple for MVP (flash + fade)**
-- [x] How does respawn work? -> **Fade to black, teleport to surface, restore HP**
-- [x] Items that reduce fall damage? -> **Boots (20-80% reduction), Parachute (100%)**
-
----
-
-## Implementation Tasks Created
-
-1. `implement: Player HP system` - Health tracking, damage, death detection
-2. `implement: Fall damage calculation` - Distance tracking, damage formula
-3. `implement: Death and respawn flow` - Animation, penalty, teleport
-4. `implement: Boots equipment for fall reduction` - Equipment slot, damage modifier
+Fall damage calculation is complete. Death/respawn handling is a separate implementation task.

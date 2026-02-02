@@ -1,11 +1,9 @@
 ---
 title: "implement: Auto-pickup on dig"
-status: closed
+status: done
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T00:38:32.805332-06:00\""
-closed-at: "2026-01-19T11:25:55.532633-06:00"
-close-reason: Already done - documented in spec
+created-at: "2026-01-16T00:38:32.805332-06:00"
 ---
 
 ## Status: ALREADY IMPLEMENTED

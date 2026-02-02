@@ -1,11 +1,9 @@
 ---
 title: "implement: Inventory add/remove/stack logic"
-status: closed
+status: done
 priority: 1
 issue-type: task
-created-at: "\"2026-01-16T00:38:32.800257-06:00\""
-closed-at: "2026-01-19T11:25:55.825752-06:00"
-close-reason: Already done - documented in spec
+created-at: "2026-01-16T00:38:32.800257-06:00"
 ---
 
 ## Status: ALREADY IMPLEMENTED

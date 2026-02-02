@@ -1,7 +1,7 @@
 ---
 title: "DEV: Threaded chunk generation"
 status: open
-priority: 2
+priority: 3
 issue-type: task
 created-at: "2026-01-16T00:59:08.597232-06:00"
 ---

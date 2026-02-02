@@ -10,6 +10,8 @@ signal combo_updated(combo_count: int, multiplier: float)
 signal combo_ended(final_count: int, bonus_coins: int)
 signal lucky_strike(ore_id: String, multiplier: float, bonus_coins: int)
 signal milestone_reward(depth: int, coins_awarded: int)
+signal streak_zone_entered()  # Emitted when streak hits 5+ ("in the zone")
+signal streak_zone_exited()   # Emitted when streak drops below 5
 
 # ============================================
 # COMBO SYSTEM
@@ -28,6 +30,11 @@ const BLOCKS_PER_LEVEL: int = 5
 var combo_count: int = 0
 var combo_timer: float = 0.0
 var combo_active: bool = false
+
+## Streak audio feedback state
+## Streak pitch bonus: 0-2 blocks normal, 3 blocks +5%, 4 blocks +10%, 5+ blocks +15%
+var _in_streak_zone: bool = false
+const STREAK_ZONE_THRESHOLD: int = 5
 
 # ============================================
 # LUCKY STRIKE SYSTEM
@@ -98,12 +105,16 @@ func _process(delta: float) -> void:
 
 ## Called when a block is mined
 func on_block_mined() -> void:
+	var prev_count := combo_count
 	combo_count += 1
 	combo_timer = COMBO_TIMEOUT
 	combo_active = true
 
 	var multiplier := get_combo_multiplier()
 	combo_updated.emit(combo_count, multiplier)
+
+	# Check for streak zone transitions
+	_check_streak_zone_transition(prev_count, combo_count)
 
 
 ## Get current combo multiplier (1.0 to MAX_COMBO_MULTIPLIER)
@@ -125,9 +136,11 @@ func _end_combo() -> void:
 			combo_ended.emit(combo_count, bonus)
 			print("[MiningBonusManager] Combo ended: %d blocks, +%d coins" % [combo_count, bonus])
 
+	var prev_count := combo_count
 	combo_count = 0
 	combo_timer = 0.0
 	combo_active = false
+	_check_streak_zone_transition(prev_count, combo_count)
 
 
 ## Calculate bonus coins for completed combo
@@ -144,9 +157,72 @@ func _calculate_combo_bonus() -> int:
 
 ## Reset combo (called when player takes damage, dies, etc.)
 func reset_combo() -> void:
+	var prev_count := combo_count
 	combo_count = 0
 	combo_timer = 0.0
 	combo_active = false
+	_check_streak_zone_transition(prev_count, combo_count)
+
+
+## Get the current streak pitch multiplier for audio feedback
+## Returns: pitch scale (1.0 to 1.15 based on streak)
+## - 1-2 blocks: 1.0 (normal)
+## - 3 blocks: 1.05 (+5%)
+## - 4 blocks: 1.10 (+10%)
+## - 5+ blocks: 1.15 (+15%)
+func get_streak_pitch_multiplier() -> float:
+	if combo_count <= 2:
+		return 1.0
+	elif combo_count == 3:
+		return 1.05
+	elif combo_count == 4:
+		return 1.10
+	else:
+		return 1.15
+
+
+## Get the particle multiplier for streak visual feedback
+## Returns: 1.0 to 1.5 based on streak
+func get_streak_particle_multiplier() -> float:
+	if combo_count <= 3:
+		return 1.0
+	elif combo_count == 4:
+		return 1.2
+	else:
+		return 1.4
+
+
+## Check if player is "in the zone" (5+ streak)
+func is_in_streak_zone() -> bool:
+	return _in_streak_zone
+
+
+## Check and handle streak zone transitions
+func _check_streak_zone_transition(old_count: int, new_count: int) -> void:
+	var was_in_zone := old_count >= STREAK_ZONE_THRESHOLD
+	var is_in_zone := new_count >= STREAK_ZONE_THRESHOLD
+
+	if is_in_zone and not was_in_zone:
+		_in_streak_zone = true
+		streak_zone_entered.emit()
+		# Trigger subtle camera pulse for "in the zone" feeling
+		_trigger_zone_pulse()
+	elif was_in_zone and not is_in_zone:
+		_in_streak_zone = false
+		streak_zone_exited.emit()
+
+
+## Trigger a subtle camera pulse when entering streak zone
+func _trigger_zone_pulse() -> void:
+	# Find the player's camera and apply a very subtle shake
+	var player = get_tree().get_first_node_in_group("player")
+	if player == null:
+		return
+
+	var camera = player.get_node_or_null("GameCamera")
+	if camera and camera.has_method("shake"):
+		# Very subtle pulse - just 1.5 pixels of shake for "zone" feeling
+		camera.shake(1.5)
 
 
 # ============================================
@@ -271,6 +347,7 @@ func load_save_data(data: Dictionary) -> void:
 
 
 func reset() -> void:
+	var prev_count := combo_count
 	combo_count = 0
 	combo_timer = 0.0
 	combo_active = false
@@ -278,3 +355,4 @@ func reset() -> void:
 	_claimed_milestones.clear()
 	vein_streak = 0
 	vein_ore_type = ""
+	_check_streak_zone_transition(prev_count, combo_count)

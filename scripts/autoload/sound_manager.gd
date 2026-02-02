@@ -184,7 +184,8 @@ func play_dig(hardness: float) -> void:
 
 ## Play block break sound with intensity, using tool's audio identity settings
 ## tool: ToolData resource (optional) - if provided, uses tool's sound_pitch and break_volume_boost
-func play_block_break(hardness: float = 10.0, tool_tier: int = 1) -> void:
+## streak_pitch: Additional pitch multiplier from mining streak (default 1.0)
+func play_block_break(hardness: float = 10.0, tool_tier: int = 1, streak_pitch: float = 1.0) -> void:
 	var base_volume := clampf(hardness / 50.0, 0.5, 1.5) * -3.0
 	var pitch := 1.0
 	var volume_boost := 0.0
@@ -197,6 +198,9 @@ func play_block_break(hardness: float = 10.0, tool_tier: int = 1) -> void:
 	else:
 		# Fallback: Calculate pitch from tier
 		pitch = 1.0 + (tool_tier - 1) * 0.08  # Tier 1=1.0, Tier 2=1.08, Tier 3=1.16...
+
+	# Apply streak pitch multiplier for combo feedback
+	pitch *= streak_pitch
 
 	var final_volume := base_volume + volume_boost
 	play_sfx_varied(SOUND_BLOCK_BREAK, final_volume, pitch - 0.05, pitch + 0.05)

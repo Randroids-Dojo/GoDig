@@ -391,7 +391,11 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 				tool_tier = PlayerData.get_tool_tier()
 			if ore_id != "":
 				SoundManager.play_ore_found()  # Tier 2 discovery sound
-			SoundManager.play_block_break(block.max_health, tool_tier)
+			# Get streak pitch for combo audio feedback
+			var streak_pitch := 1.0
+			if MiningBonusManager:
+				streak_pitch = MiningBonusManager.get_streak_pitch_multiplier()
+			SoundManager.play_block_break(block.max_health, tool_tier, streak_pitch)
 
 		# Clean up ore map entry, sparkle, and border
 		if _ore_map.has(pos):

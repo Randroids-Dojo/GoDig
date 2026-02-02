@@ -408,3 +408,67 @@ func remove_items_at_slot(slot_index: int, amount: int = 1) -> int:
 
 	inventory_changed.emit()
 	return to_remove
+
+
+# ============================================
+# FORFEIT CARGO SYSTEM
+# ============================================
+
+## Categories considered "cargo" (valuable items that can be forfeited)
+const CARGO_CATEGORIES := ["ore", "gem"]
+
+
+## Clear cargo (ore and gem items) but keep traversal and utility items.
+## Used for the "Forfeit Cargo" quick escape option.
+## Returns the number of items removed.
+func clear_cargo() -> int:
+	var total_removed := 0
+
+	for slot in slots:
+		if slot.is_empty():
+			continue
+		if slot.item == null:
+			continue
+
+		# Check if this item's category is cargo
+		if slot.item.category in CARGO_CATEGORIES:
+			total_removed += slot.quantity
+			slot.clear()
+
+	if total_removed > 0:
+		inventory_changed.emit()
+		print("[InventoryManager] Forfeited cargo: %d items removed" % total_removed)
+
+	return total_removed
+
+
+## Get total count of cargo items (ore and gem) - useful for UI display
+func get_cargo_count() -> int:
+	var total := 0
+
+	for slot in slots:
+		if slot.is_empty():
+			continue
+		if slot.item == null:
+			continue
+
+		if slot.item.category in CARGO_CATEGORIES:
+			total += slot.quantity
+
+	return total
+
+
+## Get total count of non-cargo items (traversal, consumable, etc.)
+func get_utility_count() -> int:
+	var total := 0
+
+	for slot in slots:
+		if slot.is_empty():
+			continue
+		if slot.item == null:
+			continue
+
+		if slot.item.category not in CARGO_CATEGORIES:
+			total += slot.quantity
+
+	return total

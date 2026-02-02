@@ -92,6 +92,7 @@ visible = false
 [connection signal="pressed" from="UI/ShopButton" to="." method="_on_shop_button_pressed"]
 [connection signal="closed" from="UI/Shop" to="." method="_on_shop_closed"]
 [connection signal="resumed" from="PauseMenu" to="." method="_on_pause_menu_resumed"]
+[connection signal="forfeit_cargo_requested" from="PauseMenu" to="." method="_on_pause_menu_forfeit_cargo"]
 [connection signal="rescue_requested" from="PauseMenu" to="." method="_on_pause_menu_rescue"]
 [connection signal="reload_requested" from="PauseMenu" to="." method="_on_pause_menu_reload"]
 [connection signal="quit_requested" from="PauseMenu" to="." method="_on_pause_menu_quit"]

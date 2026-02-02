@@ -54,6 +54,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Settings"
 
+[node name="ForfeitCargoButton" type="Button" parent="Panel/VBox"]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Forfeit Cargo & Escape"
+
 [node name="RescueButton" type="Button" parent="Panel/VBox"]
 custom_minimum_size = Vector2(200, 50)
 layout_mode = 2

@@ -1025,6 +1025,46 @@ func _on_pause_menu_resumed() -> void:
 	print("[TestLevel] Game resumed from pause")
 
 
+func _on_pause_menu_forfeit_cargo(cargo_lost_count: int = 0) -> void:
+	## Forfeit cargo: lose ore/gems but keep ladders and tools, teleport to surface
+	## cargo_lost_count: number of ore/gem items that were cleared
+	print("[TestLevel] Forfeit cargo requested (lost %d ore/gems)" % cargo_lost_count)
+
+	# Teleport player to surface spawn point (same logic as rescue)
+	if surface:
+		player.position = surface.get_spawn_position()
+		player.grid_position = GameManager.world_to_grid(player.position)
+	else:
+		# Fallback if surface scene is not available
+		var center_x := GameManager.GRID_WIDTH / 2
+		var spawn_pos := GameManager.grid_to_world(Vector2i(center_x, GameManager.SURFACE_ROW - 1))
+		player.position = spawn_pos
+		player.grid_position = GameManager.world_to_grid(spawn_pos)
+
+	player.current_state = player.State.IDLE
+	player.velocity = Vector2.ZERO
+
+	# Update depth display
+	GameManager.update_depth(0)
+
+	# Show toast about what was lost
+	if floating_text_layer:
+		var floating := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(floating)
+		var viewport_size := get_viewport().get_visible_rect().size
+		var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+		if cargo_lost_count > 0:
+			floating.show_pickup("Forfeited %d ore/gems" % cargo_lost_count, Color(1.0, 0.6, 0.2), screen_pos)
+		else:
+			floating.show_pickup("Escaped safely!", Color(0.5, 1.0, 0.5), screen_pos)
+
+	# Auto-save after forfeit
+	if SaveManager.is_game_loaded():
+		SaveManager.save_game()
+
+	print("[TestLevel] Player escaped via forfeit cargo")
+
+
 func _on_pause_menu_rescue(cargo_lost_count: int = 0) -> void:
 	## Emergency rescue: teleport player back to surface
 	## cargo_lost_count: number of items lost as rescue fee (depth-proportional)

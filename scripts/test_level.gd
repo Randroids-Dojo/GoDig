@@ -93,6 +93,8 @@ func _ready() -> void:
 	if death_screen:
 		death_screen.respawn_requested.connect(_on_death_screen_respawn)
 		death_screen.reload_requested.connect(_on_death_screen_reload)
+		if death_screen.has_signal("dive_again_requested"):
+			death_screen.dive_again_requested.connect(_on_death_screen_dive_again)
 
 	# Connect item pickup for floating text
 	InventoryManager.item_added.connect(_on_item_added)
@@ -687,7 +689,7 @@ func _on_pause_menu_quit() -> void:
 # ============================================
 
 func _respawn_player() -> void:
-	## Respawn player at surface with full health
+	## Respawn player at surface with full health - optimized for quick restart
 	print("[TestLevel] Respawning player at surface")
 
 	# Revive the player with full HP
@@ -710,11 +712,44 @@ func _respawn_player() -> void:
 	# Reset depth
 	GameManager.update_depth(0)
 
+	# Show respawn dust effect at player position
+	_spawn_respawn_particles()
+
 	# Save the respawn
 	if SaveManager.is_game_loaded():
 		SaveManager.save_game()
 
 	print("[TestLevel] Player respawned successfully")
+
+
+func _spawn_respawn_particles() -> void:
+	## Spawn dust particles at player position on respawn
+	# Create a simple GPUParticles2D for respawn effect
+	var particles := GPUParticles2D.new()
+	particles.position = player.position
+	particles.emitting = true
+	particles.one_shot = true
+	particles.amount = 12
+	particles.lifetime = 0.5
+	particles.explosiveness = 0.9
+
+	# Create simple particle material
+	var material := ParticleProcessMaterial.new()
+	material.direction = Vector3(0, -1, 0)
+	material.spread = 45.0
+	material.initial_velocity_min = 50.0
+	material.initial_velocity_max = 100.0
+	material.gravity = Vector3(0, 200, 0)
+	material.scale_min = 0.5
+	material.scale_max = 1.0
+	material.color = Color(0.9, 0.85, 0.7, 0.8)
+	particles.process_material = material
+
+	add_child(particles)
+
+	# Auto-remove after effect completes
+	await get_tree().create_timer(1.0).timeout
+	particles.queue_free()
 
 
 func _on_player_died(cause: String) -> void:
@@ -810,8 +845,39 @@ func _on_death_screen_respawn() -> void:
 	if SaveManager.current_save:
 		SaveManager.current_save.increment_deaths()
 
+	# Respawn player at surface with toast
+	_respawn_player()
+	_show_respawn_toast("Respawned. Cargo lost.")
+
+
+func _on_death_screen_dive_again() -> void:
+	## Handle dive again request from death screen - quick restart flow
+	print("[TestLevel] Dive again requested from death screen")
+
+	# Record death in save data
+	if SaveManager.current_save:
+		SaveManager.current_save.increment_deaths()
+
 	# Respawn player at surface
 	_respawn_player()
+	_show_respawn_toast("Ready to dive!")
+
+	# Optional: Auto-start dive toward mine entrance
+	# (Player still needs to walk to mine entrance manually for now)
+
+
+func _show_respawn_toast(message: String) -> void:
+	## Show a brief toast message after respawn
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	var viewport_size := get_viewport().get_visible_rect().size
+	var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+
+	floating.show_pickup(message, Color(1.0, 0.9, 0.7), screen_pos)
 
 
 func _on_death_screen_reload() -> void:

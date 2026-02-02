@@ -72,6 +72,7 @@ PATHS = {
     "surface_spawn_point": "/root/Main/Surface/SpawnPoint",
     "surface_shop_building": "/root/Main/Surface/ShopBuilding",
     "surface_mine_entrance": "/root/Main/Surface/MineEntrance",
+    "death_screen": "/root/Main/DeathScreen",
     "milestone_notification": "/root/Main/UI/HUD/MilestoneNotification",
     "player_stats": "/root/PlayerStats",
     "haptic_feedback": "/root/HapticFeedback",

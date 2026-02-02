@@ -190,9 +190,11 @@ func play_block_break(hardness: float = 10.0, tool_tier: int = 1) -> void:
 	play_sfx_varied(SOUND_BLOCK_BREAK, volume, tier_pitch - 0.05, tier_pitch + 0.05)
 
 
-## Play ore discovery sound
+## Play ore discovery sound - Tier 2 celebration moment
+## Higher pitch and sparkle quality distinct from regular mining
 func play_ore_found() -> void:
-	play_sfx(SOUND_ORE_FOUND, -5.0)
+	# Higher pitch range (1.1-1.2) for sparkle feel on discovery
+	play_sfx_varied(SOUND_ORE_FOUND, -3.0, 1.1, 1.2)
 
 
 ## Play generic pickup sound

@@ -358,13 +358,18 @@ func _on_animation_finished() -> void:
 	# Get block hardness before hitting (for hitstop calculation)
 	var hardness: float = dirt_grid.get_block_hardness(mining_target)
 
+	# Check if this block contains ore before hitting (for Tier 2 juice)
+	var is_ore_block := dirt_grid.get_ore_at(mining_target) != ""
+
 	var destroyed: bool = dirt_grid.hit_block(mining_target)
 
-	# Apply hitstop for game feel (only for hard blocks)
-	_apply_hitstop(hardness)
+	# Apply hitstop for game feel (two-tier system)
+	# Tier 1: Only hard blocks get hitstop
+	# Tier 2: Ore discovery gets hitstop regardless of hardness
+	_apply_hitstop(hardness, is_ore_block and destroyed)
 
-	# Apply screen shake for mining feedback
-	_shake_camera_on_mining(hardness, destroyed)
+	# Apply screen shake for mining feedback (two-tier system)
+	_shake_camera_on_mining(hardness, destroyed, is_ore_block)
 
 	if destroyed:
 		block_destroyed.emit(mining_target)
@@ -891,13 +896,16 @@ func _hit_tap_target() -> void:
 	# Get block hardness before hitting (for hitstop calculation)
 	var hardness: float = dirt_grid.get_block_hardness(_tap_target_tile)
 
+	# Check if this block contains ore before hitting (for Tier 2 juice)
+	var is_ore_block := dirt_grid.get_ore_at(_tap_target_tile) != ""
+
 	var destroyed: bool = dirt_grid.hit_block(_tap_target_tile)
 
-	# Apply hitstop for game feel (only for hard blocks)
-	_apply_hitstop(hardness)
+	# Apply hitstop for game feel (two-tier system)
+	_apply_hitstop(hardness, is_ore_block and destroyed)
 
-	# Apply screen shake for mining feedback (tap-to-dig)
-	_shake_camera_on_mining(hardness, destroyed)
+	# Apply screen shake for mining feedback (tap-to-dig, two-tier system)
+	_shake_camera_on_mining(hardness, destroyed, is_ore_block)
 
 	if destroyed:
 		block_destroyed.emit(_tap_target_tile)
@@ -1189,21 +1197,28 @@ func _start_damage_flash() -> void:
 
 
 ## Apply brief hitstop for game feel on block hit
-## Only triggers for hard blocks (stone or harder, hardness >= 20)
+## Two-tier juice system:
+## - Tier 1 (regular mining): Only hard blocks (hardness >= 20) get hitstop
+## - Tier 2 (ore discovery): Always get hitstop (0.05s) for celebration feel
 ## Duration scales with block hardness for more impactful feedback
-func _apply_hitstop(hardness: float = 0.0) -> void:
+func _apply_hitstop(hardness: float = 0.0, is_ore_discovery: bool = false) -> void:
 	# Skip if reduced motion is enabled
 	if SettingsManager and SettingsManager.reduced_motion:
 		return
 
-	# Only apply hitstop for hard blocks
-	if hardness < HITSTOP_MIN_HARDNESS:
-		return
+	var duration: float = 0.0
 
-	# Calculate duration based on hardness (harder blocks = longer pause)
-	# Stone (25) = 20ms, Granite (50) = 30ms, Obsidian (100) = 50ms
-	var hardness_ratio := clampf((hardness - HITSTOP_MIN_HARDNESS) / 80.0, 0.0, 1.0)
-	var duration := lerpf(HITSTOP_BASE_DURATION, HITSTOP_MAX_DURATION, hardness_ratio)
+	# Tier 2: Ore discovery always gets hitstop for celebration
+	if is_ore_discovery:
+		duration = HITSTOP_MAX_DURATION  # 0.05s discovery hitstop
+	# Tier 1: Regular mining only hard blocks
+	elif hardness >= HITSTOP_MIN_HARDNESS:
+		# Calculate duration based on hardness (harder blocks = longer pause)
+		# Stone (25) = 20ms, Granite (50) = 30ms, Obsidian (100) = 50ms
+		var hardness_ratio := clampf((hardness - HITSTOP_MIN_HARDNESS) / 80.0, 0.0, 1.0)
+		duration = lerpf(HITSTOP_BASE_DURATION, HITSTOP_MAX_DURATION, hardness_ratio)
+	else:
+		return  # No hitstop for soft blocks without ore
 
 	# Brief time slowdown for impact feel
 	Engine.time_scale = HITSTOP_TIME_SCALE
@@ -1222,8 +1237,10 @@ func _shake_camera_on_damage(damage_amount: int) -> void:
 
 
 ## Shake camera on mining hit based on block hardness
-## Subtle for normal blocks, more pronounced for hard blocks
-func _shake_camera_on_mining(hardness: float, destroyed: bool) -> void:
+## Two-tier juice system: subtle for regular mining, reserved shake for discoveries
+## Tier 1 (normal mining): NO screen shake for soft blocks, minimal for hard blocks
+## Tier 2 (ore discovery): Handled separately via ore_discovered signal
+func _shake_camera_on_mining(hardness: float, destroyed: bool, is_ore: bool = false) -> void:
 	if camera == null:
 		return
 
@@ -1231,32 +1248,38 @@ func _shake_camera_on_mining(hardness: float, destroyed: bool) -> void:
 	if SettingsManager and SettingsManager.reduced_motion:
 		return
 
-	# Base intensity values from spec (pixels)
-	var intensity: float
+	# TWO-TIER JUICE SYSTEM:
+	# Tier 1 - Regular mining feedback (subtle, no fatigue)
+	# Reserve intense shake for Tier 2 (discoveries) and Tier 3 (major events)
+
+	var intensity: float = 0.0
+
 	if destroyed:
-		# Block break gets stronger shake
+		# Block break - only shake for medium+ hardness blocks
 		if hardness < 20.0:
-			# Soft block break (dirt)
-			intensity = 3.0
+			# Soft block break (dirt) - NO shake, just particles
+			intensity = 0.0
 		elif hardness < 50.0:
-			# Medium block break (stone)
-			intensity = 5.0
+			# Medium block break (stone) - subtle shake
+			intensity = 2.0
 		else:
-			# Hard block break (granite, obsidian)
-			intensity = 7.0
-	else:
-		# Block hit (not destroyed) - very subtle
-		if hardness < 20.0:
-			# Soft block hit - barely noticeable
-			intensity = 1.5
-		elif hardness < 50.0:
-			# Medium block hit - player feels resistance
-			intensity = 2.5
-		else:
-			# Hard block hit - noticeable impact
+			# Hard block break (granite, obsidian) - noticeable
 			intensity = 4.0
 
-	camera.shake(intensity)
+		# Ore discovery gets Tier 2 bonus shake
+		if is_ore:
+			intensity += 2.0
+	else:
+		# Block hit (not destroyed) - minimal feedback
+		if hardness < 50.0:
+			# Soft/medium block hit - no shake (particles are enough)
+			intensity = 0.0
+		else:
+			# Hard block hit - subtle feedback for resistance feel
+			intensity = 1.5
+
+	if intensity > 0:
+		camera.shake(intensity)
 
 
 ## Reset HP to full (for new game)

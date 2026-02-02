@@ -76,8 +76,9 @@ func _ready() -> void:
 	# Connect mining drops to inventory
 	dirt_grid.block_dropped.connect(_on_block_dropped)
 
-	# Connect block destroy for particle effects
-	dirt_grid.block_destroyed.connect(_on_block_destroyed)
+	# Connect block destroy for particle effects (two-tier juice system)
+	dirt_grid.block_destroyed.connect(_on_block_destroyed)  # Tier 1: regular blocks
+	dirt_grid.ore_discovered.connect(_on_ore_discovered)    # Tier 2: ore discovery celebration
 	dirt_grid.block_hit.connect(_on_block_hit)
 	_init_particle_pool()
 	_init_jackpot_effects()
@@ -1094,18 +1095,38 @@ func _on_block_hit(world_pos: Vector2, color: Color, hardness: float = 10.0) -> 
 
 
 func _on_block_destroyed(world_pos: Vector2, color: Color, hardness: float = 10.0) -> void:
-	## Spawn particle effect when a block is destroyed
+	## Spawn Tier 1 particle effect when a regular block is destroyed
+	## This is for non-ore blocks - subtle, satisfying but not overwhelming
 	var p := _get_available_particle()
 	if p:
 		p.burst(world_pos, color, hardness)
 
-	# Screen shake for hard blocks (stone+, hardness >= 25)
-	# Shake intensity scales with hardness: stone(25-40)=2px, granite(50-80)=3px, obsidian(100+)=5px
-	if hardness >= 25.0 and player and player.camera:
-		var shake_intensity := clampf(hardness / 20.0, 1.5, 5.0)
+	# Two-tier juice: Screen shake ONLY for hard blocks (stone+, hardness >= 50)
+	# Tier 1 regular blocks: minimal shake, reserved for hard materials
+	if hardness >= 50.0 and player and player.camera:
+		var shake_intensity := clampf(hardness / 30.0, 1.5, 4.0)
 		player.camera.shake(shake_intensity)
 
 	# Track for statistics
+	if SaveManager.current_save:
+		SaveManager.current_save.increment_blocks_mined()
+
+	# Track for achievements
+	if AchievementManager:
+		AchievementManager.track_block_destroyed()
+
+	# Notify FTUE of first block mined
+	_notify_ftue_block_mined()
+
+
+func _on_ore_discovered(world_pos: Vector2, ore_color: Color, hardness: float = 10.0) -> void:
+	## Spawn Tier 2 ore discovery celebration particles
+	## This is the excitement spike moment - more particles, brighter, more dramatic
+	var p := _get_available_particle()
+	if p:
+		p.ore_burst(world_pos, ore_color, hardness)
+
+	# Track for statistics (ore blocks count as blocks mined too)
 	if SaveManager.current_save:
 		SaveManager.current_save.increment_blocks_mined()
 

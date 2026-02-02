@@ -947,7 +947,7 @@ func _on_block_destroyed(world_pos: Vector2, color: Color, hardness: float = 10.
 	## Spawn particle effect when a block is destroyed
 	var p := _get_available_particle()
 	if p:
-		p.burst(world_pos, color)
+		p.burst(world_pos, color, hardness)
 
 	# Screen shake for hard blocks (stone+, hardness >= 25)
 	# Shake intensity scales with hardness: stone(25-40)=2px, granite(50-80)=3px, obsidian(100+)=5px

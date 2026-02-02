@@ -1,9 +1,9 @@
 ---
 title: "implement: Block destruction particle effects"
-status: open
+status: active
 priority: 1
 issue-type: task
-created-at: "2026-02-01T08:40:04.352456-06:00"
+created-at: "\"2026-02-01T08:40:04.352456-06:00\""
 ---
 
 ## Description

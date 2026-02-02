@@ -5,6 +5,11 @@ extends Node2D
 
 const FloatingTextScene := preload("res://scenes/ui/floating_text.tscn")
 const BlockParticlesScene := preload("res://scenes/effects/block_particles.tscn")
+const FTUEOverlayScene := preload("res://scenes/ui/ftue_overlay.tscn")
+
+## FTUE (First Time User Experience) overlay reference
+var ftue_overlay: CanvasLayer = null
+var _ftue_active: bool = false
 
 # Particle pool for block break effects
 const PARTICLE_POOL_SIZE := 12
@@ -45,6 +50,9 @@ func _process(delta: float) -> void:
 
 
 func _ready() -> void:
+	# Add to group for easy lookup (e.g., from shop)
+	add_to_group("test_level")
+
 	# Position player at surface spawn point
 	if surface:
 		player.position = surface.get_spawn_position()
@@ -113,15 +121,23 @@ func _ready() -> void:
 	# Update initial coins display
 	_on_coins_changed(GameManager.get_coins())
 
-	# Show control hint for new players
+	# Show control hint for new players (legacy - FTUE takes over for new players)
 	_show_first_time_hint()
+
+	# Initialize FTUE for brand new players
+	_init_ftue()
 
 	print("[TestLevel] Level initialized")
 
 
 func _show_first_time_hint() -> void:
 	## Show a control hint for new players who haven't mined any blocks yet
+	## NOTE: This is now secondary to FTUE - only shows if FTUE is completed but no blocks mined
 	if SaveManager.current_save == null:
+		return
+
+	# Skip if FTUE is active (FTUE has its own hints)
+	if _ftue_active:
 		return
 
 	# Only show hint if player hasn't mined anything yet
@@ -149,9 +165,113 @@ func _show_first_time_hint() -> void:
 	print("[TestLevel] Showing first-time hint")
 
 
+# ============================================
+# FTUE (First Time User Experience)
+# ============================================
+
+func _init_ftue() -> void:
+	## Initialize FTUE overlay for brand new players
+	if SaveManager == null or SaveManager.current_save == null:
+		return
+
+	# Skip if FTUE already completed
+	if SaveManager.is_ftue_completed():
+		print("[TestLevel] FTUE already completed, skipping")
+		return
+
+	# Check if this is a new player who should see FTUE
+	if not SaveManager.is_brand_new_player():
+		print("[TestLevel] Not a brand new player, skipping FTUE")
+		return
+
+	# Create and add FTUE overlay
+	ftue_overlay = FTUEOverlayScene.instantiate()
+	add_child(ftue_overlay)
+	_ftue_active = true
+
+	# Connect FTUE completion signal
+	ftue_overlay.ftue_completed.connect(_on_ftue_completed)
+
+	# Start the FTUE flow
+	ftue_overlay.start_ftue()
+	print("[TestLevel] FTUE started for new player")
+
+
+func _on_ftue_completed() -> void:
+	## Called when FTUE is complete - clean up overlay
+	print("[TestLevel] FTUE completed!")
+	_ftue_active = false
+
+	# Show a brief celebration
+	if floating_text_layer:
+		var floating := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(floating)
+
+		var viewport_size := get_viewport().get_visible_rect().size
+		var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+
+		floating.show_achievement("WELL DONE!", Color.GOLD, screen_pos)
+
+
+func _notify_ftue_block_mined() -> void:
+	## Notify FTUE that player mined their first block
+	if not _ftue_active or ftue_overlay == null:
+		return
+
+	if not SaveManager.has_ftue_first_dig():
+		SaveManager.set_ftue_first_dig()
+		ftue_overlay.on_first_block_mined()
+
+
+func _notify_ftue_ore_found() -> void:
+	## Notify FTUE that player found their first ore
+	if not _ftue_active or ftue_overlay == null:
+		return
+
+	ftue_overlay.on_first_ore_found()
+
+
+func _notify_ftue_surface_with_ore() -> void:
+	## Notify FTUE that player reached surface with ore in inventory
+	if not _ftue_active or ftue_overlay == null:
+		return
+
+	ftue_overlay.on_reached_surface_with_ore()
+
+
+func _notify_ftue_first_sale() -> void:
+	## Notify FTUE that player made their first sale
+	if not _ftue_active or ftue_overlay == null:
+		return
+
+	if not SaveManager.has_ftue_first_sell():
+		SaveManager.set_ftue_first_sell()
+		ftue_overlay.on_first_sale_complete()
+
+
+func _check_ftue_surface_arrival() -> void:
+	## Check if player arrived at surface with ore (for FTUE hint)
+	if not _ftue_active:
+		return
+
+	# Check if player has any sellable items
+	var has_ore := false
+	for slot in InventoryManager.slots:
+		if slot.item != null and slot.item.category in ["ore", "gem"]:
+			has_ore = true
+			break
+
+	if has_ore:
+		_notify_ftue_surface_with_ore()
+
+
 func _on_player_depth_changed(depth: int) -> void:
 	depth_label.text = "Depth: %d" % depth
 	GameManager.update_depth(depth)
+
+	# Check for FTUE surface arrival with ore
+	if depth <= 0:
+		_check_ftue_surface_arrival()
 
 
 func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
@@ -358,12 +478,16 @@ func _show_first_ore_celebration(item) -> void:
 	var text := "FIRST ORE FOUND!"
 	floating.show_achievement(text, color, screen_pos)
 
-	# Add secondary hint about selling
-	await get_tree().create_timer(1.0).timeout
-	if floating_text_layer:
-		var hint := FloatingTextScene.instantiate()
-		floating_text_layer.add_child(hint)
-		hint.show_pickup("Sell at the General Store!", Color.WHITE, Vector2(viewport_size.x / 2.0, viewport_size.y * 0.45))
+	# Notify FTUE about first ore discovery
+	_notify_ftue_ore_found()
+
+	# Add secondary hint about selling (skip if FTUE is active - it has its own hints)
+	if not _ftue_active:
+		await get_tree().create_timer(1.0).timeout
+		if floating_text_layer:
+			var hint := FloatingTextScene.instantiate()
+			floating_text_layer.add_child(hint)
+			hint.show_pickup("Sell at the General Store!", Color.WHITE, Vector2(viewport_size.x / 2.0, viewport_size.y * 0.45))
 
 	print("[TestLevel] First ore celebration shown for: %s" % item.display_name)
 
@@ -606,12 +730,53 @@ func _on_player_died(cause: String) -> void:
 	if AchievementManager:
 		AchievementManager.track_death()
 
+	# FTUE: Instant respawn with no penalty during first-time experience
+	if _ftue_active:
+		print("[TestLevel] FTUE active - instant respawn, no penalty")
+		_instant_ftue_respawn()
+		return
+
 	# Show death screen
 	if death_screen and death_screen.has_method("show_death"):
 		death_screen.show_death(cause, depth)
 	else:
 		# Fallback to old behavior if death screen not available
 		_legacy_death_handler(cause)
+
+
+func _instant_ftue_respawn() -> void:
+	## Instant respawn during FTUE with no penalty - keep the player engaged
+	# Revive player with full HP
+	player.revive(player.MAX_HP)
+
+	# Teleport to surface spawn position
+	if surface:
+		player.position = surface.get_spawn_position()
+		player.grid_position = GameManager.world_to_grid(player.position)
+	else:
+		# Fallback
+		var center_x := 4
+		var spawn_pos := GameManager.grid_to_world(Vector2i(center_x, GameManager.SURFACE_ROW - 1))
+		player.position = spawn_pos
+		player.grid_position = GameManager.world_to_grid(spawn_pos)
+
+	player.current_state = player.State.IDLE
+	player.velocity = Vector2.ZERO
+
+	# Reset depth
+	GameManager.update_depth(0)
+
+	# Show encouraging message
+	if floating_text_layer:
+		var floating := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(floating)
+
+		var viewport_size := get_viewport().get_visible_rect().size
+		var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+
+		floating.show_pickup("TRY AGAIN!", Color(0.5, 0.9, 1.0), screen_pos)
+
+	print("[TestLevel] FTUE respawn complete")
 
 
 func _legacy_death_handler(cause: String) -> void:
@@ -731,6 +896,9 @@ func _on_block_destroyed(world_pos: Vector2, color: Color, hardness: float = 10.
 	# Track for achievements
 	if AchievementManager:
 		AchievementManager.track_block_destroyed()
+
+	# Notify FTUE of first block mined
+	_notify_ftue_block_mined()
 
 
 # ============================================

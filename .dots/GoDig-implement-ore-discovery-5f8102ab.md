@@ -1,9 +1,9 @@
 ---
 title: "implement: Ore discovery micro-celebration system"
-status: open
+status: active
 priority: 2
 issue-type: task
-created-at: "2026-02-01T08:11:29.025956-06:00"
+created-at: "\"2026-02-01T08:11:29.025956-06:00\""
 ---
 
 Implement Balatro-style variable reward satisfaction for each ore discovery.

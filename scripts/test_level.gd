@@ -314,6 +314,7 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 
 func _on_item_added(item, amount: int) -> void:
 	## Show floating text when items are added to inventory
+	## Uses tiered celebration based on item rarity
 	if floating_text_layer == null:
 		return
 
@@ -334,16 +335,19 @@ func _on_item_added(item, amount: int) -> void:
 	_active_pickup_count += 1
 	floating.tree_exited.connect(func(): _active_pickup_count = maxi(0, _active_pickup_count - 1))
 
-	# Get color from ore data if available, otherwise use white
+	# Get color and rarity from item data
 	var color := Color.WHITE
+	var rarity := 0  # 0=common, 1=uncommon, 2=rare, 3=epic, 4=legendary
 	var ore = DataRegistry.get_ore(item.id)
 	if ore != null:
 		color = ore.color
 		# Ensure the color is visible (lighten very dark colors)
 		if color.v < 0.3:
 			color = color.lightened(0.4)
+		# Get rarity from ore data
+		rarity = _get_rarity_level(item)
 
-	# Format the text with rarity prefix for rare+ items
+	# Format the text
 	var text: String
 	var rarity_prefix := _get_rarity_prefix(item)
 	if rarity_prefix.is_empty():
@@ -353,7 +357,11 @@ func _on_item_added(item, amount: int) -> void:
 		# Override color for rare+ items
 		color = _get_rarity_color(item)
 
-	floating.show_pickup(text, color, screen_pos)
+	# Use tiered ore discovery celebration
+	floating.show_ore_discovery(text, color, screen_pos, rarity)
+
+	# Apply rarity-based effects
+	_apply_ore_discovery_effects(rarity)
 
 
 func _on_coins_changed(new_amount: int) -> void:
@@ -1003,6 +1011,79 @@ func _get_rarity_color(item) -> Color:
 			return Color(1.0, 0.7, 0.2)  # Orange/Gold
 		_:
 			return Color.WHITE
+
+
+func _get_rarity_level(item) -> int:
+	## Get numeric rarity level: 0=common, 1=uncommon, 2=rare, 3=epic, 4=legendary
+	if item == null or not "rarity" in item:
+		return 0
+
+	var rarity: String = item.rarity if item.rarity is String else ""
+	match rarity:
+		"common":
+			return 0
+		"uncommon":
+			return 1
+		"rare":
+			return 2
+		"epic":
+			return 3
+		"legendary":
+			return 4
+		_:
+			return 0
+
+
+func _apply_ore_discovery_effects(rarity: int) -> void:
+	## Apply screen shake, haptics, and other effects based on ore rarity
+	## Called when ore is collected to create tiered celebration feedback
+
+	# Screen shake scales with rarity
+	if player and player.camera:
+		var shake_intensity: float
+		match rarity:
+			0:  # Common - no shake (or minimal)
+				shake_intensity = 0.0
+			1:  # Uncommon - subtle
+				shake_intensity = 1.5
+			2:  # Rare - noticeable
+				shake_intensity = 3.0
+			3:  # Epic - strong
+				shake_intensity = 5.0
+			_:  # Legendary - dramatic
+				shake_intensity = 8.0
+
+		if shake_intensity > 0:
+			player.camera.shake(shake_intensity)
+
+	# Haptic feedback scales with rarity
+	if HapticFeedback:
+		match rarity:
+			0:  # Common - light tap
+				HapticFeedback.light_tap()
+			1:  # Uncommon - medium tap
+				HapticFeedback.medium_tap()
+			2, 3:  # Rare/Epic - on_ore_collected
+				HapticFeedback.on_ore_collected()
+			_:  # Legendary - heavy
+				HapticFeedback.heavy_tap()
+
+	# Sound effects (SoundManager should have ore discovery sounds)
+	if SoundManager:
+		match rarity:
+			0, 1:  # Common/Uncommon - basic pickup sound
+				SoundManager.play_pickup()
+			2:  # Rare - special sound
+				SoundManager.play_milestone()
+			3, _:  # Epic/Legendary - even more special
+				SoundManager.play_milestone()
+
+	# Brief hitstop for rare+ ore (adds weight to the discovery)
+	if rarity >= 2 and not (SettingsManager and SettingsManager.reduced_motion):
+		var pause_duration := 0.03 + (rarity - 2) * 0.02  # 30-70ms
+		Engine.time_scale = 0.1
+		await get_tree().create_timer(pause_duration, true, false, true).timeout
+		Engine.time_scale = 1.0
 
 
 # ============================================

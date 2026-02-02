@@ -235,6 +235,7 @@ func _ready() -> void:
 	# Connect save events
 	if SaveManager:
 		SaveManager.save_completed.connect(_on_save_completed)
+		SaveManager.load_completed.connect(_on_load_completed)
 
 	# Create guidance toast system
 	_setup_guidance_toast()
@@ -1006,6 +1007,21 @@ func _on_save_completed(success: bool) -> void:
 	var tween := create_tween()
 	tween.tween_property(save_indicator_label, "modulate", Color(1.5, 1.5, 1.5), 0.1)
 	tween.tween_property(save_indicator_label, "modulate", Color.WHITE, 0.2)
+
+
+func _on_load_completed(success: bool) -> void:
+	## Refresh displays when save is loaded
+	if not success:
+		return
+
+	# Update depth record display with loaded max depth
+	_last_depth_record = GameManager.max_depth_reached if GameManager else 0
+	_update_depth_record_display()
+
+	# Update other displays that depend on loaded state
+	_update_coins_display(GameManager.get_coins() if GameManager else 0)
+	_update_depth_display(GameManager.current_depth if GameManager else 0)
+	_update_upgrade_goal_display()
 
 
 # ============================================

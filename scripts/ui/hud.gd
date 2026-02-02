@@ -43,6 +43,23 @@ var milestone_notification: Control = null
 var _last_hp: int = -1
 var _last_max_hp: int = -1
 var _last_coins: int = -1
+var _last_depth: int = 0
+var _last_depth_record: int = 0
+
+## Depth record display (created programmatically)
+var depth_record_label: Label = null
+var _depth_record_tween: Tween = null
+
+## Inventory value display (created programmatically)
+var inventory_value_label: Label = null
+var _last_inventory_value: int = 0
+var _inventory_value_tween: Tween = null
+
+## Number animation colors
+const COLOR_COINS := Color(1.0, 0.85, 0.2)  # Gold
+const COLOR_DEPTH := Color(0.4, 0.7, 1.0)  # Blue
+const COLOR_RECORD := Color(1.0, 0.5, 0.9)  # Pink/Magenta for new records
+const COLOR_INVENTORY := Color(0.3, 0.9, 0.3)  # Green
 
 ## Animation state
 var _vignette_pulse_time: float = 0.0
@@ -222,6 +239,20 @@ func _ready() -> void:
 
 	# Create low ladder warning system
 	_setup_ladder_warning()
+
+	# Create depth record display
+	_setup_depth_record_display()
+
+	# Create inventory value display
+	_setup_inventory_value_display()
+
+	# Connect to coins_added for floater animations
+	if GameManager:
+		GameManager.coins_added.connect(_on_coins_added)
+
+	# Connect to max depth updates for record celebration
+	if GameManager:
+		GameManager.max_depth_updated.connect(_on_max_depth_updated)
 
 
 func _process(delta: float) -> void:
@@ -1540,6 +1571,8 @@ const BASE_FONT_SIZES := {
 	"save_indicator": 12,
 	"ladder_count": 16,
 	"mining_label": 12,
+	"depth_record": 14,
+	"inventory_value": 14,
 }
 
 
@@ -1593,6 +1626,14 @@ func _apply_text_scale() -> void:
 	# Scale mining progress label
 	if mining_progress_label:
 		mining_progress_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["mining_label"] * scale))
+
+	# Scale depth record label
+	if depth_record_label:
+		depth_record_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["depth_record"] * scale))
+
+	# Scale inventory value label
+	if inventory_value_label:
+		inventory_value_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["inventory_value"] * scale))
 
 
 # ============================================
@@ -1855,3 +1896,223 @@ func _update_ladder_warning_pulse(delta: float) -> void:
 	if _last_ladder_warning_level >= 2:
 		var scale_pulse := 1.0 + 0.05 * pulse  # 1.0 to 1.05
 		ladder_warning_container.scale = Vector2(scale_pulse, scale_pulse)
+
+
+# ============================================
+# DEPTH RECORD DISPLAY
+# ============================================
+
+func _setup_depth_record_display() -> void:
+	## Create the depth record display below the depth label
+	depth_record_label = Label.new()
+	depth_record_label.name = "DepthRecordLabel"
+
+	# Position below depth label (bottom-left)
+	depth_record_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	depth_record_label.position = Vector2(16, -30)  # Above depth label
+	depth_record_label.custom_minimum_size = Vector2(150, 20)
+
+	# Style the label
+	depth_record_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	depth_record_label.add_theme_font_size_override("font_size", 14)
+	depth_record_label.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))  # Light blue
+	apply_text_outline(depth_record_label, 2)
+
+	add_child(depth_record_label)
+
+	# Initial update
+	_update_depth_record_display()
+
+
+func _update_depth_record_display() -> void:
+	## Update the depth record label
+	if depth_record_label == null:
+		return
+
+	var max_depth := GameManager.max_depth_reached if GameManager else 0
+	if max_depth > 0:
+		depth_record_label.text = "Best: %dm" % max_depth
+		depth_record_label.visible = true
+	else:
+		depth_record_label.visible = false
+
+
+func _on_max_depth_updated(new_depth: int) -> void:
+	## Handle new depth record
+	if depth_record_label == null:
+		return
+
+	var old_record := _last_depth_record
+	_last_depth_record = new_depth
+	_update_depth_record_display()
+
+	# Celebrate new record if it's actually new
+	if new_depth > old_record and old_record > 0:
+		_celebrate_new_depth_record(new_depth)
+
+
+func _celebrate_new_depth_record(depth: int) -> void:
+	## Celebrate beating the depth record
+	if depth_record_label == null:
+		return
+
+	# Skip if reduced motion
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	# Pulse the record label
+	if _depth_record_tween and _depth_record_tween.is_valid():
+		_depth_record_tween.kill()
+
+	depth_record_label.pivot_offset = depth_record_label.size / 2
+	depth_record_label.add_theme_color_override("font_color", COLOR_RECORD)
+
+	_depth_record_tween = create_tween()
+	_depth_record_tween.tween_property(depth_record_label, "scale", Vector2(1.3, 1.3), 0.15) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	_depth_record_tween.tween_property(depth_record_label, "scale", Vector2(1.0, 1.0), 0.2) \
+		.set_ease(Tween.EASE_OUT)
+	_depth_record_tween.tween_callback(func():
+		depth_record_label.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
+	)
+
+	# Show milestone notification for new record
+	if milestone_notification and milestone_notification.has_method("show_milestone"):
+		# Use a custom message for depth record
+		var label = milestone_notification.get_node_or_null("Panel/Label")
+		if label:
+			label.text = "NEW RECORD: %dm!" % depth
+		milestone_notification.show_milestone(depth)
+
+	# Play depth record sound
+	if SoundManager:
+		SoundManager.play_milestone()
+
+
+# ============================================
+# INVENTORY VALUE DISPLAY
+# ============================================
+
+func _setup_inventory_value_display() -> void:
+	## Create the inventory value display (estimated sell value)
+	inventory_value_label = Label.new()
+	inventory_value_label.name = "InventoryValueLabel"
+
+	# Position below the inventory label
+	inventory_value_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	inventory_value_label.position = Vector2(120, 118)  # Right of inventory label
+	inventory_value_label.custom_minimum_size = Vector2(100, 24)
+
+	# Style the label
+	inventory_value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	inventory_value_label.add_theme_font_size_override("font_size", 14)
+	inventory_value_label.add_theme_color_override("font_color", COLOR_COINS)
+	apply_text_outline(inventory_value_label, 2)
+
+	add_child(inventory_value_label)
+
+	# Connect to inventory changes
+	if InventoryManager:
+		InventoryManager.inventory_changed.connect(_update_inventory_value_display)
+
+	# Initial update
+	_update_inventory_value_display()
+
+
+func _update_inventory_value_display() -> void:
+	## Update the inventory value estimate
+	if inventory_value_label == null:
+		return
+
+	var value := _calculate_sellable_value()
+	var old_value := _last_inventory_value
+	_last_inventory_value = value
+
+	if value > 0:
+		inventory_value_label.text = "($%d)" % value
+		inventory_value_label.visible = true
+
+		# Animate if value increased
+		if value > old_value and old_value >= 0:
+			_pulse_inventory_value()
+	else:
+		inventory_value_label.visible = false
+
+
+func _pulse_inventory_value() -> void:
+	## Pulse the inventory value label when it increases
+	if inventory_value_label == null:
+		return
+
+	# Skip if reduced motion
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	if _inventory_value_tween and _inventory_value_tween.is_valid():
+		_inventory_value_tween.kill()
+
+	inventory_value_label.pivot_offset = inventory_value_label.size / 2
+	inventory_value_label.scale = Vector2(1.0, 1.0)
+
+	_inventory_value_tween = create_tween()
+	_inventory_value_tween.tween_property(inventory_value_label, "scale", Vector2(1.2, 1.2), 0.1) \
+		.set_ease(Tween.EASE_OUT)
+	_inventory_value_tween.tween_property(inventory_value_label, "scale", Vector2(1.0, 1.0), 0.15) \
+		.set_ease(Tween.EASE_IN_OUT)
+
+
+# ============================================
+# ENHANCED COIN ANIMATION
+# ============================================
+
+func _on_coins_added(amount: int) -> void:
+	## Handle coins being added - show floater animation
+	if amount <= 0:
+		return
+
+	# Show "+$X" floater near coins label
+	if coins_label and is_visible_in_tree():
+		_show_coin_floater(amount)
+
+
+func _show_coin_floater(amount: int) -> void:
+	## Show a rising "+$X" floater near the coins display
+	if coins_label == null:
+		return
+
+	# Skip if reduced motion
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	# Create a floater label
+	var floater := Label.new()
+	floater.text = "+$%d" % amount
+	floater.add_theme_font_size_override("font_size", 16)
+	floater.add_theme_color_override("font_color", COLOR_COINS)
+	apply_text_outline(floater, 2)
+
+	# Position to the right of the coins label
+	floater.position = Vector2(coins_label.position.x + coins_label.size.x + 10, coins_label.position.y)
+	floater.modulate.a = 1.0
+	floater.scale = Vector2(1.2, 1.2)
+
+	add_child(floater)
+
+	# Animate rise and fade
+	var tween := create_tween()
+	tween.set_parallel(true)
+
+	# Pop down to normal size
+	tween.tween_property(floater, "scale", Vector2(1.0, 1.0), 0.1) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	# Rise up
+	tween.tween_property(floater, "position:y", floater.position.y - 40, 0.8) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+
+	# Fade out
+	tween.tween_property(floater, "modulate:a", 0.0, 0.5) \
+		.set_delay(0.3)
+
+	# Clean up
+	tween.chain().tween_callback(floater.queue_free)

@@ -577,18 +577,19 @@ func _on_quick_sell_pressed() -> void:
 
 func _setup_tool_indicator() -> void:
 	## Create and position the tool indicator label
+	## Typography hierarchy: Tool is PRIMARY info - larger and bolder than secondary indicators
 	tool_label = Label.new()
 	tool_label.name = "ToolLabel"
 
 	# Position below the coins label (left side)
 	tool_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	tool_label.position = Vector2(16, 96)
-	tool_label.custom_minimum_size = Vector2(200, 20)
+	tool_label.custom_minimum_size = Vector2(200, 24)
 
-	# Style the label
+	# Style the label - PRIMARY hierarchy (largest secondary element after HP/Coins/Depth)
 	tool_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	tool_label.add_theme_font_size_override("font_size", 16)
-	tool_label.add_theme_color_override("font_color", Color.WHITE)
+	tool_label.add_theme_font_size_override("font_size", 20)  # Larger - primary info
+	tool_label.add_theme_color_override("font_color", UIColors.GOLD)  # Gold to stand out
 	apply_text_outline(tool_label)
 
 	add_child(tool_label)
@@ -702,18 +703,19 @@ func _update_tool_durability() -> void:
 
 func _setup_inventory_indicator() -> void:
 	## Create and position the inventory slots label
+	## Typography hierarchy: Inventory is SECONDARY info - smaller than tool
 	inventory_label = Label.new()
 	inventory_label.name = "InventoryLabel"
 
-	# Position below tool label
+	# Position below tool label (adjusted for new tool label size)
 	inventory_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	inventory_label.position = Vector2(16, 118)
-	inventory_label.custom_minimum_size = Vector2(100, 24)
+	inventory_label.position = Vector2(16, 122)  # Slightly lower to account for larger tool label
+	inventory_label.custom_minimum_size = Vector2(100, 20)
 
-	# Style the label
+	# Style the label - SECONDARY hierarchy (smaller than tool)
 	inventory_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	inventory_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	inventory_label.add_theme_font_size_override("font_size", 20)
+	inventory_label.add_theme_font_size_override("font_size", 16)  # Smaller - secondary info
 	apply_text_outline(inventory_label)
 
 	add_child(inventory_label)
@@ -1597,13 +1599,14 @@ func _hide_mining_progress() -> void:
 # ============================================
 
 ## Base font sizes for scaling
+## Typography hierarchy: Tool (20) > Inventory (16) > Other status (12-14)
 const BASE_FONT_SIZES := {
 	"health_label": 14,
 	"coins_label": 24,
 	"depth_label": 24,
-	"tool_label": 16,
+	"tool_label": 20,       # PRIMARY - larger for visual hierarchy
 	"durability_label": 12,
-	"inventory_label": 20,
+	"inventory_label": 16,  # SECONDARY - smaller than tool
 	"upgrade_label": 14,
 	"save_indicator": 12,
 	"ladder_count": 16,

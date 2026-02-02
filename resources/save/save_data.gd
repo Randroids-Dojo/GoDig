@@ -62,6 +62,7 @@ const CURRENT_VERSION := 1
 @export var ftue_completed: bool = false  # True after completing the 60-second hook
 @export var ftue_first_dig: bool = false  # True after first block mined
 @export var ftue_first_sell: bool = false  # True after first sale at shop
+@export var first_upgrade_purchased: bool = false  # True after first tool upgrade (critical retention moment)
 
 
 ## Create a new save with default starting state

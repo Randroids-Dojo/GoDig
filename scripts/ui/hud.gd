@@ -249,6 +249,9 @@ func _ready() -> void:
 	# Create inventory value display
 	_setup_inventory_value_display()
 
+	# Create mining streak indicator
+	_setup_mining_streak_indicator()
+
 	# Connect to coins_added for floater animations
 	if GameManager:
 		GameManager.coins_added.connect(_on_coins_added)
@@ -2150,3 +2153,144 @@ func _show_coin_floater(amount: int) -> void:
 
 	# Clean up
 	tween.chain().tween_callback(floater.queue_free)
+
+
+# ============================================
+# MINING STREAK INDICATOR (Subtle Combo Feedback)
+# ============================================
+
+## Mining streak indicator (shows current mining combo - subtle, corner placement)
+var streak_container: Control = null
+var streak_label: Label = null
+var _streak_fade_tween: Tween = null
+var _last_streak_count: int = 0
+
+func _setup_mining_streak_indicator() -> void:
+	## Create the subtle mining streak indicator
+	## Positioned at bottom-center, small and unobtrusive
+	streak_container = Control.new()
+	streak_container.name = "MiningStreakContainer"
+	streak_container.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	streak_container.position = Vector2(-40, -60)  # Centered, above mining progress
+	streak_container.custom_minimum_size = Vector2(80, 24)
+	streak_container.modulate.a = 0.0  # Start hidden
+	add_child(streak_container)
+
+	# Background panel (very subtle)
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.color = Color(0.2, 0.2, 0.25, 0.7)
+	bg.size = Vector2(80, 24)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	streak_container.add_child(bg)
+
+	# Streak label
+	streak_label = Label.new()
+	streak_label.name = "StreakLabel"
+	streak_label.text = ""
+	streak_label.position = Vector2(0, 2)
+	streak_label.custom_minimum_size = Vector2(80, 20)
+	streak_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	streak_label.add_theme_font_size_override("font_size", 13)
+	streak_label.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))  # Subtle blue-white
+	apply_text_outline(streak_label, 2)
+	streak_container.add_child(streak_label)
+
+	# Connect to MiningBonusManager signals
+	if MiningBonusManager:
+		MiningBonusManager.combo_updated.connect(_on_mining_streak_updated)
+		MiningBonusManager.combo_ended.connect(_on_mining_streak_ended)
+		MiningBonusManager.streak_zone_entered.connect(_on_streak_zone_entered)
+
+
+func _on_mining_streak_updated(streak_count: int, _multiplier: float) -> void:
+	## Update the streak indicator when mining combo changes
+	if streak_container == null or streak_label == null:
+		return
+
+	# Only show streak at 3+ blocks (when pitch starts increasing)
+	if streak_count < 3:
+		_hide_streak_indicator()
+		return
+
+	# Update text based on streak level
+	if streak_count >= 5:
+		streak_label.text = "x%d" % streak_count
+		streak_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))  # Gold for "in the zone"
+	else:
+		streak_label.text = "x%d" % streak_count
+		streak_label.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))  # Subtle blue
+
+	_show_streak_indicator()
+
+	# Subtle scale pulse on increment (very minimal)
+	if streak_count > _last_streak_count and streak_count >= 3:
+		_pulse_streak_label()
+	_last_streak_count = streak_count
+
+
+func _on_mining_streak_ended(_final_count: int, _bonus_coins: int) -> void:
+	## Hide the streak indicator when combo ends
+	_hide_streak_indicator()
+	_last_streak_count = 0
+
+
+func _on_streak_zone_entered() -> void:
+	## Visual feedback when entering "the zone" (5+ streak)
+	if streak_label == null:
+		return
+
+	# Flash the label gold briefly
+	if not SettingsManager or not SettingsManager.reduced_motion:
+		var tween := create_tween()
+		tween.tween_property(streak_label, "scale", Vector2(1.3, 1.3), 0.1) \
+			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		tween.tween_property(streak_label, "scale", Vector2(1.0, 1.0), 0.15) \
+			.set_ease(Tween.EASE_OUT)
+
+
+func _show_streak_indicator() -> void:
+	## Show the streak indicator with fade in
+	if streak_container == null:
+		return
+
+	if streak_container.modulate.a >= 0.9:
+		return  # Already visible
+
+	if _streak_fade_tween and _streak_fade_tween.is_valid():
+		_streak_fade_tween.kill()
+
+	_streak_fade_tween = create_tween()
+	_streak_fade_tween.tween_property(streak_container, "modulate:a", 1.0, 0.1)
+
+
+func _hide_streak_indicator() -> void:
+	## Hide the streak indicator with fade out
+	if streak_container == null:
+		return
+
+	if streak_container.modulate.a <= 0.01:
+		return  # Already hidden
+
+	if _streak_fade_tween and _streak_fade_tween.is_valid():
+		_streak_fade_tween.kill()
+
+	_streak_fade_tween = create_tween()
+	_streak_fade_tween.tween_property(streak_container, "modulate:a", 0.0, 0.3)
+
+
+func _pulse_streak_label() -> void:
+	## Very subtle pulse on the streak label when it increments
+	if streak_label == null:
+		return
+
+	# Skip if reduced motion
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	streak_label.pivot_offset = streak_label.size / 2
+	var tween := create_tween()
+	tween.tween_property(streak_label, "scale", Vector2(1.1, 1.1), 0.05) \
+		.set_ease(Tween.EASE_OUT)
+	tween.tween_property(streak_label, "scale", Vector2(1.0, 1.0), 0.1) \
+		.set_ease(Tween.EASE_IN_OUT)

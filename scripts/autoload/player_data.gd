@@ -57,8 +57,13 @@ var unlocked_helmets: Array[String] = []
 ## Elevator saved depths (for fast travel)
 var elevator_depths: Array[int] = []
 
+## Discovered ore types (for first-discovery bonus system)
+var discovered_ores: Array[String] = []
+
 ## Flag tracking if player just upgraded their tool (for first-dig celebration)
 var just_upgraded_tool: bool = false
+
+signal ore_type_discovered(ore_id: String)
 
 
 func _ready() -> void:
@@ -209,6 +214,7 @@ func reset() -> void:
 	unlocked_boots.clear()
 	unlocked_helmets.clear()
 	elevator_depths.clear()
+	discovered_ores.clear()
 	tool_changed.emit(get_equipped_tool())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.BOOTS, null)
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, null)
@@ -586,6 +592,35 @@ func get_elevator_stops() -> Array[int]:
 
 
 # ============================================
+# ORE DISCOVERY TRACKING
+# ============================================
+
+## Check if an ore type has been discovered
+func has_discovered_ore(ore_id: String) -> bool:
+	return ore_id in discovered_ores
+
+
+## Discover a new ore type - returns true if this was a first discovery
+func discover_ore(ore_id: String) -> bool:
+	if has_discovered_ore(ore_id):
+		return false
+	discovered_ores.append(ore_id)
+	ore_type_discovered.emit(ore_id)
+	print("[PlayerData] NEW ORE DISCOVERED: %s (Total discoveries: %d)" % [ore_id, discovered_ores.size()])
+	return true
+
+
+## Get all discovered ore types
+func get_discovered_ores() -> Array[String]:
+	return discovered_ores.duplicate()
+
+
+## Get count of discovered ore types
+func get_discovery_count() -> int:
+	return discovered_ores.size()
+
+
+# ============================================
 # SAVE/LOAD
 # ============================================
 
@@ -605,6 +640,7 @@ func get_save_data() -> Dictionary:
 		"unlocked_boots": unlocked_boots.duplicate(),
 		"unlocked_helmets": unlocked_helmets.duplicate(),
 		"elevator_depths": elevator_depths.duplicate(),
+		"discovered_ores": discovered_ores.duplicate(),
 	}
 
 
@@ -640,9 +676,15 @@ func load_save_data(data: Dictionary) -> void:
 		if d is int:
 			elevator_depths.append(d)
 
+	discovered_ores.clear()
+	var saved_ores = data.get("discovered_ores", [])
+	for ore_id in saved_ores:
+		if ore_id is String:
+			discovered_ores.append(ore_id)
+
 	tool_changed.emit(get_equipped_tool())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.BOOTS, get_equipped_boots())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, get_equipped_helmet())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.ACCESSORY, get_equipped_accessory())
 	max_depth_updated.emit(max_depth_reached)
-	print("[PlayerData] Loaded - Tool: %s, Boots: %s, Accessory: %s, Max Depth: %d, Warehouse Lvl: %d" % [equipped_tool_id, equipped_boots_id, equipped_accessory_id, max_depth_reached, warehouse_level])
+	print("[PlayerData] Loaded - Tool: %s, Boots: %s, Accessory: %s, Max Depth: %d, Warehouse Lvl: %d, Discoveries: %d" % [equipped_tool_id, equipped_boots_id, equipped_accessory_id, max_depth_reached, warehouse_level, discovered_ores.size()])

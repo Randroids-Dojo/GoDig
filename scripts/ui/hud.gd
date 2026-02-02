@@ -67,6 +67,10 @@ const SAVE_UPDATE_INTERVAL: float = 1.0  # Update every second
 var ladder_quickslot: Control = null
 var ladder_count_label: Label = null
 var ladder_button: Button = null
+var ladder_buy_button: Button = null  # Quick-buy button for surface purchases
+
+## Ladder cost for quick-buy
+const LADDER_COST := 8
 
 ## Rope quick-slot
 var rope_quickslot: Control = null
@@ -977,12 +981,28 @@ func _setup_ladder_quickslot() -> void:
 	ladder_button.pressed.connect(_on_ladder_quickslot_pressed)
 	ladder_quickslot.add_child(ladder_button)
 
+	# Quick-buy button (small button below the quickslot)
+	ladder_buy_button = Button.new()
+	ladder_buy_button.name = "LadderBuyButton"
+	ladder_buy_button.text = "+$%d" % LADDER_COST
+	ladder_buy_button.position = Vector2(0, 58)  # Below the quickslot
+	ladder_buy_button.custom_minimum_size = Vector2(56, 26)
+	ladder_buy_button.add_theme_font_size_override("font_size", 11)
+	ladder_buy_button.pressed.connect(_on_ladder_quick_buy_pressed)
+	ladder_quickslot.add_child(ladder_buy_button)
+
 	# Connect inventory changes
 	if InventoryManager:
 		InventoryManager.inventory_changed.connect(_update_ladder_quickslot)
 
+	# Connect coin changes to update buy button availability
+	if GameManager:
+		GameManager.coins_changed.connect(_update_ladder_buy_button)
+		GameManager.depth_updated.connect(_on_depth_for_ladder_buy)
+
 	# Initial update
 	_update_ladder_quickslot()
+	_update_ladder_buy_button()
 
 
 func _update_ladder_quickslot() -> void:
@@ -1036,6 +1056,62 @@ func _on_ladder_quickslot_pressed() -> void:
 signal ladder_place_requested
 
 
+## Update ladder buy button visibility and state
+func _update_ladder_buy_button(_arg = null) -> void:
+	if ladder_buy_button == null:
+		return
+
+	# Only visible at surface (depth 0) with enough coins
+	var at_surface := GameManager.current_depth == 0 if GameManager else false
+	var can_afford := GameManager.can_afford(LADDER_COST) if GameManager else false
+
+	if at_surface and can_afford:
+		ladder_buy_button.visible = true
+		ladder_buy_button.disabled = false
+	elif at_surface:
+		# At surface but can't afford - show disabled
+		ladder_buy_button.visible = true
+		ladder_buy_button.disabled = true
+	else:
+		# Underground - hide completely
+		ladder_buy_button.visible = false
+
+
+func _on_depth_for_ladder_buy(depth: int) -> void:
+	## Update buy button when depth changes
+	_update_ladder_buy_button()
+
+
+func _on_ladder_quick_buy_pressed() -> void:
+	## Quick-buy a ladder from the HUD
+	if GameManager == null or InventoryManager == null or DataRegistry == null:
+		return
+
+	# Verify at surface and can afford
+	if GameManager.current_depth != 0:
+		return
+	if not GameManager.can_afford(LADDER_COST):
+		return
+
+	# Purchase
+	if GameManager.spend_coins(LADDER_COST):
+		var ladder_item = DataRegistry.get_item("ladder")
+		if ladder_item:
+			InventoryManager.add_item(ladder_item, 1)
+			print("[HUD] Quick-bought ladder for $%d" % LADDER_COST)
+
+			# Show brief confirmation toast
+			show_guidance_toast("+1 Ladder!", "+", 1.5)
+
+			# Update displays
+			_update_ladder_quickslot()
+			_update_ladder_buy_button()
+
+			# Auto-save
+			if SaveManager:
+				SaveManager.save_game()
+
+
 # ============================================
 # ROPE QUICK-SLOT
 # ============================================
@@ -1047,7 +1123,7 @@ func _setup_rope_quickslot() -> void:
 	rope_quickslot = Control.new()
 	rope_quickslot.name = "RopeQuickSlot"
 	rope_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	rope_quickslot.position = Vector2(-72, 152)  # Below ladder
+	rope_quickslot.position = Vector2(-72, 182)  # Below ladder (adjusted for buy button)
 	rope_quickslot.custom_minimum_size = Vector2(56, 56)
 	add_child(rope_quickslot)
 
@@ -1139,7 +1215,7 @@ func _setup_teleport_quickslot() -> void:
 	teleport_quickslot = Control.new()
 	teleport_quickslot.name = "TeleportQuickSlot"
 	teleport_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	teleport_quickslot.position = Vector2(-72, 214)  # Below rope
+	teleport_quickslot.position = Vector2(-72, 244)  # Below rope (adjusted for buy button)
 	teleport_quickslot.custom_minimum_size = Vector2(56, 56)
 	add_child(teleport_quickslot)
 

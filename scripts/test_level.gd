@@ -131,6 +131,12 @@ func _ready() -> void:
 	# Connect shop building proximity signals
 	_connect_shop_building()
 
+	# Connect shop dive again signal
+	if shop:
+		shop.closed.connect(_on_shop_closed)
+		if shop.has_signal("dive_again_requested"):
+			shop.dive_again_requested.connect(_on_shop_dive_again)
+
 	# Start the game
 	GameManager.start_game()
 
@@ -646,6 +652,52 @@ func _on_shop_closed() -> void:
 	var shop_building := surface.get_node_or_null("ShopBuilding")
 	if shop_building and shop_building.is_player_nearby():
 		shop_button.visible = true
+
+
+func _on_shop_dive_again() -> void:
+	## Handle dive again request from shop - teleport player to mine entrance
+	print("[TestLevel] Dive again requested from shop")
+
+	# Teleport player to mine entrance
+	_teleport_to_mine_entrance()
+
+	# Show brief feedback
+	if floating_text_layer:
+		var floating := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(floating)
+
+		var viewport_size := get_viewport().get_visible_rect().size
+		var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+
+		floating.show_pickup("Let's dig!", Color(0.4, 1.0, 0.5), screen_pos)
+
+
+func _teleport_to_mine_entrance() -> void:
+	## Teleport the player to the mine entrance for quick diving
+	if player == null:
+		return
+
+	# Get mine entrance position from surface
+	var target_pos: Vector2
+	if surface and surface.has_method("get_mine_entrance_position"):
+		target_pos = surface.get_mine_entrance_position()
+	else:
+		# Fallback: center of the surface, one block above dirt
+		var center_x := 0
+		var spawn_y := (GameManager.SURFACE_ROW - 1) * GameManager.BLOCK_SIZE
+		target_pos = Vector2(center_x, spawn_y)
+
+	# Teleport player
+	player.position = target_pos
+	player.grid_position = GameManager.world_to_grid(target_pos)
+	player.current_state = player.State.IDLE
+	player.velocity = Vector2.ZERO
+
+	# Reset depth to surface
+	GameManager.update_depth(0)
+	player.depth_changed.emit(0)
+
+	print("[TestLevel] Player teleported to mine entrance at %s" % str(target_pos))
 
 
 # ============================================

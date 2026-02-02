@@ -107,6 +107,21 @@ var _shown_upgrade_affordable_toast: bool = false
 var _last_inventory_check_fill_ratio: float = 0.0
 var _last_coin_check_amount: int = 0
 
+## Low ladder warning system
+var ladder_warning_container: Control = null
+var ladder_warning_icon: Label = null
+var ladder_warning_label: Label = null
+var _ladder_warning_pulse_time: float = 0.0
+var _ladder_warning_visible: bool = false
+var _last_ladder_warning_level: int = 0  # 0=none, 1=warning, 2=urgent
+
+## Low ladder warning thresholds
+const LADDER_WARNING_DEPTH := 30  # Warning when depth > 30m
+const LADDER_WARNING_COUNT := 3   # Warning when ladders < 3
+const LADDER_URGENT_DEPTH := 50   # Urgent warning when depth > 50m
+const LADDER_URGENT_COUNT := 2    # Urgent warning when ladders < 2
+const LADDER_WARNING_PULSE_SPEED := 2.5  # Pulse speed for warning
+
 
 ## Apply standard dark outline to a label for readability
 static func apply_text_outline(label: Label, outline_size: int = HUD_OUTLINE_SIZE, outline_color: Color = HUD_OUTLINE_COLOR) -> void:
@@ -205,6 +220,9 @@ func _ready() -> void:
 	# Create guidance toast system
 	_setup_guidance_toast()
 
+	# Create low ladder warning system
+	_setup_ladder_warning()
+
 
 func _process(delta: float) -> void:
 	# Pulse the low health vignette
@@ -222,6 +240,9 @@ func _process(delta: float) -> void:
 
 	# Update mining progress indicator every frame
 	_update_mining_progress()
+
+	# Update low ladder warning pulse
+	_update_ladder_warning_pulse(delta)
 
 
 ## Connect to a player's HP signals
@@ -1021,6 +1042,9 @@ func _update_ladder_quickslot() -> void:
 		ladder_count_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 		ladder_quickslot.modulate = Color(0.7, 0.7, 0.7, 1.0)  # Less dim, still opaque
 
+	# Also check ladder warning whenever ladder count changes
+	_check_ladder_warning()
+
 
 func _get_ladder_count() -> int:
 	## Get the number of ladders in inventory
@@ -1080,6 +1104,8 @@ func _update_ladder_buy_button(_arg = null) -> void:
 func _on_depth_for_ladder_buy(depth: int) -> void:
 	## Update buy button when depth changes
 	_update_ladder_buy_button()
+	# Also check ladder warning
+	_check_ladder_warning()
 
 
 func _on_ladder_quick_buy_pressed() -> void:
@@ -1623,3 +1649,134 @@ func _check_guidance_prompts() -> void:
 func _update_inventory_indicator_with_guidance() -> void:
 	_update_inventory_indicator()
 	_check_guidance_prompts()
+
+
+# ============================================
+# LOW LADDER WARNING SYSTEM
+# ============================================
+
+func _setup_ladder_warning() -> void:
+	## Create the low ladder warning indicator (positioned near ladder quickslot)
+	ladder_warning_container = Control.new()
+	ladder_warning_container.name = "LadderWarningContainer"
+	ladder_warning_container.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	ladder_warning_container.position = Vector2(-140, 100)  # Left of ladder quickslot
+	ladder_warning_container.custom_minimum_size = Vector2(64, 56)
+	ladder_warning_container.modulate.a = 0.0  # Start hidden
+	add_child(ladder_warning_container)
+
+	# Background panel with warning color
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.color = Color(0.6, 0.2, 0.1, 0.9)  # Dark red/orange
+	bg.size = Vector2(64, 56)
+	ladder_warning_container.add_child(bg)
+
+	# Warning icon (exclamation or ladder icon)
+	ladder_warning_icon = Label.new()
+	ladder_warning_icon.name = "WarningIcon"
+	ladder_warning_icon.text = "!"
+	ladder_warning_icon.position = Vector2(8, 2)
+	ladder_warning_icon.add_theme_font_size_override("font_size", 28)
+	ladder_warning_icon.add_theme_color_override("font_color", Color(1.0, 0.8, 0.2))  # Yellow
+	ladder_warning_container.add_child(ladder_warning_icon)
+
+	# Warning text
+	ladder_warning_label = Label.new()
+	ladder_warning_label.name = "WarningLabel"
+	ladder_warning_label.text = "LOW"
+	ladder_warning_label.position = Vector2(0, 32)
+	ladder_warning_label.custom_minimum_size = Vector2(64, 20)
+	ladder_warning_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ladder_warning_label.add_theme_font_size_override("font_size", 14)
+	ladder_warning_label.add_theme_color_override("font_color", Color.WHITE)
+	apply_text_outline(ladder_warning_label)
+	ladder_warning_container.add_child(ladder_warning_label)
+
+
+func _check_ladder_warning() -> void:
+	## Check if low ladder warning should be shown based on depth and ladder count
+	if ladder_warning_container == null or GameManager == null:
+		return
+
+	var depth := GameManager.current_depth
+	var ladder_count := _get_ladder_count()
+
+	# Determine warning level
+	var warning_level := 0
+	if depth > LADDER_URGENT_DEPTH and ladder_count < LADDER_URGENT_COUNT:
+		warning_level = 2  # Urgent
+	elif depth > LADDER_WARNING_DEPTH and ladder_count < LADDER_WARNING_COUNT:
+		warning_level = 1  # Warning
+	else:
+		warning_level = 0  # No warning
+
+	# If at surface, always clear warning
+	if depth <= 0:
+		warning_level = 0
+
+	# Update display if level changed
+	if warning_level != _last_ladder_warning_level:
+		_last_ladder_warning_level = warning_level
+		_update_ladder_warning_display(warning_level)
+
+
+func _update_ladder_warning_display(level: int) -> void:
+	## Update the warning display based on warning level
+	if ladder_warning_container == null:
+		return
+
+	if level == 0:
+		# Hide warning
+		_ladder_warning_visible = false
+		ladder_warning_container.modulate.a = 0.0
+		return
+
+	# Show warning
+	_ladder_warning_visible = true
+	_ladder_warning_pulse_time = 0.0
+
+	if level == 1:
+		# Standard warning
+		ladder_warning_label.text = "LOW"
+		ladder_warning_icon.text = "!"
+		ladder_warning_icon.add_theme_color_override("font_color", Color(1.0, 0.8, 0.2))  # Yellow
+		if ladder_warning_container.get_node("Background"):
+			ladder_warning_container.get_node("Background").color = Color(0.5, 0.35, 0.1, 0.9)  # Orange
+		# Play subtle audio cue (once per state change)
+		if SoundManager:
+			SoundManager.play_ui_hover()
+	else:
+		# Urgent warning (level 2)
+		ladder_warning_label.text = "DANGER"
+		ladder_warning_icon.text = "!!"
+		ladder_warning_icon.add_theme_color_override("font_color", Color(1.0, 0.3, 0.2))  # Red
+		if ladder_warning_container.get_node("Background"):
+			ladder_warning_container.get_node("Background").color = Color(0.6, 0.15, 0.1, 0.95)  # Dark red
+		# Play alert audio cue
+		if SoundManager:
+			SoundManager.play_ui_error()
+
+
+func _update_ladder_warning_pulse(delta: float) -> void:
+	## Update the pulsing animation for the ladder warning
+	if not _ladder_warning_visible or ladder_warning_container == null:
+		return
+
+	# Skip animation if reduced motion is enabled
+	if SettingsManager and SettingsManager.reduced_motion:
+		ladder_warning_container.modulate.a = 1.0
+		return
+
+	_ladder_warning_pulse_time += delta * LADDER_WARNING_PULSE_SPEED
+
+	# Pulse alpha between 0.6 and 1.0 for visibility
+	var pulse := (sin(_ladder_warning_pulse_time) + 1.0) / 2.0  # 0 to 1
+	var min_alpha := 0.6 if _last_ladder_warning_level == 1 else 0.7
+	var max_alpha := 1.0
+	ladder_warning_container.modulate.a = lerpf(min_alpha, max_alpha, pulse)
+
+	# Also pulse scale slightly for urgent warnings
+	if _last_ladder_warning_level >= 2:
+		var scale_pulse := 1.0 + 0.05 * pulse  # 1.0 to 1.05
+		ladder_warning_container.scale = Vector2(scale_pulse, scale_pulse)

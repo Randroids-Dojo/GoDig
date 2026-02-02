@@ -19,6 +19,9 @@ signal block_dropped(grid_pos: Vector2i, item_id: String)
 ## Emitted when a fossil is found while mining
 signal fossil_found(grid_pos: Vector2i, fossil_id: String)
 
+## Emitted when a traversal item (ladder, rope) drops while mining
+signal traversal_item_found(grid_pos: Vector2i, item_id: String)
+
 ## Emitted when a block is destroyed. Includes world position, color, and hardness for effects.
 signal block_destroyed(world_pos: Vector2, color: Color, hardness: float)
 
@@ -382,6 +385,11 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		var fossil_id := _check_fossil_drop(pos)
 		if fossil_id != "":
 			fossil_found.emit(pos, fossil_id)
+
+		# Check for traversal item drop (ladder/rope - rare drop from any block)
+		var traversal_id := _check_traversal_drop(pos)
+		if traversal_id != "":
+			traversal_item_found.emit(pos, traversal_id)
 
 		# Signal for particle effects (before releasing block)
 		var world_pos := Vector2(
@@ -1005,6 +1013,46 @@ func _check_fossil_drop(pos: Vector2i) -> String:
 
 	# Fallback to first available
 	return available_fossils[0]["fossil_id"]
+
+
+# ============================================
+# TRAVERSAL ITEM DROP SYSTEM (Ladder/Rope)
+# ============================================
+
+## Traversal item drop rates by depth
+## Only drops in top 100m to preserve shop economy below
+const TRAVERSAL_DROP_CONFIGS := [
+	# Shallow (0-50m): 3% ladder, no rope
+	{"min_depth": 0, "max_depth": 50, "item_id": "ladder", "chance": 0.03},
+	# Mid (50-100m): 2% ladder, 1% rope
+	{"min_depth": 50, "max_depth": 100, "item_id": "ladder", "chance": 0.02},
+	{"min_depth": 50, "max_depth": 100, "item_id": "rope", "chance": 0.01},
+]
+
+
+func _check_traversal_drop(pos: Vector2i) -> String:
+	## Check if a traversal item (ladder/rope) should drop at this position.
+	## Returns item_id or empty string.
+	## These rare drops create excitement and provide backup for underprepared players.
+	var depth := pos.y - _surface_row
+	if depth < 0:
+		return ""  # No drops above surface
+
+	if depth >= 100:
+		return ""  # No drops below 100m - must buy from shops
+
+	# Use position-based seed for deterministic drops (different from fossil seed)
+	var seed_value := pos.x * 314159265 + pos.y * 271828182
+	_rng.seed = seed_value
+
+	# Check each drop config that matches our depth
+	for config in TRAVERSAL_DROP_CONFIGS:
+		if depth >= config["min_depth"] and depth < config["max_depth"]:
+			# Roll for this item
+			if _rng.randf() < config["chance"]:
+				return config["item_id"]
+
+	return ""
 
 
 # ============================================

@@ -51,6 +51,7 @@ var _achievement_showing: bool = false
 @onready var death_screen: CanvasLayer = $DeathScreen
 @onready var hud: Control = $UI/HUD
 @onready var floating_text_layer: CanvasLayer = $FloatingTextLayer
+@onready var inventory_full_popup: CanvasLayer = $InventoryFullPopup
 
 
 func _process(delta: float) -> void:
@@ -140,6 +141,11 @@ func _ready() -> void:
 		shop.closed.connect(_on_shop_closed)
 		if shop.has_signal("dive_again_requested"):
 			shop.dive_again_requested.connect(_on_shop_dive_again)
+
+	# Connect inventory full popup signals
+	if inventory_full_popup:
+		inventory_full_popup.item_dropped.connect(_on_inv_full_item_dropped)
+		inventory_full_popup.return_to_surface_requested.connect(_on_inv_full_return_requested)
 
 	# Start the game
 	GameManager.start_game()
@@ -346,7 +352,8 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 	if leftover > 0:
 		# Inventory full - item was not fully added
 		print("[TestLevel] Inventory full, could not add %s" % item.display_name)
-		_show_inventory_full_notification()
+		# Show decision moment popup instead of simple notification
+		_show_inventory_full_popup(item, leftover)
 	else:
 		print("[TestLevel] Added %d x %s to inventory" % [amount, item.display_name])
 		# Notify FTUE of additional ore collection (for inventory filling hint)
@@ -363,9 +370,9 @@ func _on_traversal_item_found(grid_pos: Vector2i, item_id: String) -> void:
 	# Add to inventory
 	var leftover := InventoryManager.add_item(item, 1)
 	if leftover > 0:
-		# Inventory full
+		# Inventory full - show decision popup
 		print("[TestLevel] Inventory full, could not add dropped %s" % item.display_name)
-		_show_inventory_full_notification()
+		_show_inventory_full_popup(item, leftover)
 	else:
 		print("[TestLevel] Lucky find! Dropped %s" % item.display_name)
 		# Show special celebration for the rare drop
@@ -649,6 +656,7 @@ func _show_new_ore_type_discovery(item) -> void:
 
 func _show_inventory_full_notification() -> void:
 	## Show floating notification when inventory is full (with cooldown)
+	## NOTE: This is now a fallback - popup is the primary UI
 	if floating_text_layer == null:
 		return
 	if _inventory_full_cooldown > 0:
@@ -668,6 +676,67 @@ func _show_inventory_full_notification() -> void:
 
 	var text := "INVENTORY FULL!"
 	floating.show_pickup(text, color, screen_pos)
+
+
+func _show_inventory_full_popup(pending_item: Resource, pending_amount: int) -> void:
+	## Show the decision moment popup when inventory is full
+	## pending_item: The ore that couldn't be picked up
+	## pending_amount: How many couldn't be picked up
+	if inventory_full_popup == null:
+		# Fallback to simple notification
+		_show_inventory_full_notification()
+		return
+
+	# Don't show if on cooldown (prevent spam from auto-sell disabled mining)
+	if _inventory_full_cooldown > 0:
+		return
+
+	_inventory_full_cooldown = INVENTORY_FULL_COOLDOWN_DURATION
+
+	# Show the popup with the pending ore
+	inventory_full_popup.show_popup(pending_item, pending_amount)
+
+
+func _on_inv_full_item_dropped(item: Resource, slot_index: int) -> void:
+	## Handle item drop from inventory full popup
+	## Spawns the dropped item as a collectible in the world near player
+	if item == null:
+		return
+
+	# Show floating text for the drop
+	if floating_text_layer:
+		var floating := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(floating)
+
+		var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+		screen_pos.y -= 64.0
+
+		var color := Color(0.6, 0.6, 0.6)  # Gray for dropped items
+		floating.show_pickup("Dropped: %s" % item.display_name, color, screen_pos)
+
+	print("[TestLevel] Player dropped %s to make room" % item.display_name)
+
+
+func _on_inv_full_return_requested() -> void:
+	## Handle return to surface request from inventory full popup
+	## This is a hint, not an automatic action - show guidance
+	if floating_text_layer:
+		var floating := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(floating)
+
+		var viewport_size := get_viewport().get_visible_rect().size
+		var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+
+		# Green guidance color
+		var color := Color(0.3, 0.9, 0.3)
+		floating.show_pickup("Climb up to sell your loot!", color, screen_pos)
+
+	# Show ladder hint if player has ladders
+	var ladder_count := InventoryManager.get_item_count_by_id("ladder")
+	if ladder_count > 0 and hud and hud.has_method("show_guidance_toast"):
+		hud.show_guidance_toast("Use ladders to climb back up", "ladder")
+
+	print("[TestLevel] Return to surface guidance shown")
 
 
 func _show_lucky_strike_notification(item) -> void:

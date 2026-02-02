@@ -1,9 +1,11 @@
 ---
 title: "implement: Pickaxe upgrade comparison UI"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T01:33:19.268707-06:00"
+created-at: "\"2026-02-01T01:33:19.268707-06:00\""
+closed-at: "2026-02-02T09:53:06.009647-06:00"
+close-reason: Duplicate of upgrade-stat-5658fcef, already implemented in shop.gd
 ---
 
 ## Description

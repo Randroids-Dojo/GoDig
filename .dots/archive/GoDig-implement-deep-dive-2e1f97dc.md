@@ -1,9 +1,11 @@
 ---
 title: "implement: Deep dive tension meter"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T01:20:50.240052-06:00"
+created-at: "\"2026-02-01T01:20:50.240052-06:00\""
+closed-at: "2026-02-02T09:53:36.539677-06:00"
+close-reason: Duplicate of risk-indicator-b563b726 - both address depth tension
 ---
 
 ## Description

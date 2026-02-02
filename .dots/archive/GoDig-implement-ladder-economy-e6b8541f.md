@@ -1,9 +1,11 @@
 ---
 title: "implement: Ladder economy abundance/scarcity cycle tuning"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-02-01T09:52:19.930950-06:00"
+created-at: "\"2026-02-01T09:52:19.930950-06:00\""
+closed-at: "2026-02-02T09:52:43.699941-06:00"
+close-reason: Ladder cost tuned to 8 coins, rare ladder/rope drops added from mining blocks in dirt_grid.gd
 ---
 
 ## Description

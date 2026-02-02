@@ -1,9 +1,11 @@
 ---
 title: "implement: Emergency rescue as learning moment"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-02-01T09:52:25.480490-06:00"
+created-at: "\"2026-02-01T09:52:25.480490-06:00\""
+closed-at: "2026-02-02T09:51:10.621136-06:00"
+close-reason: Emergency rescue implemented in pause_menu.gd with instant teleport to surface
 ---
 
 ## Description

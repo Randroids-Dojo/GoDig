@@ -1,9 +1,11 @@
 ---
 title: "implement: Immediate pickaxe power feel after upgrade"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T02:09:25.838029-06:00"
+created-at: "\"2026-02-01T02:09:25.838029-06:00\""
+closed-at: "2026-02-02T09:51:21.164466-06:00"
+close-reason: Pickaxe identity system implemented in tool_data.gd with sound_pitch, particle_color, glow_intensity per tier
 ---
 
 ## Description

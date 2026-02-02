@@ -2,6 +2,7 @@ class_name ToolData extends Resource
 ## Resource class for tool definitions.
 ## Each tool tier (pickaxe, drill, etc.) is a .tres file using this class.
 ## Tools define mining damage and speed, affecting how fast blocks break.
+## Includes audio/visual identity settings for distinct tier feel.
 
 ## Unique identifier for this tool
 @export var id: String = ""
@@ -41,6 +42,36 @@ class_name ToolData extends Resource
 
 ## Whether this tool can break (false = indestructible)
 @export var can_break: bool = false
+
+## ============================================
+## AUDIO/VISUAL IDENTITY
+## Each tier should be immediately recognizable
+## ============================================
+
+@export_group("Sound Identity")
+## Base pitch modifier for mining sounds (1.0 = normal)
+## Lower tiers = duller, higher tiers = brighter/sharper
+@export var sound_pitch: float = 1.0
+
+## Sound "character" - affects which base sound variant is used
+## 0=wood (dull thunk), 1=metal (tink), 2=sharp (clang), 3=rich (ring), 4=crystal (chime)
+@export_enum("wood", "metal", "sharp", "rich", "crystal") var sound_character: int = 0
+
+## Volume boost for block break (higher tiers have more satisfying break sound)
+@export_range(0.0, 3.0) var break_volume_boost: float = 0.0
+
+@export_group("Particle Identity")
+## Particle color tint (for sparks/debris)
+@export var particle_color: Color = Color.WHITE
+
+## Particle scale multiplier (bigger = more impactful)
+@export_range(0.5, 2.0) var particle_scale: float = 1.0
+
+## Whether tool creates spark particles (metallic tools)
+@export var creates_sparks: bool = false
+
+## Glow effect intensity (0 = none, 1 = full)
+@export_range(0.0, 1.0) var glow_intensity: float = 0.0
 
 
 ## Get effective damage considering durability (future use)

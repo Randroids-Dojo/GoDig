@@ -103,6 +103,13 @@ func get_equipped_tool() -> ToolDataClass:
 	return DataRegistry.get_tool(equipped_tool_id)
 
 
+## Current tool property (shorthand for get_equipped_tool)
+## Used by effects systems for tool identity settings
+var current_tool: ToolDataClass:
+	get:
+		return get_equipped_tool()
+
+
 ## Get the effective damage of the equipped tool
 func get_tool_damage() -> float:
 	var tool_data: ToolDataClass = get_equipped_tool()

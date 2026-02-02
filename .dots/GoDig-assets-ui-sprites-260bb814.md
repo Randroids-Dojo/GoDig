@@ -1,7 +1,7 @@
 ---
 title: "implement: UI sprites (buttons, frames)"
 status: open
-priority: 2
+priority: 3
 issue-type: task
 created-at: "2026-01-16T00:39:51.708683-06:00"
 ---

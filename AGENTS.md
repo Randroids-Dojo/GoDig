@@ -204,6 +204,14 @@ This keeps the backlog accurate and prevents duplicate work across sessions.
 - **Dots**: Multi-step work, tasks that may span sessions, work with dependencies
 - **TodoWrite**: Simple single-session execution tracking visible to user
 
+### Visualizing Dots with FluxPanel
+
+When the user asks to visualize or view dots in a GUI:
+
+```bash
+open -n /Applications/FluxPanel.app --args --project /Users/randroid/Documents/Dev/GoDig
+```
+
 ## Randroid Loop Protection
 
 **NEVER remove or cancel a Randroid loop without explicit user instruction.**

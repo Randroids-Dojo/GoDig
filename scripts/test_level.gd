@@ -714,9 +714,10 @@ func _on_pause_menu_resumed() -> void:
 	print("[TestLevel] Game resumed from pause")
 
 
-func _on_pause_menu_rescue() -> void:
+func _on_pause_menu_rescue(cargo_lost_count: int = 0) -> void:
 	## Emergency rescue: teleport player back to surface
-	print("[TestLevel] Emergency rescue requested")
+	## cargo_lost_count: number of items lost as rescue fee (depth-proportional)
+	print("[TestLevel] Emergency rescue requested (lost %d cargo)" % cargo_lost_count)
 
 	# Teleport player to surface spawn point
 	if surface:
@@ -735,6 +736,20 @@ func _on_pause_menu_rescue() -> void:
 
 	# Update depth display
 	GameManager.update_depth(0)
+
+	# Show toast about rescue fee (if any items were lost)
+	if cargo_lost_count > 0 and floating_text_layer:
+		var floating := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(floating)
+		var viewport_size := get_viewport().get_visible_rect().size
+		var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+		floating.show_pickup("Rescue Fee: Lost %d item(s)" % cargo_lost_count, Color(1.0, 0.6, 0.2), screen_pos)
+	elif floating_text_layer:
+		var floating := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(floating)
+		var viewport_size := get_viewport().get_visible_rect().size
+		var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+		floating.show_pickup("Rescued!", Color(0.5, 1.0, 0.5), screen_pos)
 
 	print("[TestLevel] Player rescued to surface")
 

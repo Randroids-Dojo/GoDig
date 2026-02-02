@@ -6,11 +6,18 @@ extends CanvasLayer
 
 signal resumed
 signal settings_opened
-signal rescue_requested
+signal rescue_requested(cargo_lost_count: int)  # Emits number of items lost as fee
 signal reload_requested
 signal quit_requested
 
 @export var process_mode_paused: bool = true
+
+## Rescue fee configuration
+## Fee percentage scales with depth: base_percent + (depth * depth_scale_percent)
+const RESCUE_BASE_FEE_PERCENT := 20.0  # Minimum 20% cargo lost
+const RESCUE_DEPTH_SCALE_PERCENT := 0.3  # +0.3% per meter depth
+const RESCUE_MAX_FEE_PERCENT := 80.0  # Maximum 80% cargo lost (always keep some)
+const RESCUE_MIN_ITEMS_KEPT := 1  # Always keep at least 1 item if player has any
 
 @onready var background: ColorRect = $Background
 @onready var panel: PanelContainer = $Panel
@@ -218,13 +225,54 @@ func _on_settings() -> void:
 
 
 func _on_rescue() -> void:
-	"""Show confirmation dialog before emergency rescue."""
+	"""Show confirmation dialog before emergency rescue with depth-scaled fee."""
 	_pending_action = "rescue"
 	_confirm_dialog.title = "Call for Rescue?"
-	_confirm_dialog.dialog_text = "A rescue team will bring you to the surface,\nbut your cargo will be left behind."
+
+	# Calculate rescue fee based on current depth
+	var depth := GameManager.current_depth if GameManager else 0
+	var fee_percent := _calculate_rescue_fee_percent(depth)
+	var total_items := InventoryManager.get_total_item_count() if InventoryManager else 0
+	var items_to_lose := _calculate_items_to_lose(total_items, fee_percent)
+
+	# Build dialog message
+	var dialog_text: String
+	if total_items == 0:
+		dialog_text = "A rescue team will bring you to the surface.\n(No cargo to lose!)"
+	elif items_to_lose == 0:
+		dialog_text = "A rescue team will bring you to the surface.\nRescue fee: FREE (shallow depth)"
+	else:
+		var items_kept := total_items - items_to_lose
+		dialog_text = "A rescue team will bring you to the surface.\n\n"
+		dialog_text += "Rescue Fee: %d%% of cargo\n" % int(fee_percent)
+		dialog_text += "You will lose %d item(s), keeping %d." % [items_to_lose, items_kept]
+		if depth >= 100:
+			dialog_text += "\n\n(Deep rescue = higher fee)"
+
+	_confirm_dialog.dialog_text = dialog_text
 	_confirm_dialog.ok_button_text = "Rescue Me"
 	_confirm_dialog.cancel_button_text = "Cancel"
 	_confirm_dialog.popup_centered()
+
+
+func _calculate_rescue_fee_percent(depth: int) -> float:
+	"""Calculate the rescue fee percentage based on depth.
+	Deeper = higher fee, but capped at RESCUE_MAX_FEE_PERCENT."""
+	var fee := RESCUE_BASE_FEE_PERCENT + (depth * RESCUE_DEPTH_SCALE_PERCENT)
+	return minf(fee, RESCUE_MAX_FEE_PERCENT)
+
+
+func _calculate_items_to_lose(total_items: int, fee_percent: float) -> int:
+	"""Calculate how many items to lose based on fee percentage.
+	Always keeps at least RESCUE_MIN_ITEMS_KEPT if player has items."""
+	if total_items <= 0:
+		return 0
+	if total_items <= RESCUE_MIN_ITEMS_KEPT:
+		return 0  # Don't take their last item(s)
+
+	var items_to_lose := int(ceil(total_items * (fee_percent / 100.0)))
+	var max_loseable := total_items - RESCUE_MIN_ITEMS_KEPT
+	return mini(items_to_lose, max_loseable)
 
 
 func _on_reload() -> void:
@@ -242,9 +290,19 @@ func _on_confirm_dialog_confirmed() -> void:
 	"""Handle confirmation of dangerous action."""
 	match _pending_action:
 		"rescue":
-			# Clear inventory (cargo) before rescue
-			InventoryManager.clear_all()
-			rescue_requested.emit()
+			# Apply depth-proportional rescue fee (lose some cargo, not all)
+			var depth := GameManager.current_depth if GameManager else 0
+			var fee_percent := _calculate_rescue_fee_percent(depth)
+			var total_items := InventoryManager.get_total_item_count() if InventoryManager else 0
+			var items_to_lose := _calculate_items_to_lose(total_items, fee_percent)
+
+			# Remove random items as the rescue fee
+			var lost := 0
+			if items_to_lose > 0 and InventoryManager:
+				lost = InventoryManager.remove_random_items(items_to_lose)
+				print("[PauseMenu] Rescue fee: lost %d items (fee was %d%%)" % [lost, int(fee_percent)])
+
+			rescue_requested.emit(lost)
 			hide_menu()
 		"reload":
 			reload_requested.emit()

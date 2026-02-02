@@ -765,6 +765,24 @@ func is_brand_new_player() -> bool:
 
 
 # ============================================
+# FIRST UPGRADE TRACKING (Critical Retention Moment)
+# ============================================
+
+## Check if the player has purchased their first upgrade
+func has_first_upgrade_purchased() -> bool:
+	if current_save == null:
+		return true  # Assume already done if no save
+	return current_save.first_upgrade_purchased
+
+
+## Mark the first upgrade as purchased (triggers special celebration)
+func set_first_upgrade_purchased() -> void:
+	if current_save != null:
+		current_save.first_upgrade_purchased = true
+		save_game()  # Persist immediately - critical moment
+
+
+# ============================================
 # ERROR HANDLING AND RECOVERY
 # ============================================
 

@@ -524,6 +524,11 @@ func _on_tool_upgrade() -> void:
 	if not GameManager.can_afford(next_tool.cost):
 		return
 
+	# Capture old tool stats for before/after comparison
+	var old_tool: ToolData = PlayerData.get_equipped_tool()
+	var old_damage: float = old_tool.damage if old_tool else 0.0
+	var is_first_upgrade := SaveManager != null and not SaveManager.has_first_upgrade_purchased()
+
 	if GameManager.spend_coins(next_tool.cost):
 		PlayerData.equip_tool(next_tool.id)
 		print("[Shop] Tool upgraded to: %s" % next_tool.display_name)
@@ -532,12 +537,169 @@ func _on_tool_upgrade() -> void:
 		if SoundManager:
 			SoundManager.play_tool_upgrade()
 
+		# First upgrade gets special enhanced celebration
+		if is_first_upgrade:
+			_show_first_upgrade_celebration(old_tool, next_tool)
+			SaveManager.set_first_upgrade_purchased()
+
 		_refresh_upgrades_tab()
 		# Track for achievements
 		if AchievementManager:
 			AchievementManager.track_upgrade()
 		# Auto-save after tool upgrade
 		SaveManager.save_game()
+
+
+## Show enhanced celebration for the player's first tool upgrade
+## This is a critical retention moment - make it feel POWERFUL
+func _show_first_upgrade_celebration(old_tool: ToolData, new_tool: ToolData) -> void:
+	# Create celebration overlay
+	var overlay := CanvasLayer.new()
+	overlay.name = "FirstUpgradeCelebration"
+	overlay.layer = 100  # Above everything
+
+	# Semi-transparent background
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.color = Color(0, 0, 0, 0.7)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(bg)
+
+	# Celebration panel
+	var panel := PanelContainer.new()
+	panel.name = "CelebrationPanel"
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.custom_minimum_size = Vector2(320, 200)
+	overlay.add_child(panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 24)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	margin.add_child(vbox)
+
+	# Title - celebratory!
+	var title := Label.new()
+	title.text = "POWER UP!"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_color_override("font_color", Color(1.0, 0.85, 0.0))  # Gold
+	vbox.add_child(title)
+
+	# Tool name
+	var tool_name := Label.new()
+	tool_name.text = new_tool.display_name
+	tool_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tool_name.add_theme_font_size_override("font_size", 22)
+	tool_name.add_theme_color_override("font_color", Color.WHITE)
+	vbox.add_child(tool_name)
+
+	# Before/After comparison
+	var comparison := HBoxContainer.new()
+	comparison.alignment = BoxContainer.ALIGNMENT_CENTER
+	comparison.add_theme_constant_override("separation", 20)
+	vbox.add_child(comparison)
+
+	# Old stats
+	var old_stats := VBoxContainer.new()
+	var old_header := Label.new()
+	old_header.text = "Before"
+	old_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	old_header.add_theme_font_size_override("font_size", 14)
+	old_header.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+	old_stats.add_child(old_header)
+
+	var old_dmg := Label.new()
+	old_dmg.text = "DMG: %.0f" % old_tool.damage if old_tool else "DMG: 0"
+	old_dmg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	old_dmg.add_theme_font_size_override("font_size", 18)
+	old_dmg.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	old_stats.add_child(old_dmg)
+	comparison.add_child(old_stats)
+
+	# Arrow
+	var arrow := Label.new()
+	arrow.text = "->"
+	arrow.add_theme_font_size_override("font_size", 24)
+	arrow.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
+	comparison.add_child(arrow)
+
+	# New stats
+	var new_stats := VBoxContainer.new()
+	var new_header := Label.new()
+	new_header.text = "After"
+	new_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	new_header.add_theme_font_size_override("font_size", 14)
+	new_header.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
+	new_stats.add_child(new_header)
+
+	var new_dmg := Label.new()
+	new_dmg.text = "DMG: %.0f" % new_tool.damage
+	new_dmg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	new_dmg.add_theme_font_size_override("font_size", 22)
+	new_dmg.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
+	new_stats.add_child(new_dmg)
+	comparison.add_child(new_stats)
+
+	# Calculate and show power increase percentage
+	var old_dmg_val: float = old_tool.damage if old_tool else 10.0
+	var increase_pct := int((new_tool.damage / old_dmg_val - 1.0) * 100)
+	var boost_label := Label.new()
+	boost_label.text = "+%d%% POWER!" % increase_pct
+	boost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	boost_label.add_theme_font_size_override("font_size", 26)
+	boost_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
+	vbox.add_child(boost_label)
+
+	# Continue button
+	var continue_btn := Button.new()
+	continue_btn.text = "Let's Dig!"
+	continue_btn.custom_minimum_size = Vector2(150, 45)
+	vbox.add_child(continue_btn)
+
+	# Center the button
+	var btn_container := CenterContainer.new()
+	btn_container.add_child(continue_btn.duplicate())
+	continue_btn.queue_free()
+	vbox.add_child(btn_container)
+	var actual_btn: Button = btn_container.get_child(0) as Button
+	actual_btn.pressed.connect(func():
+		overlay.queue_free()
+	)
+
+	# Add to scene tree
+	add_child(overlay)
+
+	# Position panel correctly after adding to tree
+	await get_tree().process_frame
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_size := panel.size
+	panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	panel.position = Vector2(
+		(viewport_size.x - panel_size.x) / 2.0,
+		(viewport_size.y - panel_size.y) / 2.0
+	)
+
+	# Animate entrance
+	panel.modulate.a = 0.0
+	panel.scale = Vector2(0.8, 0.8)
+	panel.pivot_offset = panel_size / 2.0
+
+	var tween := create_tween()
+	tween.tween_property(panel, "modulate:a", 1.0, 0.3)
+	tween.parallel().tween_property(panel, "scale", Vector2(1.0, 1.0), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	# Pulse the boost label
+	await get_tree().create_timer(0.3).timeout
+	var pulse_tween := create_tween()
+	pulse_tween.set_loops(3)
+	pulse_tween.tween_property(boost_label, "scale", Vector2(1.1, 1.1), 0.15)
+	pulse_tween.tween_property(boost_label, "scale", Vector2(1.0, 1.0), 0.15)
 
 
 func _on_backpack_upgrade() -> void:

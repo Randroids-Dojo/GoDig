@@ -89,6 +89,20 @@ const HUD_BUTTON_COLOR := Color(0.15, 0.15, 0.2, 0.9)
 ## Left panel backdrop
 var left_panel_bg: ColorRect = null
 
+## Guidance toast system (non-blocking tutorial hints)
+var guidance_toast: Control = null
+var guidance_toast_label: Label = null
+var guidance_toast_icon: Label = null
+var _guidance_toast_tween: Tween = null
+var _guidance_toast_visible: bool = false
+var _guidance_toast_queue: Array = []  # Queue of pending toast messages
+
+## Guidance state tracking (to prevent repeat toasts)
+var _shown_inventory_half_toast: bool = false
+var _shown_upgrade_affordable_toast: bool = false
+var _last_inventory_check_fill_ratio: float = 0.0
+var _last_coin_check_amount: int = 0
+
 
 ## Apply standard dark outline to a label for readability
 static func apply_text_outline(label: Label, outline_size: int = HUD_OUTLINE_SIZE, outline_color: Color = HUD_OUTLINE_COLOR) -> void:
@@ -151,6 +165,7 @@ func _ready() -> void:
 	if InventoryManager:
 		InventoryManager.inventory_changed.connect(_update_quick_sell_button)
 		InventoryManager.inventory_changed.connect(_update_inventory_indicator)
+		InventoryManager.inventory_changed.connect(_check_guidance_prompts)
 
 	# Connect tool changes to update tool indicator
 	if PlayerData:
@@ -182,6 +197,9 @@ func _ready() -> void:
 	# Connect save events
 	if SaveManager:
 		SaveManager.save_completed.connect(_on_save_completed)
+
+	# Create guidance toast system
+	_setup_guidance_toast()
 
 
 func _process(delta: float) -> void:
@@ -274,6 +292,7 @@ func refresh() -> void:
 
 func _on_coins_changed(new_amount: int) -> void:
 	_update_coins_display(new_amount)
+	_check_guidance_prompts()
 
 
 func _on_depth_updated(depth_meters: int) -> void:
@@ -1397,3 +1416,134 @@ func _apply_text_scale() -> void:
 	# Scale mining progress label
 	if mining_progress_label:
 		mining_progress_label.add_theme_font_size_override("font_size", int(BASE_FONT_SIZES["mining_label"] * scale))
+
+
+# ============================================
+# GUIDANCE TOAST SYSTEM (Non-blocking Tutorial Hints)
+# ============================================
+
+const GUIDANCE_TOAST_DURATION := 4.0  # Seconds to show each toast
+const GUIDANCE_TOAST_FADE := 0.3  # Fade in/out duration
+
+func _setup_guidance_toast() -> void:
+	## Create the guidance toast container (appears at top-center, below pause button)
+	guidance_toast = Control.new()
+	guidance_toast.name = "GuidanceToast"
+	guidance_toast.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	guidance_toast.position = Vector2(-340, 10)  # 340px from right edge
+	guidance_toast.custom_minimum_size = Vector2(280, 50)
+	guidance_toast.modulate.a = 0.0  # Start hidden
+	add_child(guidance_toast)
+
+	# Background panel with rounded corners feel
+	var bg := ColorRect.new()
+	bg.name = "Background"
+	bg.color = Color(0.15, 0.35, 0.15, 0.95)  # Green-tinted background
+	bg.size = Vector2(280, 50)
+	guidance_toast.add_child(bg)
+
+	# Icon (arrow or indicator)
+	guidance_toast_icon = Label.new()
+	guidance_toast_icon.name = "Icon"
+	guidance_toast_icon.text = "!"
+	guidance_toast_icon.position = Vector2(10, 8)
+	guidance_toast_icon.add_theme_font_size_override("font_size", 24)
+	guidance_toast_icon.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))  # Gold
+	guidance_toast.add_child(guidance_toast_icon)
+
+	# Message label
+	guidance_toast_label = Label.new()
+	guidance_toast_label.name = "MessageLabel"
+	guidance_toast_label.position = Vector2(40, 6)
+	guidance_toast_label.custom_minimum_size = Vector2(230, 38)
+	guidance_toast_label.add_theme_font_size_override("font_size", 13)
+	guidance_toast_label.add_theme_color_override("font_color", Color.WHITE)
+	guidance_toast_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	apply_text_outline(guidance_toast_label, 2)
+	guidance_toast.add_child(guidance_toast_label)
+
+
+## Show a guidance toast message (non-blocking tutorial hint)
+func show_guidance_toast(message: String, icon: String = "!", duration: float = GUIDANCE_TOAST_DURATION) -> void:
+	if guidance_toast == null or guidance_toast_label == null:
+		return
+
+	# Add to queue
+	_guidance_toast_queue.append({"message": message, "icon": icon, "duration": duration})
+
+	# If not currently showing, start showing
+	if not _guidance_toast_visible:
+		_show_next_guidance_toast()
+
+
+func _show_next_guidance_toast() -> void:
+	## Show the next toast from the queue
+	if _guidance_toast_queue.is_empty():
+		_guidance_toast_visible = false
+		return
+
+	var toast_data: Dictionary = _guidance_toast_queue.pop_front()
+	guidance_toast_label.text = toast_data["message"]
+	guidance_toast_icon.text = toast_data["icon"]
+
+	# Fade in
+	_guidance_toast_visible = true
+	if _guidance_toast_tween and _guidance_toast_tween.is_valid():
+		_guidance_toast_tween.kill()
+
+	_guidance_toast_tween = create_tween()
+	_guidance_toast_tween.tween_property(guidance_toast, "modulate:a", 1.0, GUIDANCE_TOAST_FADE)
+	_guidance_toast_tween.tween_interval(toast_data["duration"])
+	_guidance_toast_tween.tween_property(guidance_toast, "modulate:a", 0.0, GUIDANCE_TOAST_FADE)
+	_guidance_toast_tween.tween_callback(_show_next_guidance_toast)
+
+
+func _hide_guidance_toast() -> void:
+	## Immediately hide the current toast
+	if _guidance_toast_tween and _guidance_toast_tween.is_valid():
+		_guidance_toast_tween.kill()
+
+	if guidance_toast:
+		guidance_toast.modulate.a = 0.0
+	_guidance_toast_visible = false
+
+
+## Check and trigger guidance prompts based on game state
+## Called after inventory or coin changes
+func _check_guidance_prompts() -> void:
+	# Skip if FTUE already complete or tutorial already done
+	if SaveManager and SaveManager.has_first_upgrade_purchased():
+		return  # Player already knows the flow
+
+	# Skip if tutorial overlay is handling things
+	if GameManager and GameManager.is_tutorial_active():
+		return
+
+	# Check inventory fill level (show hint at 50%+)
+	if InventoryManager and not _shown_inventory_half_toast:
+		var used := InventoryManager.get_used_slots()
+		var total := InventoryManager.get_total_slots()
+		var fill_ratio := float(used) / float(total) if total > 0 else 0.0
+
+		if fill_ratio >= 0.5 and _last_inventory_check_fill_ratio < 0.5:
+			_shown_inventory_half_toast = true
+			show_guidance_toast("Inventory filling up!\nReturn to surface to sell.", "^", 5.0)
+
+		_last_inventory_check_fill_ratio = fill_ratio
+
+	# Check if player can afford upgrade (show hint once)
+	if PlayerData and GameManager and not _shown_upgrade_affordable_toast:
+		var next_tool = PlayerData.get_next_tool_upgrade()
+		if next_tool != null:
+			var coins := GameManager.get_coins()
+			if coins >= next_tool.cost and _last_coin_check_amount < next_tool.cost:
+				_shown_upgrade_affordable_toast = true
+				show_guidance_toast("You can afford an upgrade!\nVisit the Blacksmith!", "$", 5.0)
+
+			_last_coin_check_amount = coins
+
+
+## Override inventory change handler to check guidance
+func _update_inventory_indicator_with_guidance() -> void:
+	_update_inventory_indicator()
+	_check_guidance_prompts()

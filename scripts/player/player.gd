@@ -360,6 +360,9 @@ func _on_animation_finished() -> void:
 	# Apply hitstop for game feel (only for hard blocks)
 	_apply_hitstop(hardness)
 
+	# Apply screen shake for mining feedback
+	_shake_camera_on_mining(hardness, destroyed)
+
 	if destroyed:
 		block_destroyed.emit(mining_target)
 		sprite.speed_scale = 1.0  # Reset animation speed
@@ -890,6 +893,9 @@ func _hit_tap_target() -> void:
 	# Apply hitstop for game feel (only for hard blocks)
 	_apply_hitstop(hardness)
 
+	# Apply screen shake for mining feedback (tap-to-dig)
+	_shake_camera_on_mining(hardness, destroyed)
+
 	if destroyed:
 		block_destroyed.emit(_tap_target_tile)
 		# Track block mining stat (tap-to-dig path)
@@ -1212,6 +1218,44 @@ func _shake_camera_on_damage(damage_amount: int) -> void:
 	camera.shake(intensity)
 
 
+## Shake camera on mining hit based on block hardness
+## Subtle for normal blocks, more pronounced for hard blocks
+func _shake_camera_on_mining(hardness: float, destroyed: bool) -> void:
+	if camera == null:
+		return
+
+	# Skip if reduced motion is enabled
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	# Base intensity values from spec (pixels)
+	var intensity: float
+	if destroyed:
+		# Block break gets stronger shake
+		if hardness < 20.0:
+			# Soft block break (dirt)
+			intensity = 3.0
+		elif hardness < 50.0:
+			# Medium block break (stone)
+			intensity = 5.0
+		else:
+			# Hard block break (granite, obsidian)
+			intensity = 7.0
+	else:
+		# Block hit (not destroyed) - very subtle
+		if hardness < 20.0:
+			# Soft block hit - barely noticeable
+			intensity = 1.5
+		elif hardness < 50.0:
+			# Medium block hit - player feels resistance
+			intensity = 2.5
+		else:
+			# Hard block hit - noticeable impact
+			intensity = 4.0
+
+	camera.shake(intensity)
+
+
 ## Reset HP to full (for new game)
 func reset_hp() -> void:
 	is_dead = false
@@ -1466,7 +1510,13 @@ func test_mine_direction(dir_x: int, dir_y: int) -> bool:
 	if not dirt_grid.can_mine_block(target):
 		return false
 
+	# Get hardness before hitting
+	var hardness: float = dirt_grid.get_block_hardness(target)
+
 	var destroyed: bool = dirt_grid.hit_block(target)
+
+	# Apply mining feedback (test helper also gets feedback)
+	_shake_camera_on_mining(hardness, destroyed)
 
 	if destroyed:
 		block_destroyed.emit(target)

@@ -1,9 +1,9 @@
 ---
 title: "implement: Mining screen shake feedback"
-status: open
+status: active
 priority: 2
 issue-type: task
-created-at: "2026-02-01T02:24:26.077981-06:00"
+created-at: "\"2026-02-01T02:24:26.077981-06:00\""
 ---
 
 ## Description

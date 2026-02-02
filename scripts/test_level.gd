@@ -6,6 +6,8 @@ extends Node2D
 const FloatingTextScene := preload("res://scenes/ui/floating_text.tscn")
 const BlockParticlesScene := preload("res://scenes/effects/block_particles.tscn")
 const FTUEOverlayScene := preload("res://scenes/ui/ftue_overlay.tscn")
+const JackpotBurstScene := preload("res://scenes/effects/jackpot_burst.tscn")
+const ScreenFlashScene := preload("res://scenes/effects/screen_flash.tscn")
 
 ## FTUE (First Time User Experience) overlay reference
 var ftue_overlay: CanvasLayer = null
@@ -14,6 +16,13 @@ var _ftue_active: bool = false
 # Particle pool for block break effects
 const PARTICLE_POOL_SIZE := 12
 var _particle_pool: Array = []
+
+# Jackpot burst particle pool for rare ore discoveries
+const JACKPOT_POOL_SIZE := 4
+var _jackpot_pool: Array = []
+
+# Screen flash effect instance (reused)
+var _screen_flash: CanvasLayer = null
 
 # Cooldown for inventory full notification (prevent spam)
 var _inventory_full_cooldown: float = 0.0
@@ -70,6 +79,7 @@ func _ready() -> void:
 	# Connect block destroy for particle effects
 	dirt_grid.block_destroyed.connect(_on_block_destroyed)
 	_init_particle_pool()
+	_init_jackpot_effects()
 
 	# Connect touch controls to player
 	touch_controls.direction_pressed.connect(player.set_touch_direction)
@@ -360,8 +370,8 @@ func _on_item_added(item, amount: int) -> void:
 	# Use tiered ore discovery celebration
 	floating.show_ore_discovery(text, color, screen_pos, rarity)
 
-	# Apply rarity-based effects
-	_apply_ore_discovery_effects(rarity)
+	# Apply rarity-based effects with ore color for visual effects
+	_apply_ore_discovery_effects(rarity, color)
 
 
 func _on_coins_changed(new_amount: int) -> void:
@@ -942,6 +952,21 @@ func _init_particle_pool() -> void:
 		_particle_pool.append(p)
 
 
+func _init_jackpot_effects() -> void:
+	## Initialize jackpot burst particle pool and screen flash effect
+	# Create jackpot burst particle pool
+	for i in JACKPOT_POOL_SIZE:
+		var p := JackpotBurstScene.instantiate()
+		p.visible = false
+		add_child(p)
+		_jackpot_pool.append(p)
+
+	# Create single screen flash instance (reused)
+	_screen_flash = ScreenFlashScene.instantiate()
+	_screen_flash.visible = false
+	add_child(_screen_flash)
+
+
 func _get_available_particle() -> CPUParticles2D:
 	## Get an available particle emitter from the pool
 	for p in _particle_pool:
@@ -949,6 +974,15 @@ func _get_available_particle() -> CPUParticles2D:
 			return p
 	# All in use - return first (will interrupt its animation)
 	return _particle_pool[0] if not _particle_pool.is_empty() else null
+
+
+func _get_available_jackpot_burst() -> CPUParticles2D:
+	## Get an available jackpot burst emitter from the pool
+	for p in _jackpot_pool:
+		if p.is_available():
+			return p
+	# All in use - return first (will interrupt its animation)
+	return _jackpot_pool[0] if not _jackpot_pool.is_empty() else null
 
 
 func _on_block_destroyed(world_pos: Vector2, color: Color, hardness: float = 10.0) -> void:
@@ -1034,9 +1068,10 @@ func _get_rarity_level(item) -> int:
 			return 0
 
 
-func _apply_ore_discovery_effects(rarity: int) -> void:
-	## Apply screen shake, haptics, and other effects based on ore rarity
+func _apply_ore_discovery_effects(rarity: int, ore_color: Color = Color.WHITE) -> void:
+	## Apply screen shake, haptics, particles, and screen flash based on ore rarity
 	## Called when ore is collected to create tiered celebration feedback
+	## rarity: 0=common, 1=uncommon, 2=rare, 3=epic, 4=legendary
 
 	# Screen shake scales with rarity
 	if player and player.camera:
@@ -1056,27 +1091,31 @@ func _apply_ore_discovery_effects(rarity: int) -> void:
 		if shake_intensity > 0:
 			player.camera.shake(shake_intensity)
 
-	# Haptic feedback scales with rarity
+	# Haptic feedback scales with rarity using jackpot discovery
 	if HapticFeedback:
-		match rarity:
-			0:  # Common - light tap
-				HapticFeedback.light_tap()
-			1:  # Uncommon - medium tap
-				HapticFeedback.medium_tap()
-			2, 3:  # Rare/Epic - on_ore_collected
-				HapticFeedback.on_ore_collected()
-			_:  # Legendary - heavy
-				HapticFeedback.heavy_tap()
+		HapticFeedback.on_jackpot_discovery(rarity)
 
-	# Sound effects (SoundManager should have ore discovery sounds)
+	# Sound effects using tiered discovery sounds
 	if SoundManager:
-		match rarity:
-			0, 1:  # Common/Uncommon - basic pickup sound
-				SoundManager.play_pickup()
-			2:  # Rare - special sound
-				SoundManager.play_milestone()
-			3, _:  # Epic/Legendary - even more special
-				SoundManager.play_milestone()
+		if rarity >= 1:  # Uncommon and above get special sounds
+			SoundManager.play_jackpot_discovery(rarity)
+		else:  # Common - basic pickup sound
+			SoundManager.play_pickup()
+
+	# Screen flash for rare+ finds (creates dramatic jackpot moment)
+	if rarity >= 2 and _screen_flash and not (SettingsManager and SettingsManager.reduced_motion):
+		var tier := clampi(rarity - 2, 0, 2)  # 0=rare, 1=epic, 2=legendary
+		_screen_flash.flash(tier, ore_color)
+
+	# Jackpot burst particles for rare+ finds
+	if rarity >= 2:
+		var burst := _get_available_jackpot_burst()
+		if burst:
+			# Get screen position from player world position
+			var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+			screen_pos.y -= 48.0  # Slightly above player
+			var tier := clampi(rarity - 2, 0, 2)  # 0=rare, 1=epic, 2=legendary
+			burst.burst_at_screen(screen_pos, tier, ore_color)
 
 	# Brief hitstop for rare+ ore (adds weight to the discovery)
 	if rarity >= 2 and not (SettingsManager and SettingsManager.reduced_motion):

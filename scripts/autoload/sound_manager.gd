@@ -49,6 +49,12 @@ const SOUND_PICKUP_ORE := "res://audio/sfx/pickup_ore.wav"
 const SOUND_PICKUP_ITEM := "res://audio/sfx/pickup_item.wav"
 const SOUND_PICKUP_RARE := "res://audio/sfx/pickup_rare.wav"
 
+# Jackpot discovery sounds (tiered by rarity)
+const SOUND_DISCOVERY_UNCOMMON := "res://audio/sfx/discovery_uncommon.wav"
+const SOUND_DISCOVERY_RARE := "res://audio/sfx/discovery_rare.wav"
+const SOUND_DISCOVERY_EPIC := "res://audio/sfx/discovery_epic.wav"
+const SOUND_DISCOVERY_LEGENDARY := "res://audio/sfx/discovery_legendary.wav"
+
 # UI sounds
 const SOUND_UI_CLICK := "res://audio/sfx/ui_click.wav"
 const SOUND_UI_HOVER := "res://audio/sfx/ui_hover.wav"
@@ -189,6 +195,11 @@ func play_ore_found() -> void:
 	play_sfx(SOUND_ORE_FOUND, -5.0)
 
 
+## Play generic pickup sound
+func play_pickup() -> void:
+	play_sfx_varied(SOUND_PICKUP_ORE, -6.0)
+
+
 ## Play coin pickup sound
 func play_coin_pickup() -> void:
 	play_sfx_varied(SOUND_PICKUP_COIN, -8.0)
@@ -206,6 +217,21 @@ func play_ore_pickup(rarity: String = "common") -> void:
 ## Play item pickup sound
 func play_item_pickup() -> void:
 	play_sfx_varied(SOUND_PICKUP_ITEM, -5.0)
+
+
+## Play jackpot discovery sound based on rarity tier
+## rarity: 0=common, 1=uncommon, 2=rare, 3=epic, 4=legendary
+func play_jackpot_discovery(rarity: int) -> void:
+	match rarity:
+		1:  # Uncommon - subtle chime
+			play_sfx(SOUND_DISCOVERY_UNCOMMON, -5.0, 1.0)
+		2:  # Rare - exciting discovery
+			play_sfx(SOUND_DISCOVERY_RARE, -3.0, 1.0)
+		3:  # Epic - dramatic fanfare
+			play_sfx(SOUND_DISCOVERY_EPIC, -1.0, 1.0)
+		4, _:  # Legendary - full jackpot celebration
+			if rarity >= 4:
+				play_sfx(SOUND_DISCOVERY_LEGENDARY, 0.0, 1.0)
 
 
 ## Play UI button click

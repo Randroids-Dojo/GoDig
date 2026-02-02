@@ -8,12 +8,14 @@ extends CanvasLayer
 signal respawn_requested
 signal reload_requested
 signal dive_again_requested  # Quick dive if player has supplies
+signal quick_retry_requested  # Ultra-fast retry, skips stats entirely
 
 @export var process_mode_paused: bool = true
 
 ## Animation timings (optimized for fast restart)
-const FADE_IN_DURATION := 0.3  # Quick fade
-const PANEL_FADE_DELAY := 0.1
+const FADE_IN_DURATION := 0.25  # Ultra-quick fade for fast restart
+const PANEL_FADE_DELAY := 0.05
+const QUICK_RETRY_WINDOW := 1.5  # Seconds before full menu appears
 
 ## UI Elements (created programmatically)
 var background: ColorRect = null
@@ -26,12 +28,18 @@ var reload_btn: Button = null
 var vbox: VBoxContainer = null
 var dive_again_btn: Button = null  # Quick dive button
 
+## Quick retry UI (shown immediately, fades out)
+var quick_retry_container: Control = null
+var quick_retry_btn: Button = null
+var quick_retry_hint: Label = null
+
 ## Death info
 var _death_cause: String = "unknown"
 var _death_depth: int = 0
 
 ## Fade animation
 var _fade_tween: Tween = null
+var _quick_retry_timer: Timer = null
 
 ## Minimum ladders required to show "Dive Again" prompt
 const MIN_LADDERS_FOR_DIVE := 3
@@ -147,9 +155,53 @@ func _create_ui() -> void:
 	reload_btn.pressed.connect(_on_reload_pressed)
 	inner_vbox.add_child(reload_btn)
 
+	# Quick retry overlay (shown immediately, large tappable area at top)
+	_create_quick_retry_ui()
+
+
+func _create_quick_retry_ui() -> void:
+	## Create the quick retry UI that appears immediately on death
+	## This is a large tappable button that allows instant restart
+	quick_retry_container = Control.new()
+	quick_retry_container.name = "QuickRetryContainer"
+	quick_retry_container.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	quick_retry_container.custom_minimum_size = Vector2(0, 200)
+	quick_retry_container.modulate.a = 0.0  # Start hidden
+	add_child(quick_retry_container)
+
+	# Large touch area background
+	var bg := ColorRect.new()
+	bg.name = "QuickRetryBackground"
+	bg.color = Color(0.2, 0.5, 0.2, 0.9)  # Green tint for positive action
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	quick_retry_container.add_child(bg)
+
+	# Quick retry button (full width for easy tapping)
+	quick_retry_btn = Button.new()
+	quick_retry_btn.name = "QuickRetryButton"
+	quick_retry_btn.text = "TAP TO RETRY"
+	quick_retry_btn.flat = false
+	quick_retry_btn.set_anchors_preset(Control.PRESET_FULL_RECT)
+	quick_retry_btn.add_theme_font_size_override("font_size", 36)
+	quick_retry_btn.add_theme_color_override("font_color", Color.WHITE)
+	quick_retry_btn.pressed.connect(_on_quick_retry_pressed)
+	quick_retry_container.add_child(quick_retry_btn)
+
+	# Hint label
+	quick_retry_hint = Label.new()
+	quick_retry_hint.name = "QuickRetryHint"
+	quick_retry_hint.text = "(Respawn at surface, lose 50% cargo)"
+	quick_retry_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	quick_retry_hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	quick_retry_hint.position = Vector2(0, -40)
+	quick_retry_hint.add_theme_font_size_override("font_size", 16)
+	quick_retry_hint.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9, 0.8))
+	quick_retry_container.add_child(quick_retry_hint)
+
 
 func show_death(cause: String, depth: int) -> void:
 	## Show the death screen with cause and stats
+	## Quick retry button appears immediately, full menu fades in after
 	_death_cause = cause
 	_death_depth = depth
 
@@ -169,17 +221,24 @@ func show_death(cause: String, depth: int) -> void:
 	# Pause the game
 	get_tree().paused = true
 
-	# Fast fade in (optimized for quick restart)
+	# Show screen immediately
 	visible = true
 	background.modulate.a = 0.0
 	panel.modulate.a = 0.0
 
+	# Show quick retry immediately (optimized for instant restart)
+	if quick_retry_container:
+		quick_retry_container.modulate.a = 1.0
+		quick_retry_container.visible = true
+
 	if _fade_tween and _fade_tween.is_valid():
 		_fade_tween.kill()
 
+	# Fast fade in: background + quick retry first, then panel
 	_fade_tween = create_tween()
 	_fade_tween.tween_property(background, "modulate:a", 1.0, FADE_IN_DURATION)
-	_fade_tween.parallel().tween_property(panel, "modulate:a", 1.0, FADE_IN_DURATION).set_delay(PANEL_FADE_DELAY)
+	# Delay the full menu panel slightly to encourage quick retry
+	_fade_tween.parallel().tween_property(panel, "modulate:a", 1.0, FADE_IN_DURATION * 2).set_delay(QUICK_RETRY_WINDOW)
 
 	print("[DeathScreen] Showing death screen - Cause: %s, Depth: %d" % [cause, depth])
 
@@ -346,3 +405,29 @@ func _on_dive_again_pressed() -> void:
 	hide_death()
 	dive_again_requested.emit()
 	print("[DeathScreen] Dive again requested")
+
+
+func _on_quick_retry_pressed() -> void:
+	## Ultra-fast respawn - optimized for minimum time to playable state
+	## This is the "instant restart" path for frustrated players
+	# Apply 50% inventory loss (same as regular respawn)
+	_apply_respawn_penalty()
+
+	# Increment death counter
+	if SaveManager and SaveManager.current_save:
+		SaveManager.current_save.deaths += 1
+		SaveManager.save_game()
+
+	# Hide immediately (no fade out for speed)
+	_quick_hide_death()
+	quick_retry_requested.emit()
+	print("[DeathScreen] Quick retry - instant respawn requested")
+
+
+func _quick_hide_death() -> void:
+	## Instant hide with no animation - maximum speed for quick retry
+	if _fade_tween and _fade_tween.is_valid():
+		_fade_tween.kill()
+
+	visible = false
+	get_tree().paused = false

@@ -105,6 +105,8 @@ func _ready() -> void:
 		death_screen.reload_requested.connect(_on_death_screen_reload)
 		if death_screen.has_signal("dive_again_requested"):
 			death_screen.dive_again_requested.connect(_on_death_screen_dive_again)
+		if death_screen.has_signal("quick_retry_requested"):
+			death_screen.quick_retry_requested.connect(_on_death_screen_quick_retry)
 
 	# Connect item pickup for floating text
 	InventoryManager.item_added.connect(_on_item_added)
@@ -882,6 +884,25 @@ func _on_death_screen_dive_again() -> void:
 
 	# Optional: Auto-start dive toward mine entrance
 	# (Player still needs to walk to mine entrance manually for now)
+
+
+func _on_death_screen_quick_retry() -> void:
+	## Handle quick retry request - ultra-fast respawn path
+	## Optimized for minimum time: no toast, no messages, just respawn
+	print("[TestLevel] Quick retry requested - instant respawn")
+
+	# Record death in save data (already incremented by death_screen)
+	# (Death screen handles this to avoid double-counting)
+
+	# Respawn player at surface immediately
+	_respawn_player()
+
+	# Minimal feedback - just a subtle color flash instead of toast
+	if player:
+		# Brief flash to confirm respawn without blocking
+		var flash_tween := create_tween()
+		flash_tween.tween_property(player, "modulate", Color(0.5, 1.0, 0.5), 0.1)
+		flash_tween.tween_property(player, "modulate", Color.WHITE, 0.2)
 
 
 func _show_respawn_toast(message: String) -> void:

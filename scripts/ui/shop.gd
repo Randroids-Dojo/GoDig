@@ -703,7 +703,7 @@ func _create_supply_section() -> Control:
 	ladder_count_label.custom_minimum_size.x = 50
 	ladder_hbox.add_child(ladder_count_label)
 
-	var ladder_cost := 50
+	var ladder_cost := 8
 	var ladder_btn := Button.new()
 	ladder_btn.text = "$%d" % ladder_cost
 	ladder_btn.disabled = not GameManager.can_afford(ladder_cost)

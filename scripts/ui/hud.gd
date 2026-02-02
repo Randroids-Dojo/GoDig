@@ -1083,22 +1083,75 @@ func _get_ladder_count() -> int:
 
 
 func _on_ladder_quickslot_pressed() -> void:
-	## Attempt to place a ladder at the player's position
+	## Attempt to place a ladder at the player's position with one tap
+	## Validates state before placing and provides feedback
+
+	# Check if we have any ladders
 	if _get_ladder_count() <= 0:
+		_show_ladder_placement_error("No ladders!")
 		return
 
-	# Emit signal for player to handle ladder placement
-	# The test_level.gd will connect this to the player
-	if has_signal("ladder_place_requested"):
-		emit_signal("ladder_place_requested")
-	else:
-		# Fallback: find player and call place_ladder directly
-		var player = get_tree().get_first_node_in_group("player")
-		if player and player.has_method("place_ladder_at_position"):
-			player.place_ladder_at_position()
+	# Find the player
+	var player = get_tree().get_first_node_in_group("player")
+	if player == null:
+		return
+
+	# Check if player can place ladder (not falling, no ladder already there, etc.)
+	if player.has_method("can_place_ladder") and not player.can_place_ladder():
+		# Show feedback about why placement failed
+		if player.current_state in [player.State.FALLING, player.State.WALL_JUMPING]:
+			_show_ladder_placement_error("Can't place while falling!")
+		else:
+			_show_ladder_placement_error("Can't place here!")
+		return
+
+	# Try to place the ladder
+	if player.has_method("place_ladder_at_position"):
+		var success := player.place_ladder_at_position()
+		if success:
+			# Update the quickslot display immediately
+			_update_ladder_quickslot()
+			# Brief visual feedback on the button
+			_pulse_ladder_quickslot()
+		else:
+			_show_ladder_placement_error("Can't place here!")
 
 
-## Signal for ladder placement request
+func _show_ladder_placement_error(message: String) -> void:
+	## Show brief error feedback when ladder placement fails
+	# Play error sound
+	if SoundManager:
+		SoundManager.play_ui_error()
+
+	# Flash the quickslot red briefly
+	if ladder_quickslot:
+		var original_modulate: Color = ladder_quickslot.modulate
+		ladder_quickslot.modulate = Color(1.0, 0.4, 0.4)
+
+		var tween := create_tween()
+		tween.tween_property(ladder_quickslot, "modulate", original_modulate, 0.2)
+
+	# Show toast with error message
+	show_guidance_toast(message, "X", 1.5)
+
+
+func _pulse_ladder_quickslot() -> void:
+	## Brief pulse animation on successful ladder placement
+	if ladder_quickslot == null:
+		return
+
+	# Skip if reduced motion is enabled
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	var tween := create_tween()
+	tween.tween_property(ladder_quickslot, "scale", Vector2(1.15, 1.15), 0.08) \
+		.set_ease(Tween.EASE_OUT)
+	tween.tween_property(ladder_quickslot, "scale", Vector2(1.0, 1.0), 0.12) \
+		.set_ease(Tween.EASE_IN_OUT)
+
+
+## Signal for ladder placement request (kept for backwards compatibility)
 signal ladder_place_requested
 
 

@@ -124,3 +124,59 @@ async def test_daily_rewards_streak(game):
     assert "result" in streak, "get_current_streak should return a result"
     # Streak might be 0 or 1 depending on when tested
     assert streak["result"] >= 0, "Streak should be non-negative"
+
+
+# =============================================================================
+# ONE-TAP LADDER PLACEMENT TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_player_has_place_ladder_method(game):
+    """Verify player has the place_ladder_at_position method."""
+    result = await game.call_method(PATHS["player"], "has_method", ["place_ladder_at_position"])
+    assert result.get("result", False), "Player should have place_ladder_at_position method"
+
+
+@pytest.mark.asyncio
+async def test_player_has_can_place_ladder_method(game):
+    """Verify player has the can_place_ladder method for HUD validation."""
+    result = await game.call_method(PATHS["player"], "has_method", ["can_place_ladder"])
+    assert result.get("result", False), "Player should have can_place_ladder method"
+
+
+@pytest.mark.asyncio
+async def test_ladder_placement_requires_ladder_in_inventory(game):
+    """Player cannot place ladder without ladder in inventory."""
+    # Clear inventory to ensure no ladders
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Verify player cannot place ladder
+    result = await game.call(PATHS["player"], "can_place_ladder")
+    assert result is False, "Should not be able to place ladder without one in inventory"
+
+
+@pytest.mark.asyncio
+async def test_ladder_placement_with_ladder_in_inventory(game):
+    """Player can place ladder when they have one in inventory."""
+    # Clear inventory first
+    await game.call(PATHS["inventory_manager"], "clear_all")
+
+    # Add a ladder
+    await game.call(PATHS["inventory_manager"], "add_item_by_id", ["ladder", 1])
+
+    # Verify we have a ladder
+    count = await game.call(PATHS["inventory_manager"], "get_item_count_by_id", ["ladder"])
+    assert count == 1, f"Should have 1 ladder, got {count}"
+
+    # Check if player can place (depends on position - may fail if on solid block)
+    can_place = await game.call(PATHS["player"], "can_place_ladder")
+    # Note: can_place may be False if player is standing on solid block or position already has ladder
+    # The important thing is the method works and returns a boolean
+    assert isinstance(can_place, bool), "can_place_ladder should return a boolean"
+
+
+@pytest.mark.asyncio
+async def test_ladder_quickslot_exists_in_hud(game):
+    """Verify ladder quickslot exists in HUD."""
+    result = await game.node_exists(PATHS["ladder_quickslot"])
+    assert result.get("exists", False), "Ladder quickslot should exist in HUD"

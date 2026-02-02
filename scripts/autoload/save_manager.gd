@@ -713,6 +713,58 @@ func set_first_ore_collected() -> void:
 
 
 # ============================================
+# FTUE (First Time User Experience) TRACKING
+# ============================================
+
+## Check if FTUE has been completed
+func is_ftue_completed() -> bool:
+	if current_save == null:
+		return true  # Assume done if no save
+	return current_save.ftue_completed
+
+
+## Mark FTUE as completed
+func set_ftue_completed() -> void:
+	if current_save != null:
+		current_save.ftue_completed = true
+		save_game()  # Persist immediately
+
+
+## Check if player has done their first dig during FTUE
+func has_ftue_first_dig() -> bool:
+	if current_save == null:
+		return true
+	return current_save.ftue_first_dig
+
+
+## Mark first dig as done
+func set_ftue_first_dig() -> void:
+	if current_save != null:
+		current_save.ftue_first_dig = true
+
+
+## Check if player has done their first sell during FTUE
+func has_ftue_first_sell() -> bool:
+	if current_save == null:
+		return true
+	return current_save.ftue_first_sell
+
+
+## Mark first sell as done
+func set_ftue_first_sell() -> void:
+	if current_save != null:
+		current_save.ftue_first_sell = true
+
+
+## Check if this is a brand new player (no progress at all)
+func is_brand_new_player() -> bool:
+	if current_save == null:
+		return false
+	# Brand new if: no blocks mined, no FTUE progress, no coins earned
+	return current_save.blocks_mined == 0 and not current_save.ftue_first_dig and current_save.lifetime_coins == 0
+
+
+# ============================================
 # ERROR HANDLING AND RECOVERY
 # ============================================
 

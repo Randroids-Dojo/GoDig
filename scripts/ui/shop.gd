@@ -301,6 +301,32 @@ func _check_tutorial_sale_complete() -> void:
 		if GameManager.tutorial_state == GameManager.TutorialState.SELLING:
 			GameManager.advance_tutorial(GameManager.TutorialState.COMPLETE)
 
+	# Notify FTUE of first sale
+	_notify_ftue_first_sale()
+
+
+func _notify_ftue_first_sale() -> void:
+	## Notify the test level's FTUE overlay that first sale is complete
+	# Find the test_level node and call its FTUE notification
+	var test_level = get_tree().get_first_node_in_group("test_level")
+	if test_level == null:
+		# Try to find by going up the tree
+		var parent = get_parent()
+		while parent != null:
+			if parent.has_method("_notify_ftue_first_sale"):
+				parent._notify_ftue_first_sale()
+				return
+			parent = parent.get_parent()
+
+		# Fallback: Check if SaveManager has FTUE tracking
+		if SaveManager and not SaveManager.has_ftue_first_sell():
+			SaveManager.set_ftue_first_sell()
+			if SaveManager.is_ftue_completed() == false:
+				SaveManager.set_ftue_completed()
+	else:
+		if test_level.has_method("_notify_ftue_first_sale"):
+			test_level._notify_ftue_first_sale()
+
 
 # ============================================
 # UPGRADES TAB

@@ -58,6 +58,11 @@ const CURRENT_VERSION := 1
 ## First ore collected flag (triggers special celebration)
 @export var first_ore_collected: bool = false
 
+## FTUE (First Time User Experience) flags
+@export var ftue_completed: bool = false  # True after completing the 60-second hook
+@export var ftue_first_dig: bool = false  # True after first block mined
+@export var ftue_first_sell: bool = false  # True after first sale at shop
+
 
 ## Create a new save with default starting state
 static func create_new(slot_name: String = ""):

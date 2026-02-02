@@ -38,6 +38,46 @@ func _ready() -> void:
 
 	print("[MainMenu] Ready")
 
+	# FTUE: Auto-start for brand new players (no saves exist)
+	# This creates a seamless first experience - no menus, just play
+	if _should_auto_start_ftue():
+		_auto_start_new_game()
+
+
+func _should_auto_start_ftue() -> bool:
+	## Check if we should auto-start a new game for FTUE
+	## Only auto-starts if: no saves exist AND never played before
+	if SaveManager == null:
+		return false
+
+	# Check if any save slot has data
+	for slot in range(SaveManager.MAX_SLOTS):
+		if SaveManager.has_save(slot):
+			return false  # Has previous saves, show menu
+
+	# No saves exist - this is a brand new player
+	return true
+
+
+func _auto_start_new_game() -> void:
+	## Auto-start a new game for brand new players (FTUE flow)
+	## Skips the menu entirely for immediate gameplay
+	print("[MainMenu] FTUE: Auto-starting new game for brand new player")
+
+	# Brief delay for visual feedback that something is happening
+	_show_loading()
+	await get_tree().create_timer(0.3).timeout
+
+	# Start new game in slot 0
+	if SaveManager.new_game(0):
+		_transition_to_game()
+	else:
+		# If failed, let them use the menu normally
+		push_warning("[MainMenu] FTUE auto-start failed, showing menu")
+		_is_loading = false
+		if loading_label:
+			loading_label.visible = false
+
 
 func _setup_loading_indicator() -> void:
 	## Create a loading indicator that shows during scene transitions

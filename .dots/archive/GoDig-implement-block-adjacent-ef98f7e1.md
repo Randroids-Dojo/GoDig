@@ -1,9 +1,11 @@
 ---
 title: "implement: Block-adjacent ore shimmer hint"
-status: open
+status: closed
 priority: 3
 issue-type: task
-created-at: "2026-02-01T08:11:37.475639-06:00"
+created-at: "\"2026-02-01T08:11:37.475639-06:00\""
+closed-at: "2026-02-02T09:51:00.323860-06:00"
+close-reason: Implemented near_ore_hint.gd with shimmer effect for adjacent ores
 ---
 
 Add subtle visual hints for blocks adjacent to ore veins (Spelunker Potion pattern).

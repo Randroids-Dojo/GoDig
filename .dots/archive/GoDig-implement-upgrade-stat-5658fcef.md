@@ -1,9 +1,11 @@
 ---
 title: "implement: Upgrade stat comparison UI"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T01:27:16.380869-06:00"
+created-at: "\"2026-02-01T01:27:16.380869-06:00\""
+closed-at: "2026-02-02T09:53:05.237196-06:00"
+close-reason: "Implemented in shop.gd: captures old/new damage stats, shows before/after comparison in upgrade celebration"
 ---
 
 ## Description

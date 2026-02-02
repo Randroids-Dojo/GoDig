@@ -1,9 +1,11 @@
 ---
 title: "implement: Full inventory decision moment"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T09:31:47.352665-06:00"
+created-at: "\"2026-02-01T09:31:47.352665-06:00\""
+closed-at: "2026-02-02T09:50:59.277516-06:00"
+close-reason: Implemented inventory_full_popup.gd with quick-drop UI sorted by value
 ---
 
 ## Description

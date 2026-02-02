@@ -1,9 +1,11 @@
 ---
 title: "implement: Game juice accessibility options"
-status: open
+status: closed
 priority: 3
 issue-type: task
-created-at: "2026-02-01T09:08:28.350381-06:00"
+created-at: "\"2026-02-01T09:08:28.350381-06:00\""
+closed-at: "2026-02-02T09:52:24.124174-06:00"
+close-reason: Implemented reduced_motion setting used in 16+ scripts (effects, UI, camera shake)
 ---
 
 ## Description

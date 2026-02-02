@@ -1,9 +1,11 @@
 ---
 title: "implement: Ladder placement decision feedback"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T08:04:02.423611-06:00"
+created-at: "\"2026-02-01T08:04:02.423611-06:00\""
+closed-at: "2026-02-02T09:51:21.875001-06:00"
+close-reason: Ladder warning system in hud.gd with visual alerts at low/critical levels
 ---
 
 Add subtle feedback when placing ladders to reinforce the risk/reward decision-making.

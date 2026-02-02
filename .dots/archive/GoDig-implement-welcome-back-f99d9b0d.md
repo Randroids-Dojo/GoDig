@@ -1,9 +1,11 @@
 ---
 title: "implement: Welcome back rewards for returning players"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T08:45:56.496723-06:00"
+created-at: "\"2026-02-01T08:45:56.496723-06:00\""
+closed-at: "2026-02-02T09:53:49.974150-06:00"
+close-reason: Daily rewards system implemented in daily_rewards_manager.gd (224 lines)
 ---
 
 ## Description

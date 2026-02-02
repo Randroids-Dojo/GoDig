@@ -1,9 +1,11 @@
 ---
 title: "implement: Surface cozy zone visual distinction"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T08:40:16.786004-06:00"
+created-at: "\"2026-02-01T08:40:16.786004-06:00\""
+closed-at: "2026-02-02T09:52:01.475200-06:00"
+close-reason: Duplicate of GoDig-implement-surface-home-81016105
 ---
 
 ## Description

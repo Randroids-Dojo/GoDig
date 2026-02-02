@@ -1,9 +1,11 @@
 ---
 title: "implement: Emergency rescue lesson-learned framing"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T09:31:54.526611-06:00"
+created-at: "\"2026-02-01T09:31:54.526611-06:00\""
+closed-at: "2026-02-02T09:51:11.500754-06:00"
+close-reason: Emergency rescue with lesson framing already in pause_menu.gd
 ---
 
 ## Description

@@ -1,9 +1,11 @@
 ---
 title: "implement: Haptic feedback for ore discovery and upgrades"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T08:10:35.730454-06:00"
+created-at: "\"2026-02-01T08:10:35.730454-06:00\""
+closed-at: "2026-02-02T09:51:00.867757-06:00"
+close-reason: Implemented haptic_feedback.gd autoload with mining, ore discovery, and upgrade haptics
 ---
 
 Add mobile haptic feedback system for key game moments based on Marvel Snap and industry best practices research.

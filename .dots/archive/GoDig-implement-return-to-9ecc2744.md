@@ -1,9 +1,11 @@
 ---
 title: "implement: Return-to-surface tension indicator"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T01:08:48.725086-06:00"
+created-at: "\"2026-02-01T01:08:48.725086-06:00\""
+closed-at: "2026-02-02T09:53:37.156065-06:00"
+close-reason: Partially implemented (ladder warnings in HUD), remaining covered by inventory-tension-30865491
 ---
 
 Add visual/audio tension as inventory fills - drives the core loop return.

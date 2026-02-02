@@ -1,9 +1,11 @@
 ---
 title: "implement: Surface 'home base' comfort signals"
-status: open
+status: closed
 priority: 3
 issue-type: task
-created-at: "2026-02-01T01:09:24.744484-06:00"
+created-at: "\"2026-02-01T01:09:24.744484-06:00\""
+closed-at: "2026-02-02T09:52:00.486464-06:00"
+close-reason: Duplicate of GoDig-implement-surface-home-81016105
 ---
 
 Make surface feel like a safe, rewarding home base to contrast with underground tension.

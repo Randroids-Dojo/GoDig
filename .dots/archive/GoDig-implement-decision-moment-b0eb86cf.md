@@ -1,9 +1,11 @@
 ---
 title: "implement: Decision moment design - ladder scarcity creates meaningful choices"
-status: open
+status: closed
 priority: 1
 issue-type: task
-created-at: "2026-02-01T09:58:15.623375-06:00"
+created-at: "\"2026-02-01T09:58:15.623375-06:00\""
+closed-at: "2026-02-02T09:52:25.050922-06:00"
+close-reason: Design principle implemented through ladder warnings, inventory full popup, and forfeit cargo option
 ---
 
 ## Description

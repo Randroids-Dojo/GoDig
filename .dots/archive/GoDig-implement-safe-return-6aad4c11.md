@@ -1,9 +1,11 @@
 ---
 title: "implement: Safe return celebration when reaching surface with loot"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-01T08:39:52.629680-06:00"
+created-at: "\"2026-02-01T08:39:52.629680-06:00\""
+closed-at: "2026-02-02T09:51:47.507673-06:00"
+close-reason: Duplicate of GoDig-implement-safe-return-a8427f4a
 ---
 
 ## Description

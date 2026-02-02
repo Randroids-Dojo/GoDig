@@ -6,12 +6,12 @@ extends Node
 
 class_name NumberAnimator
 
-## Colors for different value types
-const COLOR_COINS := Color(1.0, 0.85, 0.2)  # Gold
-const COLOR_ORE := Color(0.3, 0.9, 0.3)  # Green
-const COLOR_DEPTH := Color(0.4, 0.7, 1.0)  # Blue
-const COLOR_RECORD := Color(1.0, 0.5, 0.9)  # Pink/Magenta
-const COLOR_LADDER := Color(0.9, 0.7, 0.4)  # Tan/Brown
+## Colors for different value types - reference UIColors for consistency
+const COLOR_COINS := UIColors.GOLD
+const COLOR_ORE := UIColors.GREEN
+const COLOR_DEPTH := UIColors.BLUE
+const COLOR_RECORD := UIColors.RECORD
+const COLOR_LADDER := UIColors.LADDER
 
 ## Animation parameters
 const PULSE_SCALE := 1.25

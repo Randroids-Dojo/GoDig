@@ -55,11 +55,11 @@ var inventory_value_label: Label = null
 var _last_inventory_value: int = 0
 var _inventory_value_tween: Tween = null
 
-## Number animation colors
-const COLOR_COINS := Color(1.0, 0.85, 0.2)  # Gold
-const COLOR_DEPTH := Color(0.4, 0.7, 1.0)  # Blue
-const COLOR_RECORD := Color(1.0, 0.5, 0.9)  # Pink/Magenta for new records
-const COLOR_INVENTORY := Color(0.3, 0.9, 0.3)  # Green
+## Number animation colors - reference UIColors for consistency
+const COLOR_COINS := UIColors.GOLD
+const COLOR_DEPTH := UIColors.BLUE
+const COLOR_RECORD := UIColors.RECORD
+const COLOR_INVENTORY := UIColors.GREEN
 
 ## Animation state
 var _vignette_pulse_time: float = 0.0
@@ -99,13 +99,13 @@ var teleport_quickslot: Control = null
 var teleport_count_label: Label = null
 var teleport_button: Button = null
 
-## Standard outline settings for HUD text
-const HUD_OUTLINE_SIZE := 3
-const HUD_OUTLINE_COLOR := Color(0.0, 0.0, 0.0, 0.9)
+## Standard outline settings for HUD text - reference UIColors for consistency
+const HUD_OUTLINE_SIZE := UIColors.OUTLINE_SIZE
+const HUD_OUTLINE_COLOR := UIColors.OUTLINE
 
-## HUD panel colors
-const HUD_PANEL_COLOR := Color(0.1, 0.1, 0.15, 0.85)
-const HUD_BUTTON_COLOR := Color(0.15, 0.15, 0.2, 0.9)
+## HUD panel colors - reference UIColors for consistency
+const HUD_PANEL_COLOR := UIColors.PANEL_DARK
+const HUD_BUTTON_COLOR := UIColors.PANEL_MEDIUM
 
 ## Left panel backdrop
 var left_panel_bg: ColorRect = null
@@ -323,13 +323,13 @@ func _update_health_display(current_hp: int, max_hp: int) -> void:
 		var hp_percent := float(current_hp) / float(max_hp) if max_hp > 0 else 0.0
 		if hp_percent <= 0.25:
 			# Critical - red
-			health_bar.modulate = Color(1.0, 0.2, 0.2)
+			health_bar.modulate = UIColors.HEALTH_LOW
 		elif hp_percent <= 0.5:
 			# Low - orange
-			health_bar.modulate = Color(1.0, 0.6, 0.2)
+			health_bar.modulate = UIColors.HEALTH_MEDIUM
 		else:
 			# Normal - green
-			health_bar.modulate = Color(0.3, 0.8, 0.3)
+			health_bar.modulate = UIColors.HEALTH_FULL
 
 	# Update label
 	if health_label:
@@ -429,7 +429,7 @@ func _setup_depth_bonus_indicator() -> void:
 	# Style the label
 	depth_bonus_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	depth_bonus_label.add_theme_font_size_override("font_size", 14)
-	depth_bonus_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))  # Green for bonus
+	depth_bonus_label.add_theme_color_override("font_color", UIColors.GREEN_BRIGHT)  # Green for bonus
 	apply_text_outline(depth_bonus_label)
 
 	add_child(depth_bonus_label)
@@ -640,7 +640,7 @@ func _setup_tool_durability() -> void:
 	tool_durability_label.custom_minimum_size = Vector2(39, 16)
 	tool_durability_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	tool_durability_label.add_theme_font_size_override("font_size", 12)
-	tool_durability_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	tool_durability_label.add_theme_color_override("font_color", UIColors.TEXT_LIGHT)
 	apply_text_outline(tool_durability_label)
 	tool_durability_container.add_child(tool_durability_label)
 
@@ -686,8 +686,8 @@ func _update_tool_durability() -> void:
 		tool_durability_bar.modulate = Color.YELLOW
 		tool_durability_label.add_theme_color_override("font_color", Color.YELLOW)
 	else:
-		tool_durability_bar.modulate = Color(0.4, 0.8, 0.4)
-		tool_durability_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+		tool_durability_bar.modulate = UIColors.DURABILITY_GOOD
+		tool_durability_label.add_theme_color_override("font_color", UIColors.DURABILITY_TEXT)
 
 
 # ============================================
@@ -886,7 +886,7 @@ func _update_upgrade_goal_display() -> void:
 	var next_dmg := int(next_tool.damage)
 	if not depth_ok:
 		upgrade_goal_label.text = "Next: %s (DMG:%d) - Dig to %dm" % [next_tool.display_name, next_dmg, next_tool.unlock_depth]
-		upgrade_goal_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		upgrade_goal_label.add_theme_color_override("font_color", UIColors.TEXT_DIM)
 	elif can_afford:
 		upgrade_goal_label.text = "Next: %s (DMG:%d) - READY!" % [next_tool.display_name, next_dmg]
 		upgrade_goal_label.add_theme_color_override("font_color", Color.GREEN)
@@ -894,10 +894,10 @@ func _update_upgrade_goal_display() -> void:
 	elif progress_ratio >= 0.8:
 		# Almost there! - encouraging message at 80%+ progress
 		upgrade_goal_label.text = "Next: %s (DMG:%d) - Almost there!" % [next_tool.display_name, next_dmg]
-		upgrade_goal_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))  # Gold/yellow
+		upgrade_goal_label.add_theme_color_override("font_color", UIColors.GOLD_BRIGHT)  # Gold/yellow
 	else:
 		upgrade_goal_label.text = "Next: %s (DMG:%d)" % [next_tool.display_name, next_dmg]
-		upgrade_goal_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+		upgrade_goal_label.add_theme_color_override("font_color", UIColors.TEXT_LIGHT)
 
 	# Update progress bar
 	upgrade_goal_progress.max_value = cost
@@ -917,7 +917,7 @@ func _update_upgrade_goal_display() -> void:
 	if can_afford:
 		upgrade_goal_progress.modulate = Color.GREEN
 	elif progress_ratio >= 0.8:
-		upgrade_goal_progress.modulate = Color(1.0, 0.9, 0.3)  # Gold
+		upgrade_goal_progress.modulate = UIColors.GOLD_BRIGHT  # Gold
 	elif progress_ratio >= 0.5:
 		upgrade_goal_progress.modulate = Color.YELLOW
 	else:
@@ -957,7 +957,7 @@ func _setup_save_indicator() -> void:
 	# Style
 	save_indicator_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	save_indicator_label.add_theme_font_size_override("font_size", 12)
-	save_indicator_label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.6))  # Bright green
+	save_indicator_label.add_theme_color_override("font_color", UIColors.GREEN_BRIGHT)  # Bright green
 	apply_text_outline(save_indicator_label)
 
 	add_child(save_indicator_label)
@@ -985,12 +985,12 @@ func _update_save_indicator() -> void:
 	elif seconds < 5:
 		save_indicator_label.visible = true
 		save_indicator_label.text = "Saved"
-		save_indicator_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+		save_indicator_label.add_theme_color_override("font_color", UIColors.GREEN_BRIGHT)
 		save_indicator_label.modulate.a = 1.0
 	elif seconds < 10:
 		save_indicator_label.visible = true
 		save_indicator_label.text = "Saved"
-		save_indicator_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+		save_indicator_label.add_theme_color_override("font_color", UIColors.GREEN_BRIGHT)
 		# Fade out
 		save_indicator_label.modulate.a = 1.0 - ((seconds - 5.0) / 5.0)
 	else:
@@ -1117,8 +1117,8 @@ func _update_ladder_quickslot() -> void:
 		ladder_quickslot.modulate = Color.WHITE
 	else:
 		ladder_count_label.text = "x0"
-		ladder_count_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-		ladder_quickslot.modulate = Color(0.7, 0.7, 0.7, 1.0)  # Less dim, still opaque
+		ladder_count_label.add_theme_color_override("font_color", UIColors.SLOT_EMPTY_TEXT)
+		ladder_quickslot.modulate = UIColors.SLOT_EMPTY_MODULATE  # Less dim, still opaque
 
 	# Also check ladder warning whenever ladder count changes
 	_check_ladder_warning()
@@ -1182,7 +1182,7 @@ func _show_ladder_placement_error(message: String) -> void:
 	# Flash the quickslot red briefly
 	if ladder_quickslot:
 		var original_modulate: Color = ladder_quickslot.modulate
-		ladder_quickslot.modulate = Color(1.0, 0.4, 0.4)
+		ladder_quickslot.modulate = UIColors.SLOT_ALERT
 
 		var tween := create_tween()
 		tween.tween_property(ladder_quickslot, "modulate", original_modulate, 0.2)
@@ -1341,8 +1341,8 @@ func _update_rope_quickslot() -> void:
 		rope_quickslot.modulate = Color.WHITE
 	else:
 		rope_count_label.text = "x0"
-		rope_count_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-		rope_quickslot.modulate = Color(0.7, 0.7, 0.7, 1.0)
+		rope_count_label.add_theme_color_override("font_color", UIColors.SLOT_EMPTY_TEXT)
+		rope_quickslot.modulate = UIColors.SLOT_EMPTY_MODULATE
 
 
 func _get_rope_count() -> int:
@@ -1435,8 +1435,8 @@ func _update_teleport_quickslot() -> void:
 		teleport_quickslot.modulate = Color.WHITE
 	else:
 		teleport_count_label.text = "x0"
-		teleport_count_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-		teleport_quickslot.modulate = Color(0.7, 0.7, 0.7, 1.0)
+		teleport_count_label.add_theme_color_override("font_color", UIColors.SLOT_EMPTY_TEXT)
+		teleport_quickslot.modulate = UIColors.SLOT_EMPTY_MODULATE
 
 
 func _get_teleport_count() -> int:
@@ -1484,7 +1484,7 @@ func _setup_mining_progress() -> void:
 	# Background panel
 	var bg := ColorRect.new()
 	bg.name = "Background"
-	bg.color = Color(0.1, 0.1, 0.1, 0.85)
+	bg.color = UIColors.MINING_BG
 	bg.size = Vector2(200, 40)
 	mining_progress_container.add_child(bg)
 
@@ -1495,7 +1495,7 @@ func _setup_mining_progress() -> void:
 	mining_progress_label.position = Vector2(8, 2)
 	mining_progress_label.custom_minimum_size = Vector2(184, 16)
 	mining_progress_label.add_theme_font_size_override("font_size", 12)
-	mining_progress_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0))
+	mining_progress_label.add_theme_color_override("font_color", UIColors.TEXT_WHITE)
 	apply_text_outline(mining_progress_label)
 	mining_progress_container.add_child(mining_progress_label)
 
@@ -1547,11 +1547,11 @@ func _update_mining_progress() -> void:
 
 	# Color the progress bar based on progress
 	if progress < 0.5:
-		mining_progress_bar.modulate = Color(0.8, 0.8, 0.8)
+		mining_progress_bar.modulate = UIColors.MINING_LOW
 	elif progress < 0.8:
-		mining_progress_bar.modulate = Color(0.9, 0.9, 0.5)
+		mining_progress_bar.modulate = UIColors.MINING_MID
 	else:
-		mining_progress_bar.modulate = Color(0.5, 1.0, 0.5)
+		mining_progress_bar.modulate = UIColors.MINING_HIGH
 
 
 func _show_mining_progress() -> void:
@@ -1685,7 +1685,7 @@ func _setup_guidance_toast() -> void:
 	# Background panel with rounded corners feel
 	var bg := ColorRect.new()
 	bg.name = "Background"
-	bg.color = Color(0.15, 0.35, 0.15, 0.95)  # Green-tinted background
+	bg.color = UIColors.TOAST_BG_SUCCESS  # Green-tinted background
 	bg.size = Vector2(280, 50)
 	guidance_toast.add_child(bg)
 
@@ -1695,7 +1695,7 @@ func _setup_guidance_toast() -> void:
 	guidance_toast_icon.text = "!"
 	guidance_toast_icon.position = Vector2(10, 8)
 	guidance_toast_icon.add_theme_font_size_override("font_size", 24)
-	guidance_toast_icon.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))  # Gold
+	guidance_toast_icon.add_theme_color_override("font_color", UIColors.GOLD_BRIGHT)  # Gold
 	guidance_toast.add_child(guidance_toast_icon)
 
 	# Message label
@@ -1813,7 +1813,7 @@ func _setup_ladder_warning() -> void:
 	# Background panel with warning color
 	var bg := ColorRect.new()
 	bg.name = "Background"
-	bg.color = Color(0.6, 0.2, 0.1, 0.9)  # Dark red/orange
+	bg.color = UIColors.WARNING_BG_RED  # Dark red/orange
 	bg.size = Vector2(64, 56)
 	ladder_warning_container.add_child(bg)
 
@@ -1823,7 +1823,7 @@ func _setup_ladder_warning() -> void:
 	ladder_warning_icon.text = "!"
 	ladder_warning_icon.position = Vector2(8, 2)
 	ladder_warning_icon.add_theme_font_size_override("font_size", 28)
-	ladder_warning_icon.add_theme_color_override("font_color", Color(1.0, 0.8, 0.2))  # Yellow
+	ladder_warning_icon.add_theme_color_override("font_color", UIColors.WARNING_YELLOW)  # Yellow
 	ladder_warning_container.add_child(ladder_warning_icon)
 
 	# Warning text
@@ -1893,9 +1893,9 @@ func _update_ladder_warning_display(level: int) -> void:
 		# Standard warning
 		ladder_warning_label.text = "LOW"
 		ladder_warning_icon.text = "!"
-		ladder_warning_icon.add_theme_color_override("font_color", Color(1.0, 0.8, 0.2))  # Yellow
+		ladder_warning_icon.add_theme_color_override("font_color", UIColors.WARNING_YELLOW)  # Yellow
 		if ladder_warning_container.get_node("Background"):
-			ladder_warning_container.get_node("Background").color = Color(0.5, 0.35, 0.1, 0.9)  # Orange
+			ladder_warning_container.get_node("Background").color = UIColors.WARNING_BG_YELLOW  # Orange
 		# Play subtle audio cue (once per state change)
 		if SoundManager:
 			SoundManager.play_ui_hover()
@@ -1903,9 +1903,9 @@ func _update_ladder_warning_display(level: int) -> void:
 		# Urgent warning (level 2)
 		ladder_warning_label.text = "DANGER"
 		ladder_warning_icon.text = "!!"
-		ladder_warning_icon.add_theme_color_override("font_color", Color(1.0, 0.3, 0.2))  # Red
+		ladder_warning_icon.add_theme_color_override("font_color", UIColors.WARNING_RED)  # Red
 		if ladder_warning_container.get_node("Background"):
-			ladder_warning_container.get_node("Background").color = Color(0.6, 0.15, 0.1, 0.95)  # Dark red
+			ladder_warning_container.get_node("Background").color = UIColors.WARNING_BG_RED  # Dark red
 		# Play alert audio cue
 		if SoundManager:
 			SoundManager.play_ui_error()
@@ -1952,7 +1952,7 @@ func _setup_depth_record_display() -> void:
 	# Style the label
 	depth_record_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	depth_record_label.add_theme_font_size_override("font_size", 14)
-	depth_record_label.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))  # Light blue
+	depth_record_label.add_theme_color_override("font_color", UIColors.BLUE_LIGHT)  # Light blue
 	apply_text_outline(depth_record_label, 2)
 
 	add_child(depth_record_label)
@@ -2010,7 +2010,7 @@ func _celebrate_new_depth_record(depth: int) -> void:
 	_depth_record_tween.tween_property(depth_record_label, "scale", Vector2(1.0, 1.0), 0.2) \
 		.set_ease(Tween.EASE_OUT)
 	_depth_record_tween.tween_callback(func():
-		depth_record_label.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
+		depth_record_label.add_theme_color_override("font_color", UIColors.BLUE_LIGHT)
 	)
 
 	# Show milestone notification for new record
@@ -2179,7 +2179,7 @@ func _setup_mining_streak_indicator() -> void:
 	# Background panel (very subtle)
 	var bg := ColorRect.new()
 	bg.name = "Background"
-	bg.color = Color(0.2, 0.2, 0.25, 0.7)
+	bg.color = UIColors.STREAK_BG
 	bg.size = Vector2(80, 24)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	streak_container.add_child(bg)
@@ -2192,7 +2192,7 @@ func _setup_mining_streak_indicator() -> void:
 	streak_label.custom_minimum_size = Vector2(80, 20)
 	streak_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	streak_label.add_theme_font_size_override("font_size", 13)
-	streak_label.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))  # Subtle blue-white
+	streak_label.add_theme_color_override("font_color", UIColors.STREAK_NORMAL)  # Subtle blue-white
 	apply_text_outline(streak_label, 2)
 	streak_container.add_child(streak_label)
 
@@ -2216,10 +2216,10 @@ func _on_mining_streak_updated(streak_count: int, _multiplier: float) -> void:
 	# Update text based on streak level
 	if streak_count >= 5:
 		streak_label.text = "x%d" % streak_count
-		streak_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))  # Gold for "in the zone"
+		streak_label.add_theme_color_override("font_color", UIColors.STREAK_HOT)  # Gold for "in the zone"
 	else:
 		streak_label.text = "x%d" % streak_count
-		streak_label.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))  # Subtle blue
+		streak_label.add_theme_color_override("font_color", UIColors.STREAK_NORMAL)  # Subtle blue
 
 	_show_streak_indicator()
 

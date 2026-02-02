@@ -5,8 +5,12 @@ extends Control
 ## Uses GameManager for coin transactions and InventoryManager for items.
 
 const ShopBuilding = preload("res://scripts/surface/shop_building.gd")
+const SellAnimationScript = preload("res://scripts/effects/sell_animation.gd")
 
 signal closed
+
+## Sell animation instance
+var _sell_animation: CanvasLayer = null
 
 @onready var coins_label: Label = $Panel/VBox/Header/CoinsLabel
 @onready var shop_title: Label = $Panel/VBox/Header/ShopTitle
@@ -53,6 +57,18 @@ func _ready() -> void:
 	sell_all_button.pressed.connect(_on_sell_all_pressed)
 	GameManager.coins_changed.connect(_on_coins_changed)
 	InventoryManager.inventory_changed.connect(_refresh_sell_tab)
+
+	# Create sell animation instance
+	_setup_sell_animation()
+
+
+func _setup_sell_animation() -> void:
+	## Create the sell animation CanvasLayer
+	_sell_animation = CanvasLayer.new()
+	_sell_animation.set_script(SellAnimationScript)
+	_sell_animation.name = "SellAnimation"
+	add_child(_sell_animation)
+	_sell_animation.animation_complete.connect(_on_sell_animation_complete)
 
 
 func open(shop_type: int = ShopBuilding.ShopType.GENERAL_STORE) -> void:
@@ -261,30 +277,53 @@ func _get_sell_multiplier(item) -> float:
 
 
 func _on_sell_item(item) -> void:
-	## Sell all of one item type
+	## Sell all of one item type with animation
+	if _sell_animation and _sell_animation.is_playing():
+		return  # Don't allow overlapping sales
+
 	var multiplier := _get_sell_multiplier(item)
 	var total := 0
+	var items_data := []
+
 	for slot in InventoryManager.slots:
 		if slot.item != null and slot.item.id == item.id:
-			total += int(slot.item.sell_value * slot.quantity * multiplier)
+			var item_value := int(slot.item.sell_value * slot.quantity * multiplier)
+			total += item_value
+			items_data.append({
+				"item": slot.item,
+				"quantity": slot.quantity,
+				"value": item_value
+			})
 
 	if total > 0:
+		# Remove items from inventory first
 		InventoryManager.remove_all_of_item(item)
-		GameManager.add_coins(total)
+
+		# Get spawn position (center of sell panel)
+		var spawn_pos := _get_sell_panel_center()
+
+		# Start sell animation (coins fly, then coins are added when animation completes)
+		if _sell_animation:
+			# Store pending sale data for completion callback
+			_pending_sale_total = total
+			_pending_sale_is_single = true
+			_sell_animation.play(items_data, total, spawn_pos)
+		else:
+			# Fallback: no animation, add coins directly
+			GameManager.add_coins(total)
+			_finalize_sale(total)
+
 		_refresh_sell_tab()
-		# Track for achievements
-		if AchievementManager:
-			AchievementManager.track_sale(total)
-		# Complete tutorial after first sale
-		_check_tutorial_sale_complete()
-		# Auto-save after transaction
-		SaveManager.save_game()
 
 
 func _on_sell_all_pressed() -> void:
-	## Sell all sellable items
+	## Sell all sellable items with animation
+	if _sell_animation and _sell_animation.is_playing():
+		return  # Don't allow overlapping sales
+
 	var total := 0
 	var items_to_remove := []
+	var items_data := []
 
 	for slot in InventoryManager.slots:
 		if slot.is_empty():
@@ -293,24 +332,67 @@ func _on_sell_all_pressed() -> void:
 			continue
 		if slot.item.category in ["ore", "gem"]:
 			var multiplier := _get_sell_multiplier(slot.item)
-			total += int(slot.item.sell_value * slot.quantity * multiplier)
+			var item_value := int(slot.item.sell_value * slot.quantity * multiplier)
+			total += item_value
 			if slot.item not in items_to_remove:
 				items_to_remove.append(slot.item)
+			items_data.append({
+				"item": slot.item,
+				"quantity": slot.quantity,
+				"value": item_value
+			})
 
 	if total > 0:
-		# Remove all sellable items
+		# Remove all sellable items first
 		for item in items_to_remove:
 			InventoryManager.remove_all_of_item(item)
 
-		GameManager.add_coins(total)
+		# Get spawn position (center of sell panel)
+		var spawn_pos := _get_sell_panel_center()
+
+		# Start sell animation (coins fly, then coins are added when animation completes)
+		if _sell_animation:
+			# Store pending sale data for completion callback
+			_pending_sale_total = total
+			_pending_sale_is_single = false
+			_sell_animation.play(items_data, total, spawn_pos)
+		else:
+			# Fallback: no animation, add coins directly
+			GameManager.add_coins(total)
+			_finalize_sale(total)
+
 		_refresh_sell_tab()
-		# Track for achievements
-		if AchievementManager:
-			AchievementManager.track_sale(total)
-		# Complete tutorial after first sale
-		_check_tutorial_sale_complete()
-		# Auto-save after transaction
-		SaveManager.save_game()
+
+
+## Pending sale tracking for animation completion
+var _pending_sale_total: int = 0
+var _pending_sale_is_single: bool = false
+
+
+func _get_sell_panel_center() -> Vector2:
+	## Get the center position of the sell panel for coin spawn
+	if sell_items_container:
+		return sell_items_container.global_position + sell_items_container.size / 2.0
+	if sell_tab:
+		return sell_tab.global_position + sell_tab.size / 2.0
+	# Fallback to center of shop panel
+	return global_position + size / 2.0
+
+
+func _on_sell_animation_complete(_total: int) -> void:
+	## Called when sell animation finishes - finalize the sale
+	_finalize_sale(_pending_sale_total)
+
+
+func _finalize_sale(total: int) -> void:
+	## Complete the sale after animation (or directly if no animation)
+	# Track for achievements
+	if AchievementManager:
+		AchievementManager.track_sale(total)
+	# Complete tutorial after first sale
+	_check_tutorial_sale_complete()
+	# Auto-save after transaction
+	SaveManager.save_game()
 
 
 func _check_tutorial_sale_complete() -> void:

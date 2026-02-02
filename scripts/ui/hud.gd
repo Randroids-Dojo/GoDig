@@ -12,6 +12,9 @@ extends Control
 @onready var coins_label: Label = $CoinsLabel
 @onready var depth_label: Label = $DepthLabel
 
+## Depth bonus indicator (created programmatically)
+var depth_bonus_label: Label = null
+
 ## Reference to pause button
 @onready var pause_button: Button = $PauseButton
 
@@ -152,7 +155,11 @@ func _ready() -> void:
 	# Connect tool changes to update tool indicator
 	if PlayerData:
 		PlayerData.tool_changed.connect(_on_tool_changed)
+		PlayerData.dive_depth_updated.connect(_on_dive_depth_updated)
 		_update_tool_indicator()
+
+	# Create depth bonus indicator
+	_setup_depth_bonus_indicator()
 
 	# Create next upgrade goal display
 	_setup_upgrade_goal_display()
@@ -323,6 +330,54 @@ func _on_pause_pressed() -> void:
 
 
 # ============================================
+# DEPTH BONUS INDICATOR
+# ============================================
+
+func _setup_depth_bonus_indicator() -> void:
+	## Create indicator showing depth-based sell bonus when underground
+	depth_bonus_label = Label.new()
+	depth_bonus_label.name = "DepthBonusLabel"
+
+	# Position below the depth label
+	depth_bonus_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	depth_bonus_label.position = Vector2(16, 72)  # Below depth label
+	depth_bonus_label.custom_minimum_size = Vector2(200, 20)
+
+	# Style the label
+	depth_bonus_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	depth_bonus_label.add_theme_font_size_override("font_size", 14)
+	depth_bonus_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))  # Green for bonus
+	apply_text_outline(depth_bonus_label)
+
+	add_child(depth_bonus_label)
+
+	# Initial update
+	_update_depth_bonus_indicator()
+
+
+func _on_dive_depth_updated(_depth: int) -> void:
+	_update_depth_bonus_indicator()
+	_update_quick_sell_button()  # Also update sell button with new multiplier
+
+
+func _update_depth_bonus_indicator() -> void:
+	## Update the depth bonus display
+	if depth_bonus_label == null:
+		return
+	if PlayerData == null:
+		depth_bonus_label.visible = false
+		return
+
+	var multiplier := PlayerData.get_depth_sell_multiplier()
+	if multiplier > 1.0:
+		var bonus_pct := int((multiplier - 1.0) * 100)
+		depth_bonus_label.text = "Sell Bonus: +%d%%" % bonus_pct
+		depth_bonus_label.visible = true
+	else:
+		depth_bonus_label.visible = false
+
+
+# ============================================
 # QUICK-SELL BUTTON
 # ============================================
 
@@ -355,42 +410,54 @@ func _update_quick_sell_button() -> void:
 	var total_value := _calculate_sellable_value()
 
 	if total_value > 0:
-		quick_sell_button.text = "Sell All ($%d)" % total_value
+		# Show depth bonus percentage if applicable
+		var multiplier := PlayerData.get_depth_sell_multiplier() if PlayerData else 1.0
+		if multiplier > 1.0:
+			var bonus_pct := int((multiplier - 1.0) * 100)
+			quick_sell_button.text = "Sell All ($%d +%d%%)" % [total_value, bonus_pct]
+		else:
+			quick_sell_button.text = "Sell All ($%d)" % total_value
 		quick_sell_button.visible = true
 	else:
 		quick_sell_button.visible = false
 
 
 func _calculate_sellable_value() -> int:
-	## Calculate total value of sellable items in inventory
+	## Calculate total value of sellable items in inventory (with depth multiplier)
 	if InventoryManager == null:
 		return 0
 
-	var total := 0
+	var base_total := 0
 	for slot in InventoryManager.slots:
 		if slot.is_empty() or slot.item == null:
 			continue
 		if slot.item.category in ["ore", "gem"]:
-			total += slot.item.sell_value * slot.quantity
+			base_total += slot.item.sell_value * slot.quantity
 
-	return total
+	# Apply depth multiplier
+	var multiplier := PlayerData.get_depth_sell_multiplier() if PlayerData else 1.0
+	return int(base_total * multiplier)
 
 
 func _on_quick_sell_pressed() -> void:
-	## Sell all ore and gems instantly
+	## Sell all ore and gems instantly (with depth multiplier)
 	if InventoryManager == null or GameManager == null:
 		return
 
-	var total := 0
+	var base_total := 0
 	var items_to_remove := []
 
 	for slot in InventoryManager.slots:
 		if slot.is_empty() or slot.item == null:
 			continue
 		if slot.item.category in ["ore", "gem"]:
-			total += slot.item.sell_value * slot.quantity
+			base_total += slot.item.sell_value * slot.quantity
 			if slot.item not in items_to_remove:
 				items_to_remove.append(slot.item)
+
+	# Apply depth multiplier
+	var multiplier := PlayerData.get_depth_sell_multiplier() if PlayerData else 1.0
+	var total := int(base_total * multiplier)
 
 	if total > 0:
 		# Remove all sellable items

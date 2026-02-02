@@ -21,6 +21,12 @@ var equipped_tool_id: String = "rusty_pickaxe"
 ## Maximum depth the player has ever reached (in grid rows)
 var max_depth_reached: int = 0
 
+## Maximum depth reached during current dive (resets on surface)
+## Used for depth-based sell value multiplier
+var current_dive_max_depth: int = 0
+
+signal dive_depth_updated(depth: int)
+
 ## Tool durability tracking (per-tool dictionary)
 var tool_durabilities: Dictionary = {}  # tool_id -> current_durability
 
@@ -72,6 +78,17 @@ func _on_depth_updated(depth: int) -> void:
 	if depth > max_depth_reached:
 		max_depth_reached = depth
 		max_depth_updated.emit(max_depth_reached)
+
+	## Track current dive max depth for sell multiplier
+	## Reset when player returns to surface (depth 0)
+	if depth == 0:
+		if current_dive_max_depth > 0:
+			print("[PlayerData] Dive complete! Max depth was %dm" % current_dive_max_depth)
+		current_dive_max_depth = 0
+		dive_depth_updated.emit(0)
+	elif depth > current_dive_max_depth:
+		current_dive_max_depth = depth
+		dive_depth_updated.emit(current_dive_max_depth)
 
 
 ## Get the currently equipped tool resource
@@ -184,6 +201,7 @@ func reset() -> void:
 	equipped_helmet_id = ""
 	equipped_accessory_id = ""
 	max_depth_reached = 0
+	current_dive_max_depth = 0
 	tool_durabilities.clear()
 	warehouse_level = 0
 	gadgets_owned.clear()
@@ -344,6 +362,13 @@ func unequip_boots() -> void:
 func unequip_helmet() -> void:
 	equipped_helmet_id = ""
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, null)
+
+
+## Get depth-based sell value multiplier for current dive
+## Formula: 1.0 + (dive_depth / 100)
+## At 50m deep: 1.5x value, at 100m: 2x value
+func get_depth_sell_multiplier() -> float:
+	return 1.0 + (float(current_dive_max_depth) / 100.0)
 
 
 ## Get fall damage reduction from equipped boots (0.0 - 1.0)
@@ -572,6 +597,7 @@ func get_save_data() -> Dictionary:
 		"equipped_helmet_id": equipped_helmet_id,
 		"equipped_accessory_id": equipped_accessory_id,
 		"max_depth_reached": max_depth_reached,
+		"current_dive_max_depth": current_dive_max_depth,
 		"tool_durabilities": tool_durabilities.duplicate(),
 		"warehouse_level": warehouse_level,
 		"gadgets_owned": gadgets_owned.duplicate(),
@@ -589,6 +615,7 @@ func load_save_data(data: Dictionary) -> void:
 	equipped_helmet_id = data.get("equipped_helmet_id", "")
 	equipped_accessory_id = data.get("equipped_accessory_id", "")
 	max_depth_reached = data.get("max_depth_reached", 0)
+	current_dive_max_depth = data.get("current_dive_max_depth", 0)
 	tool_durabilities = data.get("tool_durabilities", {}).duplicate()
 	warehouse_level = data.get("warehouse_level", 0)
 	gadgets_owned = data.get("gadgets_owned", {}).duplicate()

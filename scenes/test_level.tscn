@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://test_level_001"]
+[gd_scene load_steps=15 format=3 uid="uid://test_level_001"]
 
 [ext_resource type="Script" path="res://scripts/test_level.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/world/dirt_grid.gd" id="2_grid"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://surface_001" path="res://scenes/surface.tscn" id="10_surface"]
 [ext_resource type="PackedScene" uid="uid://death_screen_001" path="res://scenes/ui/death_screen.tscn" id="11_death"]
 [ext_resource type="PackedScene" uid="uid://tutorial_overlay_001" path="res://scenes/ui/tutorial_overlay.tscn" id="12_tutorial"]
+[ext_resource type="PackedScene" uid="uid://inventory_panel_001" path="res://scenes/ui/inventory_panel.tscn" id="13_inventory"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(120, 120)
@@ -71,6 +72,9 @@ text = "SHOP"
 [node name="Shop" parent="UI" instance=ExtResource("7_shop")]
 visible = false
 
+[node name="InventoryPanel" parent="UI" instance=ExtResource("13_inventory")]
+visible = false
+
 [node name="PauseMenu" parent="." instance=ExtResource("8_pause")]
 visible = false
 
@@ -93,3 +97,6 @@ visible = false
 [connection signal="quit_requested" from="PauseMenu" to="." method="_on_pause_menu_quit"]
 [connection signal="respawn_requested" from="DeathScreen" to="." method="_on_death_screen_respawn"]
 [connection signal="reload_requested" from="DeathScreen" to="." method="_on_death_screen_reload"]
+[connection signal="item_used" from="UI/InventoryPanel" to="." method="_on_inventory_item_used"]
+[connection signal="item_dropped" from="UI/InventoryPanel" to="." method="_on_inventory_item_dropped"]
+[connection signal="closed" from="UI/InventoryPanel" to="." method="_on_inventory_closed"]

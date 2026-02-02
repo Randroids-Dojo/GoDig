@@ -201,6 +201,21 @@ func on_ui_tap() -> void:
 	trigger(HapticType.LIGHT)
 
 
+## Convenience method for light haptic tap
+func light_tap() -> void:
+	trigger(HapticType.LIGHT)
+
+
+## Convenience method for medium haptic tap
+func medium_tap() -> void:
+	trigger(HapticType.MEDIUM)
+
+
+## Convenience method for heavy haptic tap
+func heavy_tap() -> void:
+	trigger(HapticType.HEAVY)
+
+
 ## Called when an action fails (can't afford, blocked, etc.)
 func on_action_failed() -> void:
 	trigger(HapticType.ERROR)
@@ -227,6 +242,27 @@ func on_layer_entered() -> void:
 ## Called when player picks up a valuable item (gems, rare ores)
 func on_rare_pickup() -> void:
 	trigger(HapticType.SUCCESS)
+
+
+## Called on jackpot discovery - extra strong haptic burst for rare+ finds
+## rarity: 0=common, 1=uncommon, 2=rare, 3=epic, 4=legendary
+func on_jackpot_discovery(rarity: int) -> void:
+	match rarity:
+		1:  # Uncommon - light success tap
+			trigger(HapticType.LIGHT)
+		2:  # Rare - medium success
+			trigger(HapticType.MEDIUM)
+		3:  # Epic - heavy success
+			trigger(HapticType.SUCCESS)
+		4, _:  # Legendary - notification success (strongest)
+			if rarity >= 4:
+				notification_success()
+
+
+## Trigger a notification-style success haptic (strongest available)
+## Used for legendary discoveries and major achievements
+func notification_success() -> void:
+	trigger_custom(0.9, 60)
 
 
 ## Called when player's inventory becomes full

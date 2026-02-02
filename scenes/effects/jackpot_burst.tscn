@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://jackpot_burst_001"]
+
+[ext_resource type="Script" path="res://scripts/effects/jackpot_burst.gd" id="1_burst"]
+
+[node name="JackpotBurst" type="CPUParticles2D"]
+z_index = 50
+script = ExtResource("1_burst")
+emitting = false
+amount = 24
+lifetime = 0.8
+one_shot = true
+explosiveness = 1.0
+spread = 180.0
+gravity = Vector2(0, 100)
+initial_velocity_min = 150.0
+initial_velocity_max = 300.0
+scale_amount_min = 4.0
+scale_amount_max = 8.0

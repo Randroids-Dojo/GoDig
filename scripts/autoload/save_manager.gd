@@ -699,6 +699,19 @@ func set_first_ore_spawned() -> void:
 		current_save.first_ore_spawned = true
 
 
+## Check if the player has collected their first ore (for celebration)
+func has_first_ore_been_collected() -> bool:
+	if current_save == null:
+		return true  # Assume already done if no save
+	return current_save.first_ore_collected
+
+
+## Mark the first ore as collected (triggers special celebration)
+func set_first_ore_collected() -> void:
+	if current_save != null:
+		current_save.first_ore_collected = true
+
+
 # ============================================
 # ERROR HANDLING AND RECOVERY
 # ============================================

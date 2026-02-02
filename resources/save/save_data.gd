@@ -55,6 +55,9 @@ const CURRENT_VERSION := 1
 ## First ore guarantee flag (ensures new players find ore quickly)
 @export var first_ore_spawned: bool = false
 
+## First ore collected flag (triggers special celebration)
+@export var first_ore_collected: bool = false
+
 
 ## Create a new save with default starting state
 static func create_new(slot_name: String = ""):

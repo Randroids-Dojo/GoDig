@@ -122,3 +122,71 @@ func _return_to_pool() -> void:
 ## Check if this particle instance is available in the pool
 func is_available() -> bool:
 	return _in_pool
+
+
+## Emit a small particle puff for per-hit feedback (lighter than burst)
+## Called on each swing, not just on block destruction
+func puff(world_pos: Vector2, block_color: Color, hardness: float = 10.0) -> void:
+	global_position = world_pos
+	color = block_color
+	visible = true
+	_in_pool = false
+
+	# Lighter particles for per-hit (3-6 small debris)
+	_configure_for_puff(hardness)
+
+	emitting = true
+
+	# Return to pool after particles finish
+	await get_tree().create_timer(lifetime + 0.1).timeout
+	_return_to_pool()
+
+
+func _configure_for_puff(hardness: float) -> void:
+	## Configure lighter particle puff for per-hit effects.
+	## Always uses fewer particles than burst.
+
+	# Fewer particles, shorter lifetime, less dramatic
+	if hardness < MATERIAL_SOFT:
+		# Soft material: tiny dust puff
+		amount = 3
+		lifetime = 0.25
+		spread = 50.0
+		initial_velocity_min = 40.0
+		initial_velocity_max = 80.0
+		gravity = Vector2(0, 300)
+		scale_amount_min = 1.5
+		scale_amount_max = 3.0
+
+	elif hardness < MATERIAL_MEDIUM:
+		# Medium material: small debris
+		amount = 4
+		lifetime = 0.3
+		spread = 40.0
+		initial_velocity_min = 60.0
+		initial_velocity_max = 120.0
+		gravity = Vector2(0, 400)
+		scale_amount_min = 2.0
+		scale_amount_max = 4.0
+
+	elif hardness < MATERIAL_HARD:
+		# Hard material: chip debris
+		amount = 5
+		lifetime = 0.35
+		spread = 35.0
+		initial_velocity_min = 80.0
+		initial_velocity_max = 150.0
+		gravity = Vector2(0, 450)
+		scale_amount_min = 2.5
+		scale_amount_max = 5.0
+
+	else:
+		# Very hard material: rock chips
+		amount = 6
+		lifetime = 0.4
+		spread = 30.0
+		initial_velocity_min = 100.0
+		initial_velocity_max = 180.0
+		gravity = Vector2(0, 500)
+		scale_amount_min = 3.0
+		scale_amount_max = 6.0

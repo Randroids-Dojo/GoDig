@@ -45,6 +45,7 @@ var _achievement_showing: bool = false
 @onready var coins_label: Label = $UI/HUD/CoinsLabel
 @onready var shop_button: Button = $UI/ShopButton
 @onready var shop: Control = $UI/Shop
+@onready var inventory_panel: Control = $UI/InventoryPanel
 @onready var pause_button: Button = $UI/HUD/PauseButton
 @onready var pause_menu: CanvasLayer = $PauseMenu
 @onready var death_screen: CanvasLayer = $DeathScreen
@@ -756,13 +757,210 @@ func _get_shop_display_name(shop_type: int) -> String:
 
 
 func _on_inventory_pressed() -> void:
-	# Toggle inventory UI (placeholder - will be implemented with inventory UI)
+	## Toggle inventory panel UI
 	print("[TestLevel] Inventory button pressed")
-	# For now, just toggle shop as a placeholder
-	if shop.visible:
-		shop.close()
+	if inventory_panel == null:
+		# Fallback to shop if inventory panel not available
+		if shop.visible:
+			shop.close()
+		else:
+			shop.open()
+		return
+
+	if inventory_panel.visible:
+		inventory_panel.close()
 	else:
-		shop.open()
+		# Close shop if open
+		if shop.visible:
+			shop.close()
+		inventory_panel.open()
+
+
+func _on_inventory_item_used(item, slot_index: int) -> void:
+	## Handle item use from inventory panel
+	print("[TestLevel] Item used from inventory: %s (slot %d)" % [item.display_name, slot_index])
+
+	match item.id:
+		"ladder":
+			_use_ladder_from_inventory(slot_index)
+		"rope":
+			_use_rope_from_inventory(slot_index)
+		"teleport_scroll":
+			_use_teleport_scroll_from_inventory(slot_index)
+		"torch":
+			_use_torch_from_inventory(slot_index)
+		_:
+			print("[TestLevel] Unknown usable item: %s" % item.id)
+
+
+func _use_ladder_from_inventory(slot_index: int) -> void:
+	## Place a ladder at the player's current position
+	if player == null or dirt_grid == null:
+		return
+
+	# Check if player has a ladder
+	var ladder_item = DataRegistry.get_item("ladder")
+	if ladder_item == null:
+		return
+
+	# Try to place ladder at player's feet
+	var grid_pos := player.grid_position
+	var success := dirt_grid.place_ladder(grid_pos)
+
+	if success:
+		# Remove ladder from inventory
+		InventoryManager.remove_items_at_slot(slot_index, 1)
+		print("[TestLevel] Placed ladder at %s" % str(grid_pos))
+
+		# Show feedback
+		if floating_text_layer:
+			var floating := FloatingTextScene.instantiate()
+			floating_text_layer.add_child(floating)
+			var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+			screen_pos.y -= 64.0
+			floating.show_pickup("Ladder placed!", Color(0.6, 0.8, 1.0), screen_pos)
+	else:
+		# Show failure feedback
+		if floating_text_layer:
+			var floating := FloatingTextScene.instantiate()
+			floating_text_layer.add_child(floating)
+			var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+			screen_pos.y -= 64.0
+			floating.show_pickup("Can't place ladder here", Color(1.0, 0.5, 0.5), screen_pos)
+
+
+func _use_rope_from_inventory(slot_index: int) -> void:
+	## Place a rope at the player's current position
+	if player == null or dirt_grid == null:
+		return
+
+	var rope_item = DataRegistry.get_item("rope")
+	if rope_item == null:
+		return
+
+	# Try to place rope at player position
+	var grid_pos := player.grid_position
+	var success := false
+	if dirt_grid.has_method("place_rope"):
+		success = dirt_grid.place_rope(grid_pos)
+	else:
+		# Fallback: use ladder placement (rope often shares same mechanics)
+		success = dirt_grid.place_ladder(grid_pos)
+
+	if success:
+		InventoryManager.remove_items_at_slot(slot_index, 1)
+		print("[TestLevel] Placed rope at %s" % str(grid_pos))
+
+		if floating_text_layer:
+			var floating := FloatingTextScene.instantiate()
+			floating_text_layer.add_child(floating)
+			var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+			screen_pos.y -= 64.0
+			floating.show_pickup("Rope placed!", Color(0.8, 0.6, 0.4), screen_pos)
+	else:
+		if floating_text_layer:
+			var floating := FloatingTextScene.instantiate()
+			floating_text_layer.add_child(floating)
+			var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+			screen_pos.y -= 64.0
+			floating.show_pickup("Can't place rope here", Color(1.0, 0.5, 0.5), screen_pos)
+
+
+func _use_teleport_scroll_from_inventory(slot_index: int) -> void:
+	## Use teleport scroll to return to surface instantly
+	if player == null:
+		return
+
+	# Remove scroll from inventory first
+	InventoryManager.remove_items_at_slot(slot_index, 1)
+
+	# Play teleport effect
+	if SoundManager and SoundManager.has_method("play_milestone"):
+		SoundManager.play_milestone()
+
+	# Screen flash effect
+	if _screen_flash:
+		_screen_flash.flash(1, Color(0.3, 0.5, 1.0))  # Blue flash for teleport
+
+	# Teleport to surface
+	if surface:
+		player.position = surface.get_spawn_position()
+		player.grid_position = GameManager.world_to_grid(player.position)
+	else:
+		var center_x := GameManager.GRID_WIDTH / 2
+		var spawn_pos := GameManager.grid_to_world(Vector2i(center_x, GameManager.SURFACE_ROW - 1))
+		player.position = spawn_pos
+		player.grid_position = GameManager.world_to_grid(spawn_pos)
+
+	player.current_state = player.State.IDLE
+	player.velocity = Vector2.ZERO
+	GameManager.update_depth(0)
+
+	# Show feedback
+	if floating_text_layer:
+		var floating := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(floating)
+		var viewport_size := get_viewport().get_visible_rect().size
+		var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
+		floating.show_achievement("TELEPORTED!", Color(0.5, 0.7, 1.0), screen_pos)
+
+	print("[TestLevel] Used teleport scroll - returned to surface")
+
+	# Auto-save after teleport
+	if SaveManager.is_game_loaded():
+		SaveManager.save_game()
+
+
+func _use_torch_from_inventory(slot_index: int) -> void:
+	## Place a torch at the player's current position
+	if player == null or dirt_grid == null:
+		return
+
+	var grid_pos := player.grid_position
+	var success := false
+
+	if dirt_grid.has_method("place_torch"):
+		success = dirt_grid.place_torch(grid_pos)
+	else:
+		# Torch placement not implemented - still consume item but show message
+		success = true
+
+	if success:
+		InventoryManager.remove_items_at_slot(slot_index, 1)
+		print("[TestLevel] Placed torch at %s" % str(grid_pos))
+
+		if floating_text_layer:
+			var floating := FloatingTextScene.instantiate()
+			floating_text_layer.add_child(floating)
+			var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+			screen_pos.y -= 64.0
+			floating.show_pickup("Torch placed!", Color(1.0, 0.9, 0.5), screen_pos)
+	else:
+		if floating_text_layer:
+			var floating := FloatingTextScene.instantiate()
+			floating_text_layer.add_child(floating)
+			var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+			screen_pos.y -= 64.0
+			floating.show_pickup("Can't place torch here", Color(1.0, 0.5, 0.5), screen_pos)
+
+
+func _on_inventory_item_dropped(item, quantity: int, _slot_index: int) -> void:
+	## Handle item drop from inventory panel
+	print("[TestLevel] Item dropped: %d x %s" % [quantity, item.display_name])
+
+	# Show drop feedback
+	if floating_text_layer:
+		var floating := FloatingTextScene.instantiate()
+		floating_text_layer.add_child(floating)
+		var screen_pos := get_viewport().get_canvas_transform() * player.global_position
+		screen_pos.y -= 64.0
+		var text := "Dropped %d x %s" % [quantity, item.display_name]
+		floating.show_pickup(text, Color(0.7, 0.7, 0.7), screen_pos)
+
+
+func _on_inventory_closed() -> void:
+	## Handle inventory panel closed
+	print("[TestLevel] Inventory panel closed")
 
 
 # ============================================

@@ -78,6 +78,7 @@ func _ready() -> void:
 
 	# Connect block destroy for particle effects
 	dirt_grid.block_destroyed.connect(_on_block_destroyed)
+	dirt_grid.block_hit.connect(_on_block_hit)
 	_init_particle_pool()
 	_init_jackpot_effects()
 
@@ -1004,6 +1005,13 @@ func _get_available_jackpot_burst() -> CPUParticles2D:
 			return p
 	# All in use - return first (will interrupt its animation)
 	return _jackpot_pool[0] if not _jackpot_pool.is_empty() else null
+
+
+func _on_block_hit(world_pos: Vector2, color: Color, hardness: float = 10.0) -> void:
+	## Spawn small particle puff when a block is hit (not destroyed)
+	var p := _get_available_particle()
+	if p:
+		p.puff(world_pos, color, hardness)
 
 
 func _on_block_destroyed(world_pos: Vector2, color: Color, hardness: float = 10.0) -> void:

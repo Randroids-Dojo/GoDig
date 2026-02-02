@@ -21,6 +21,9 @@ signal fossil_found(grid_pos: Vector2i, fossil_id: String)
 ## Emitted when a block is destroyed. Includes world position, color, and hardness for effects.
 signal block_destroyed(world_pos: Vector2, color: Color, hardness: float)
 
+## Emitted when a block is hit but not destroyed. For per-hit particle effects.
+signal block_hit(world_pos: Vector2, color: Color, hardness: float)
+
 var _pool: Array = []  # Array of DirtBlock nodes
 var _active: Dictionary = {}  # Dictionary[Vector2i, DirtBlock node]
 var _loaded_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] tracks loaded chunks
@@ -342,6 +345,14 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 			damage = 10.0  # Default fallback
 
 	var destroyed: bool = block.take_hit(damage)
+
+	# Emit hit signal for per-hit particle effects (not on destruction, that has its own signal)
+	if not destroyed:
+		var world_pos := Vector2(
+			pos.x * BLOCK_SIZE + GameManager.GRID_OFFSET_X + BLOCK_SIZE / 2,
+			pos.y * BLOCK_SIZE + BLOCK_SIZE / 2
+		)
+		block_hit.emit(world_pos, block.base_color, block.max_health)
 
 	if destroyed:
 		# Signal what dropped (ore or empty string for plain dirt)

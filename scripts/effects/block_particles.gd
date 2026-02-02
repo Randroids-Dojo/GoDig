@@ -48,14 +48,41 @@ func _create_fade_gradient() -> Gradient:
 
 ## Emit a particle burst at the given position with the block's color
 ## hardness parameter controls particle behavior (soft dirt vs hard stone)
+## Uses tool identity settings for color tinting and scale when available
 func burst(world_pos: Vector2, block_color: Color, hardness: float = 10.0) -> void:
 	global_position = world_pos
-	color = block_color
+
+	# Apply tool particle color tint if available
+	var final_color := block_color
+	var scale_mult := 1.0
+	var tool_sparks := false
+
+	if PlayerData and PlayerData.current_tool:
+		var tool = PlayerData.current_tool
+		if "particle_color" in tool and tool.particle_color != Color.WHITE:
+			# Blend block color with tool's particle color for consistent identity
+			final_color = block_color.lerp(tool.particle_color, 0.3)
+		if "particle_scale" in tool:
+			scale_mult = tool.particle_scale
+		if "creates_sparks" in tool:
+			tool_sparks = tool.creates_sparks
+
+	color = final_color
 	visible = true
 	_in_pool = false
 
 	# Configure particles based on material hardness
 	_configure_for_material(hardness)
+
+	# Apply tool scale modifier
+	scale_amount_min *= scale_mult
+	scale_amount_max *= scale_mult
+
+	# Metallic tools create brighter, faster sparks
+	if tool_sparks and hardness >= MATERIAL_MEDIUM:
+		initial_velocity_min *= 1.2
+		initial_velocity_max *= 1.3
+		lifetime *= 0.85  # Shorter but more intense
 
 	emitting = true
 

@@ -182,12 +182,24 @@ func play_dig(hardness: float) -> void:
 		play_sfx_varied(SOUND_DIG_HARD, 0.0)
 
 
-## Play block break sound with intensity, affected by tool tier for satisfying feel
+## Play block break sound with intensity, using tool's audio identity settings
+## tool: ToolData resource (optional) - if provided, uses tool's sound_pitch and break_volume_boost
 func play_block_break(hardness: float = 10.0, tool_tier: int = 1) -> void:
-	var volume := clampf(hardness / 50.0, 0.5, 1.5) * -3.0
-	# Higher tier tools have higher-pitched, more satisfying break sounds
-	var tier_pitch := 1.0 + (tool_tier - 1) * 0.08  # Tier 1=1.0, Tier 2=1.08, Tier 3=1.16...
-	play_sfx_varied(SOUND_BLOCK_BREAK, volume, tier_pitch - 0.05, tier_pitch + 0.05)
+	var base_volume := clampf(hardness / 50.0, 0.5, 1.5) * -3.0
+	var pitch := 1.0
+	var volume_boost := 0.0
+
+	# Try to get tool audio settings from PlayerData
+	if PlayerData and PlayerData.current_tool:
+		var tool = PlayerData.current_tool
+		pitch = tool.sound_pitch if "sound_pitch" in tool else 1.0
+		volume_boost = tool.break_volume_boost if "break_volume_boost" in tool else 0.0
+	else:
+		# Fallback: Calculate pitch from tier
+		pitch = 1.0 + (tool_tier - 1) * 0.08  # Tier 1=1.0, Tier 2=1.08, Tier 3=1.16...
+
+	var final_volume := base_volume + volume_boost
+	play_sfx_varied(SOUND_BLOCK_BREAK, final_volume, pitch - 0.05, pitch + 0.05)
 
 
 ## Play ore discovery sound - Tier 2 celebration moment

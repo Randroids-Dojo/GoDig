@@ -463,14 +463,16 @@ func _update_depth_bonus_indicator() -> void:
 
 func _setup_quick_sell_button() -> void:
 	## Create and position the quick-sell button
+	## Positioned at bottom-left for one-handed thumb reach (green zone)
 	quick_sell_button = Button.new()
 	quick_sell_button.name = "QuickSellButton"
 	quick_sell_button.text = "Sell All"
 	quick_sell_button.visible = false  # Hidden until items exist
 
-	# Position below inventory label
-	quick_sell_button.position = Vector2(16, 170)
-	quick_sell_button.custom_minimum_size = Vector2(120, 36)
+	# Position at bottom-left for thumb accessibility
+	quick_sell_button.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	quick_sell_button.position = Vector2(16, -80)  # 80px from bottom
+	quick_sell_button.custom_minimum_size = Vector2(120, 44)  # Minimum 44px height for touch
 
 	# Style the button
 	quick_sell_button.add_theme_color_override("font_color", Color.GOLD)
@@ -1032,10 +1034,12 @@ const LADDER_ITEM_ID := "ladder"
 
 func _setup_ladder_quickslot() -> void:
 	## Create the ladder quick-slot UI
+	## Positioned at bottom-right for one-handed thumb reach (green zone)
 	ladder_quickslot = Control.new()
 	ladder_quickslot.name = "LadderQuickSlot"
-	ladder_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	ladder_quickslot.position = Vector2(-72, 90)
+	ladder_quickslot.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	# Position from bottom-right corner (56px slot + 48px for buy button above + margins)
+	ladder_quickslot.position = Vector2(-72, -120)  # 120px from bottom
 	ladder_quickslot.custom_minimum_size = Vector2(56, 56)
 	add_child(ladder_quickslot)
 
@@ -1073,13 +1077,13 @@ func _setup_ladder_quickslot() -> void:
 	ladder_button.pressed.connect(_on_ladder_quickslot_pressed)
 	ladder_quickslot.add_child(ladder_button)
 
-	# Quick-buy button (small button below the quickslot)
+	# Quick-buy button (positioned ABOVE the quickslot for thumb-friendly stacking)
 	ladder_buy_button = Button.new()
 	ladder_buy_button.name = "LadderBuyButton"
 	ladder_buy_button.text = "+$%d" % LADDER_COST
-	ladder_buy_button.position = Vector2(0, 58)  # Below the quickslot
-	ladder_buy_button.custom_minimum_size = Vector2(56, 26)
-	ladder_buy_button.add_theme_font_size_override("font_size", 11)
+	ladder_buy_button.position = Vector2(0, -48)  # Above the quickslot (44px + 4px gap)
+	ladder_buy_button.custom_minimum_size = Vector2(56, 44)  # Minimum 44px for touch accessibility
+	ladder_buy_button.add_theme_font_size_override("font_size", 12)  # Slightly larger font for bigger button
 	ladder_buy_button.pressed.connect(_on_ladder_quick_buy_pressed)
 	ladder_quickslot.add_child(ladder_buy_button)
 
@@ -1270,10 +1274,12 @@ const ROPE_ITEM_ID := "rope"
 
 func _setup_rope_quickslot() -> void:
 	## Create the rope quick-slot UI
+	## Positioned above ladder for one-handed thumb reach (green zone)
 	rope_quickslot = Control.new()
 	rope_quickslot.name = "RopeQuickSlot"
-	rope_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	rope_quickslot.position = Vector2(-72, 182)  # Below ladder (adjusted for buy button)
+	rope_quickslot.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	# Above ladder quickslot + buy button (ladder at -120, buy button adds 52px)
+	rope_quickslot.position = Vector2(-72, -236)  # 236px = 120 + 56 + 52 + 8 margin
 	rope_quickslot.custom_minimum_size = Vector2(56, 56)
 	add_child(rope_quickslot)
 
@@ -1362,10 +1368,12 @@ const TELEPORT_ITEM_ID := "teleport_scroll"
 
 func _setup_teleport_quickslot() -> void:
 	## Create the teleport scroll quick-slot UI
+	## Positioned above rope for one-handed thumb reach (green zone)
 	teleport_quickslot = Control.new()
 	teleport_quickslot.name = "TeleportQuickSlot"
-	teleport_quickslot.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	teleport_quickslot.position = Vector2(-72, 244)  # Below rope (adjusted for buy button)
+	teleport_quickslot.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	# Above rope quickslot (rope at -236, teleport is 64px above)
+	teleport_quickslot.position = Vector2(-72, -300)  # 300px = 236 + 56 + 8 margin
 	teleport_quickslot.custom_minimum_size = Vector2(56, 56)
 	add_child(teleport_quickslot)
 

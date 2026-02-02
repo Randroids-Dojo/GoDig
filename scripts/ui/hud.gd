@@ -723,7 +723,7 @@ func _setup_inventory_indicator() -> void:
 
 
 func _update_inventory_indicator() -> void:
-	## Update inventory slots display (X/Y format)
+	## Update inventory slots display (X/Y format) with FULL badge when full
 	if inventory_label == null:
 		return
 	if InventoryManager == null:
@@ -733,15 +733,17 @@ func _update_inventory_indicator() -> void:
 	var used := InventoryManager.get_used_slots()
 	var total := InventoryManager.get_total_slots()
 
-	inventory_label.text = "Bag: %d/%d" % [used, total]
-
-	# Color code based on fullness
+	# Color code and text based on fullness
 	var fill_ratio := float(used) / float(total) if total > 0 else 0.0
 	if fill_ratio >= 1.0:
+		# Full - show FULL badge with pulsing effect
+		inventory_label.text = "Bag: FULL!"
 		inventory_label.add_theme_color_override("font_color", Color.RED)
 	elif fill_ratio >= 0.875:  # 7/8
+		inventory_label.text = "Bag: %d/%d" % [used, total]
 		inventory_label.add_theme_color_override("font_color", Color.ORANGE)
 	else:
+		inventory_label.text = "Bag: %d/%d" % [used, total]
 		inventory_label.add_theme_color_override("font_color", Color.WHITE)
 
 

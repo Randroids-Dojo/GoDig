@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://inventory_full_popup_001"]
+
+[ext_resource type="Script" path="res://scripts/ui/inventory_full_popup.gd" id="1_popup"]
+
+[node name="InventoryFullPopup" type="CanvasLayer"]
+layer = 50
+script = ExtResource("1_popup")

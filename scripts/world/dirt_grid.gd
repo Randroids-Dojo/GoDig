@@ -21,6 +21,9 @@ signal fossil_found(grid_pos: Vector2i, fossil_id: String)
 ## Emitted when a block is destroyed. Includes world position, color, and hardness for effects.
 signal block_destroyed(world_pos: Vector2, color: Color, hardness: float)
 
+## Emitted when an ore block is destroyed. For Tier 2 discovery celebration particles.
+signal ore_discovered(world_pos: Vector2, ore_color: Color, hardness: float)
+
 ## Emitted when a block is hit but not destroyed. For per-hit particle effects.
 signal block_hit(world_pos: Vector2, color: Color, hardness: float)
 
@@ -364,18 +367,30 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		if fossil_id != "":
 			fossil_found.emit(pos, fossil_id)
 
-		# Signal for particle effects and screen shake (before releasing block)
+		# Signal for particle effects (before releasing block)
 		var world_pos := Vector2(
 			pos.x * BLOCK_SIZE + GameManager.GRID_OFFSET_X + BLOCK_SIZE / 2,
 			pos.y * BLOCK_SIZE + BLOCK_SIZE / 2
 		)
-		block_destroyed.emit(world_pos, block.base_color, block.max_health)
+
+		# Two-tier juice system: emit different signals for ore vs regular blocks
+		if ore_id != "":
+			# Tier 2: Ore discovery celebration - use ore color for particles
+			var ore = DataRegistry.get_ore(ore_id)
+			var ore_color: Color = ore.color if ore != null else block.base_color
+			ore_discovered.emit(world_pos, ore_color, block.max_health)
+		else:
+			# Tier 1: Regular block destruction
+			block_destroyed.emit(world_pos, block.base_color, block.max_health)
 
 		# Play sound effect with tool tier for satisfying feel differentiation
+		# Ore discovery gets special sound in SoundManager
 		if SoundManager:
 			var tool_tier := 1
 			if PlayerData:
 				tool_tier = PlayerData.get_tool_tier()
+			if ore_id != "":
+				SoundManager.play_ore_found()  # Tier 2 discovery sound
 			SoundManager.play_block_break(block.max_health, tool_tier)
 
 		# Clean up ore map entry, sparkle, and border

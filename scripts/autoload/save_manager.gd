@@ -398,6 +398,8 @@ func _apply_game_state() -> void:
 		GameManager.current_depth = current_save.current_depth
 		# Restore depth milestones
 		GameManager.set_reached_milestones(current_save.depth_milestones_reached)
+		# Restore max depth reached (for depth record tracking)
+		GameManager.set_max_depth_reached(current_save.max_depth_reached)
 
 	# Apply to InventoryManager
 	if InventoryManager:

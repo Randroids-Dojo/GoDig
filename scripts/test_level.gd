@@ -77,6 +77,9 @@ func _ready() -> void:
 	# Connect mining drops to inventory
 	dirt_grid.block_dropped.connect(_on_block_dropped)
 
+	# Connect rare traversal item drops (ladder/rope)
+	dirt_grid.traversal_item_found.connect(_on_traversal_item_found)
+
 	# Connect block destroy for particle effects (two-tier juice system)
 	dirt_grid.block_destroyed.connect(_on_block_destroyed)  # Tier 1: regular blocks
 	dirt_grid.ore_discovered.connect(_on_ore_discovered)    # Tier 2: ore discovery celebration
@@ -348,6 +351,53 @@ func _on_block_dropped(grid_pos: Vector2i, item_id: String) -> void:
 		print("[TestLevel] Added %d x %s to inventory" % [amount, item.display_name])
 		# Notify FTUE of additional ore collection (for inventory filling hint)
 		_notify_ftue_ore_collected()
+
+
+func _on_traversal_item_found(grid_pos: Vector2i, item_id: String) -> void:
+	## Handle rare traversal item drop (ladder/rope) - add to inventory with celebration
+	var item = DataRegistry.get_item(item_id)
+	if item == null:
+		push_warning("[TestLevel] Unknown traversal item: %s" % item_id)
+		return
+
+	# Add to inventory
+	var leftover := InventoryManager.add_item(item, 1)
+	if leftover > 0:
+		# Inventory full
+		print("[TestLevel] Inventory full, could not add dropped %s" % item.display_name)
+		_show_inventory_full_notification()
+	else:
+		print("[TestLevel] Lucky find! Dropped %s" % item.display_name)
+		# Show special celebration for the rare drop
+		_show_traversal_drop_celebration(item, grid_pos)
+
+
+func _show_traversal_drop_celebration(item, grid_pos: Vector2i) -> void:
+	## Show a mini-celebration for rare traversal item drops.
+	## Players love finding free stuff!
+	if floating_text_layer == null:
+		return
+
+	var floating := FloatingTextScene.instantiate()
+	floating_text_layer.add_child(floating)
+
+	# Get world position for the drop
+	var world_pos := Vector2(
+		grid_pos.x * 128 + GameManager.GRID_OFFSET_X + 64,
+		grid_pos.y * 128 + 64
+	)
+	var screen_pos := get_viewport().get_canvas_transform() * world_pos
+
+	# Lucky find text with yellow/gold color
+	var text := "LUCKY! +1 %s" % item.display_name
+	var lucky_color := Color(1.0, 0.85, 0.2)  # Golden yellow
+
+	# Use tiered celebration (uncommon level for traversal items)
+	floating.show_ore_discovery(text, lucky_color, screen_pos, 1)
+
+	# Play a sound if available
+	if SoundManager and SoundManager.has_method("play_ore_found"):
+		SoundManager.play_ore_found()
 
 
 func _on_item_added(item, amount: int) -> void:

@@ -8,6 +8,7 @@ const OreSparkleScene = preload("res://scenes/effects/ore_sparkle.tscn")
 const RarityBorderScene = preload("res://scenes/effects/rarity_border.tscn")
 const NearOreHintScene = preload("res://scenes/effects/near_ore_hint.tscn")
 const OreSparkleManagerScript = preload("res://scripts/effects/ore_sparkle_manager.gd")
+const ThreadedChunkGeneratorScript = preload("res://scripts/world/threaded_chunk_generator.gd")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
@@ -54,10 +55,17 @@ var use_multimesh_sparkles: bool = true
 var _surface_row: int = 0
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
+## Threaded chunk generation for mobile performance optimization
+## When enabled, chunk terrain data is computed on background threads
+var use_threaded_generation: bool = true
+var _threaded_generator: Node = null
+var _pending_threaded_chunks: Dictionary = {}  # Chunks awaiting threaded generation
+
 
 func _ready() -> void:
 	_preallocate_pool()
 	_setup_sparkle_manager()
+	_setup_threaded_generator()
 	# Connect to SaveManager to save dirty chunks before game save
 	if SaveManager:
 		SaveManager.save_started.connect(_on_save_started)
@@ -74,9 +82,34 @@ func _setup_sparkle_manager() -> void:
 		add_child(_sparkle_manager)
 
 
+func _setup_threaded_generator() -> void:
+	## Setup threaded chunk generator for mobile performance optimization
+	## Automatically disabled on web exports (no thread support)
+	if not use_threaded_generation:
+		return
+
+	# Check platform - disable threading on web
+	if OS.has_feature("web"):
+		use_threaded_generation = false
+		print("[DirtGrid] Threaded generation disabled on web platform")
+		return
+
+	_threaded_generator = ThreadedChunkGeneratorScript.new()
+	_threaded_generator.name = "ThreadedChunkGenerator"
+	add_child(_threaded_generator)
+	_threaded_generator.chunk_generated.connect(_on_threaded_chunk_generated)
+	print("[DirtGrid] Threaded chunk generation enabled")
+
+
 func initialize(player: Node2D, surface_row: int) -> void:
 	_player = player
 	_surface_row = surface_row
+
+	# Initialize threaded generator with current state
+	if _threaded_generator:
+		var world_seed := SaveManager.get_world_seed() if SaveManager else 0
+		_threaded_generator.initialize(_surface_row, world_seed, _dug_tiles)
+
 	# Generate initial chunks around player spawn position
 	var player_chunk := _world_to_chunk(_player.position)
 	_generate_chunks_around(player_chunk)
@@ -146,9 +179,15 @@ func _generate_chunks_around(center_chunk: Vector2i) -> void:
 	for x in range(center_chunk.x - LOAD_RADIUS, center_chunk.x + LOAD_RADIUS + 1):
 		for y in range(center_chunk.y - LOAD_RADIUS, center_chunk.y + LOAD_RADIUS + 1):
 			var chunk_pos := Vector2i(x, y)
-			if not _loaded_chunks.has(chunk_pos):
-				_generate_chunk(chunk_pos)
-				_loaded_chunks[chunk_pos] = true
+			if not _loaded_chunks.has(chunk_pos) and not _pending_threaded_chunks.has(chunk_pos):
+				if use_threaded_generation and _threaded_generator:
+					# Use threaded generation for mobile performance
+					if _threaded_generator.generate_chunk_async(chunk_pos):
+						_pending_threaded_chunks[chunk_pos] = true
+				else:
+					# Fallback to synchronous generation
+					_generate_chunk(chunk_pos)
+					_loaded_chunks[chunk_pos] = true
 
 
 func _generate_chunk(chunk_pos: Vector2i) -> void:
@@ -193,6 +232,64 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 				_check_and_add_near_ore_hint(grid_pos)
 
 
+func _on_threaded_chunk_generated(chunk_pos: Vector2i, result) -> void:
+	## Callback from ThreadedChunkGenerator when a chunk finishes generating.
+	## Applies the pre-computed terrain data to the scene tree.
+
+	# Remove from pending
+	_pending_threaded_chunks.erase(chunk_pos)
+
+	# Skip if generation failed
+	if not result.success:
+		push_warning("[DirtGrid] Threaded chunk generation failed: %s" % result.error_message)
+		return
+
+	# Load dug tiles (may have changed since generation started)
+	_load_chunk_dug_tiles(chunk_pos)
+
+	# Generate back layer content (must be on main thread due to manager access)
+	if CaveLayerManager:
+		var world_seed := SaveManager.get_world_seed() if SaveManager else 0
+		CaveLayerManager.generate_back_layer_for_chunk(chunk_pos, world_seed)
+
+	# Apply generated tiles
+	for grid_pos in result.tiles:
+		# Double-check dug state (may have changed)
+		if _dug_tiles.has(grid_pos):
+			continue
+
+		# Skip cave tiles
+		if result.cave_tiles.has(grid_pos):
+			continue
+
+		# Skip already active blocks
+		if _active.has(grid_pos):
+			continue
+
+		# Acquire and configure block using pre-computed data
+		var tile_data = result.tiles[grid_pos]
+		var block = _acquire(grid_pos)
+
+		# Apply ore if present
+		if tile_data.ore_id != "":
+			_ore_map[grid_pos] = tile_data.ore_id
+			var ore = DataRegistry.get_ore(tile_data.ore_id)
+			if ore:
+				_apply_ore_visual(grid_pos, ore)
+				_apply_ore_hardness(grid_pos, ore)
+				_add_ore_sparkle(grid_pos, ore)
+				_add_rarity_border(grid_pos, ore)
+
+	# Mark near-ore blocks
+	for grid_pos in result.near_ore_blocks:
+		_near_ore_blocks[grid_pos] = true
+		if _active.has(grid_pos) and not result.ore_map.has(grid_pos):
+			_check_and_add_near_ore_hint(grid_pos)
+
+	# Mark chunk as loaded
+	_loaded_chunks[chunk_pos] = true
+
+
 func _cleanup_distant_chunks(center_chunk: Vector2i) -> void:
 	## Remove chunks that are too far from the player
 	var chunks_to_remove: Array[Vector2i] = []
@@ -205,6 +302,17 @@ func _cleanup_distant_chunks(center_chunk: Vector2i) -> void:
 	for chunk_pos in chunks_to_remove:
 		_unload_chunk(chunk_pos)
 		_loaded_chunks.erase(chunk_pos)
+
+	# Also cancel pending threaded chunks that are now too far
+	if _threaded_generator:
+		var pending_to_cancel: Array[Vector2i] = []
+		for chunk_pos: Vector2i in _pending_threaded_chunks.keys():
+			var distance: int = maxi(absi(chunk_pos.x - center_chunk.x), absi(chunk_pos.y - center_chunk.y))
+			if distance > LOAD_RADIUS + 1:
+				pending_to_cancel.append(chunk_pos)
+		for chunk_pos in pending_to_cancel:
+			_threaded_generator.cancel_chunk_generation(chunk_pos)
+			_pending_threaded_chunks.erase(chunk_pos)
 
 
 func _unload_chunk(chunk_pos: Vector2i) -> void:
@@ -1195,6 +1303,20 @@ func debug_sparkle_stats() -> Dictionary:
 	if use_multimesh_sparkles and _sparkle_manager != null:
 		stats["registered_ores"] = _sparkle_manager.get_registered_count()
 		stats["active_sparkles"] = _sparkle_manager.get_active_sparkle_count()
+
+	return stats
+
+
+func debug_threaded_stats() -> Dictionary:
+	## Get threaded chunk generation statistics for performance monitoring
+	var stats := {
+		"using_threaded": use_threaded_generation,
+		"pending_chunks": _pending_threaded_chunks.size(),
+		"generator_pending": 0,
+	}
+
+	if _threaded_generator:
+		stats["generator_pending"] = _threaded_generator.get_pending_count()
 
 	return stats
 

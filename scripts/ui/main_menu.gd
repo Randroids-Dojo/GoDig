@@ -13,6 +13,10 @@ signal settings_opened
 @onready var settings_btn: Button = $CenterContainer/VBox/ButtonContainer/SettingsButton
 @onready var version_label: Label = $VersionLabel
 
+## Settings popup (instantiated on demand)
+var _settings_popup: CanvasLayer = null
+const SETTINGS_POPUP_SCENE := preload("res://scenes/ui/settings_popup.tscn")
+
 ## Game version (loaded from project settings in _setup_version)
 var _game_version: String = ""
 
@@ -269,7 +273,7 @@ func _on_continue_pressed() -> void:
 func _on_settings_pressed() -> void:
 	print("[MainMenu] Settings pressed")
 	settings_opened.emit()
-	# TODO: Show settings panel when implemented
+	_show_settings_popup()
 
 
 func _transition_to_game() -> void:
@@ -343,3 +347,18 @@ func _show_error(message: String) -> void:
 	if error_dialog:
 		error_dialog.dialog_text = message
 		error_dialog.popup_centered()
+
+
+func _show_settings_popup() -> void:
+	"""Show the settings popup, creating it if needed."""
+	if _settings_popup == null:
+		_settings_popup = SETTINGS_POPUP_SCENE.instantiate()
+		add_child(_settings_popup)
+		_settings_popup.closed.connect(_on_settings_closed)
+
+	_settings_popup.show_settings()
+
+
+func _on_settings_closed() -> void:
+	"""Handle settings popup closed."""
+	print("[MainMenu] Settings closed")

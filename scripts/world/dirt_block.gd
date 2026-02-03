@@ -22,6 +22,10 @@ var _shake_tween: Tween = null  # Active shake animation
 var _crack_overlay: Node2D = null  # Crack overlay visual effect
 var _exploration_modulate: Color = Color.WHITE  # Fog of war modulation
 
+## Special block types for handcrafted caves
+var is_weak_block: bool = false  # Crumbling/breakable weak blocks for eureka mechanics
+var is_secret_wall: bool = false  # Hidden passages that look solid but are breakable
+
 
 func _init() -> void:
 	size = Vector2(BLOCK_SIZE, BLOCK_SIZE)
@@ -64,6 +68,9 @@ func deactivate() -> void:
 	# Reset crack overlay for reuse
 	if _crack_overlay:
 		_crack_overlay.reset()
+	# Reset special block flags
+	is_weak_block = false
+	is_secret_wall = false
 
 
 func take_hit(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> bool:

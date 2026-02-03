@@ -3,9 +3,9 @@ title: "implement: SettingsManager singleton"
 status: closed
 priority: 1
 issue-type: task
-created-at: "\"2026-01-19T03:39:11.244863-06:00\""
-closed-at: "2026-01-24T07:17:51.020864+00:00"
-close-reason: Already fully implemented with signals, validation, persistence, and audio bus integration
+created-at: "\"\\\"\\\\\\\"2026-01-19T03:39:11.244863-06:00\\\\\\\"\\\"\""
+closed-at: "2026-02-03T05:18:58.838678-06:00"
+close-reason: SettingsManager already implemented. Added main menu settings popup integration.
 ---
 
 ## Description

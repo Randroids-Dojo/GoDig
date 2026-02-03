@@ -351,6 +351,75 @@ func is_enabled() -> bool:
 
 
 # ============================================
+# ECONOMY TRACKING (for post-launch tuning)
+# ============================================
+
+## Track time to first ore discovery
+func track_first_ore_time(seconds: float) -> void:
+	log_event("economy_first_ore", {
+		"time_seconds": seconds,
+	})
+
+
+## Track time to first sell
+func track_first_sell_time(seconds: float) -> void:
+	log_event("economy_first_sell", {
+		"time_seconds": seconds,
+	})
+
+
+## Track time to first upgrade
+func track_first_upgrade_time(seconds: float, upgrade_type: String) -> void:
+	log_event("economy_first_upgrade", {
+		"time_seconds": seconds,
+		"upgrade_type": upgrade_type,
+	})
+
+
+## Track session economy summary
+func track_session_economy(coins_earned: int, coins_spent: int, ores_sold: int, upgrades_bought: int, trips_count: int) -> void:
+	log_event("economy_session_summary", {
+		"coins_earned": coins_earned,
+		"coins_spent": coins_spent,
+		"ores_sold": ores_sold,
+		"upgrades_bought": upgrades_bought,
+		"trips_count": trips_count,
+		"net_coins": coins_earned - coins_spent,
+	})
+
+
+## Track ladder purchase rate (key economy indicator)
+func track_ladder_economy(ladders_bought: int, ladders_placed: int, ladders_remaining: int, depth_at_return: int) -> void:
+	log_event("economy_ladders", {
+		"bought": ladders_bought,
+		"placed": ladders_placed,
+		"remaining": ladders_remaining,
+		"depth_at_return": depth_at_return,
+		"efficiency": float(ladders_placed) / float(ladders_bought) if ladders_bought > 0 else 1.0,
+	})
+
+
+## Track stuck/death rate by depth (key for difficulty tuning)
+func track_stuck_event(depth: int, cause: String, had_ladders: bool, coins_lost: int) -> void:
+	log_event("economy_stuck", {
+		"depth": depth,
+		"cause": cause,
+		"had_ladders": had_ladders,
+		"coins_lost": coins_lost,
+	})
+
+
+## Track upgrade purchase funnel
+func track_upgrade_funnel(upgrade_id: String, viewed: bool, affordable: bool, purchased: bool) -> void:
+	log_event("economy_upgrade_funnel", {
+		"upgrade_id": upgrade_id,
+		"viewed": viewed,
+		"affordable": affordable,
+		"purchased": purchased,
+	})
+
+
+# ============================================
 # LIFECYCLE
 # ============================================
 

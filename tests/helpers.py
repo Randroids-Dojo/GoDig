@@ -97,6 +97,7 @@ PATHS = {
     "enemy_manager": "/root/EnemyManager",
     "biome_manager": "/root/BiomeManager",
     "cave_layer_manager": "/root/CaveLayerManager",
+    "economy_config": "/root/EconomyConfig",
 }
 
 

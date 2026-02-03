@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="GoDig"
-config/version="0.33.0"
+config/version="0.34.0"
 run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 
@@ -47,6 +47,7 @@ RestStationManager="*res://scripts/autoload/rest_station_manager.gd"
 ProgressionGateManager="*res://scripts/autoload/progression_gate_manager.gd"
 MonetizationManager="*res://scripts/autoload/monetization_manager.gd"
 WelcomeBackManager="*res://scripts/autoload/welcome_back_manager.gd"
+EconomyConfig="*res://scripts/autoload/economy_config.gd"
 PlayGodotServer="*res://addons/playgodot/server.gd"
 
 [display]

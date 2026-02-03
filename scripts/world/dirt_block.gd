@@ -20,6 +20,7 @@ var base_color: Color = Color.BROWN
 var _base_position: Vector2 = Vector2.ZERO  # Original position for shake effect
 var _shake_tween: Tween = null  # Active shake animation
 var _crack_overlay: Node2D = null  # Crack overlay visual effect
+var _exploration_modulate: Color = Color.WHITE  # Fog of war modulation
 
 
 func _init() -> void:
@@ -39,7 +40,9 @@ func activate(pos: Vector2i) -> void:
 
 	# Set initial visual
 	color = base_color
-	modulate = Color.WHITE
+
+	# Apply exploration-based fog modulation
+	_update_exploration_modulate()
 
 	# Clean up any previous shake tween
 	if _shake_tween and _shake_tween.is_valid():
@@ -141,3 +144,30 @@ func _update_crack_overlay(damage_ratio: float) -> void:
 	## Update the crack overlay based on current damage ratio (0.0 to 1.0).
 	if _crack_overlay:
 		_crack_overlay.update_damage(damage_ratio)
+
+
+func _update_exploration_modulate() -> void:
+	## Update modulate based on exploration/fog state.
+	## Called when block is activated and when exploration changes.
+	if ExplorationManager == null:
+		modulate = Color.WHITE
+		return
+
+	_exploration_modulate = ExplorationManager.get_block_modulate(grid_position)
+	modulate = _exploration_modulate
+
+
+func update_visibility() -> void:
+	## Called by DirtGrid when exploration state changes.
+	## Updates the fog modulation without resetting damage visual.
+	if ExplorationManager == null:
+		return
+
+	var new_modulate := ExplorationManager.get_block_modulate(grid_position)
+	if new_modulate != _exploration_modulate:
+		_exploration_modulate = new_modulate
+		# Blend exploration modulate with damage modulate
+		var damage_ratio := 1.0 - (current_health / max_health) if max_health > 0 else 0.0
+		damage_ratio = clamp(damage_ratio, 0.0, 1.0)
+		var damage_color := Color.WHITE.lerp(Color(0.3, 0.3, 0.3), damage_ratio)
+		modulate = _exploration_modulate * damage_color

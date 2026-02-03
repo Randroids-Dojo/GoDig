@@ -52,6 +52,9 @@ func _ready() -> void:
 	# Connect to SaveManager to save dirty chunks before game save
 	if SaveManager:
 		SaveManager.save_started.connect(_on_save_started)
+	# Connect to ExplorationManager for fog updates
+	if ExplorationManager:
+		ExplorationManager.exploration_updated.connect(_on_exploration_updated)
 
 
 func initialize(player: Node2D, surface_row: int) -> void:
@@ -69,6 +72,10 @@ func _process(_delta: float) -> void:
 	var player_chunk := _world_to_chunk(_player.position)
 	_generate_chunks_around(player_chunk)
 	_cleanup_distant_chunks(player_chunk)
+
+	# Update exploration fog based on player position
+	if ExplorationManager:
+		ExplorationManager.update_player_position(_player.position)
 
 
 func _preallocate_pool() -> void:
@@ -274,6 +281,10 @@ func place_ladder(pos: Vector2i) -> bool:
 	var chunk_pos := _grid_to_chunk(pos)
 	_dirty_chunks[chunk_pos] = true
 
+	# Mark ladder position as explored (critical for return planning)
+	if ExplorationManager:
+		ExplorationManager.mark_ladder_placed(pos)
+
 	return true
 
 
@@ -434,6 +445,10 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		_dug_tiles[pos] = true
 		var chunk_pos := _grid_to_chunk(pos)
 		_dirty_chunks[chunk_pos] = true
+
+		# Mark mined position as permanently explored
+		if ExplorationManager:
+			ExplorationManager.mark_block_mined(pos)
 
 		_release(pos)
 
@@ -1082,3 +1097,25 @@ func debug_surface_row() -> int:
 func debug_chunk_count() -> int:
 	## Get count of loaded chunks for debugging
 	return _loaded_chunks.size()
+
+
+# ============================================
+# EXPLORATION/FOG SYSTEM
+# ============================================
+
+func _on_exploration_updated() -> void:
+	## Called when exploration state changes - update visible block modulation.
+	## Only updates blocks within a reasonable radius of player for performance.
+	if _player == null:
+		return
+
+	var player_grid := GameManager.world_to_grid(_player.position)
+	var update_radius := ExplorationManager.VISION_RADIUS + 2
+
+	for dx in range(-update_radius, update_radius + 1):
+		for dy in range(-update_radius, update_radius + 1):
+			var pos := Vector2i(player_grid.x + dx, player_grid.y + dy)
+			if _active.has(pos):
+				var block = _active[pos]
+				if block.has_method("update_visibility"):
+					block.update_visibility()

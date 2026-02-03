@@ -324,6 +324,11 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 			if _active.has(grid_pos) and _near_ore_blocks.has(grid_pos):
 				_check_and_add_near_ore_hint(grid_pos)
 
+	# Third pass: Check for secret walls on solid blocks adjacent to caves
+	# (Layer 2 secrets - Animal Well-inspired hidden room system)
+	if SecretLayerManager:
+		_generate_secret_walls(chunk_pos, cave_positions, world_seed)
+
 
 func _on_threaded_chunk_generated(chunk_pos: Vector2i, result) -> void:
 	## Callback from ThreadedChunkGenerator when a chunk finishes generating.
@@ -776,6 +781,10 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		if EurekaMechanicManager and depth > 0:
 			EurekaMechanicManager.on_block_destroyed(pos, depth)
 
+		# Check for secret wall break (Layer 2 secrets)
+		if SecretLayerManager and SecretLayerManager.is_secret_wall(pos):
+			SecretLayerManager.on_secret_wall_broken(pos)
+
 		_release(pos)
 
 	return destroyed
@@ -918,6 +927,113 @@ func _spawn_handcrafted_ladder(grid_pos: Vector2i) -> void:
 
 	# The actual ladder rendering is handled by the placed objects system
 	# This ensures the ladder persists across chunk loading
+
+
+# ============================================
+# SECRET WALL GENERATION (Layer 2 Secrets)
+# ============================================
+
+func _generate_secret_walls(chunk_pos: Vector2i, cave_positions: Array[Vector2i], world_seed: int) -> void:
+	## Generate secret walls on solid blocks adjacent to caves.
+	## This is the Layer 2 secret system - hidden rooms for explorers.
+	## Based on Animal Well's approach: trust players to discover through play.
+
+	if not SecretLayerManager:
+		return
+
+	var start_x := chunk_pos.x * CHUNK_SIZE
+	var start_y := chunk_pos.y * CHUNK_SIZE
+
+	# Build a set of cave positions for quick lookup
+	var cave_set: Dictionary = {}
+	for pos in cave_positions:
+		cave_set[pos] = true
+
+	# Check each solid block in the chunk
+	for local_x in range(CHUNK_SIZE):
+		for local_y in range(CHUNK_SIZE):
+			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
+
+			# Skip if not a solid block
+			if not _active.has(grid_pos):
+				continue
+
+			# Check if adjacent to any cave tile
+			var is_cave_adjacent := _is_adjacent_to_cave(grid_pos, cave_set)
+			if not is_cave_adjacent:
+				continue
+
+			# Calculate depth
+			var depth: int = grid_pos.y - _surface_row
+			if depth < 30:  # No secrets in shallow depths
+				continue
+
+			# Check if this should be a secret wall
+			var secret_result := SecretLayerManager.check_secret_wall_spawn(
+				grid_pos, depth, world_seed, is_cave_adjacent
+			)
+
+			if secret_result["is_secret"]:
+				SecretLayerManager.register_secret_wall(
+					grid_pos,
+					secret_result["wall_type"],
+					secret_result["has_room"],
+					depth
+				)
+				# Apply visual hint to the block
+				_apply_secret_wall_hint(grid_pos, secret_result["wall_type"])
+
+
+func _is_adjacent_to_cave(grid_pos: Vector2i, cave_set: Dictionary) -> bool:
+	## Check if a position is adjacent to a cave tile (4-directional)
+	var directions: Array[Vector2i] = [
+		Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)
+	]
+
+	for dir: Vector2i in directions:
+		var adj_pos: Vector2i = grid_pos + dir
+		if cave_set.has(adj_pos):
+			return true
+		# Also check if adjacent position has no block (dug or natural cave)
+		if not _active.has(adj_pos) and not _dug_tiles.has(adj_pos):
+			if _is_cave_tile(adj_pos):
+				return true
+
+	return false
+
+
+func _apply_secret_wall_hint(grid_pos: Vector2i, wall_type: String) -> void:
+	## Apply subtle visual hint to a secret wall block.
+	## Different hint types have different visual effects.
+	var block = _active.get(grid_pos)
+	if block == null:
+		return
+
+	# Get hint type from SecretLayerManager
+	var hint_type := ""
+	if SecretLayerManager:
+		hint_type = SecretLayerManager.get_wall_hint_type(grid_pos)
+
+	match hint_type:
+		"shimmer":
+			# Subtle shimmer - slightly lighter color modulation
+			if block.has_method("set_secret_hint"):
+				block.set_secret_hint("shimmer")
+			else:
+				# Fallback: modulate slightly
+				block.modulate = Color(1.02, 1.02, 1.02, 1.0)
+		"crack_lines":
+			# Visible cracks - would apply crack texture overlay
+			if block.has_method("set_secret_hint"):
+				block.set_secret_hint("crack")
+		"glow":
+			# Faint glow at edges - would add subtle light
+			if block.has_method("set_secret_hint"):
+				block.set_secret_hint("glow")
+		"sound":
+			# Sound hint - no visual, just mark for audio
+			if block.has_method("set_secret_hint"):
+				block.set_secret_hint("hollow")
 
 
 # ============================================

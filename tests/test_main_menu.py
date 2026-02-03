@@ -138,3 +138,125 @@ async def test_game_scene_has_player(game):
     """Game scene contains the player."""
     exists = await game.node_exists("/root/Main/Player")
     assert exists, "Player should exist in game scene"
+
+
+# =============================================================================
+# SETTINGS MANAGER INTEGRATION TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_settings_manager_exists(main_menu):
+    """SettingsManager autoload should be available."""
+    exists = await main_menu.node_exists("/root/SettingsManager")
+    assert exists, "SettingsManager should exist as autoload"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_accessibility_properties(main_menu):
+    """SettingsManager should have accessibility settings."""
+    # Text size
+    text_size = await main_menu.get_property("/root/SettingsManager", "text_size_level")
+    assert text_size is not None, "text_size_level should exist"
+    assert isinstance(text_size, int), "text_size_level should be an integer"
+
+    # Haptics
+    haptics = await main_menu.get_property("/root/SettingsManager", "haptics_enabled")
+    assert haptics is not None, "haptics_enabled should exist"
+    assert isinstance(haptics, bool), "haptics_enabled should be a boolean"
+
+    # Reduced motion
+    reduced_motion = await main_menu.get_property("/root/SettingsManager", "reduced_motion")
+    assert reduced_motion is not None, "reduced_motion should exist"
+    assert isinstance(reduced_motion, bool), "reduced_motion should be a boolean"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_control_properties(main_menu):
+    """SettingsManager should have control settings."""
+    # Tap-to-dig
+    tap_to_dig = await main_menu.get_property("/root/SettingsManager", "tap_to_dig_enabled")
+    assert tap_to_dig is not None, "tap_to_dig_enabled should exist"
+    assert isinstance(tap_to_dig, bool), "tap_to_dig_enabled should be a boolean"
+
+    # Swipe controls
+    swipe = await main_menu.get_property("/root/SettingsManager", "swipe_controls_enabled")
+    assert swipe is not None, "swipe_controls_enabled should exist"
+    assert isinstance(swipe, bool), "swipe_controls_enabled should be a boolean"
+
+    # Joystick deadzone
+    deadzone = await main_menu.get_property("/root/SettingsManager", "joystick_deadzone")
+    assert deadzone is not None, "joystick_deadzone should exist"
+    assert 0.0 <= deadzone <= 0.5, f"joystick_deadzone should be 0.0-0.5, got {deadzone}"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_gameplay_properties(main_menu):
+    """SettingsManager should have gameplay settings."""
+    # Peaceful mode
+    peaceful = await main_menu.get_property("/root/SettingsManager", "peaceful_mode")
+    assert peaceful is not None, "peaceful_mode should exist"
+    assert isinstance(peaceful, bool), "peaceful_mode should be a boolean"
+
+    # Auto-sell
+    auto_sell = await main_menu.get_property("/root/SettingsManager", "auto_sell_enabled")
+    assert auto_sell is not None, "auto_sell_enabled should exist"
+    assert isinstance(auto_sell, bool), "auto_sell_enabled should be a boolean"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_audio_properties(main_menu):
+    """SettingsManager should have audio settings."""
+    # Master volume
+    master = await main_menu.get_property("/root/SettingsManager", "master_volume")
+    assert master is not None, "master_volume should exist"
+    assert 0.0 <= master <= 1.0, f"master_volume should be 0.0-1.0, got {master}"
+
+    # SFX volume
+    sfx = await main_menu.get_property("/root/SettingsManager", "sfx_volume")
+    assert sfx is not None, "sfx_volume should exist"
+    assert 0.0 <= sfx <= 1.0, f"sfx_volume should be 0.0-1.0, got {sfx}"
+
+    # Music volume
+    music = await main_menu.get_property("/root/SettingsManager", "music_volume")
+    assert music is not None, "music_volume should exist"
+    assert 0.0 <= music <= 1.0, f"music_volume should be 0.0-1.0, got {music}"
+
+    # Tension audio
+    tension = await main_menu.get_property("/root/SettingsManager", "tension_audio_enabled")
+    assert tension is not None, "tension_audio_enabled should exist"
+    assert isinstance(tension, bool), "tension_audio_enabled should be a boolean"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_juice_level(main_menu):
+    """SettingsManager should have juice level setting."""
+    juice = await main_menu.get_property("/root/SettingsManager", "juice_level")
+    assert juice is not None, "juice_level should exist"
+    # JuiceLevel enum: OFF=0, LOW=1, MEDIUM=2, HIGH=3
+    assert 0 <= juice <= 3, f"juice_level should be 0-3, got {juice}"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_screen_shake(main_menu):
+    """SettingsManager should have screen shake intensity setting."""
+    shake = await main_menu.get_property("/root/SettingsManager", "screen_shake_intensity")
+    assert shake is not None, "screen_shake_intensity should exist"
+    assert 0.0 <= shake <= 1.0, f"screen_shake_intensity should be 0.0-1.0, got {shake}"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_colorblind_mode(main_menu):
+    """SettingsManager should have colorblind mode setting."""
+    mode = await main_menu.get_property("/root/SettingsManager", "colorblind_mode")
+    assert mode is not None, "colorblind_mode should exist"
+    # ColorblindMode enum: OFF=0, SYMBOLS=1, HIGH_CONTRAST=2
+    assert 0 <= mode <= 2, f"colorblind_mode should be 0-2, got {mode}"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_hand_mode(main_menu):
+    """SettingsManager should have hand mode setting."""
+    mode = await main_menu.get_property("/root/SettingsManager", "hand_mode")
+    assert mode is not None, "hand_mode should exist"
+    # HandMode enum: STANDARD=0, LEFT_HAND=1, RIGHT_HAND=2
+    assert 0 <= mode <= 2, f"hand_mode should be 0-2, got {mode}"

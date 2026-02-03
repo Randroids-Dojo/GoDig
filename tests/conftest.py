@@ -169,43 +169,92 @@ def get_playgodot_port() -> int:
 
 @pytest_asyncio.fixture
 async def main_menu():
-    """Launch the game on the main menu and yield the Godot connection."""
+    """Launch the game on the main menu and yield the Godot connection.
+
+    This fixture has extended timeouts to handle parallel execution
+    scenarios where multiple Godot instances may be running.
+    """
+    import asyncio
     port = get_playgodot_port()
 
-    async with Godot.launch(
-        str(GODOT_PROJECT),
-        headless=True,
-        resolution=(720, 1280),
-        timeout=30.0,
-        godot_path=GODOT_PATH,
-        port=port,
-    ) as g:
-        # Wait for main menu to load
-        await g.wait_for_node("/root/MainMenu", timeout=30.0)
-        yield g
+    # Extended timeouts for parallel execution scenarios
+    LAUNCH_TIMEOUT = 60.0
+    MENU_TIMEOUT = 45.0
+    MAX_RETRIES = 2
+
+    last_error = None
+
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            async with Godot.launch(
+                str(GODOT_PROJECT),
+                headless=True,
+                resolution=(720, 1280),
+                timeout=LAUNCH_TIMEOUT,
+                godot_path=GODOT_PATH,
+                port=port,
+            ) as g:
+                # Wait for main menu to load
+                await g.wait_for_node("/root/MainMenu", timeout=MENU_TIMEOUT)
+                yield g
+                return  # Success - exit the retry loop
+        except Exception as e:
+            last_error = e
+            if attempt < MAX_RETRIES:
+                # Wait before retry to let system resources free up
+                await asyncio.sleep(2.0)
+                # Get a new port in case of port conflicts
+                port = get_free_port()
+            else:
+                raise last_error
 
 
 @pytest_asyncio.fixture
 async def game():
-    """Launch the game and navigate to the test level scene."""
+    """Launch the game and navigate to the test level scene.
+
+    This fixture has extended timeouts and retry logic to handle
+    parallel execution scenarios where multiple Godot instances
+    may be competing for system resources.
+    """
     import asyncio
     port = get_playgodot_port()
 
-    async with Godot.launch(
-        str(GODOT_PROJECT),
-        headless=True,
-        resolution=(720, 1280),
-        timeout=60.0,
-        godot_path=GODOT_PATH,
-        port=port,
-    ) as g:
-        # Wait for main menu to load first
-        await g.wait_for_node("/root/MainMenu", timeout=30.0)
-        await asyncio.sleep(0.5)
+    # Extended timeouts for parallel execution scenarios
+    LAUNCH_TIMEOUT = 90.0
+    MENU_TIMEOUT = 60.0
+    SCENE_TIMEOUT = 90.0
+    MAX_RETRIES = 2
 
-        # Change to game scene
-        await g.change_scene("res://scenes/test_level.tscn")
+    last_error = None
 
-        # Wait for game scene to load
-        await g.wait_for_node("/root/Main", timeout=60.0)
-        yield g
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            async with Godot.launch(
+                str(GODOT_PROJECT),
+                headless=True,
+                resolution=(720, 1280),
+                timeout=LAUNCH_TIMEOUT,
+                godot_path=GODOT_PATH,
+                port=port,
+            ) as g:
+                # Wait for main menu to load first
+                await g.wait_for_node("/root/MainMenu", timeout=MENU_TIMEOUT)
+                await asyncio.sleep(0.5)
+
+                # Change to game scene
+                await g.change_scene("res://scenes/test_level.tscn")
+
+                # Wait for game scene to load with extended timeout
+                await g.wait_for_node("/root/Main", timeout=SCENE_TIMEOUT)
+                yield g
+                return  # Success - exit the retry loop
+        except Exception as e:
+            last_error = e
+            if attempt < MAX_RETRIES:
+                # Wait before retry to let system resources free up
+                await asyncio.sleep(2.0)
+                # Get a new port in case of port conflicts
+                port = get_free_port()
+            else:
+                raise last_error

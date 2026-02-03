@@ -262,6 +262,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		PrestigeManager.reset_run()  # Only reset run data, keep prestige bonuses
 	if EnemyManager:
 		EnemyManager.reset()
+	if CaveLayerManager:
+		CaveLayerManager.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:
@@ -386,6 +388,10 @@ func _collect_game_state() -> void:
 			current_save.set("enemy_data", {})
 		current_save.enemy_data = enemy_data
 
+	# Collect from CaveLayerManager (two-layer cave system)
+	if CaveLayerManager:
+		current_save.cave_layer_data = CaveLayerManager.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -468,6 +474,12 @@ func _apply_game_state() -> void:
 		var enemy_data = current_save.get("enemy_data")
 		if enemy_data != null and enemy_data is Dictionary and not enemy_data.is_empty():
 			EnemyManager.load_save_data(enemy_data)
+
+	# Apply to CaveLayerManager (two-layer cave system)
+	if CaveLayerManager:
+		var cave_data = current_save.get("cave_layer_data")
+		if cave_data != null and cave_data is Dictionary and not cave_data.is_empty():
+			CaveLayerManager.load_save_data(cave_data)
 
 
 ## Calculate offline earnings based on time since last save

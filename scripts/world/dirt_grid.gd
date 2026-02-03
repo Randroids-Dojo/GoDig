@@ -156,6 +156,11 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 	# Load any previously dug tiles for this chunk
 	_load_chunk_dug_tiles(chunk_pos)
 
+	# Generate back layer content for this chunk (two-layer cave system)
+	if CaveLayerManager:
+		var world_seed := SaveManager.get_world_seed() if SaveManager else 0
+		CaveLayerManager.generate_back_layer_for_chunk(chunk_pos, world_seed)
+
 	var start_x := chunk_pos.x * CHUNK_SIZE
 	var start_y := chunk_pos.y * CHUNK_SIZE
 

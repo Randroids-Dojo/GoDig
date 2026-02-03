@@ -19,3 +19,17 @@ color_ore_tint = Color(0.85, 0.88, 0.95, 1)
 tile_atlas_coords = Vector2i(3, 0)
 heat_damage = 0.5
 heat_damage_per_100_depth = 0.5
+
+# Visual Identity - Oppressive depths, crushing pressure
+signature_element = "pressure_fractures"
+visual_description = "The weight of the world above creates fracture patterns. Heat rises from below."
+atmosphere_particles = "dust"
+ambient_sound = "deep_rumble"
+fog_intensity = 0.25
+fog_color = Color(0.35, 0.35, 0.42, 0.5)
+decoration_chance = 0.04
+signature_ores = PackedStringArray("platinum", "titanium")
+has_lore_elements = true
+ambient_light_emission = 0.0
+movement_modifier = 0.95
+background_style = "rocky"

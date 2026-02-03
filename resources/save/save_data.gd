@@ -73,6 +73,9 @@ const CURRENT_VERSION := 1
 ## Progression gate data (progressive disclosure feature unlocks)
 @export var progression_gate_data: Dictionary = {}
 
+## Monetization gate data (tracks eligibility for ads/IAP)
+@export var monetization_data: Dictionary = {}
+
 ## FTUE (First Time User Experience) flags
 @export var ftue_completed: bool = false  # True after completing the 60-second hook
 @export var ftue_first_dig: bool = false  # True after first block mined

@@ -13,6 +13,7 @@ signal hp_changed(current_hp: int, max_hp: int)
 signal player_died(cause: String)
 signal safe_return(cargo_value: int)  # Emitted when player returns to surface with loot
 signal close_call(conditions: Array, tier: int)  # Emitted on close-call escape
+signal arrived_home(from_depth: int)  # Emitted when player returns to surface from underground
 
 enum State { IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING, CLIMBING }
 
@@ -425,8 +426,13 @@ func _update_depth() -> void:
 	# Track trip data for close-call detection
 	_update_trip_tracking(depth)
 
-	# Check for safe return: going from underground to surface with loot
+	# Check for surface arrival: going from underground to surface
 	if _previous_depth > 0 and depth == 0:
+		# Show warm welcome home visual effect (subtle warmth flash)
+		_show_home_arrival_effect(_previous_depth)
+		# Emit arrived_home signal for cozy surface effects
+		arrived_home.emit(_previous_depth)
+		# Check for special celebrations (safe return with loot, close-call)
 		_check_safe_return()
 		_reset_trip_tracking()  # Reset after return
 	_previous_depth = depth
@@ -2018,6 +2024,65 @@ func _flash_screen_close_call() -> void:
 	var tween := flash.create_tween()
 	tween.tween_property(flash, "color:a", 0.0, 0.4)
 	tween.tween_callback(flash_layer.queue_free)
+
+
+# ============================================
+# HOME ARRIVAL COZY EFFECTS
+# ============================================
+
+## Show warm visual effect when arriving home from underground
+func _show_home_arrival_effect(from_depth: int) -> void:
+	# Subtle warm screen flash (more subtle than celebrations)
+	# Intensity scales with depth - deeper trip = more relief
+	var alpha := 0.1 + minf(float(from_depth) / 200.0, 0.15)  # 0.1-0.25 range
+
+	var main_node = get_tree().get_first_node_in_group("main")
+	if not main_node:
+		main_node = get_parent()
+
+	# Warm golden/amber flash representing warmth of home
+	var flash := ColorRect.new()
+	flash.name = "HomeArrivalFlash"
+	flash.color = Color(1.0, 0.95, 0.8, alpha)  # Warm amber
+	flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var flash_layer := CanvasLayer.new()
+	flash_layer.layer = 75  # Below close-call flash
+	flash_layer.add_child(flash)
+	main_node.add_child(flash_layer)
+
+	# Longer, gentler fade than celebration flashes (comfort, not excitement)
+	var tween := flash.create_tween()
+	tween.tween_property(flash, "color:a", 0.0, 0.8)
+	tween.tween_callback(flash_layer.queue_free)
+
+	# Spawn subtle dust particles settling (coming home = rest)
+	if from_depth >= 20:
+		_spawn_home_dust_particles()
+
+
+## Spawn gentle dust particles settling around player (home arrival atmosphere)
+func _spawn_home_dust_particles() -> void:
+	var particles := CPUParticles2D.new()
+	particles.emitting = true
+	particles.one_shot = true
+	particles.amount = 15
+	particles.lifetime = 1.5
+	particles.explosiveness = 0.3  # Spread out over time (gentle)
+	particles.direction = Vector2(0, 1)  # Falling down gently
+	particles.spread = 60.0
+	particles.gravity = Vector2(0, 30)  # Very gentle settling
+	particles.initial_velocity_min = 10.0
+	particles.initial_velocity_max = 30.0
+	particles.scale_amount_min = 1.5
+	particles.scale_amount_max = 3.0
+	particles.color = Color(1.0, 0.95, 0.85, 0.4)  # Warm dust motes
+
+	# Position above player
+	particles.position = Vector2(0, -50)
+	add_child(particles)
+	particles.finished.connect(particles.queue_free)
 
 
 ## Spawn particle burst for close-call celebration

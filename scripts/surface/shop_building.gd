@@ -16,6 +16,7 @@ enum ShopType {
 	GADGET_SHOP,       ## Utility items (teleport scrolls, etc.)
 	ELEVATOR,          ## Fast travel system
 	REST_STATION,      ## Underground convenience shop (v1.1)
+	RESEARCH_LAB,      ## Sidegrades and playstyle customization (v1.2)
 }
 
 signal player_entered(shop_type: ShopType)
@@ -79,4 +80,6 @@ func get_shop_type_name() -> String:
 			return "elevator"
 		ShopType.REST_STATION:
 			return "rest_station"
+		ShopType.RESEARCH_LAB:
+			return "research_lab"
 	return "unknown"

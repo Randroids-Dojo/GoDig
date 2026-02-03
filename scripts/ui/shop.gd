@@ -7,6 +7,7 @@ extends Control
 const ShopBuilding = preload("res://scripts/surface/shop_building.gd")
 const SellAnimationScript = preload("res://scripts/effects/sell_animation.gd")
 const UpgradeCelebrationScript = preload("res://scripts/effects/upgrade_celebration.gd")
+const SidegradeData = preload("res://resources/sidegrades/sidegrade_data.gd")
 
 signal closed
 signal upgrade_purchased(upgrade_type: String, old_value: float, new_value: float)  ## Emitted when any upgrade is purchased
@@ -159,6 +160,13 @@ func _configure_for_shop_type() -> void:
 			upgrades_tab.visible = true  # Buy ladders, heal
 			if tab_container:
 				tab_container.current_tab = 0  # Default to sell tab
+		ShopBuilding.ShopType.RESEARCH_LAB:
+			if shop_title:
+				shop_title.text = "Research Lab"
+			sell_tab.visible = false
+			upgrades_tab.visible = true  # Sidegrades
+			if tab_container:
+				tab_container.current_tab = 1  # Show sidegrades tab
 		_:
 			# Default configuration for other shop types
 			if shop_title:
@@ -427,6 +435,9 @@ func _finalize_sale(total: int) -> void:
 	# Track for achievements
 	if AchievementManager:
 		AchievementManager.track_sale(total)
+	# Track successful run for monetization gating (returned with loot)
+	if GameManager:
+		GameManager.track_successful_run()
 	# Complete tutorial after first sale
 	_check_tutorial_sale_complete()
 	# Auto-save after transaction
@@ -504,6 +515,10 @@ func _refresh_upgrades_tab() -> void:
 			# Rest Station: show buy ladders and heal options
 			var rest_section := _create_rest_station_section()
 			upgrades_container.add_child(rest_section)
+		ShopBuilding.ShopType.RESEARCH_LAB:
+			# Research Lab: show sidegrades
+			var sidegrade_section := _create_sidegrade_section()
+			upgrades_container.add_child(sidegrade_section)
 		_:
 			# Default: Tool, backpack, and passive income upgrades
 			var tool_section := _create_tool_upgrade_section()
@@ -1808,6 +1823,294 @@ func _on_rest_station_buy_ladder(quantity: int, cost: int) -> void:
 	print("[Shop] Rest station sold %d ladders for $%d" % [quantity, cost])
 	_refresh_upgrades_tab()
 	SaveManager.save_game()
+
+
+# ============================================
+# RESEARCH LAB (SIDEGRADES)
+# ============================================
+
+func _create_sidegrade_section() -> Control:
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(0, 400)
+
+	var panel := PanelContainer.new()
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 16)
+	panel.add_child(vbox)
+	scroll.add_child(panel)
+
+	# Header with explanation
+	var title_label := Label.new()
+	title_label.text = "Playstyle Customization"
+	title_label.add_theme_font_size_override("font_size", 24)
+	vbox.add_child(title_label)
+
+	var desc_label := Label.new()
+	desc_label.text = "Sidegrades provide new abilities and playstyles.\nUnlike upgrades, they have trade-offs - choose wisely!"
+	desc_label.add_theme_font_size_override("font_size", 14)
+	desc_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	vbox.add_child(desc_label)
+
+	# Currently active sidegrades
+	var active_sidegrades: Array[String] = PlayerData.get_active_sidegrades() if PlayerData else []
+	if not active_sidegrades.is_empty():
+		var active_section := _create_active_sidegrades_section(active_sidegrades)
+		vbox.add_child(active_section)
+
+	# Spacer
+	var spacer := Control.new()
+	spacer.custom_minimum_size.y = 8
+	vbox.add_child(spacer)
+
+	# Get all sidegrades grouped by category
+	if DataRegistry == null:
+		var error_label := Label.new()
+		error_label.text = "Sidegrades unavailable"
+		vbox.add_child(error_label)
+		return scroll
+
+	# Create sections by category
+	var categories := [
+		SidegradeData.Category.MINING_STYLE,
+		SidegradeData.Category.MOVEMENT,
+		SidegradeData.Category.RESOURCE_HANDLING,
+		SidegradeData.Category.EXPLORATION,
+		SidegradeData.Category.SURVIVAL,
+	]
+
+	for category in categories:
+		var category_sidegrades = DataRegistry.get_sidegrades_by_category(category)
+		if category_sidegrades.is_empty():
+			continue
+
+		var category_section := _create_sidegrade_category_section(category, category_sidegrades)
+		vbox.add_child(category_section)
+
+	return scroll
+
+
+func _create_active_sidegrades_section(active_ids: Array[String]) -> Control:
+	var panel := PanelContainer.new()
+	var vbox := VBoxContainer.new()
+	panel.add_child(vbox)
+
+	var header := Label.new()
+	header.text = "Active Sidegrades"
+	header.add_theme_font_size_override("font_size", 18)
+	header.add_theme_color_override("font_color", Color(0.3, 1.0, 0.5))
+	vbox.add_child(header)
+
+	for sg_id in active_ids:
+		var sg = DataRegistry.get_sidegrade(sg_id) if DataRegistry else null
+		if sg == null:
+			continue
+
+		var item_hbox := HBoxContainer.new()
+
+		var name_label := Label.new()
+		name_label.text = sg.display_name
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.add_theme_color_override("font_color", sg.ui_color)
+		item_hbox.add_child(name_label)
+
+		var deactivate_btn := Button.new()
+		deactivate_btn.text = "Disable"
+		deactivate_btn.pressed.connect(_on_deactivate_sidegrade.bind(sg_id))
+		item_hbox.add_child(deactivate_btn)
+
+		vbox.add_child(item_hbox)
+
+	return panel
+
+
+func _create_sidegrade_category_section(category: int, sidegrades: Array) -> Control:
+	var panel := PanelContainer.new()
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	panel.add_child(vbox)
+
+	# Category header
+	var category_name := _get_category_name(category)
+	var header := Label.new()
+	header.text = category_name
+	header.add_theme_font_size_override("font_size", 18)
+	vbox.add_child(header)
+
+	# Add each sidegrade
+	for sg in sidegrades:
+		var sg_item := _create_sidegrade_item(sg)
+		vbox.add_child(sg_item)
+
+	return panel
+
+
+func _get_category_name(category: int) -> String:
+	match category:
+		SidegradeData.Category.MINING_STYLE:
+			return "Mining Style"
+		SidegradeData.Category.MOVEMENT:
+			return "Movement"
+		SidegradeData.Category.RESOURCE_HANDLING:
+			return "Resource Handling"
+		SidegradeData.Category.EXPLORATION:
+			return "Exploration"
+		SidegradeData.Category.SURVIVAL:
+			return "Survival"
+	return "Other"
+
+
+func _create_sidegrade_item(sg: SidegradeData) -> Control:
+	var panel := PanelContainer.new()
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_top", 4)
+	margin.add_theme_constant_override("margin_bottom", 4)
+	panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	margin.add_child(vbox)
+
+	# Name and status row
+	var header_hbox := HBoxContainer.new()
+
+	var name_label := Label.new()
+	name_label.text = sg.display_name
+	name_label.add_theme_font_size_override("font_size", 16)
+	name_label.add_theme_color_override("font_color", sg.ui_color)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_hbox.add_child(name_label)
+
+	# Status indicator
+	var is_owned := PlayerData.has_sidegrade(sg.id) if PlayerData else false
+	var is_active := PlayerData.is_sidegrade_active(sg.id) if PlayerData else false
+
+	if is_active:
+		var active_label := Label.new()
+		active_label.text = "[ACTIVE]"
+		active_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.5))
+		header_hbox.add_child(active_label)
+	elif is_owned:
+		var owned_label := Label.new()
+		owned_label.text = "[OWNED]"
+		owned_label.add_theme_color_override("font_color", Color.GOLD)
+		header_hbox.add_child(owned_label)
+
+	vbox.add_child(header_hbox)
+
+	# Description
+	var desc_label := Label.new()
+	desc_label.text = sg.description
+	desc_label.add_theme_font_size_override("font_size", 12)
+	desc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	vbox.add_child(desc_label)
+
+	# Benefits
+	var benefits_text := sg.get_benefits_text()
+	if benefits_text != "":
+		var benefits_label := Label.new()
+		benefits_label.text = benefits_text
+		benefits_label.add_theme_font_size_override("font_size", 12)
+		benefits_label.add_theme_color_override("font_color", Color(0.5, 1.0, 0.5))
+		vbox.add_child(benefits_label)
+
+	# Trade-offs
+	var tradeoff_text := sg.get_trade_off_text()
+	if tradeoff_text != "":
+		var tradeoff_label := Label.new()
+		tradeoff_label.text = tradeoff_text
+		tradeoff_label.add_theme_font_size_override("font_size", 12)
+		tradeoff_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.3))
+		vbox.add_child(tradeoff_label)
+
+	# Action buttons
+	var btn_hbox := HBoxContainer.new()
+	btn_hbox.add_theme_constant_override("separation", 8)
+
+	var max_depth := PlayerData.max_depth_reached if PlayerData else 0
+	var depth_ok := max_depth >= sg.unlock_depth
+	var can_afford := GameManager.can_afford(sg.cost) if GameManager else false
+
+	if is_owned:
+		if is_active:
+			var disable_btn := Button.new()
+			disable_btn.text = "Disable"
+			disable_btn.pressed.connect(_on_deactivate_sidegrade.bind(sg.id))
+			btn_hbox.add_child(disable_btn)
+		else:
+			# Check for conflicts with active sidegrades
+			var has_conflict := false
+			var conflict_name := ""
+			var active_ids: Array[String] = PlayerData.get_active_sidegrades() if PlayerData else []
+			for active_id in active_ids:
+				if DataRegistry.sidegrades_conflict(sg.id, active_id):
+					has_conflict = true
+					var active_sg = DataRegistry.get_sidegrade(active_id)
+					if active_sg:
+						conflict_name = active_sg.display_name
+					break
+
+			var enable_btn := Button.new()
+			if has_conflict:
+				enable_btn.text = "Conflicts with %s" % conflict_name
+				enable_btn.disabled = true
+			else:
+				enable_btn.text = "Enable"
+				enable_btn.pressed.connect(_on_activate_sidegrade.bind(sg.id))
+			btn_hbox.add_child(enable_btn)
+	else:
+		# Purchase button
+		var buy_btn := Button.new()
+		if not depth_ok:
+			buy_btn.text = "LOCKED - Reach %dm" % sg.unlock_depth
+			buy_btn.disabled = true
+		elif not can_afford:
+			buy_btn.text = "BUY - $%d (Need $%d more)" % [sg.cost, sg.cost - GameManager.get_coins()]
+			buy_btn.disabled = true
+		else:
+			buy_btn.text = "BUY - $%d" % sg.cost
+			buy_btn.pressed.connect(_on_buy_sidegrade.bind(sg.id, sg.cost))
+		btn_hbox.add_child(buy_btn)
+
+	vbox.add_child(btn_hbox)
+
+	return panel
+
+
+func _on_buy_sidegrade(sidegrade_id: String, cost: int) -> void:
+	if not GameManager.spend_coins(cost):
+		return
+
+	PlayerData.unlock_sidegrade(sidegrade_id)
+	# Auto-activate on purchase if no conflicts
+	PlayerData.activate_sidegrade(sidegrade_id)
+
+	print("[Shop] Purchased sidegrade: %s" % sidegrade_id)
+
+	# Haptic feedback
+	if HapticFeedback:
+		HapticFeedback.on_purchase()
+
+	# Play celebration
+	if SoundManager:
+		SoundManager.play_level_up()
+	_trigger_upgrade_celebration(5, 0.0, 1.0, "Sidegrade")
+
+	_refresh_upgrades_tab()
+	SaveManager.save_game()
+
+
+func _on_activate_sidegrade(sidegrade_id: String) -> void:
+	if PlayerData.activate_sidegrade(sidegrade_id):
+		print("[Shop] Activated sidegrade: %s" % sidegrade_id)
+		_refresh_upgrades_tab()
+		SaveManager.save_game()
+
+
+func _on_deactivate_sidegrade(sidegrade_id: String) -> void:
+	PlayerData.deactivate_sidegrade(sidegrade_id)
+	print("[Shop] Deactivated sidegrade: %s" % sidegrade_id)
+	_refresh_upgrades_tab()
 	SaveManager.save_game()
 
 

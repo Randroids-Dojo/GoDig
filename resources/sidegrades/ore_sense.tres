@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SidegradeData" load_steps=2 format=3 uid="uid://bv8qm2nk7rwt5"]
+
+[ext_resource type="Script" path="res://resources/sidegrades/sidegrade_data.gd" id="1_sidegrade"]
+
+[resource]
+script = ExtResource("1_sidegrade")
+id = "ore_sense"
+display_name = "Ore Sense"
+description = "Detect nearby ores through walls"
+detailed_description = "Sixth sense for valuable minerals. Nearby ores glow faintly through solid rock, helping you plan efficient dig routes. The intense focus required slows your movement slightly."
+category = 3
+cost = 7000
+unlock_depth = 250
+exclusive_with = []
+has_trade_off = true
+ui_color = Color(0.8, 0.4, 1.0, 1.0)
+ore_detection_enabled = true
+ore_detection_range = 8.0
+path_hint_enabled = false
+auto_map_enabled = false
+light_radius_multiplier = 1.0
+move_speed_multiplier = 0.9

@@ -30,6 +30,21 @@ signal player_exited(shop_type: ShopType)
 
 @onready var interaction_area: Area2D = $InteractionArea
 @onready var label: Label = $Label
+@onready var building_sprite: Sprite2D = $BuildingSprite
+
+## Preloaded building sprite textures for each shop type
+const BUILDING_SPRITES = {
+	ShopType.GENERAL_STORE: preload("res://resources/sprites/buildings/general_store.png"),
+	ShopType.SUPPLY_STORE: preload("res://resources/sprites/buildings/supply_store.png"),
+	ShopType.BLACKSMITH: preload("res://resources/sprites/buildings/blacksmith.png"),
+	ShopType.EQUIPMENT_SHOP: preload("res://resources/sprites/buildings/equipment_shop.png"),
+	ShopType.GEM_APPRAISER: preload("res://resources/sprites/buildings/gem_appraiser.png"),
+	ShopType.WAREHOUSE: preload("res://resources/sprites/buildings/warehouse.png"),
+	ShopType.GADGET_SHOP: preload("res://resources/sprites/buildings/gadget_shop.png"),
+	ShopType.ELEVATOR: preload("res://resources/sprites/buildings/elevator.png"),
+	ShopType.REST_STATION: preload("res://resources/sprites/buildings/rest_station.png"),
+	ShopType.RESEARCH_LAB: preload("res://resources/sprites/buildings/research_lab.png"),
+}
 
 var player_nearby: bool = false
 
@@ -39,6 +54,7 @@ func _ready() -> void:
 		interaction_area.body_exited.connect(_on_body_exited)
 	if label and shop_name:
 		label.text = shop_name
+	_update_building_sprite()
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.name == "Player":
@@ -83,3 +99,19 @@ func get_shop_type_name() -> String:
 		ShopType.RESEARCH_LAB:
 			return "research_lab"
 	return "unknown"
+
+
+func _update_building_sprite() -> void:
+	## Updates the building sprite based on the current shop_type.
+	## Called during _ready and can be called when shop_type changes in editor.
+	if not building_sprite:
+		return
+
+	if BUILDING_SPRITES.has(shop_type):
+		building_sprite.texture = BUILDING_SPRITES[shop_type]
+
+
+func set_shop_type(new_type: ShopType) -> void:
+	## Sets the shop type and updates the building sprite accordingly.
+	shop_type = new_type
+	_update_building_sprite()

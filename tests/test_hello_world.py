@@ -1430,3 +1430,104 @@ async def test_death_screen_min_ladders_constant(game):
     min_ladders = await game.get_property(PATHS["death_screen"], "MIN_LADDERS_FOR_DIVE")
     assert min_ladders is not None, "DeathScreen should have MIN_LADDERS_FOR_DIVE constant"
     assert min_ladders == 3, f"MIN_LADDERS_FOR_DIVE should be 3, got {min_ladders}"
+
+
+# =============================================================================
+# PERFORMANCE MONITOR TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_performance_monitor_exists(game):
+    """Verify PerformanceMonitor autoload exists."""
+    exists = await game.node_exists(PATHS["performance_monitor"])
+    assert exists, "PerformanceMonitor autoload should exist"
+
+
+@pytest.mark.asyncio
+async def test_performance_monitor_has_fps_tracking(game):
+    """Verify PerformanceMonitor tracks FPS."""
+    current_fps = await game.get_property(PATHS["performance_monitor"], "current_fps")
+    average_fps = await game.get_property(PATHS["performance_monitor"], "average_fps")
+
+    assert current_fps is not None, "PerformanceMonitor should have current_fps"
+    assert average_fps is not None, "PerformanceMonitor should have average_fps"
+    assert isinstance(current_fps, int), f"current_fps should be int, got {type(current_fps)}"
+
+
+@pytest.mark.asyncio
+async def test_performance_monitor_has_memory_tracking(game):
+    """Verify PerformanceMonitor tracks memory."""
+    static_mb = await game.get_property(PATHS["performance_monitor"], "static_memory_mb")
+    peak_mb = await game.get_property(PATHS["performance_monitor"], "peak_memory_mb")
+
+    assert static_mb is not None, "PerformanceMonitor should have static_memory_mb"
+    assert peak_mb is not None, "PerformanceMonitor should have peak_memory_mb"
+
+
+@pytest.mark.asyncio
+async def test_performance_monitor_has_quality_preset(game):
+    """Verify PerformanceMonitor has quality preset property."""
+    preset = await game.get_property(PATHS["performance_monitor"], "quality_preset")
+    assert preset is not None, "PerformanceMonitor should have quality_preset"
+    # Preset should be 0-3 (LOW, MEDIUM, HIGH, ULTRA)
+    assert 0 <= preset <= 3, f"quality_preset should be 0-3, got {preset}"
+
+
+@pytest.mark.asyncio
+async def test_performance_monitor_has_adaptive_mode(game):
+    """Verify PerformanceMonitor has adaptive mode property."""
+    adaptive = await game.get_property(PATHS["performance_monitor"], "adaptive_mode")
+    assert adaptive is not None, "PerformanceMonitor should have adaptive_mode"
+    assert isinstance(adaptive, bool), f"adaptive_mode should be bool, got {type(adaptive)}"
+
+
+@pytest.mark.asyncio
+async def test_performance_monitor_has_fps_constants(game):
+    """Verify PerformanceMonitor has FPS threshold constants."""
+    target = await game.get_property(PATHS["performance_monitor"], "FPS_TARGET")
+    warning = await game.get_property(PATHS["performance_monitor"], "FPS_WARNING")
+    critical = await game.get_property(PATHS["performance_monitor"], "FPS_CRITICAL")
+
+    assert target == 60, f"FPS_TARGET should be 60, got {target}"
+    assert warning == 45, f"FPS_WARNING should be 45, got {warning}"
+    assert critical == 30, f"FPS_CRITICAL should be 30, got {critical}"
+
+
+@pytest.mark.asyncio
+async def test_performance_monitor_has_get_stats_method(game):
+    """Verify PerformanceMonitor has get_stats method."""
+    stats = await game.call_method(PATHS["performance_monitor"], "get_stats")
+    assert stats is not None, "get_stats should return a value"
+    assert "fps" in stats, "Stats should include fps"
+    assert "quality_preset" in stats, "Stats should include quality_preset"
+
+
+@pytest.mark.asyncio
+async def test_performance_monitor_has_chunk_radius_method(game):
+    """Verify PerformanceMonitor has get_chunk_radius method."""
+    radius = await game.call_method(PATHS["performance_monitor"], "get_chunk_radius")
+    assert radius is not None, "get_chunk_radius should return a value"
+    assert isinstance(radius, int), f"chunk radius should be int, got {type(radius)}"
+    assert 1 <= radius <= 3, f"chunk radius should be 1-3, got {radius}"
+
+
+@pytest.mark.asyncio
+async def test_performance_monitor_has_max_sparkles_method(game):
+    """Verify PerformanceMonitor has get_max_sparkles method."""
+    max_sparkles = await game.call_method(PATHS["performance_monitor"], "get_max_sparkles")
+    assert max_sparkles is not None, "get_max_sparkles should return a value"
+    assert isinstance(max_sparkles, int), f"max sparkles should be int, got {type(max_sparkles)}"
+    assert 100 <= max_sparkles <= 500, f"max sparkles should be 100-500, got {max_sparkles}"
+
+
+@pytest.mark.asyncio
+async def test_performance_monitor_has_signals(game):
+    """Verify PerformanceMonitor has required signals."""
+    has_fps_signal = await game.call_method(PATHS["performance_monitor"], "has_signal", ["fps_updated"])
+    has_memory_signal = await game.call_method(PATHS["performance_monitor"], "has_signal", ["memory_updated"])
+    has_warning_signal = await game.call_method(PATHS["performance_monitor"], "has_signal", ["performance_warning"])
+
+    assert has_fps_signal is True, "PerformanceMonitor should have fps_updated signal"
+    assert has_memory_signal is True, "PerformanceMonitor should have memory_updated signal"
+    assert has_warning_signal is True, "PerformanceMonitor should have performance_warning signal"

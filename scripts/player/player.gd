@@ -67,6 +67,17 @@ var _move_tween: Tween
 var _wall_direction: int = 0  # -1 = wall on left, 1 = wall on right, 0 = no wall
 var _wall_jump_timer: float = 0.0  # Cooldown after wall-jump
 
+# Wall-jump combo tracking (mastery celebration)
+var _wall_jump_combo: int = 0  # Current wall-jump chain count
+var _wall_jump_combo_timer: float = 0.0  # Time window to continue combo
+const WALL_JUMP_COMBO_TIMEOUT: float = 2.0  # Seconds to maintain combo
+const WALL_JUMP_COMBO_THRESHOLD: int = 3  # Minimum combo for celebration
+var _wall_jump_combo_label: Label = null  # Floating combo counter
+var _wall_jump_trail_particles: CPUParticles2D = null  # Speed trail effect
+
+signal wall_jump_combo_updated(combo_count: int)
+signal wall_jump_mastery_achieved(combo_count: int)  # Emitted when combo >= threshold
+
 # Fall tracking state
 var _fall_start_y: float = 0.0
 var _is_tracking_fall: bool = false
@@ -143,6 +154,9 @@ func _process(delta: float) -> void:
 	# Update wall-jump cooldown timer
 	if _wall_jump_timer > 0:
 		_wall_jump_timer -= delta
+
+	# Update wall-jump combo timer
+	_process_wall_jump_combo(delta)
 
 	# Update tap-to-dig mining cooldown
 	if _tap_mine_cooldown > 0:
@@ -590,9 +604,13 @@ func _do_wall_jump() -> void:
 	if HapticFeedback:
 		HapticFeedback.on_wall_jump()
 
-	# Play jump sound
+	# Play jump sound (with pitch variation for combos)
 	if SoundManager:
-		SoundManager.play_jump()
+		var pitch := 1.0 + (_wall_jump_combo * 0.05)  # Slightly higher pitch for combos
+		SoundManager.play_sfx_varied(SoundManager.SOUND_PLAYER_JUMP, -8.0, pitch - 0.02, pitch + 0.02)
+
+	# Track wall-jump combo
+	_increment_wall_jump_combo()
 
 	# Jump away from wall
 	velocity.x = WALL_JUMP_FORCE_X * (-_wall_direction)  # Jump away from wall
@@ -839,6 +857,167 @@ func _apply_fall_damage(fall_blocks: int) -> void:
 
 
 # ============================================
+# WALL-JUMP COMBO (MASTERY CELEBRATION) SYSTEM
+# ============================================
+
+## Process wall-jump combo timer and effects
+func _process_wall_jump_combo(delta: float) -> void:
+	if _wall_jump_combo <= 0:
+		return
+
+	# Update combo timer
+	_wall_jump_combo_timer -= delta
+
+	# Combo expired - end it
+	if _wall_jump_combo_timer <= 0:
+		_end_wall_jump_combo()
+		return
+
+	# Update speed trail particles if active
+	if _wall_jump_trail_particles and _wall_jump_combo >= WALL_JUMP_COMBO_THRESHOLD:
+		_wall_jump_trail_particles.emitting = true
+
+
+## Increment wall-jump combo and show feedback
+func _increment_wall_jump_combo() -> void:
+	var prev_combo := _wall_jump_combo
+	_wall_jump_combo += 1
+	_wall_jump_combo_timer = WALL_JUMP_COMBO_TIMEOUT
+
+	# Emit signal for UI updates
+	wall_jump_combo_updated.emit(_wall_jump_combo)
+
+	# Show visual feedback at combo threshold
+	if _wall_jump_combo >= WALL_JUMP_COMBO_THRESHOLD:
+		# First time reaching threshold - celebrate!
+		if prev_combo < WALL_JUMP_COMBO_THRESHOLD:
+			wall_jump_mastery_achieved.emit(_wall_jump_combo)
+			_start_wall_jump_trail()
+			_play_wall_jump_mastery_sound()
+
+		# Show/update combo counter
+		_show_wall_jump_combo_counter()
+
+		# Extra haptic feedback for combo
+		if HapticFeedback:
+			HapticFeedback.trigger(HapticFeedback.HapticType.SUCCESS)
+
+
+## End wall-jump combo
+func _end_wall_jump_combo() -> void:
+	if _wall_jump_combo >= WALL_JUMP_COMBO_THRESHOLD:
+		# Show completion feedback
+		_show_wall_jump_combo_complete()
+
+	_wall_jump_combo = 0
+	_wall_jump_combo_timer = 0.0
+
+	# Stop speed trail
+	_stop_wall_jump_trail()
+
+	# Hide combo counter
+	_hide_wall_jump_combo_counter()
+
+
+## Reset wall-jump combo (called on landing, taking damage, etc.)
+func _reset_wall_jump_combo() -> void:
+	if _wall_jump_combo > 0:
+		_end_wall_jump_combo()
+
+
+## Start the speed trail particle effect
+func _start_wall_jump_trail() -> void:
+	# Create particles if they don't exist
+	if _wall_jump_trail_particles == null:
+		_wall_jump_trail_particles = CPUParticles2D.new()
+		_wall_jump_trail_particles.name = "WallJumpTrail"
+		_wall_jump_trail_particles.amount = 20
+		_wall_jump_trail_particles.lifetime = 0.4
+		_wall_jump_trail_particles.explosiveness = 0.0
+		_wall_jump_trail_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+		_wall_jump_trail_particles.emission_rect_extents = Vector2(20, 30)
+		_wall_jump_trail_particles.direction = Vector2(0, 1)  # Trail behind
+		_wall_jump_trail_particles.spread = 30.0
+		_wall_jump_trail_particles.gravity = Vector2(0, -50)  # Float up slightly
+		_wall_jump_trail_particles.initial_velocity_min = 20.0
+		_wall_jump_trail_particles.initial_velocity_max = 60.0
+		_wall_jump_trail_particles.scale_amount_min = 2.0
+		_wall_jump_trail_particles.scale_amount_max = 4.0
+		# Cyan/white trail for speed effect
+		_wall_jump_trail_particles.color = Color(0.7, 0.9, 1.0, 0.6)
+		add_child(_wall_jump_trail_particles)
+
+	_wall_jump_trail_particles.emitting = true
+
+
+## Stop the speed trail particle effect
+func _stop_wall_jump_trail() -> void:
+	if _wall_jump_trail_particles:
+		_wall_jump_trail_particles.emitting = false
+
+
+## Show the floating combo counter above the player
+func _show_wall_jump_combo_counter() -> void:
+	# Create label if it doesn't exist
+	if _wall_jump_combo_label == null:
+		_wall_jump_combo_label = Label.new()
+		_wall_jump_combo_label.name = "WallJumpComboLabel"
+		_wall_jump_combo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_wall_jump_combo_label.add_theme_font_size_override("font_size", 24)
+		_wall_jump_combo_label.add_theme_color_override("font_color", Color(0.4, 0.9, 1.0))
+		_wall_jump_combo_label.add_theme_constant_override("outline_size", 3)
+		_wall_jump_combo_label.add_theme_color_override("font_outline_color", Color(0.1, 0.2, 0.3))
+		_wall_jump_combo_label.position = Vector2(-50, -100)
+		_wall_jump_combo_label.custom_minimum_size = Vector2(100, 30)
+		add_child(_wall_jump_combo_label)
+
+	# Update text with combo count
+	_wall_jump_combo_label.text = "x%d" % _wall_jump_combo
+	_wall_jump_combo_label.visible = true
+
+	# Brief scale pop animation
+	if not SettingsManager or not SettingsManager.reduced_motion:
+		_wall_jump_combo_label.pivot_offset = _wall_jump_combo_label.size / 2
+		_wall_jump_combo_label.scale = Vector2(1.3, 1.3)
+		var tween := create_tween()
+		tween.tween_property(_wall_jump_combo_label, "scale", Vector2.ONE, 0.15) \
+			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+
+## Hide the combo counter label
+func _hide_wall_jump_combo_counter() -> void:
+	if _wall_jump_combo_label:
+		_wall_jump_combo_label.visible = false
+
+
+## Show completion feedback when combo ends
+func _show_wall_jump_combo_complete() -> void:
+	if _wall_jump_combo_label == null:
+		return
+
+	# Change color to gold for completion
+	_wall_jump_combo_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	_wall_jump_combo_label.text = "x%d!" % _wall_jump_combo
+
+	# Animate fade out
+	var tween := create_tween()
+	tween.tween_property(_wall_jump_combo_label, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(func():
+		if _wall_jump_combo_label:
+			_wall_jump_combo_label.visible = false
+			_wall_jump_combo_label.modulate.a = 1.0
+			_wall_jump_combo_label.add_theme_color_override("font_color", Color(0.4, 0.9, 1.0))
+	)
+
+
+## Play mastery celebration sound
+func _play_wall_jump_mastery_sound() -> void:
+	if SoundManager:
+		# Play a satisfying achievement-like sound for mastery
+		SoundManager.play_sfx(SoundManager.SOUND_UI_SUCCESS, -5.0, 1.2)
+
+
+# ============================================
 # TAP-TO-DIG LOGIC
 # ============================================
 
@@ -1076,6 +1255,9 @@ func take_damage(amount: int, source: String = "unknown") -> int:
 	# Reset mining combo on damage
 	if MiningBonusManager:
 		MiningBonusManager.reset_combo()
+
+	# Reset wall-jump combo on damage
+	_reset_wall_jump_combo()
 
 	print("[Player] Took %d damage from %s (HP: %d/%d)" % [actual_damage, source, current_hp, MAX_HP])
 

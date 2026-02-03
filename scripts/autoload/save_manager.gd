@@ -428,6 +428,14 @@ func _collect_game_state() -> void:
 	if WelcomeBackManager:
 		current_save.welcome_back_data = WelcomeBackManager.get_save_data()
 
+	# Collect from DepthDiscoveryManager (depth-based surprise discoveries)
+	if DepthDiscoveryManager:
+		current_save.depth_discovery_data = DepthDiscoveryManager.get_save_data()
+
+	# Collect from TreasureChestManager (cave treasure chests)
+	if TreasureChestManager:
+		current_save.treasure_chest_data = TreasureChestManager.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -552,6 +560,18 @@ func _apply_game_state() -> void:
 		var welcome_back_data = current_save.get("welcome_back_data")
 		if welcome_back_data != null and welcome_back_data is Dictionary and not welcome_back_data.is_empty():
 			WelcomeBackManager.load_save_data(welcome_back_data)
+
+	# Apply to DepthDiscoveryManager (depth-based surprise discoveries)
+	if DepthDiscoveryManager:
+		var depth_discovery_data = current_save.get("depth_discovery_data")
+		if depth_discovery_data != null and depth_discovery_data is Dictionary and not depth_discovery_data.is_empty():
+			DepthDiscoveryManager.load_save_data(depth_discovery_data)
+
+	# Apply to TreasureChestManager (cave treasure chests)
+	if TreasureChestManager:
+		var treasure_chest_data = current_save.get("treasure_chest_data")
+		if treasure_chest_data != null and treasure_chest_data is Dictionary and not treasure_chest_data.is_empty():
+			TreasureChestManager.load_save_data(treasure_chest_data)
 
 
 ## Calculate offline earnings based on time since last save

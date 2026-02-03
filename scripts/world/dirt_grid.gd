@@ -9,6 +9,7 @@ const RarityBorderScene = preload("res://scenes/effects/rarity_border.tscn")
 const NearOreHintScene = preload("res://scenes/effects/near_ore_hint.tscn")
 const OreSparkleManagerScript = preload("res://scripts/effects/ore_sparkle_manager.gd")
 const ThreadedChunkGeneratorScript = preload("res://scripts/world/threaded_chunk_generator.gd")
+const TreasureChestScene = preload("res://scenes/world/treasure_chest.tscn")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
@@ -45,6 +46,7 @@ var _rarity_borders: Dictionary = {}  # Dictionary[Vector2i, Node2D] - rarity bo
 var _near_ore_hints: Dictionary = {}  # Dictionary[Vector2i, CPUParticles2D] - subtle hints for near-ore blocks
 var _near_ore_blocks: Dictionary = {}  # Dictionary[Vector2i, bool] - tracks blocks adjacent to ore
 var _player: Node2D = null
+var _active_chests: Dictionary = {}  # Dictionary[Vector2i, Node] - treasure chests in caves
 
 ## MultiMesh-based sparkle manager for performance optimization
 var _sparkle_manager: Node2D = null
@@ -195,13 +197,21 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 	# Load any previously dug tiles for this chunk
 	_load_chunk_dug_tiles(chunk_pos)
 
+	var world_seed := SaveManager.get_world_seed() if SaveManager else 0
+
 	# Generate back layer content for this chunk (two-layer cave system)
 	if CaveLayerManager:
-		var world_seed := SaveManager.get_world_seed() if SaveManager else 0
 		CaveLayerManager.generate_back_layer_for_chunk(chunk_pos, world_seed)
+
+	# Generate depth-based surprise discoveries for this chunk
+	if DepthDiscoveryManager:
+		DepthDiscoveryManager.generate_discoveries_for_chunk(chunk_pos, world_seed)
 
 	var start_x := chunk_pos.x * CHUNK_SIZE
 	var start_y := chunk_pos.y * CHUNK_SIZE
+
+	# Track cave positions for chest spawning
+	var cave_positions: Array[Vector2i] = []
 
 	# First pass: Generate blocks and determine ore spawns
 	for local_x in range(CHUNK_SIZE):
@@ -216,11 +226,15 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 			if grid_pos.y >= _surface_row:
 				# Check if this should be a cave tile (empty)
 				if _is_cave_tile(grid_pos):
+					cave_positions.append(grid_pos)  # Track for chest spawning
 					continue  # Leave as empty/air
 
 				if not _active.has(grid_pos):
 					_acquire(grid_pos)
 					_determine_ore_spawn(grid_pos)
+
+	# Spawn treasure chests in cave positions
+	_spawn_chests_in_caves(cave_positions, world_seed)
 
 	# Second pass: Apply near-ore hints to blocks that were marked
 	# (ore placement marks adjacent blocks, but those blocks may have been
@@ -247,10 +261,15 @@ func _on_threaded_chunk_generated(chunk_pos: Vector2i, result) -> void:
 	# Load dug tiles (may have changed since generation started)
 	_load_chunk_dug_tiles(chunk_pos)
 
+	var world_seed := SaveManager.get_world_seed() if SaveManager else 0
+
 	# Generate back layer content (must be on main thread due to manager access)
 	if CaveLayerManager:
-		var world_seed := SaveManager.get_world_seed() if SaveManager else 0
 		CaveLayerManager.generate_back_layer_for_chunk(chunk_pos, world_seed)
+
+	# Generate depth-based surprise discoveries for this chunk
+	if DepthDiscoveryManager:
+		DepthDiscoveryManager.generate_discoveries_for_chunk(chunk_pos, world_seed)
 
 	# Apply generated tiles
 	for grid_pos in result.tiles:
@@ -285,6 +304,12 @@ func _on_threaded_chunk_generated(chunk_pos: Vector2i, result) -> void:
 		_near_ore_blocks[grid_pos] = true
 		if _active.has(grid_pos) and not result.ore_map.has(grid_pos):
 			_check_and_add_near_ore_hint(grid_pos)
+
+	# Spawn treasure chests in cave positions (from threaded result)
+	var cave_positions: Array[Vector2i] = []
+	for pos in result.cave_tiles:
+		cave_positions.append(pos)
+	_spawn_chests_in_caves(cave_positions, world_seed)
 
 	# Mark chunk as loaded
 	_loaded_chunks[chunk_pos] = true
@@ -342,6 +367,12 @@ func _unload_chunk(chunk_pos: Vector2i) -> void:
 		_remove_rarity_border(pos)
 		_remove_near_ore_hint(pos)
 		_release(pos)
+
+	# Clean up treasure chests in this chunk
+	for local_x in range(CHUNK_SIZE):
+		for local_y in range(CHUNK_SIZE):
+			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
+			_remove_chest(grid_pos)
 
 	# Clear dug tiles memory for this chunk (will reload from save when needed)
 	_clear_chunk_dug_tiles_memory(chunk_pos)
@@ -673,6 +704,61 @@ func _generate_cave_noise(pos: Vector2i) -> float:
 
 	# Combine layers (weighted average)
 	return noise1 * 0.7 + noise2 * 0.3
+
+
+# ============================================
+# TREASURE CHEST SPAWNING IN CAVES
+# ============================================
+
+func _spawn_chests_in_caves(cave_positions: Array[Vector2i], world_seed: int) -> void:
+	## Spawn treasure chests in qualifying cave positions.
+	## Uses TreasureChestManager for loot generation and tracking.
+	if not TreasureChestManager:
+		return
+
+	for pos in cave_positions:
+		var depth := pos.y - _surface_row
+		if depth < 0:
+			continue
+
+		# Check if manager says a chest should spawn here
+		if TreasureChestManager.should_spawn_chest(pos, depth, world_seed):
+			_spawn_chest_at(pos, depth, world_seed)
+
+
+func _spawn_chest_at(pos: Vector2i, depth: int, world_seed: int) -> void:
+	## Spawn a treasure chest visual at the given cave position.
+	if _active_chests.has(pos):
+		return  # Already spawned
+
+	if not TreasureChestManager:
+		return
+
+	# Tell manager to generate chest data
+	TreasureChestManager.spawn_chest(pos, depth, world_seed)
+
+	# Create visual chest instance
+	var chest = TreasureChestScene.instantiate()
+	var chest_data := TreasureChestManager.get_chest_data(pos)
+
+	# Configure chest with tier info
+	var tier: int = chest_data.get("tier", 0)
+	var tier_name: String = chest_data.get("tier_name", "Chest")
+	chest.configure(pos, tier, tier_name)
+
+	add_child(chest)
+	_active_chests[pos] = chest
+
+
+func _remove_chest(pos: Vector2i) -> void:
+	## Remove a chest visual from the world.
+	if not _active_chests.has(pos):
+		return
+
+	var chest = _active_chests[pos]
+	if is_instance_valid(chest):
+		chest.queue_free()
+	_active_chests.erase(pos)
 
 
 # ============================================

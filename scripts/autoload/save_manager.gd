@@ -274,6 +274,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		ProgressionGateManager.reset()
 	if MonetizationManager:
 		MonetizationManager.reset()
+	if WelcomeBackManager:
+		WelcomeBackManager.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:
@@ -422,6 +424,10 @@ func _collect_game_state() -> void:
 	if MonetizationManager:
 		current_save.monetization_data = MonetizationManager.get_save_data()
 
+	# Collect from WelcomeBackManager (guilt-free returning player rewards)
+	if WelcomeBackManager:
+		current_save.welcome_back_data = WelcomeBackManager.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -540,6 +546,12 @@ func _apply_game_state() -> void:
 		var monetization_data = current_save.get("monetization_data")
 		if monetization_data != null and monetization_data is Dictionary and not monetization_data.is_empty():
 			MonetizationManager.load_save_data(monetization_data)
+
+	# Apply to WelcomeBackManager (guilt-free returning player rewards)
+	if WelcomeBackManager:
+		var welcome_back_data = current_save.get("welcome_back_data")
+		if welcome_back_data != null and welcome_back_data is Dictionary and not welcome_back_data.is_empty():
+			WelcomeBackManager.load_save_data(welcome_back_data)
 
 
 ## Calculate offline earnings based on time since last save

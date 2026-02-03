@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://welcome_back_popup_001"]
+
+[ext_resource type="Script" path="res://scripts/ui/welcome_back_popup.gd" id="1_popup"]
+
+[node name="WelcomeBackPopup" type="CanvasLayer"]
+layer = 55
+script = ExtResource("1_popup")

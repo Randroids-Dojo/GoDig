@@ -268,6 +268,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		ChallengeManager.reset()
 	if AutoMinerManager:
 		AutoMinerManager.reset()
+	if RestStationManager:
+		RestStationManager.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:
@@ -404,6 +406,10 @@ func _collect_game_state() -> void:
 	if AutoMinerManager:
 		current_save.auto_miner_data = AutoMinerManager.get_save_data()
 
+	# Collect from RestStationManager (underground shops)
+	if RestStationManager:
+		current_save.rest_station_data = RestStationManager.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -504,6 +510,12 @@ func _apply_game_state() -> void:
 		var auto_miner_data = current_save.get("auto_miner_data")
 		if auto_miner_data != null and auto_miner_data is Dictionary and not auto_miner_data.is_empty():
 			AutoMinerManager.load_save_data(auto_miner_data)
+
+	# Apply to RestStationManager (underground shops)
+	if RestStationManager:
+		var rest_station_data = current_save.get("rest_station_data")
+		if rest_station_data != null and rest_station_data is Dictionary and not rest_station_data.is_empty():
+			RestStationManager.load_save_data(rest_station_data)
 
 
 ## Calculate offline earnings based on time since last save

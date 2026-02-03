@@ -15,6 +15,7 @@ enum ShopType {
 	WAREHOUSE,         ## Extra storage capacity
 	GADGET_SHOP,       ## Utility items (teleport scrolls, etc.)
 	ELEVATOR,          ## Fast travel system
+	REST_STATION,      ## Underground convenience shop (v1.1)
 }
 
 signal player_entered(shop_type: ShopType)
@@ -76,4 +77,6 @@ func get_shop_type_name() -> String:
 			return "gadget_shop"
 		ShopType.ELEVATOR:
 			return "elevator"
+		ShopType.REST_STATION:
+			return "rest_station"
 	return "unknown"

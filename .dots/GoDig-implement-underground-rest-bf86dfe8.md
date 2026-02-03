@@ -1,9 +1,9 @@
 ---
 title: "implement: Underground rest station (v1.1)"
-status: open
+status: active
 priority: 3
 issue-type: task
-created-at: "2026-02-01T08:18:56.467807-06:00"
+created-at: "\"2026-02-01T08:18:56.467807-06:00\""
 ---
 
 ## Description

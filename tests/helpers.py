@@ -105,6 +105,7 @@ PATHS = {
     "exploration_manager": "/root/ExplorationManager",
     "journal_manager": "/root/JournalManager",
     "treasure_room_manager": "/root/TreasureRoomManager",
+    "monetization_manager": "/root/MonetizationManager",
 }
 
 

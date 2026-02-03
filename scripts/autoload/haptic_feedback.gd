@@ -196,6 +196,12 @@ func on_low_health_warning() -> void:
 	trigger(HapticType.WARNING)
 
 
+## Called when a UI warning appears (ladder warning, risk indicator, etc.)
+## Helps players feel the warning - supports "fair emergency" feedback
+func on_ui_warning() -> void:
+	trigger(HapticType.WARNING)
+
+
 ## Called on UI button press
 func on_ui_tap() -> void:
 	trigger(HapticType.LIGHT)

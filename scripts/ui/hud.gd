@@ -149,6 +149,9 @@ static func apply_text_outline(label: Label, outline_size: int = HUD_OUTLINE_SIZ
 
 
 func _ready() -> void:
+	# Add to hud group for GameManager to find us
+	add_to_group("hud")
+
 	# Create dark backdrop panel for left-side HUD (must be first so it's behind other elements)
 	_setup_left_panel_backdrop()
 
@@ -1907,7 +1910,7 @@ func _update_ladder_warning_display(level: int) -> void:
 	_ladder_warning_pulse_time = 0.0
 
 	if level == 1:
-		# Standard warning
+		# Standard warning - player should consider turning back soon
 		ladder_warning_label.text = "LOW"
 		ladder_warning_icon.text = "!"
 		ladder_warning_icon.add_theme_color_override("font_color", UIColors.WARNING_YELLOW)  # Yellow
@@ -1916,8 +1919,10 @@ func _update_ladder_warning_display(level: int) -> void:
 		# Play subtle audio cue (once per state change)
 		if SoundManager:
 			SoundManager.play_ui_hover()
+		# Show actionable guidance toast - player has agency to decide
+		_show_fair_warning_guidance(1)
 	else:
-		# Urgent warning (level 2)
+		# Urgent warning (level 2) - player is taking a real risk continuing
 		ladder_warning_label.text = "DANGER"
 		ladder_warning_icon.text = "!!"
 		ladder_warning_icon.add_theme_color_override("font_color", UIColors.WARNING_RED)  # Red
@@ -1926,6 +1931,11 @@ func _update_ladder_warning_display(level: int) -> void:
 		# Play alert audio cue
 		if SoundManager:
 			SoundManager.play_ui_error()
+		# Show urgent guidance toast - clear warning before player gets stuck
+		_show_fair_warning_guidance(2)
+		# Trigger haptic feedback for urgent warning (fairness - player feels the danger)
+		if HapticFeedback:
+			HapticFeedback.on_ui_warning()
 
 
 func _update_ladder_warning_pulse(delta: float) -> void:
@@ -1950,6 +1960,59 @@ func _update_ladder_warning_pulse(delta: float) -> void:
 	if _last_ladder_warning_level >= 2:
 		var scale_pulse := 1.0 + 0.05 * pulse  # 1.0 to 1.05
 		ladder_warning_container.scale = Vector2(scale_pulse, scale_pulse)
+
+
+## Track whether we've shown fair warning guidance this descent
+var _shown_fair_warning_this_descent: bool = false
+var _shown_urgent_warning_this_descent: bool = false
+
+
+func _show_fair_warning_guidance(level: int) -> void:
+	## Show actionable guidance when ladder warning appears.
+	## This implements "fair emergency rescue" - player sees clear warning,
+	## understands the risk, and has agency to decide whether to continue.
+	##
+	## Design principle: "I died because I deserved it - I saw the warnings"
+
+	if level == 1:
+		# Yellow warning - suggest considering return
+		if not _shown_fair_warning_this_descent:
+			_shown_fair_warning_this_descent = true
+			# Calculate escape cost for context
+			var ladder_count := _get_ladder_count()
+			var depth := GameManager.current_depth if GameManager else 0
+			var safe_min := ceili(float(depth) / float(LADDER_SAFETY_DIVISOR))
+			var shortfall := safe_min - ladder_count
+
+			if shortfall > 0:
+				show_guidance_toast(
+					"Low on ladders! You need %d more to climb safely." % shortfall,
+					"!",
+					5.0
+				)
+			else:
+				show_guidance_toast(
+					"Ladders running low. Consider heading back.",
+					"!",
+					4.0
+				)
+	elif level == 2:
+		# Red warning - urgent, make it very clear
+		if not _shown_urgent_warning_this_descent:
+			_shown_urgent_warning_this_descent = true
+			# Show stronger warning with clear consequence
+			show_guidance_toast(
+				"DANGER! May need rescue to escape.\nTurn back or continue at your risk!",
+				"!!",
+				6.0
+			)
+
+
+func reset_fair_warning_flags() -> void:
+	## Reset fair warning flags when player returns to surface.
+	## Called by GameManager when depth reaches 0.
+	_shown_fair_warning_this_descent = false
+	_shown_urgent_warning_this_descent = false
 
 
 # ============================================

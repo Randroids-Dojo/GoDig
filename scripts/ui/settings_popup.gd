@@ -36,6 +36,9 @@ var joystick_deadzone_label: Label
 var button_size_slider: HSlider
 var button_size_label: Label
 
+# Gameplay settings
+var peaceful_mode_check: CheckBox
+
 
 func _ready() -> void:
 	if process_mode_paused:
@@ -158,6 +161,20 @@ func _build_ui() -> void:
 
 	vbox.add_child(HSeparator.new())
 
+	# === GAMEPLAY SECTION ===
+	var gameplay_title := Label.new()
+	gameplay_title.text = "Gameplay"
+	gameplay_title.add_theme_font_size_override("font_size", 18)
+	gameplay_title.add_theme_color_override("font_color", Color(0.9, 0.9, 0.6))
+	vbox.add_child(gameplay_title)
+
+	# Peaceful Mode (no enemies)
+	peaceful_mode_check = CheckBox.new()
+	peaceful_mode_check.text = "Peaceful Mode (No Enemies)"
+	vbox.add_child(peaceful_mode_check)
+
+	vbox.add_child(HSeparator.new())
+
 	# === AUDIO SECTION ===
 	var audio_title := Label.new()
 	audio_title.text = "Audio"
@@ -257,6 +274,7 @@ func _connect_signals() -> void:
 	swipe_controls_check.toggled.connect(_on_swipe_controls_toggled)
 	joystick_deadzone_slider.value_changed.connect(_on_joystick_deadzone_changed)
 	button_size_slider.value_changed.connect(_on_button_size_changed)
+	peaceful_mode_check.toggled.connect(_on_peaceful_mode_toggled)
 
 
 func _load_current_settings() -> void:
@@ -286,6 +304,9 @@ func _load_current_settings() -> void:
 	_update_joystick_deadzone_label()
 	button_size_slider.value = SettingsManager.button_size_scale * 100
 	_update_button_size_label()
+
+	# Load gameplay settings
+	peaceful_mode_check.button_pressed = SettingsManager.peaceful_mode
 
 
 func _update_text_size_label() -> void:
@@ -390,3 +411,9 @@ func _update_joystick_deadzone_label() -> void:
 
 func _update_button_size_label() -> void:
 	button_size_label.text = "%d%%" % int(button_size_slider.value)
+
+
+# === Gameplay setting handlers ===
+
+func _on_peaceful_mode_toggled(enabled: bool) -> void:
+	SettingsManager.peaceful_mode = enabled

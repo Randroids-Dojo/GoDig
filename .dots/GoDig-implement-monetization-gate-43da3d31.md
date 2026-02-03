@@ -1,9 +1,9 @@
 ---
 title: "implement: Monetization gate at Day 3"
-status: open
+status: active
 priority: 1
 issue-type: task
-created-at: "2026-02-01T08:11:02.658753-06:00"
+created-at: "\"2026-02-01T08:11:02.658753-06:00\""
 ---
 
 Ensure no monetization prompts appear until player has completed several sessions (approximately Day 3 equivalent).

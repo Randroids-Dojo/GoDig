@@ -30,6 +30,7 @@ signal building_unlocked(building_id: String, building_name: String)
 signal max_depth_updated(depth: int)
 signal tutorial_state_changed(new_state: int)
 signal tutorial_completed
+signal successful_run_completed  ## Emitted when player returns to surface with loot (for monetization gating)
 
 # Grid constants (128x128 blocks, same size as player)
 const BLOCK_SIZE := 128
@@ -539,3 +540,14 @@ func get_tutorial_state() -> Dictionary:
 		"state": tutorial_state,
 		"complete": tutorial_complete
 	}
+
+
+# ============================================
+# SUCCESSFUL RUN TRACKING (for monetization gating)
+# ============================================
+
+## Track a successful run (player returned to surface with loot)
+## Called by the shop when player sells items after a dive
+func track_successful_run() -> void:
+	successful_run_completed.emit()
+	print("[GameManager] Successful run completed - player returned with loot")

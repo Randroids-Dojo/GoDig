@@ -272,6 +272,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		RestStationManager.reset()
 	if ProgressionGateManager:
 		ProgressionGateManager.reset()
+	if MonetizationManager:
+		MonetizationManager.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:
@@ -416,6 +418,10 @@ func _collect_game_state() -> void:
 	if ProgressionGateManager:
 		current_save.progression_gate_data = ProgressionGateManager.get_save_data()
 
+	# Collect from MonetizationManager (ad/IAP eligibility tracking)
+	if MonetizationManager:
+		current_save.monetization_data = MonetizationManager.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -528,6 +534,12 @@ func _apply_game_state() -> void:
 		var progression_gate_data = current_save.get("progression_gate_data")
 		if progression_gate_data != null and progression_gate_data is Dictionary and not progression_gate_data.is_empty():
 			ProgressionGateManager.load_save_data(progression_gate_data)
+
+	# Apply to MonetizationManager (ad/IAP eligibility tracking)
+	if MonetizationManager:
+		var monetization_data = current_save.get("monetization_data")
+		if monetization_data != null and monetization_data is Dictionary and not monetization_data.is_empty():
+			MonetizationManager.load_save_data(monetization_data)
 
 
 ## Calculate offline earnings based on time since last save

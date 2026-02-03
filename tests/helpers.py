@@ -96,6 +96,7 @@ PATHS = {
     "prestige_manager": "/root/PrestigeManager",
     "enemy_manager": "/root/EnemyManager",
     "biome_manager": "/root/BiomeManager",
+    "cave_layer_manager": "/root/CaveLayerManager",
 }
 
 

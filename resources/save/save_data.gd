@@ -58,6 +58,9 @@ const CURRENT_VERSION := 1
 ## First ore collected flag (triggers special celebration)
 @export var first_ore_collected: bool = false
 
+## Cave layer system data (two-layer caves with hidden back areas)
+@export var cave_layer_data: Dictionary = {}
+
 ## FTUE (First Time User Experience) flags
 @export var ftue_completed: bool = false  # True after completing the 60-second hook
 @export var ftue_first_dig: bool = false  # True after first block mined

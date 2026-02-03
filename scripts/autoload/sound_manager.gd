@@ -360,6 +360,20 @@ func play_tool_upgrade() -> void:
 	play_sfx(SOUND_UI_SUCCESS, -3.0, 1.2)
 
 
+## Play safe return celebration sound - scales with cargo value
+## tier: 0=small haul, 1=medium, 2=jackpot
+func play_safe_return(tier: int = 0) -> void:
+	match tier:
+		0:  # Small haul - simple relief sound
+			play_sfx(SOUND_UI_SUCCESS, -5.0, 1.0)
+		1:  # Medium haul - success with extra satisfaction
+			play_sfx(SOUND_MILESTONE, -3.0, 1.1)
+		2, _:  # Jackpot - triumphant celebration
+			play_sfx(SOUND_LEVEL_UP, -1.0, 1.0)
+			await get_tree().create_timer(0.15).timeout
+			play_sfx(SOUND_UI_SUCCESS, -3.0, 1.2)
+
+
 # ============================================
 # MUSIC PLAYBACK
 # ============================================

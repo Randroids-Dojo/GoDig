@@ -11,6 +11,7 @@ signal depth_changed(depth: int)
 signal jump_pressed  # Emitted when player wants to jump (for wall-jump)
 signal hp_changed(current_hp: int, max_hp: int)
 signal player_died(cause: String)
+signal safe_return(cargo_value: int)  # Emitted when player returns to surface with loot
 
 enum State { IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING, CLIMBING }
 
@@ -57,6 +58,7 @@ var grid_position: Vector2i  # Player's grid cell (1x1 now)
 var target_grid_position: Vector2i
 var mining_direction: Vector2i
 var mining_target: Vector2i
+var _previous_depth: int = 0  # Track depth for safe return detection
 var _move_tween: Tween
 
 # Wall-jump state
@@ -408,6 +410,11 @@ func _update_depth() -> void:
 	# Track depth stat
 	if PlayerStats:
 		PlayerStats.track_depth(depth)
+
+	# Check for safe return: going from underground to surface with loot
+	if _previous_depth > 0 and depth == 0:
+		_check_safe_return()
+	_previous_depth = depth
 
 
 func _grid_to_world(grid_pos: Vector2i) -> Vector2:
@@ -1649,3 +1656,156 @@ func test_get_grid_y() -> int:
 func test_force_move(x: int, y: int) -> void:
 	var target := Vector2i(x, y)
 	_start_move(target)
+
+
+# ============================================
+# SAFE RETURN CELEBRATION
+# ============================================
+
+## Value thresholds for celebration tiers
+const SAFE_RETURN_MEDIUM_VALUE := 200  # Medium celebration threshold
+const SAFE_RETURN_JACKPOT_VALUE := 500  # Jackpot celebration threshold
+
+## Check if player returned to surface with loot and trigger celebration
+func _check_safe_return() -> void:
+	# Only celebrate if player has items to sell
+	var cargo_value := _calculate_cargo_value()
+	if cargo_value <= 0:
+		return  # Empty inventory, no celebration
+
+	# Determine celebration tier based on cargo value
+	var tier: int = 0
+	if cargo_value >= SAFE_RETURN_JACKPOT_VALUE:
+		tier = 2  # Jackpot
+	elif cargo_value >= SAFE_RETURN_MEDIUM_VALUE:
+		tier = 1  # Medium
+
+	# Play celebration sound
+	if SoundManager:
+		SoundManager.play_safe_return(tier)
+
+	# Haptic feedback for safe return
+	if HapticFeedback:
+		if tier >= 2:
+			HapticFeedback.heavy_tap()
+		elif tier >= 1:
+			HapticFeedback.medium_tap()
+		else:
+			HapticFeedback.light_tap()
+
+	# Create visual celebration effect
+	_show_safe_return_celebration(tier, cargo_value)
+
+	# Emit signal for external listeners
+	safe_return.emit(cargo_value)
+	print("[Player] Safe return! Cargo value: %d, tier: %d" % [cargo_value, tier])
+
+
+## Calculate total sell value of items in inventory
+func _calculate_cargo_value() -> int:
+	if not InventoryManager:
+		return 0
+
+	var total: int = 0
+	for slot in InventoryManager.slots:
+		if slot.is_empty() or slot.item == null:
+			continue
+		# Only count sellable items (ores and gems)
+		if slot.item.category in ["ore", "gem"]:
+			total += slot.item.sell_value * slot.quantity
+	return total
+
+
+## Show visual celebration effect for safe return
+func _show_safe_return_celebration(tier: int, cargo_value: int) -> void:
+	# Brief golden glow around player
+	var original_modulate := modulate
+
+	# Scale glow intensity by tier
+	var glow_color: Color
+	var glow_duration: float
+	var toast_text: String
+
+	match tier:
+		0:  # Small haul
+			glow_color = Color(1.2, 1.15, 1.0)  # Subtle warm
+			glow_duration = 0.3
+			toast_text = "Safe!"
+		1:  # Medium haul
+			glow_color = Color(1.3, 1.2, 0.8)  # Warm gold
+			glow_duration = 0.5
+			toast_text = "Cargo secured!"
+		2, _:  # Jackpot
+			glow_color = Color(1.5, 1.3, 0.5)  # Bright gold
+			glow_duration = 0.7
+			toast_text = "JACKPOT HAUL!"
+
+	# Apply glow with tween
+	var tween := create_tween()
+	tween.tween_property(self, "modulate", glow_color, 0.1)
+	tween.tween_property(self, "modulate", original_modulate, glow_duration)
+
+	# Flash screen for jackpot hauls
+	if tier >= 2:
+		_flash_screen_gold()
+
+	# Spawn floating text toast above player
+	_spawn_safe_return_toast(toast_text, tier)
+
+
+## Flash the screen with a brief golden overlay (for jackpot hauls)
+func _flash_screen_gold() -> void:
+	# Find or create the UI layer to put the flash on
+	var main_node = get_tree().get_first_node_in_group("main")
+	if not main_node:
+		main_node = get_parent()
+
+	var flash := ColorRect.new()
+	flash.name = "SafeReturnFlash"
+	flash.color = Color(1.0, 0.9, 0.5, 0.4)  # Golden semi-transparent
+	flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# Add to a canvas layer so it appears above everything
+	var flash_layer := CanvasLayer.new()
+	flash_layer.layer = 80
+	flash_layer.add_child(flash)
+	main_node.add_child(flash_layer)
+
+	# Quick fade out
+	var tween := flash.create_tween()
+	tween.tween_property(flash, "color:a", 0.0, 0.3)
+	tween.tween_callback(flash_layer.queue_free)
+
+
+## Spawn a floating toast text above the player
+func _spawn_safe_return_toast(text: String, tier: int) -> void:
+	# Create floating label
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+	# Style based on tier
+	match tier:
+		0:
+			label.add_theme_font_size_override("font_size", 16)
+			label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.8))
+		1:
+			label.add_theme_font_size_override("font_size", 20)
+			label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
+		2, _:
+			label.add_theme_font_size_override("font_size", 26)
+			label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.0))
+
+	# Position above player
+	label.position = Vector2(-label.size.x / 2.0, -80)
+
+	add_child(label)
+
+	# Animate: float up and fade
+	var tween := label.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "position:y", label.position.y - 40, 1.5)
+	tween.tween_property(label, "modulate:a", 0.0, 1.5).set_delay(0.5)
+	tween.set_parallel(false)
+	tween.tween_callback(label.queue_free)

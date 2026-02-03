@@ -24,7 +24,7 @@ signal backup_restored(slot: int)
 const SAVE_DIR := "user://saves/"
 const CHUNKS_DIR := "user://chunks/"
 const MAX_SLOTS := 3
-const AUTO_SAVE_INTERVAL := 60.0  # Seconds between auto-saves
+const AUTO_SAVE_INTERVAL := 30.0  # Seconds between auto-saves (per Session 29 research)
 
 ## Offline income settings
 const OFFLINE_INCOME_RATE := 1.0  # Coins per minute (base rate)

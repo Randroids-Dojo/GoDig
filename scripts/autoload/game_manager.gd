@@ -253,6 +253,11 @@ func update_depth(depth: int) -> void:
 		_check_depth_milestones(depth)
 		update_max_depth(depth)
 
+	# Reset fair warning flags when player returns to surface
+	# This ensures warnings can trigger again on the next descent
+	if depth <= 0 and old_depth > 0:
+		_reset_fair_warning_flags()
+
 
 # Utility functions for grid coordinate conversion
 static func grid_to_world(grid_pos: Vector2i) -> Vector2:
@@ -267,6 +272,15 @@ static func world_to_grid(world_pos: Vector2) -> Vector2i:
 		int((world_pos.x - GRID_OFFSET_X) / BLOCK_SIZE),
 		int(world_pos.y / BLOCK_SIZE)
 	)
+
+
+## Reset fair warning flags in the HUD when player returns to surface
+## Part of "fair emergency rescue" - warnings reset each descent
+func _reset_fair_warning_flags() -> void:
+	# Find the HUD and reset its warning flags
+	var hud := get_tree().get_first_node_in_group("hud")
+	if hud and hud.has_method("reset_fair_warning_flags"):
+		hud.reset_fair_warning_flags()
 
 
 # ============================================

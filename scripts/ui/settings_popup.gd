@@ -38,6 +38,10 @@ var button_size_label: Label
 
 # Gameplay settings
 var peaceful_mode_check: CheckBox
+var auto_sell_check: CheckBox
+
+# Audio settings
+var tension_audio_check: CheckBox
 
 
 func _ready() -> void:
@@ -173,6 +177,11 @@ func _build_ui() -> void:
 	peaceful_mode_check.text = "Peaceful Mode (No Enemies)"
 	vbox.add_child(peaceful_mode_check)
 
+	# Auto-sell on surface return
+	auto_sell_check = CheckBox.new()
+	auto_sell_check.text = "Auto-Sell on Return to Surface"
+	vbox.add_child(auto_sell_check)
+
 	vbox.add_child(HSeparator.new())
 
 	# === AUDIO SECTION ===
@@ -196,6 +205,11 @@ func _build_ui() -> void:
 	var music_row := _create_slider_row("Music:", 0, 100, 100)
 	music_slider = music_row.get_node("Slider")
 	vbox.add_child(music_row)
+
+	# Tension Audio (depth-based ambient sounds)
+	tension_audio_check = CheckBox.new()
+	tension_audio_check.text = "Tension Audio (Depth Ambience)"
+	vbox.add_child(tension_audio_check)
 
 	vbox.add_child(HSeparator.new())
 
@@ -275,6 +289,8 @@ func _connect_signals() -> void:
 	joystick_deadzone_slider.value_changed.connect(_on_joystick_deadzone_changed)
 	button_size_slider.value_changed.connect(_on_button_size_changed)
 	peaceful_mode_check.toggled.connect(_on_peaceful_mode_toggled)
+	auto_sell_check.toggled.connect(_on_auto_sell_toggled)
+	tension_audio_check.toggled.connect(_on_tension_audio_toggled)
 
 
 func _load_current_settings() -> void:
@@ -307,6 +323,10 @@ func _load_current_settings() -> void:
 
 	# Load gameplay settings
 	peaceful_mode_check.button_pressed = SettingsManager.peaceful_mode
+	auto_sell_check.button_pressed = SettingsManager.auto_sell_enabled
+
+	# Load audio settings
+	tension_audio_check.button_pressed = SettingsManager.tension_audio_enabled
 
 
 func _update_text_size_label() -> void:
@@ -417,3 +437,13 @@ func _update_button_size_label() -> void:
 
 func _on_peaceful_mode_toggled(enabled: bool) -> void:
 	SettingsManager.peaceful_mode = enabled
+
+
+func _on_auto_sell_toggled(enabled: bool) -> void:
+	SettingsManager.auto_sell_enabled = enabled
+
+
+# === Audio setting handlers ===
+
+func _on_tension_audio_toggled(enabled: bool) -> void:
+	SettingsManager.tension_audio_enabled = enabled

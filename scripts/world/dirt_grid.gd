@@ -211,6 +211,24 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 	if DepthDiscoveryManager:
 		DepthDiscoveryManager.generate_discoveries_for_chunk(chunk_pos, world_seed)
 
+	# Check for handcrafted cave placement (Spelunky-style pre-designed rooms)
+	var handcrafted_tiles: Dictionary = {}
+	if HandcraftedCaveManager:
+		var depth: int = chunk_pos.y * CHUNK_SIZE - _surface_row
+		var placement := HandcraftedCaveManager.check_handcrafted_placement(chunk_pos, depth, world_seed)
+		if placement["should_place"] and placement["template"] != null:
+			handcrafted_tiles = HandcraftedCaveManager.generate_cave_from_template(
+				placement["template"], chunk_pos, placement["offset"], world_seed
+			)
+
+	# Check for danger zone placement (optional high-risk high-reward areas)
+	var danger_zone_tiles: Dictionary = {}
+	if DangerZoneManager and handcrafted_tiles.is_empty():  # Don't overlap with handcrafted
+		var depth: int = chunk_pos.y * CHUNK_SIZE - _surface_row
+		var danger_result := DangerZoneManager.check_danger_zone_placement(chunk_pos, depth, world_seed)
+		if danger_result["has_zone"]:
+			danger_zone_tiles = danger_result["tiles"]
+
 	var start_x := chunk_pos.x * CHUNK_SIZE
 	var start_y := chunk_pos.y * CHUNK_SIZE
 
@@ -235,6 +253,52 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 				if _treasure_room_tiles.has(grid_pos):
 					cave_positions.append(grid_pos)  # Treat as cave
 					continue  # Leave as empty/air
+
+				# Check handcrafted cave tiles (Spelunky-style pre-designed rooms)
+				if handcrafted_tiles.has(grid_pos):
+					var tile_char: String = handcrafted_tiles[grid_pos]
+					# Handle different handcrafted tile types
+					if _is_handcrafted_empty(tile_char):
+						cave_positions.append(grid_pos)  # Track for chest/lore spawning
+						# Handle special spawn points from handcrafted template
+						_handle_handcrafted_spawn(grid_pos, tile_char, world_seed)
+						continue  # Leave as empty/air
+					elif tile_char == "W":
+						# Weak/crumbling block - create block but mark it
+						if not _active.has(grid_pos):
+							_acquire(grid_pos)
+							# TODO: Mark as weak block for eureka mechanics
+					elif tile_char == "S":
+						# Secret wall - looks solid but is breakable
+						if not _active.has(grid_pos):
+							_acquire(grid_pos)
+							# TODO: Mark as secret wall
+					elif tile_char == "#":
+						# Solid block
+						if not _active.has(grid_pos):
+							_acquire(grid_pos)
+							_determine_ore_spawn(grid_pos)
+					continue  # Handcrafted tile handled
+
+				# Check danger zone tiles (optional high-risk high-reward areas)
+				if danger_zone_tiles.has(grid_pos):
+					var tile_char: String = danger_zone_tiles[grid_pos]
+					if _is_handcrafted_empty(tile_char):
+						cave_positions.append(grid_pos)  # Track for spawning
+						# Handle ore spawn points in danger zones
+						if tile_char == "O":
+							# Spawn ore with boosted density
+							_handle_danger_zone_ore_spawn(grid_pos, world_seed)
+						elif tile_char == "T":
+							# Unique treasure spawn point
+							_handle_danger_zone_treasure_spawn(grid_pos, world_seed)
+						continue  # Leave as empty/air
+					elif tile_char in ["W", "#"]:
+						# Solid/weak block
+						if not _active.has(grid_pos):
+							_acquire(grid_pos)
+							_determine_ore_spawn(grid_pos)
+					continue  # Danger zone tile handled
 
 				# Check if this should be a cave tile (empty)
 				if _is_cave_tile(grid_pos):
@@ -286,14 +350,40 @@ func _on_threaded_chunk_generated(chunk_pos: Vector2i, result) -> void:
 	if DepthDiscoveryManager:
 		DepthDiscoveryManager.generate_discoveries_for_chunk(chunk_pos, world_seed)
 
+	# Check for handcrafted cave placement (Spelunky-style pre-designed rooms)
+	var handcrafted_tiles: Dictionary = {}
+	if HandcraftedCaveManager:
+		var depth: int = chunk_pos.y * CHUNK_SIZE - _surface_row
+		var placement := HandcraftedCaveManager.check_handcrafted_placement(chunk_pos, depth, world_seed)
+		if placement["should_place"] and placement["template"] != null:
+			handcrafted_tiles = HandcraftedCaveManager.generate_cave_from_template(
+				placement["template"], chunk_pos, placement["offset"], world_seed
+			)
+
 	# Apply generated tiles
+	var cave_positions: Array[Vector2i] = []
+
 	for grid_pos in result.tiles:
 		# Double-check dug state (may have changed)
 		if _dug_tiles.has(grid_pos):
 			continue
 
+		# Check handcrafted cave tiles first (override noise caves)
+		if handcrafted_tiles.has(grid_pos):
+			var tile_char: String = handcrafted_tiles[grid_pos]
+			if _is_handcrafted_empty(tile_char):
+				cave_positions.append(grid_pos)
+				_handle_handcrafted_spawn(grid_pos, tile_char, world_seed)
+				continue
+			elif tile_char in ["W", "S", "#"]:
+				# Solid/special block - let normal generation handle it
+				pass
+			else:
+				continue
+
 		# Skip cave tiles
 		if result.cave_tiles.has(grid_pos):
+			cave_positions.append(grid_pos)
 			continue
 
 		# Skip already active blocks
@@ -314,16 +404,18 @@ func _on_threaded_chunk_generated(chunk_pos: Vector2i, result) -> void:
 				_add_ore_sparkle(grid_pos, ore)
 				_add_rarity_border(grid_pos, ore)
 
+	# Add remaining cave positions from threaded result
+	for pos in result.cave_tiles:
+		if not pos in cave_positions:
+			cave_positions.append(pos)
+
 	# Mark near-ore blocks
 	for grid_pos in result.near_ore_blocks:
 		_near_ore_blocks[grid_pos] = true
 		if _active.has(grid_pos) and not result.ore_map.has(grid_pos):
 			_check_and_add_near_ore_hint(grid_pos)
 
-	# Spawn treasure chests in cave positions (from threaded result)
-	var cave_positions: Array[Vector2i] = []
-	for pos in result.cave_tiles:
-		cave_positions.append(pos)
+	# Spawn treasure chests in cave positions (combined handcrafted + noise)
 	_spawn_chests_in_caves(cave_positions, world_seed)
 
 	# Spawn lore items in cave positions (from threaded result)
@@ -730,6 +822,190 @@ func _generate_cave_noise(pos: Vector2i) -> float:
 
 	# Combine layers (weighted average)
 	return noise1 * 0.7 + noise2 * 0.3
+
+
+# ============================================
+# HANDCRAFTED CAVE HELPERS (Spelunky-style)
+# ============================================
+
+func _is_handcrafted_empty(tile_char: String) -> bool:
+	## Check if a handcrafted tile character represents empty space
+	## These tiles are passable and count as cave positions
+	return tile_char in [".", ">", "<", "^", "v", "O", "T", "L", "E", "P"]
+
+
+func _handle_handcrafted_spawn(grid_pos: Vector2i, tile_char: String, world_seed: int) -> void:
+	## Handle special spawn points from handcrafted cave templates
+	## Called for empty tiles that may have special spawns
+	var depth: int = grid_pos.y - _surface_row
+
+	match tile_char:
+		"O":
+			# Ore spawn point - spawn depth-appropriate ore
+			_spawn_handcrafted_ore(grid_pos, depth, world_seed)
+		"T":
+			# Treasure spawn point - guaranteed treasure chest
+			_spawn_guaranteed_chest(grid_pos, world_seed)
+		"L":
+			# Ladder spawn point - place a ladder
+			_spawn_handcrafted_ladder(grid_pos)
+		"E":
+			# Enemy spawn point - notify enemy manager
+			if EnemyManager:
+				EnemyManager.register_spawn_point(grid_pos, depth)
+		"P":
+			# Platform - create a thin platform block
+			# For now, treat as regular cave (platform visuals handled separately)
+			pass
+
+
+func _spawn_handcrafted_ore(grid_pos: Vector2i, depth: int, world_seed: int) -> void:
+	## Spawn an ore block at a handcrafted ore spawn point
+	## Uses depth-appropriate ore selection
+	if not DataRegistry:
+		return
+
+	# Seed RNG for deterministic ore type
+	var pos_hash := grid_pos.x * 198491317 + grid_pos.y * 6542989 + world_seed
+	_rng.seed = pos_hash
+
+	# Get valid ores for this depth
+	var ore_id := DataRegistry.get_random_ore_for_depth(depth, _rng)
+	if ore_id == "":
+		return
+
+	# Create the block and set ore
+	if not _active.has(grid_pos):
+		_acquire(grid_pos)
+
+	_ore_map[grid_pos] = ore_id
+	var block = _active.get(grid_pos)
+	if block != null:
+		var ore = DataRegistry.get_ore(ore_id)
+		if ore != null:
+			block.set_ore(ore_id, ore.color)
+			_register_ore_effects(grid_pos, ore_id, ore)
+
+
+func _spawn_guaranteed_chest(grid_pos: Vector2i, world_seed: int) -> void:
+	## Spawn a guaranteed treasure chest at a handcrafted treasure point
+	if not TreasureChestManager:
+		return
+
+	# Skip if already has a chest
+	if _active_chests.has(grid_pos):
+		return
+
+	var depth: int = grid_pos.y - _surface_row
+	var chest_data := TreasureChestManager.generate_chest_loot(depth)
+
+	# Create chest instance
+	var chest := TreasureChestScene.instantiate()
+	chest.position = Vector2(grid_pos.x * BLOCK_SIZE + BLOCK_SIZE / 2, grid_pos.y * BLOCK_SIZE + BLOCK_SIZE / 2)
+	chest.grid_pos = grid_pos
+	chest.loot_data = chest_data
+	chest.chest_opened.connect(_on_chest_opened.bind(grid_pos))
+
+	add_child(chest)
+	_active_chests[grid_pos] = chest
+
+
+func _spawn_handcrafted_ladder(grid_pos: Vector2i) -> void:
+	## Spawn a ladder at a handcrafted ladder spawn point
+	## Places a ladder pickup or pre-placed ladder
+	# Mark position as having a ladder object
+	_placed_objects[grid_pos] = 1  # 1 = ladder
+
+	# The actual ladder rendering is handled by the placed objects system
+	# This ensures the ladder persists across chunk loading
+
+
+# ============================================
+# DANGER ZONE SPAWNING
+# ============================================
+
+func _handle_danger_zone_ore_spawn(grid_pos: Vector2i, world_seed: int) -> void:
+	## Handle ore spawning in danger zones with boosted density.
+	## Danger zones have higher ore concentration and may have unique drops.
+	if not DataRegistry:
+		return
+
+	var depth: int = grid_pos.y - _surface_row
+	if depth < 0:
+		return
+
+	# Seed RNG for deterministic ore type
+	var pos_hash := grid_pos.x * 198491317 + grid_pos.y * 6542989 + world_seed + 42069
+	_rng.seed = pos_hash
+
+	# Get ore multiplier from danger zone manager
+	var ore_multiplier := 1.0
+	if DangerZoneManager:
+		ore_multiplier = DangerZoneManager.get_ore_multiplier_at(grid_pos)
+
+	# Boosted chance to spawn ore (danger zone benefit)
+	if _rng.randf() > (0.7 * ore_multiplier):  # Base ~30% chance, boosted in zones
+		return
+
+	# Get valid ores for this depth
+	var ore_id := DataRegistry.get_random_ore_for_depth(depth, _rng)
+	if ore_id == "":
+		return
+
+	# Create the block and set ore
+	if not _active.has(grid_pos):
+		_acquire(grid_pos)
+
+	_ore_map[grid_pos] = ore_id
+	var block = _active.get(grid_pos)
+	if block != null:
+		var ore = DataRegistry.get_ore(ore_id)
+		if ore != null:
+			block.set_ore(ore_id, ore.color)
+			_register_ore_effects(grid_pos, ore_id, ore)
+
+
+func _handle_danger_zone_treasure_spawn(grid_pos: Vector2i, world_seed: int) -> void:
+	## Handle unique treasure spawning in danger zones.
+	## These can contain zone-specific unique drops.
+	if not TreasureChestManager:
+		return
+
+	# Skip if already has a chest
+	if _active_chests.has(grid_pos):
+		return
+
+	var depth: int = grid_pos.y - _surface_row
+
+	# Get zone info for unique drops
+	var zone_config := {}
+	if DangerZoneManager:
+		zone_config = DangerZoneManager.get_zone_config_at(grid_pos)
+
+	# Generate chest with zone-specific loot
+	var chest_data := TreasureChestManager.generate_chest_loot(depth)
+
+	# Add unique drops from danger zone
+	var unique_drops: Array = zone_config.get("unique_drops", [])
+	if not unique_drops.is_empty():
+		# Seed RNG
+		var pos_hash := grid_pos.x * 73856093 + grid_pos.y * 19349663 + world_seed
+		_rng.seed = pos_hash
+
+		# 40% chance for unique drop in danger zone treasure
+		if _rng.randf() < 0.4:
+			var unique_item: String = unique_drops[_rng.randi() % unique_drops.size()]
+			chest_data["unique_item"] = unique_item
+
+	# Create chest instance
+	var chest := TreasureChestScene.instantiate()
+	chest.position = Vector2(grid_pos.x * BLOCK_SIZE + BLOCK_SIZE / 2, grid_pos.y * BLOCK_SIZE + BLOCK_SIZE / 2)
+	chest.grid_pos = grid_pos
+	chest.loot_data = chest_data
+	chest.chest_opened.connect(_on_chest_opened.bind(grid_pos))
+
+	add_child(chest)
+	_active_chests[grid_pos] = chest
 
 
 # ============================================

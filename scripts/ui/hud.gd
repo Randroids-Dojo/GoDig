@@ -252,6 +252,9 @@ func _ready() -> void:
 	# Create mining streak indicator
 	_setup_mining_streak_indicator()
 
+	# Create risk indicator (deep dive warning)
+	_setup_risk_indicator()
+
 	# Connect to coins_added for floater animations
 	if GameManager:
 		GameManager.coins_added.connect(_on_coins_added)
@@ -286,6 +289,9 @@ func _process(delta: float) -> void:
 
 	# Update upgrade goal glow effect
 	_update_upgrade_glow(delta)
+
+	# Update risk indicator pulse
+	_update_risk_indicator_pulse(delta)
 
 
 ## Connect to a player's HP signals
@@ -2305,6 +2311,190 @@ func _pulse_streak_label() -> void:
 		.set_ease(Tween.EASE_OUT)
 	tween.tween_property(streak_label, "scale", Vector2(1.0, 1.0), 0.1) \
 		.set_ease(Tween.EASE_IN_OUT)
+
+
+# ============================================
+# RISK INDICATOR (Deep Dive Warning)
+# ============================================
+# Visual indicator showing risk level as player ventures deeper.
+# Uses the combined risk score from SoundManager's tension system.
+# Green/Yellow/Red states indicate escape difficulty.
+
+## Risk indicator elements
+var risk_indicator_container: Control = null
+var risk_indicator_bg: ColorRect = null
+var risk_indicator_icon: Label = null
+var risk_indicator_label: Label = null
+var _risk_indicator_visible: bool = false
+var _risk_indicator_tween: Tween = null
+var _risk_pulse_time: float = 0.0
+var _current_risk_level: int = 0  # 0=safe, 1=caution, 2=danger
+
+## Risk level thresholds (maps to SoundManager tension score)
+const RISK_THRESHOLD_CAUTION := 0.35  # Yellow at 35%+ risk
+const RISK_THRESHOLD_DANGER := 0.65   # Red at 65%+ risk
+const RISK_PULSE_SPEED := 2.5         # Pulse speed in danger zone
+
+## Risk indicator position (near depth display, bottom-left)
+const RISK_INDICATOR_OFFSET := Vector2(4, 44)
+
+
+func _setup_risk_indicator() -> void:
+	## Create the risk indicator positioned near the depth display
+	risk_indicator_container = Control.new()
+	risk_indicator_container.name = "RiskIndicatorContainer"
+	# Position below the depth label on the left side
+	risk_indicator_container.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	risk_indicator_container.position = RISK_INDICATOR_OFFSET
+	risk_indicator_container.custom_minimum_size = Vector2(56, 24)
+	risk_indicator_container.modulate.a = 0.0  # Start hidden
+	add_child(risk_indicator_container)
+
+	# Background with rounded appearance
+	risk_indicator_bg = ColorRect.new()
+	risk_indicator_bg.name = "Background"
+	risk_indicator_bg.color = UIColors.PANEL_DARK
+	risk_indicator_bg.size = Vector2(56, 24)
+	risk_indicator_container.add_child(risk_indicator_bg)
+
+	# Risk icon (circle that changes color)
+	risk_indicator_icon = Label.new()
+	risk_indicator_icon.name = "RiskIcon"
+	risk_indicator_icon.text = "●"  # Filled circle
+	risk_indicator_icon.position = Vector2(4, 2)
+	risk_indicator_icon.add_theme_font_size_override("font_size", 16)
+	risk_indicator_icon.add_theme_color_override("font_color", UIColors.GREEN)
+	risk_indicator_container.add_child(risk_indicator_icon)
+
+	# Risk label
+	risk_indicator_label = Label.new()
+	risk_indicator_label.name = "RiskLabel"
+	risk_indicator_label.text = "SAFE"
+	risk_indicator_label.position = Vector2(20, 4)
+	risk_indicator_label.add_theme_font_size_override("font_size", 12)
+	risk_indicator_label.add_theme_color_override("font_color", UIColors.TEXT_LIGHT)
+	apply_text_outline(risk_indicator_label)
+	risk_indicator_container.add_child(risk_indicator_label)
+
+	# Connect to SoundManager tension updates
+	if SoundManager:
+		SoundManager.tension_level_changed.connect(_on_tension_level_changed)
+
+
+func _on_tension_level_changed(risk_score: float) -> void:
+	## Update risk indicator when tension/risk score changes
+	_update_risk_indicator(risk_score)
+
+
+func _update_risk_indicator(risk_score: float) -> void:
+	## Update the risk indicator based on the combined risk score
+	if risk_indicator_container == null:
+		return
+
+	# Determine risk level
+	var new_level := 0
+	if risk_score >= RISK_THRESHOLD_DANGER:
+		new_level = 2  # Danger (red)
+	elif risk_score >= RISK_THRESHOLD_CAUTION:
+		new_level = 1  # Caution (yellow)
+	else:
+		new_level = 0  # Safe (green)
+
+	# Check if at surface (depth 0) - always safe
+	if GameManager and GameManager.current_depth <= 0:
+		new_level = 0
+
+	# Update display if level changed
+	if new_level != _current_risk_level:
+		_current_risk_level = new_level
+		_apply_risk_level_display(new_level)
+
+	# Show/hide based on depth
+	var should_show := GameManager != null and GameManager.current_depth > 5
+	if should_show and not _risk_indicator_visible:
+		_show_risk_indicator()
+	elif not should_show and _risk_indicator_visible:
+		_hide_risk_indicator()
+
+
+func _apply_risk_level_display(level: int) -> void:
+	## Apply visual changes based on risk level
+	if risk_indicator_icon == null or risk_indicator_label == null or risk_indicator_bg == null:
+		return
+
+	match level:
+		0:  # Safe - Green
+			risk_indicator_icon.add_theme_color_override("font_color", UIColors.GREEN)
+			risk_indicator_label.text = "SAFE"
+			risk_indicator_label.add_theme_color_override("font_color", UIColors.GREEN)
+			risk_indicator_bg.color = UIColors.PANEL_DARK
+		1:  # Caution - Yellow
+			risk_indicator_icon.add_theme_color_override("font_color", UIColors.WARNING_YELLOW)
+			risk_indicator_label.text = "RISK"
+			risk_indicator_label.add_theme_color_override("font_color", UIColors.WARNING_YELLOW)
+			risk_indicator_bg.color = UIColors.WARNING_BG_YELLOW
+		2:  # Danger - Red
+			risk_indicator_icon.add_theme_color_override("font_color", UIColors.WARNING_RED)
+			risk_indicator_label.text = "DANGER"
+			risk_indicator_label.add_theme_color_override("font_color", UIColors.WARNING_RED)
+			risk_indicator_bg.color = UIColors.WARNING_BG_RED
+
+
+func _update_risk_indicator_pulse(delta: float) -> void:
+	## Pulse the risk indicator when in danger zone
+	if not _risk_indicator_visible or _current_risk_level < 2:
+		return  # Only pulse in danger zone
+
+	if risk_indicator_icon == null:
+		return
+
+	# Skip if reduced motion is enabled
+	if SettingsManager and SettingsManager.reduced_motion:
+		return
+
+	_risk_pulse_time += delta * RISK_PULSE_SPEED
+	var pulse := (sin(_risk_pulse_time) + 1.0) / 2.0  # 0 to 1
+	var alpha := lerpf(0.7, 1.0, pulse)
+	risk_indicator_icon.modulate.a = alpha
+
+
+func _show_risk_indicator() -> void:
+	## Fade in the risk indicator
+	if risk_indicator_container == null:
+		return
+
+	if _risk_indicator_visible:
+		return
+
+	_risk_indicator_visible = true
+
+	if _risk_indicator_tween and _risk_indicator_tween.is_valid():
+		_risk_indicator_tween.kill()
+
+	_risk_indicator_tween = create_tween()
+	_risk_indicator_tween.tween_property(risk_indicator_container, "modulate:a", 1.0, 0.3)
+
+
+func _hide_risk_indicator() -> void:
+	## Fade out the risk indicator
+	if risk_indicator_container == null:
+		return
+
+	if not _risk_indicator_visible:
+		return
+
+	_risk_indicator_visible = false
+
+	if _risk_indicator_tween and _risk_indicator_tween.is_valid():
+		_risk_indicator_tween.kill()
+
+	_risk_indicator_tween = create_tween()
+	_risk_indicator_tween.tween_property(risk_indicator_container, "modulate:a", 0.0, 0.3)
+
+
+func get_risk_level() -> int:
+	## Get the current risk level (0=safe, 1=caution, 2=danger)
+	return _current_risk_level
 
 
 # ============================================

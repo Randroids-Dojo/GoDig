@@ -12,6 +12,7 @@ signal jump_pressed  # Emitted when player wants to jump (for wall-jump)
 signal hp_changed(current_hp: int, max_hp: int)
 signal player_died(cause: String)
 signal safe_return(cargo_value: int)  # Emitted when player returns to surface with loot
+signal close_call(conditions: Array, tier: int)  # Emitted on close-call escape
 
 enum State { IDLE, MOVING, MINING, FALLING, WALL_SLIDING, WALL_JUMPING, CLIMBING }
 
@@ -83,6 +84,11 @@ const DAMAGE_FLASH_DURATION: float = 0.1
 
 # Surface regeneration state
 var _regen_timer: float = 0.0
+
+# Trip tracking for close-call detection
+var _max_depth_this_trip: int = 0  # Tracks deepest point this descent
+var _ladders_at_trip_start: int = 0  # Ladders when player left surface
+var _trip_started: bool = false  # Whether player has descended below surface
 
 # Heat damage state
 var _heat_damage_timer: float = 0.0
@@ -416,9 +422,13 @@ func _update_depth() -> void:
 	if SaveManager:
 		SaveManager.set_player_position(grid_position)
 
+	# Track trip data for close-call detection
+	_update_trip_tracking(depth)
+
 	# Check for safe return: going from underground to surface with loot
 	if _previous_depth > 0 and depth == 0:
 		_check_safe_return()
+		_reset_trip_tracking()  # Reset after return
 	_previous_depth = depth
 
 
@@ -1673,7 +1683,10 @@ const SAFE_RETURN_JACKPOT_VALUE := 500  # Jackpot celebration threshold
 
 ## Check if player returned to surface with loot and trigger celebration
 func _check_safe_return() -> void:
-	# Only celebrate if player has items to sell
+	# Check for close-call conditions first (more specific celebration)
+	_check_close_call()
+
+	# Only celebrate safe return if player has items to sell
 	var cargo_value := _calculate_cargo_value()
 	if cargo_value <= 0:
 		return  # Empty inventory, no celebration
@@ -1812,5 +1825,246 @@ func _spawn_safe_return_toast(text: String, tier: int) -> void:
 	tween.set_parallel(true)
 	tween.tween_property(label, "position:y", label.position.y - 40, 1.5)
 	tween.tween_property(label, "modulate:a", 0.0, 1.5).set_delay(0.5)
+	tween.set_parallel(false)
+	tween.tween_callback(label.queue_free)
+
+
+# ============================================
+# CLOSE-CALL ESCAPE DETECTION
+# ============================================
+
+## Close-call thresholds
+const CLOSE_CALL_MIN_DEPTH := 30  # Min depth for close-call to count
+const CLOSE_CALL_LOW_HP_THRESHOLD := 0.30  # <30% HP is low
+const CLOSE_CALL_LOW_LADDERS := 1  # 0-1 ladders is a close-call
+const CLOSE_CALL_FULL_INV_LADDERS := 2  # Full inventory with <=2 ladders
+
+## Close-call condition types
+enum CloseCallCondition {
+	LAST_LADDER,      # Returned with 0-1 ladders from deep
+	LOW_HP,           # Returned with <30% HP with loot
+	FULL_INVENTORY,   # Full inventory with few ladders
+	DEPTH_RECORD,     # Set new depth record and returned
+}
+
+
+## Update trip tracking when depth changes
+func _update_trip_tracking(depth: int) -> void:
+	# Start trip when player goes below surface
+	if depth > 0 and not _trip_started:
+		_trip_started = true
+		_ladders_at_trip_start = _get_ladder_count()
+		_max_depth_this_trip = 0
+
+	# Update max depth for this trip
+	if depth > _max_depth_this_trip:
+		_max_depth_this_trip = depth
+
+
+## Reset trip tracking when returning to surface
+func _reset_trip_tracking() -> void:
+	_trip_started = false
+	_max_depth_this_trip = 0
+	_ladders_at_trip_start = 0
+
+
+## Get current ladder count from inventory
+func _get_ladder_count() -> int:
+	if not InventoryManager:
+		return 0
+	return InventoryManager.get_item_count_by_id("ladder")
+
+
+## Check for close-call conditions and trigger celebration if met
+func _check_close_call() -> void:
+	# Must have actually gone deep enough
+	if _max_depth_this_trip < CLOSE_CALL_MIN_DEPTH:
+		return
+
+	var conditions: Array = []
+	var ladder_count := _get_ladder_count()
+	var hp_percent := float(current_hp) / float(MAX_HP)
+	var has_loot := _calculate_cargo_value() > 0
+	var inventory_full := InventoryManager.is_full() if InventoryManager else false
+
+	# 1. Last-Ladder Escape: 0-1 ladders remaining after deep trip
+	if ladder_count <= CLOSE_CALL_LOW_LADDERS:
+		conditions.append(CloseCallCondition.LAST_LADDER)
+
+	# 2. Low-HP Return: <30% HP with loot
+	if hp_percent < CLOSE_CALL_LOW_HP_THRESHOLD and has_loot:
+		conditions.append(CloseCallCondition.LOW_HP)
+
+	# 3. Full-Inventory Clutch: 8/8 slots with few ladders
+	if inventory_full and ladder_count <= CLOSE_CALL_FULL_INV_LADDERS:
+		conditions.append(CloseCallCondition.FULL_INVENTORY)
+
+	# 4. Depth Record Escape: Broke personal record and returned with loot
+	var broke_record := _max_depth_this_trip > GameManager.max_depth_reached
+	if broke_record and has_loot:
+		conditions.append(CloseCallCondition.DEPTH_RECORD)
+
+	# If no conditions met, no close-call
+	if conditions.is_empty():
+		return
+
+	# Determine tier based on number of conditions
+	# 1 condition = normal close-call, 2+ = hero return
+	var tier := 0
+	if conditions.size() >= 2:
+		tier = 1  # Hero return
+
+	# Trigger close-call celebration
+	_show_close_call_celebration(conditions, tier)
+	close_call.emit(conditions, tier)
+
+	# Track achievement for first close-call
+	if AchievementManager:
+		AchievementManager.unlock("narrow_escape")
+
+	print("[Player] Close-call! Conditions: %s, tier: %d" % [
+		conditions.map(func(c): return CloseCallCondition.keys()[c]),
+		tier
+	])
+
+
+## Show visual celebration for close-call escape
+func _show_close_call_celebration(conditions: Array, tier: int) -> void:
+	# Build message based on conditions
+	var messages: Array[String] = []
+	var ladder_count := _get_ladder_count()
+	var hp_percent := int(float(current_hp) / float(MAX_HP) * 100)
+
+	for condition in conditions:
+		match condition:
+			CloseCallCondition.LAST_LADDER:
+				messages.append("Made it with %d ladder%s!" % [
+					ladder_count,
+					"" if ladder_count == 1 else "s"
+				])
+			CloseCallCondition.LOW_HP:
+				messages.append("Barely made it! HP: %d%%" % hp_percent)
+			CloseCallCondition.FULL_INVENTORY:
+				messages.append("Perfect haul! Not a slot wasted!")
+			CloseCallCondition.DEPTH_RECORD:
+				messages.append("NEW RECORD: %dm!" % _max_depth_this_trip)
+
+	var title: String
+	var text: String
+	var glow_color: Color
+	var glow_duration: float
+
+	if tier >= 1:
+		# Hero return (2+ conditions)
+		title = "LEGENDARY ESCAPE!"
+		text = title + "\n" + "\n".join(messages)
+		glow_color = Color(1.6, 1.4, 0.4)  # Bright gold
+		glow_duration = 1.0
+	else:
+		# Single condition close-call
+		title = "CLOSE CALL!"
+		text = title + "\n" + messages[0]
+		glow_color = Color(1.3, 1.15, 0.6)  # Warm
+		glow_duration = 0.6
+
+	# Play celebration sound
+	if SoundManager:
+		if tier >= 1:
+			SoundManager.play_milestone()  # Big sound for hero return
+		else:
+			SoundManager.play_safe_return(1)  # Medium celebration
+
+	# Haptic feedback
+	if HapticFeedback:
+		if tier >= 1:
+			HapticFeedback.heavy_tap()
+		else:
+			HapticFeedback.medium_tap()
+
+	# Visual glow around player
+	var original_modulate := modulate
+	var glow_tween := create_tween()
+	glow_tween.tween_property(self, "modulate", glow_color, 0.1)
+	glow_tween.tween_property(self, "modulate", original_modulate, glow_duration)
+
+	# Screen flash for hero return
+	if tier >= 1:
+		_flash_screen_close_call()
+
+	# Spawn particle burst
+	_spawn_close_call_particles()
+
+	# Show toast notification
+	_spawn_close_call_toast(text, tier)
+
+
+## Flash the screen for close-call (white flash for relief)
+func _flash_screen_close_call() -> void:
+	var main_node = get_tree().get_first_node_in_group("main")
+	if not main_node:
+		main_node = get_parent()
+
+	var flash := ColorRect.new()
+	flash.name = "CloseCallFlash"
+	flash.color = Color(1.0, 1.0, 0.9, 0.3)  # Bright white/yellow
+	flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var flash_layer := CanvasLayer.new()
+	flash_layer.layer = 80
+	flash_layer.add_child(flash)
+	main_node.add_child(flash_layer)
+
+	var tween := flash.create_tween()
+	tween.tween_property(flash, "color:a", 0.0, 0.4)
+	tween.tween_callback(flash_layer.queue_free)
+
+
+## Spawn particle burst for close-call celebration
+func _spawn_close_call_particles() -> void:
+	var particles := CPUParticles2D.new()
+	particles.emitting = true
+	particles.one_shot = true
+	particles.amount = 30
+	particles.lifetime = 1.0
+	particles.explosiveness = 1.0
+	particles.direction = Vector2(0, -1)
+	particles.spread = 180.0
+	particles.gravity = Vector2(0, 200)
+	particles.initial_velocity_min = 100.0
+	particles.initial_velocity_max = 250.0
+	particles.scale_amount_min = 3.0
+	particles.scale_amount_max = 6.0
+	particles.color = Color(1.0, 0.9, 0.3, 1.0)  # Golden
+
+	add_child(particles)
+	particles.finished.connect(particles.queue_free)
+
+
+## Spawn floating toast for close-call
+func _spawn_close_call_toast(text: String, tier: int) -> void:
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+	# Style based on tier
+	if tier >= 1:
+		label.add_theme_font_size_override("font_size", 24)
+		label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+	else:
+		label.add_theme_font_size_override("font_size", 20)
+		label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.4))
+
+	# Position above player
+	label.position = Vector2(-100, -100)
+	label.custom_minimum_size = Vector2(200, 0)
+
+	add_child(label)
+
+	# Animate: float up and fade
+	var tween := label.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "position:y", label.position.y - 60, 2.0)
+	tween.tween_property(label, "modulate:a", 0.0, 2.0).set_delay(1.0)
 	tween.set_parallel(false)
 	tween.tween_callback(label.queue_free)

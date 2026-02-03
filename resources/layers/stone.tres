@@ -31,3 +31,10 @@ has_lore_elements = true
 ambient_light_emission = 0.0
 movement_modifier = 1.0
 background_style = "rocky"
+
+# Eureka Mechanic - Cave sense (audio hints near caves)
+eureka_mechanic = "cave_sense"
+eureka_name = "Cave Echo"
+eureka_description = "Listen closely... hollow sounds mean caves are nearby!"
+eureka_icon = "ear"
+eureka_trigger_chance = 1.0

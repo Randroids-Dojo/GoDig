@@ -36,3 +36,11 @@ has_lore_elements = true
 ambient_light_emission = 0.05
 movement_modifier = 0.85
 background_style = "magmatic"
+
+# Eureka Mechanic - Void sight (briefly see rare ores through walls)
+eureka_mechanic = "void_sight"
+eureka_name = "Void Vision"
+eureka_description = "The void grants brief glimpses of hidden treasures through stone!"
+eureka_icon = "eye"
+eureka_trigger_chance = 0.08
+eureka_param_1 = 5.0

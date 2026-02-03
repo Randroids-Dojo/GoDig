@@ -31,3 +31,11 @@ has_lore_elements = true
 ambient_light_emission = 0.0
 movement_modifier = 1.0
 background_style = "rocky"
+
+# Eureka Mechanic - Pressure cracks (chain-breaking blocks)
+eureka_mechanic = "pressure_cracks"
+eureka_name = "Fault Lines"
+eureka_description = "Ancient pressure creates cracks. Breaking one block weakens others along the fault!"
+eureka_icon = "crack"
+eureka_trigger_chance = 0.12
+eureka_param_1 = 3.0

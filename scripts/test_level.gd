@@ -601,9 +601,9 @@ func _show_first_ore_celebration(item) -> void:
 	if floating_text_layer == null:
 		return
 
-	# Play special discovery sound
+	# Play first discovery sound - achievements for first-time events
 	if SoundManager:
-		SoundManager.play_milestone()  # Use milestone sound for extra impact
+		SoundManager.play_achievement()  # First ore is a special discovery
 
 	# Trigger haptic feedback for mobile
 	if HapticFeedback:
@@ -661,9 +661,9 @@ func _show_new_ore_type_discovery(item) -> void:
 	if bonus_coins > 0 and GameManager:
 		GameManager.add_coins(bonus_coins)
 
-	# Play special discovery fanfare sound
+	# Play discovery fanfare - new ore type discoveries are achievements
 	if SoundManager:
-		SoundManager.play_milestone()
+		SoundManager.play_achievement()  # Discovery-appropriate sound
 
 	# Trigger haptic feedback for mobile
 	if HapticFeedback:
@@ -802,9 +802,9 @@ func _show_lucky_strike_notification(item) -> void:
 	var text := "LUCKY STRIKE! +%s" % item.display_name
 	floating.show_pickup(text, color, screen_pos)
 
-	# Play a sound effect if available
-	if SoundManager and SoundManager.has_method("play_milestone"):
-		SoundManager.play_milestone()
+	# Play lucky strike sound - level up for big rewards
+	if SoundManager:
+		SoundManager.play_level_up()  # Lucky strike is a major reward
 
 
 func _on_shop_button_pressed() -> void:
@@ -1038,9 +1038,9 @@ func _use_teleport_scroll_from_inventory(slot_index: int) -> void:
 	# Remove scroll from inventory first
 	InventoryManager.remove_items_at_slot(slot_index, 1)
 
-	# Play teleport effect
-	if SoundManager and SoundManager.has_method("play_milestone"):
-		SoundManager.play_milestone()
+	# Play teleport effect - utility action, not a celebration
+	if SoundManager:
+		SoundManager.play_sfx(SoundManager.SOUND_UI_SUCCESS, -3.0, 0.8)  # Lower-pitched magic sound
 
 	# Screen flash effect
 	if _screen_flash:

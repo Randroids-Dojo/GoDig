@@ -277,11 +277,11 @@ func discover_room(center_pos: Vector2i) -> void:
 	var room_data: Dictionary = _rooms[center_pos]
 	room_discovered.emit(center_pos, room_data["type_name"])
 
-	# Trigger celebration feedback
+	# Trigger celebration feedback - use achievement sound for discoveries
 	if HapticFeedback:
 		HapticFeedback.on_milestone_reached()
 	if SoundManager:
-		SoundManager.play_milestone()
+		SoundManager.play_achievement()  # Discovery-appropriate sound
 
 	# Track achievement
 	if AchievementManager:

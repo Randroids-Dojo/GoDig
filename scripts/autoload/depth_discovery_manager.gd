@@ -447,9 +447,9 @@ func _trigger_discovery(discovery: Dictionary) -> void:
 			var duration: int = data.get("duration", 60)
 			_apply_formation_bonus(bonus_type, duration)
 
-	# Play discovery sound
+	# Play discovery sound - depth discoveries are achievements
 	if SoundManager:
-		SoundManager.play_milestone()  # Use milestone sound for now
+		SoundManager.play_achievement()  # Discovery-appropriate sound
 
 	# Haptic feedback
 	if HapticFeedback:

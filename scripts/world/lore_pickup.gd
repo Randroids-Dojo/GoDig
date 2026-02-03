@@ -133,9 +133,9 @@ func _play_pickup_celebration() -> void:
 	# Create burst effect
 	_create_pickup_burst()
 
-	# Play sound
+	# Play lore discovery sound - use achievement for discoveries
 	if SoundManager:
-		SoundManager.play_milestone()  # Use milestone sound for now
+		SoundManager.play_achievement()  # Discovery-appropriate sound
 
 	# Haptic feedback
 	if HapticFeedback:

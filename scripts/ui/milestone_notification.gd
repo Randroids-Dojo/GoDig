@@ -386,3 +386,124 @@ func show_depth_record(depth: int) -> void:
 
 func _hide() -> void:
 	visible = false
+
+
+## Display discovery notification (depth-based surprises)
+func show_discovery(discovery_type: String, discovery_name: String) -> void:
+	if label == null or panel == null:
+		return
+
+	# Format discovery text based on type
+	var title_text := "DISCOVERY!"
+	var color := Color.GOLD
+
+	match discovery_type:
+		"MYSTERIOUS_CAVE":
+			title_text = "CAVE DISCOVERED!"
+			color = Color(0.4, 0.8, 1.0)  # Cyan
+		"ABANDONED_EQUIPMENT":
+			title_text = "ABANDONED EQUIPMENT!"
+			color = Color(0.8, 0.6, 0.4)  # Brown/copper
+		"RARE_VEIN":
+			title_text = "RARE VEIN FOUND!"
+			color = Color(1.0, 0.85, 0.0)  # Gold
+		"ANCIENT_RELIC":
+			title_text = "ANCIENT RELIC!"
+			color = Color(0.8, 0.4, 1.0)  # Purple
+		"UNUSUAL_FORMATION":
+			title_text = "STRANGE DISCOVERY!"
+			color = Color(0.6, 1.0, 0.6)  # Light green
+
+	label.text = title_text
+	label.add_theme_color_override("font_color", color)
+
+	if _subtitle_label:
+		_subtitle_label.text = discovery_name
+		_subtitle_label.visible = true
+
+	if _bonus_label:
+		_bonus_label.visible = false
+
+	# Reset state
+	visible = true
+	modulate.a = 0.0
+	scale = Vector2(0.7, 0.7)
+
+	if _tween and _tween.is_valid():
+		_tween.kill()
+
+	# Celebration effects
+	_trigger_camera_shake(5.0)
+	_trigger_screen_flash(color)
+
+	if SettingsManager and SettingsManager.reduced_motion:
+		modulate.a = 1.0
+		scale = Vector2(1.0, 1.0)
+		_tween = create_tween()
+		_tween.tween_interval(2.5)
+		_tween.tween_property(self, "modulate:a", 0.0, 0.3)
+		_tween.tween_callback(_hide)
+		return
+
+	# Enhanced pop animation for discoveries
+	_tween = create_tween()
+	_tween.tween_property(self, "modulate:a", 1.0, 0.1) \
+		.set_ease(Tween.EASE_OUT)
+	_tween.tween_property(self, "scale", Vector2(1.2, 1.2), 0.2) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.15) \
+		.set_ease(Tween.EASE_IN_OUT)
+
+	# Extra pulse for excitement
+	_tween.tween_property(self, "scale", Vector2(1.08, 1.08), 0.1)
+	_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.1)
+	_tween.tween_property(self, "scale", Vector2(1.05, 1.05), 0.1)
+	_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.1)
+
+	_tween.tween_interval(2.0)
+	_tween.tween_property(self, "modulate:a", 0.0, 0.5) \
+		.set_ease(Tween.EASE_IN)
+	_tween.tween_callback(_hide)
+
+
+## Display discovery hint notification
+func show_discovery_hint(direction: String, distance: int) -> void:
+	if label == null or panel == null:
+		return
+
+	label.text = "Something nearby..."
+	label.add_theme_color_override("font_color", Color(0.9, 0.8, 0.6))
+
+	if _subtitle_label:
+		_subtitle_label.text = "Check %s (~%d blocks)" % [direction, distance]
+		_subtitle_label.visible = true
+
+	if _bonus_label:
+		_bonus_label.visible = false
+
+	# Reset state
+	visible = true
+	modulate.a = 0.0
+	scale = Vector2(0.9, 0.9)
+
+	if _tween and _tween.is_valid():
+		_tween.kill()
+
+	# Subtle hint - no camera shake
+	if SettingsManager and SettingsManager.reduced_motion:
+		modulate.a = 1.0
+		scale = Vector2(1.0, 1.0)
+		_tween = create_tween()
+		_tween.tween_interval(1.5)
+		_tween.tween_property(self, "modulate:a", 0.0, 0.3)
+		_tween.tween_callback(_hide)
+		return
+
+	_tween = create_tween()
+	_tween.tween_property(self, "modulate:a", 0.7, 0.2) \
+		.set_ease(Tween.EASE_OUT)
+	_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.15)
+	_tween.tween_interval(1.5)
+	_tween.tween_property(self, "modulate:a", 0.0, 0.4) \
+		.set_ease(Tween.EASE_IN)
+	_tween.tween_callback(_hide)

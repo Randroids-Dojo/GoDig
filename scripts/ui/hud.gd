@@ -177,6 +177,11 @@ func _ready() -> void:
 		_update_coins_display(GameManager.get_coins())
 		_update_depth_display(0)
 
+	# Connect to DepthDiscoveryManager signals
+	if DepthDiscoveryManager:
+		DepthDiscoveryManager.discovery_found.connect(_on_discovery_found)
+		DepthDiscoveryManager.discovery_hint_revealed.connect(_on_discovery_hint_revealed)
+
 	# Connect text size changes for accessibility
 	if SettingsManager:
 		SettingsManager.text_size_changed.connect(_on_text_size_changed)
@@ -806,6 +811,20 @@ func _on_building_unlocked(building_id: String, building_name: String) -> void:
 	if milestone_notification and milestone_notification.has_method("show_building_unlocked"):
 		milestone_notification.show_building_unlocked(building_name)
 	print("[HUD] Building unlocked notification: %s" % building_name)
+
+
+func _on_discovery_found(discovery_type: String, discovery_name: String, _grid_pos: Vector2i) -> void:
+	## Show notification when a depth-based discovery is found
+	if milestone_notification and milestone_notification.has_method("show_discovery"):
+		milestone_notification.show_discovery(discovery_type, discovery_name)
+	print("[HUD] Discovery notification: %s - %s" % [discovery_type, discovery_name])
+
+
+func _on_discovery_hint_revealed(direction: String, distance: int) -> void:
+	## Show subtle hint when a discovery is nearby
+	if milestone_notification and milestone_notification.has_method("show_discovery_hint"):
+		milestone_notification.show_discovery_hint(direction, distance)
+	print("[HUD] Discovery hint: %s, %d blocks away" % [direction, distance])
 
 
 # ============================================

@@ -1,11 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://inventory_slot_001"]
+[gd_scene load_steps=3 format=3 uid="uid://inventory_slot_001"]
 
 [ext_resource type="Script" path="res://scripts/ui/inventory_slot.gd" id="1_slot"]
+[ext_resource type="Theme" uid="uid://game_theme_001" path="res://resources/themes/game_theme.tres" id="2_theme"]
 
 [node name="InventorySlot" type="Button"]
 custom_minimum_size = Vector2(80, 80)
 offset_right = 80.0
 offset_bottom = 80.0
+theme = ExtResource("2_theme")
 script = ExtResource("1_slot")
 
 [node name="Border" type="Panel" parent="."]

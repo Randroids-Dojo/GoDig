@@ -58,11 +58,13 @@ func _build_ui() -> void:
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
-	# Main panel
+	# Main panel with theme
 	panel = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(400, 600)
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.position = Vector2(-200, -300)
+	if UITheme:
+		UITheme.apply_theme(panel)
 	add_child(panel)
 
 	# Main container

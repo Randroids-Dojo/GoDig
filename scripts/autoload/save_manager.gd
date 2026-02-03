@@ -266,6 +266,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		CaveLayerManager.reset()
 	if ChallengeManager:
 		ChallengeManager.reset()
+	if AutoMinerManager:
+		AutoMinerManager.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:
@@ -398,6 +400,10 @@ func _collect_game_state() -> void:
 	if ChallengeManager:
 		current_save.challenge_data = ChallengeManager.get_save_data()
 
+	# Collect from AutoMinerManager (passive ore generation)
+	if AutoMinerManager:
+		current_save.auto_miner_data = AutoMinerManager.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -492,6 +498,12 @@ func _apply_game_state() -> void:
 		var challenge_data = current_save.get("challenge_data")
 		if challenge_data != null and challenge_data is Dictionary and not challenge_data.is_empty():
 			ChallengeManager.load_save_data(challenge_data)
+
+	# Apply to AutoMinerManager (passive ore generation)
+	if AutoMinerManager:
+		var auto_miner_data = current_save.get("auto_miner_data")
+		if auto_miner_data != null and auto_miner_data is Dictionary and not auto_miner_data.is_empty():
+			AutoMinerManager.load_save_data(auto_miner_data)
 
 
 ## Calculate offline earnings based on time since last save

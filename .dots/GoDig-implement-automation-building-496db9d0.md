@@ -1,9 +1,9 @@
 ---
 title: "implement: Automation building simple optimization (v1.1)"
-status: open
+status: active
 priority: 3
 issue-type: task
-created-at: "2026-02-01T08:46:19.590156-06:00"
+created-at: "\"2026-02-01T08:46:19.590156-06:00\""
 ---
 
 ## Description

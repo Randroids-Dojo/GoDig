@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BuildingData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/buildings/building_data.gd" id="1_building"]
+
+[resource]
+script = ExtResource("1_building")
+id = "auto_miner_station"
+display_name = "Auto-Miner Station"
+description = "Generates passive ore income over time. Upgrade to increase output and ore variety."
+unlock_depth = 1000
+surface_slot = 7
+is_shop = false
+shop_category = ""

@@ -152,6 +152,13 @@ func _configure_for_shop_type() -> void:
 			upgrades_tab.visible = true
 			if tab_container:
 				tab_container.current_tab = 1  # Show upgrades tab (repurposed for elevator)
+		ShopBuilding.ShopType.REST_STATION:
+			if shop_title:
+				shop_title.text = "Rest Station"
+			sell_tab.visible = true
+			upgrades_tab.visible = true  # Buy ladders, heal
+			if tab_container:
+				tab_container.current_tab = 0  # Default to sell tab
 		_:
 			# Default configuration for other shop types
 			if shop_title:
@@ -289,6 +296,10 @@ func _get_sell_multiplier(item) -> float:
 	if current_shop_type == ShopBuilding.ShopType.GEM_APPRAISER:
 		if item.category == "gem":
 			multiplier *= 1.5  # 50% bonus for gems at Gem Appraiser
+
+	## Rest Station has a convenience tax (80% of surface price)
+	if current_shop_type == ShopBuilding.ShopType.REST_STATION:
+		multiplier *= 0.8  # 20% convenience tax
 
 	return multiplier
 
@@ -485,6 +496,10 @@ func _refresh_upgrades_tab() -> void:
 			# Elevator: show fast travel options
 			var elevator_section := _create_elevator_section()
 			upgrades_container.add_child(elevator_section)
+		ShopBuilding.ShopType.REST_STATION:
+			# Rest Station: show buy ladders and heal options
+			var rest_section := _create_rest_station_section()
+			upgrades_container.add_child(rest_section)
 		_:
 			# Default: Tool and backpack upgrades
 			var tool_section := _create_tool_upgrade_section()
@@ -1490,6 +1505,173 @@ func _on_add_elevator_stop(depth: int) -> void:
 	PlayerData.add_elevator_depth(depth)
 	print("[Shop] Added elevator stop at %dm" % depth)
 	_refresh_upgrades_tab()
+
+
+# ============================================
+# REST STATION (Underground Shop)
+# ============================================
+
+## Rest station price multipliers
+const REST_STATION_BUY_MULTIPLIER := 1.2  # 120% of surface price
+
+func _create_rest_station_section() -> Control:
+	var panel := PanelContainer.new()
+	var vbox := VBoxContainer.new()
+	panel.add_child(vbox)
+
+	# Title with convenience tax warning
+	var title_label := Label.new()
+	title_label.text = "Underground Services"
+	title_label.add_theme_font_size_override("font_size", 24)
+	vbox.add_child(title_label)
+
+	var tax_warning := Label.new()
+	tax_warning.text = "Note: 20% convenience markup on purchases, 20% less for sales"
+	tax_warning.add_theme_font_size_override("font_size", 12)
+	tax_warning.add_theme_color_override("font_color", Color(1.0, 0.7, 0.3))
+	vbox.add_child(tax_warning)
+
+	# Spacer
+	var spacer := Control.new()
+	spacer.custom_minimum_size.y = 10
+	vbox.add_child(spacer)
+
+	# Quick Heal section
+	var heal_section := _create_rest_station_heal_section()
+	vbox.add_child(heal_section)
+
+	# Spacer
+	var spacer2 := Control.new()
+	spacer2.custom_minimum_size.y = 10
+	vbox.add_child(spacer2)
+
+	# Buy Ladders section
+	var ladder_section := _create_rest_station_ladder_section()
+	vbox.add_child(ladder_section)
+
+	return panel
+
+
+func _create_rest_station_heal_section() -> Control:
+	var vbox := VBoxContainer.new()
+
+	var heal_header := Label.new()
+	heal_header.text = "Quick Heal"
+	heal_header.add_theme_font_size_override("font_size", 18)
+	vbox.add_child(heal_header)
+
+	# Get player HP info
+	var player = get_tree().get_first_node_in_group("player")
+	var current_hp := 100
+	var max_hp := 100
+	if player and "current_hp" in player and "MAX_HP" in player:
+		current_hp = player.current_hp
+		max_hp = player.MAX_HP
+
+	var missing_hp := max_hp - current_hp
+
+	if missing_hp <= 0:
+		var full_hp_label := Label.new()
+		full_hp_label.text = "HP: %d/%d (Full!)" % [current_hp, max_hp]
+		full_hp_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
+		vbox.add_child(full_hp_label)
+	else:
+		var hp_label := Label.new()
+		hp_label.text = "HP: %d/%d (Missing: %d)" % [current_hp, max_hp, missing_hp]
+		vbox.add_child(hp_label)
+
+		# Heal cost (5 coins per HP at rest station)
+		var heal_cost := missing_hp * 5
+		var hbox := HBoxContainer.new()
+
+		var heal_btn := Button.new()
+		var can_afford := GameManager.can_afford(heal_cost)
+		heal_btn.text = "HEAL FULL - $%d" % heal_cost
+		heal_btn.disabled = not can_afford
+		heal_btn.pressed.connect(_on_rest_station_heal.bind(missing_hp, heal_cost))
+		hbox.add_child(heal_btn)
+
+		vbox.add_child(hbox)
+
+	return vbox
+
+
+func _create_rest_station_ladder_section() -> Control:
+	var vbox := VBoxContainer.new()
+
+	var ladder_header := Label.new()
+	ladder_header.text = "Buy Ladders"
+	ladder_header.add_theme_font_size_override("font_size", 18)
+	vbox.add_child(ladder_header)
+
+	var current_ladders := InventoryManager.get_item_count_by_id("ladder") if InventoryManager else 0
+	var ladder_count_label := Label.new()
+	ladder_count_label.text = "Current: %d ladders" % current_ladders
+	vbox.add_child(ladder_count_label)
+
+	# Price: base 8 * 1.2 = ~10 at rest station
+	var base_cost := 8
+	var inflated_cost := int(base_cost * REST_STATION_BUY_MULTIPLIER)
+
+	var hbox := HBoxContainer.new()
+
+	# Buy 1 ladder
+	var buy_1_btn := Button.new()
+	buy_1_btn.text = "x1 - $%d" % inflated_cost
+	buy_1_btn.disabled = not GameManager.can_afford(inflated_cost)
+	buy_1_btn.pressed.connect(_on_rest_station_buy_ladder.bind(1, inflated_cost))
+	hbox.add_child(buy_1_btn)
+
+	# Buy 5 ladders
+	var cost_5 := inflated_cost * 5
+	var buy_5_btn := Button.new()
+	buy_5_btn.text = "x5 - $%d" % cost_5
+	buy_5_btn.disabled = not GameManager.can_afford(cost_5)
+	buy_5_btn.pressed.connect(_on_rest_station_buy_ladder.bind(5, cost_5))
+	hbox.add_child(buy_5_btn)
+
+	vbox.add_child(hbox)
+
+	# Price comparison
+	var compare_label := Label.new()
+	compare_label.text = "(Surface price: $%d each)" % base_cost
+	compare_label.add_theme_font_size_override("font_size", 11)
+	compare_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+	vbox.add_child(compare_label)
+
+	return vbox
+
+
+func _on_rest_station_heal(hp_amount: int, cost: int) -> void:
+	if not GameManager.spend_coins(cost):
+		return
+
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("heal"):
+		player.heal(hp_amount)
+		print("[Shop] Rest station healed %d HP for $%d" % [hp_amount, cost])
+
+		# Play heal sound
+		if SoundManager:
+			SoundManager.play_level_up()
+
+	_refresh_upgrades_tab()
+	SaveManager.save_game()
+
+
+func _on_rest_station_buy_ladder(quantity: int, cost: int) -> void:
+	if not GameManager.spend_coins(cost):
+		return
+
+	var ladder_item = DataRegistry.get_item("ladder") if DataRegistry else null
+	if ladder_item and InventoryManager:
+		InventoryManager.add_item(ladder_item, quantity)
+	elif PlayerData:
+		PlayerData.add_consumable("ladder", quantity)
+
+	print("[Shop] Rest station sold %d ladders for $%d" % [quantity, cost])
+	_refresh_upgrades_tab()
+	SaveManager.save_game()
 	SaveManager.save_game()
 
 

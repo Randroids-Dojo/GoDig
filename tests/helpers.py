@@ -98,6 +98,7 @@ PATHS = {
     "biome_manager": "/root/BiomeManager",
     "cave_layer_manager": "/root/CaveLayerManager",
     "economy_config": "/root/EconomyConfig",
+    "danger_zone_manager": "/root/DangerZoneManager",
 }
 
 

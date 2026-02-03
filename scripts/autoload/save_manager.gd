@@ -276,6 +276,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		MonetizationManager.reset()
 	if WelcomeBackManager:
 		WelcomeBackManager.reset()
+	if JournalManager:
+		JournalManager.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:
@@ -440,6 +442,10 @@ func _collect_game_state() -> void:
 	if TreasureChestManager:
 		current_save.treasure_chest_data = TreasureChestManager.get_save_data()
 
+	# Collect from JournalManager (discoverable lore entries)
+	if JournalManager:
+		current_save.journal_data = JournalManager.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -582,6 +588,12 @@ func _apply_game_state() -> void:
 		var treasure_chest_data = current_save.get("treasure_chest_data")
 		if treasure_chest_data != null and treasure_chest_data is Dictionary and not treasure_chest_data.is_empty():
 			TreasureChestManager.load_save_data(treasure_chest_data)
+
+	# Apply to JournalManager (discoverable lore entries)
+	if JournalManager:
+		var journal_data = current_save.get("journal_data")
+		if journal_data != null and journal_data is Dictionary and not journal_data.is_empty():
+			JournalManager.load_save_data(journal_data)
 
 
 ## Calculate offline earnings based on time since last save

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LoreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/lore/lore_data.gd" id="1_lore"]
+
+[resource]
+script = ExtResource("1_lore")
+id = "journal_07"
+display_name = "Journal Entry #7"
+category = "lore"
+max_stack = 1
+sell_value = 60
+rarity = "epic"
+min_depth = 200
+description = "A journal page that glows faintly."
+entry_number = 7
+lore_type = "journal"
+content = "Day 67 - The void crystals are real. They pulse with a light that has no source. Touching one gave me visions - of miners who came before, digging toward something. Calling it the Heart."
+author = "Unknown Miner"
+era = "Recent Era"
+spawn_min_depth = 200
+spawn_max_depth = 400
+spawn_chance = 0.001

@@ -13,6 +13,7 @@ const ItemData = preload("res://resources/items/item_data.gd")
 const ToolData = preload("res://resources/tools/tool_data.gd")
 const EquipmentData = preload("res://resources/equipment/equipment_data.gd")
 const SidegradeData = preload("res://resources/sidegrades/sidegrade_data.gd")
+const LoreData = preload("res://resources/lore/lore_data.gd")
 
 # Explicit resource preloads for web export compatibility
 const LAYER_RESOURCES := [
@@ -95,6 +96,19 @@ const SIDEGRADE_RESOURCES := [
 	preload("res://resources/sidegrades/glass_cannon.tres"),
 ]
 
+const LORE_RESOURCES := [
+	preload("res://resources/lore/journal_01.tres"),
+	preload("res://resources/lore/journal_02.tres"),
+	preload("res://resources/lore/journal_03.tres"),
+	preload("res://resources/lore/journal_04.tres"),
+	preload("res://resources/lore/journal_05.tres"),
+	preload("res://resources/lore/journal_06.tres"),
+	preload("res://resources/lore/journal_07.tres"),
+	preload("res://resources/lore/journal_08.tres"),
+	preload("res://resources/lore/journal_09.tres"),
+	preload("res://resources/lore/journal_10.tres"),
+]
+
 ## All loaded layer definitions, sorted by min_depth
 var layers: Array[LayerData] = []
 
@@ -134,6 +148,15 @@ var _sidegrades_by_depth: Array = []
 ## Sidegrades grouped by category
 var _sidegrades_by_category: Dictionary = {}  # Category -> Array[SidegradeData]
 
+## All loaded lore definitions
+var lore: Dictionary = {}
+
+## Lore sorted by entry_number
+var _lore_by_entry: Array = []
+
+## Lore grouped by type
+var _lore_by_type: Dictionary = {}  # type string -> Array[LoreData]
+
 
 func _ready() -> void:
 	_load_all_layers()
@@ -142,7 +165,8 @@ func _ready() -> void:
 	_load_all_tools()
 	_load_all_equipment()
 	_load_all_sidegrades()
-	print("[DataRegistry] Loaded %d layers, %d ores, %d items, %d tools, %d equipment, %d sidegrades" % [layers.size(), ores.size(), items.size(), tools.size(), equipment.size(), sidegrades.size()])
+	_load_all_lore()
+	print("[DataRegistry] Loaded %d layers, %d ores, %d items, %d tools, %d equipment, %d sidegrades, %d lore" % [layers.size(), ores.size(), items.size(), tools.size(), equipment.size(), sidegrades.size(), lore.size()])
 
 
 func _load_all_layers() -> void:
@@ -558,3 +582,62 @@ func sidegrades_conflict(id_a: String, id_b: String) -> bool:
 	if sg_a == null or sg_b == null:
 		return false
 	return sg_a.conflicts_with(id_b) or sg_b.conflicts_with(id_a)
+
+
+# ============================================
+# LORE DATA LOADING AND ACCESS
+# ============================================
+
+func _load_all_lore() -> void:
+	## Load all lore resources from preloaded array
+	## NOTE: We don't use "is LoreData" check because it fails in web exports
+	for resource in LORE_RESOURCES:
+		if resource != null and "entry_number" in resource and "content" in resource:
+			lore[resource.id] = resource
+			# Also register lore as items for inventory compatibility
+			items[resource.id] = resource
+
+	# Sort lore by entry_number for ordered display
+	_lore_by_entry = lore.values()
+	_lore_by_entry.sort_custom(func(a, b): return a.entry_number < b.entry_number)
+
+	# Group by lore type
+	_lore_by_type.clear()
+	for l in _lore_by_entry:
+		var lore_type: String = l.lore_type
+		if not _lore_by_type.has(lore_type):
+			_lore_by_type[lore_type] = []
+		_lore_by_type[lore_type].append(l)
+
+
+## Get a lore entry by its ID
+func get_lore(lore_id: String) -> LoreData:
+	if lore.has(lore_id):
+		return lore[lore_id]
+	return null
+
+
+## Get all lore sorted by entry_number
+func get_all_lore() -> Array:
+	return _lore_by_entry.duplicate()
+
+
+## Get all lore IDs
+func get_all_lore_ids() -> Array:
+	return lore.keys()
+
+
+## Get lore by type
+func get_lore_by_type(lore_type: String) -> Array:
+	if _lore_by_type.has(lore_type):
+		return _lore_by_type[lore_type].duplicate()
+	return []
+
+
+## Get lore entries that can spawn at a given depth
+func get_lore_at_depth(depth: int) -> Array:
+	var result := []
+	for l in _lore_by_entry:
+		if l.can_spawn_at_depth(depth):
+			result.append(l)
+	return result

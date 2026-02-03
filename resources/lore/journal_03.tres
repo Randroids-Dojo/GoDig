@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LoreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/lore/lore_data.gd" id="1_lore"]
+
+[resource]
+script = ExtResource("1_lore")
+id = "journal_03"
+display_name = "Journal Entry #3"
+category = "lore"
+max_stack = 1
+sell_value = 30
+rarity = "uncommon"
+min_depth = 50
+description = "A damp journal page sealed in wax."
+entry_number = 3
+lore_type = "journal"
+content = "Day 15 - Reached the granite. My pickaxe barely scratches it. But I can see veins of silver glinting in my lamplight. Worth every blister. The deeper I go, the richer the earth."
+author = "Unknown Miner"
+era = "Recent Era"
+spawn_min_depth = 50
+spawn_max_depth = 150
+spawn_chance = 0.002

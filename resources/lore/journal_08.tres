@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LoreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/lore/lore_data.gd" id="1_lore"]
+
+[resource]
+script = ExtResource("1_lore")
+id = "journal_08"
+display_name = "Journal Entry #8"
+category = "lore"
+max_stack = 1
+sell_value = 75
+rarity = "epic"
+min_depth = 250
+description = "An ancient scroll bound in strange leather."
+entry_number = 8
+lore_type = "journal"
+content = "The earth remembers. Every pickaxe strike, every tunnel carved, every miner who went too deep. We are not the first to seek what lies below. We will not be the last. The Heart calls to all who dig."
+author = "Ancient Scrawl"
+era = "Ancient Era"
+spawn_min_depth = 250
+spawn_max_depth = 500
+spawn_chance = 0.0008

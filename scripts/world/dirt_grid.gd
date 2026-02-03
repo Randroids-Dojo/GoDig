@@ -10,6 +10,7 @@ const NearOreHintScene = preload("res://scenes/effects/near_ore_hint.tscn")
 const OreSparkleManagerScript = preload("res://scripts/effects/ore_sparkle_manager.gd")
 const ThreadedChunkGeneratorScript = preload("res://scripts/world/threaded_chunk_generator.gd")
 const TreasureChestScene = preload("res://scenes/world/treasure_chest.tscn")
+const LorePickupScene = preload("res://scenes/world/lore_pickup.tscn")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
@@ -47,6 +48,7 @@ var _near_ore_hints: Dictionary = {}  # Dictionary[Vector2i, CPUParticles2D] - s
 var _near_ore_blocks: Dictionary = {}  # Dictionary[Vector2i, bool] - tracks blocks adjacent to ore
 var _player: Node2D = null
 var _active_chests: Dictionary = {}  # Dictionary[Vector2i, Node] - treasure chests in caves
+var _active_lore: Dictionary = {}  # Dictionary[Vector2i, Node] - lore pickups in caves
 
 ## MultiMesh-based sparkle manager for performance optimization
 var _sparkle_manager: Node2D = null
@@ -236,6 +238,9 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 	# Spawn treasure chests in cave positions
 	_spawn_chests_in_caves(cave_positions, world_seed)
 
+	# Spawn lore items in cave positions
+	_spawn_lore_in_caves(cave_positions, world_seed)
+
 	# Second pass: Apply near-ore hints to blocks that were marked
 	# (ore placement marks adjacent blocks, but those blocks may have been
 	# generated in a different order or in adjacent chunks)
@@ -311,6 +316,9 @@ func _on_threaded_chunk_generated(chunk_pos: Vector2i, result) -> void:
 		cave_positions.append(pos)
 	_spawn_chests_in_caves(cave_positions, world_seed)
 
+	# Spawn lore items in cave positions (from threaded result)
+	_spawn_lore_in_caves(cave_positions, world_seed)
+
 	# Mark chunk as loaded
 	_loaded_chunks[chunk_pos] = true
 
@@ -373,6 +381,7 @@ func _unload_chunk(chunk_pos: Vector2i) -> void:
 		for local_y in range(CHUNK_SIZE):
 			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
 			_remove_chest(grid_pos)
+			_remove_lore(grid_pos)
 
 	# Clear dug tiles memory for this chunk (will reload from save when needed)
 	_clear_chunk_dug_tiles_memory(chunk_pos)
@@ -759,6 +768,62 @@ func _remove_chest(pos: Vector2i) -> void:
 	if is_instance_valid(chest):
 		chest.queue_free()
 	_active_chests.erase(pos)
+
+
+# ============================================
+# LORE PICKUP SPAWNING IN CAVES
+# ============================================
+
+func _spawn_lore_in_caves(cave_positions: Array[Vector2i], world_seed: int) -> void:
+	## Spawn lore pickups in qualifying cave positions.
+	## Uses JournalManager for tracking and spawn rolls.
+	if not JournalManager:
+		return
+
+	for pos in cave_positions:
+		var depth := pos.y - _surface_row
+		if depth < 20:  # Minimum depth for lore
+			continue
+
+		# Check if JournalManager rolls a lore spawn
+		var lore_id := JournalManager.roll_lore_spawn(pos, depth, world_seed)
+		if lore_id != "":
+			_spawn_lore_at(pos, lore_id)
+
+
+func _spawn_lore_at(pos: Vector2i, lore_id: String) -> void:
+	## Spawn a lore pickup visual at the given cave position.
+	if _active_lore.has(pos):
+		return  # Already spawned
+
+	if not JournalManager:
+		return
+
+	# Skip if already picked up
+	if JournalManager.was_lore_opened(pos):
+		return
+
+	# Create visual lore pickup instance
+	var lore_pickup = LorePickupScene.instantiate()
+	lore_pickup.configure(pos, lore_id)
+
+	add_child(lore_pickup)
+	_active_lore[pos] = lore_pickup
+
+
+func _remove_lore(pos: Vector2i) -> void:
+	## Remove a lore pickup visual from the world.
+	if not _active_lore.has(pos):
+		return
+
+	var lore_pickup = _active_lore[pos]
+	if is_instance_valid(lore_pickup):
+		lore_pickup.queue_free()
+	_active_lore.erase(pos)
+
+	# Also remove from JournalManager tracking (will reload from save when chunk loads)
+	if JournalManager:
+		JournalManager.remove_spawned_lore(pos)
 
 
 # ============================================

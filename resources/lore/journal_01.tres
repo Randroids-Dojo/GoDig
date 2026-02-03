@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LoreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/lore/lore_data.gd" id="1_lore"]
+
+[resource]
+script = ExtResource("1_lore")
+id = "journal_01"
+display_name = "Journal Entry #1"
+category = "lore"
+max_stack = 1
+sell_value = 25
+rarity = "uncommon"
+min_depth = 20
+description = "A weathered journal page found in the dirt."
+entry_number = 1
+lore_type = "journal"
+content = "Day 1 - Finally made it past the clay layer. The air down here tastes different, older somehow. Found strange markings on the stones. Someone was here before me. Who digs this deep?"
+author = "Unknown Miner"
+era = "Recent Era"
+spawn_min_depth = 20
+spawn_max_depth = 100
+spawn_chance = 0.002

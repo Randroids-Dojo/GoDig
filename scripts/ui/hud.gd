@@ -160,6 +160,18 @@ const LADDER_URGENT_RATIO := 0.5   # Red warning below 50% of safe minimum
 const LADDER_MIN_DEPTH_FOR_WARNING := 15  # Don't warn until at least 15m deep
 const LADDER_WARNING_PULSE_SPEED := 2.5  # Pulse speed for warning
 
+## Return safety calculation constants
+## Estimates how safely player can return to surface
+const RETURN_WALL_JUMP_CAPACITY := 25  # ~5 wall-jumps at 5m each
+const RETURN_LADDER_CAPACITY := 10  # Each ladder covers ~10m reliably
+const RETURN_SAFETY_BUFFER := 1.5  # Need 150% capacity for "SAFE"
+const RETURN_RISKY_BUFFER := 1.0   # Need 100% capacity for "RISKY"
+
+## Return safety state
+var _last_return_safety_level: int = 0  # 0=safe, 1=risky, 2=danger
+var _return_safety_update_timer: float = 0.0
+const RETURN_SAFETY_UPDATE_INTERVAL := 0.5  # Don't recalculate every frame
+
 
 ## Apply standard dark outline to a label for readability
 static func apply_text_outline(label: Label, outline_size: int = HUD_OUTLINE_SIZE, outline_color: Color = HUD_OUTLINE_COLOR) -> void:
@@ -323,6 +335,9 @@ func _process(delta: float) -> void:
 
 	# Update risk indicator pulse
 	_update_risk_indicator_pulse(delta)
+
+	# Update return safety calculation (throttled)
+	_update_return_safety(delta)
 
 
 ## Connect to a player's HP signals
@@ -2231,6 +2246,100 @@ func reset_fair_warning_flags() -> void:
 	## Called by GameManager when depth reaches 0.
 	_shown_fair_warning_this_descent = false
 	_shown_urgent_warning_this_descent = false
+
+
+# ============================================
+# RETURN SAFETY CALCULATION
+# ============================================
+
+## Calculate return safety level based on depth, ladders, and wall-jump capacity
+## Returns: 0 = SAFE (green), 1 = RISKY (yellow), 2 = DANGER (red)
+func calculate_return_safety() -> int:
+	if GameManager == null:
+		return 0  # Safe if no GameManager
+
+	var current_depth := GameManager.current_depth
+	if current_depth <= 0:
+		return 0  # Always safe at surface
+
+	# Get ladder counts
+	var inventory_ladders := _get_ladder_count()
+	var placed_ladders := _get_placed_ladder_count_above()
+
+	# Calculate total ascent capacity
+	# Wall-jump gives base capacity (assuming some skill)
+	var wall_jump_capacity := RETURN_WALL_JUMP_CAPACITY
+
+	# Each placed ladder above player provides vertical reach
+	var placed_capacity := placed_ladders * RETURN_LADDER_CAPACITY
+
+	# Each inventory ladder can be placed for additional reach
+	var inventory_capacity := inventory_ladders * RETURN_LADDER_CAPACITY
+
+	# Total capacity to return
+	var total_capacity: float = wall_jump_capacity + placed_capacity + inventory_capacity
+
+	# Determine safety level based on capacity vs depth
+	if total_capacity >= float(current_depth) * RETURN_SAFETY_BUFFER:
+		return 0  # SAFE - plenty of margin
+	elif total_capacity >= float(current_depth) * RETURN_RISKY_BUFFER:
+		return 1  # RISKY - might make it but tight
+	else:
+		return 2  # DANGER - likely stuck without emergency
+
+
+## Get count of placed ladders above the player's current position
+func _get_placed_ladder_count_above() -> int:
+	# Get dirt_grid reference to query ladder positions
+	var dirt_grid = _get_dirt_grid()
+	if dirt_grid == null:
+		return 0
+
+	var player_y := 0
+	if GameManager and GameManager.current_depth > 0:
+		# Approximate player grid Y from depth (surface row + depth)
+		player_y = GameManager.SURFACE_ROW + GameManager.current_depth
+
+	# Get all ladder positions and count those above player
+	var all_ladders: Array = dirt_grid.get_all_ladder_positions()
+	var count := 0
+	for pos in all_ladders:
+		if pos.y < player_y:  # Smaller Y = higher up
+			count += 1
+
+	return count
+
+
+## Get reference to DirtGrid node
+func _get_dirt_grid() -> Node:
+	var main_node = get_tree().get_first_node_in_group("main")
+	if main_node and main_node.has_node("DirtGrid"):
+		return main_node.get_node("DirtGrid")
+	return null
+
+
+## Update return safety in _process with throttling
+func _update_return_safety(delta: float) -> void:
+	_return_safety_update_timer += delta
+	if _return_safety_update_timer < RETURN_SAFETY_UPDATE_INTERVAL:
+		return
+
+	_return_safety_update_timer = 0.0
+
+	var safety_level := calculate_return_safety()
+	if safety_level != _last_return_safety_level:
+		_last_return_safety_level = safety_level
+		# Update the risk indicator with return safety info
+		_update_risk_from_return_safety(safety_level)
+
+
+## Update risk indicator based on return safety
+func _update_risk_from_return_safety(safety_level: int) -> void:
+	# The return safety blends with the existing tension-based risk indicator
+	# If return safety is worse than current risk level, use return safety
+	if safety_level > _current_risk_level:
+		_current_risk_level = safety_level
+		_apply_risk_level_display(safety_level)
 
 
 # ============================================

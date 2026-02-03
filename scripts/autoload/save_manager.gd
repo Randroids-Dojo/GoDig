@@ -286,6 +286,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		HandcraftedCaveManager.reset()
 	if SecretLayerManager:
 		SecretLayerManager.reset()
+	if FrustrationTracker:
+		FrustrationTracker.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:
@@ -462,6 +464,10 @@ func _collect_game_state() -> void:
 	if EurekaMechanicManager:
 		current_save.eureka_mechanic_data = EurekaMechanicManager.get_save_data()
 
+	# Collect from FrustrationTracker (trip count for frustration detection)
+	if FrustrationTracker:
+		current_save.frustration_tracker_data = FrustrationTracker.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -622,6 +628,12 @@ func _apply_game_state() -> void:
 		var eureka_data = current_save.get("eureka_mechanic_data")
 		if eureka_data != null and eureka_data is Dictionary and not eureka_data.is_empty():
 			EurekaMechanicManager.load_save_data(eureka_data)
+
+	# Apply to FrustrationTracker (trip count for frustration detection)
+	if FrustrationTracker:
+		var frustration_data = current_save.get("frustration_tracker_data")
+		if frustration_data != null and frustration_data is Dictionary and not frustration_data.is_empty():
+			FrustrationTracker.load_save_data(frustration_data)
 
 
 ## Calculate offline earnings based on time since last save

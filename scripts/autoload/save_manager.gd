@@ -264,6 +264,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		EnemyManager.reset()
 	if CaveLayerManager:
 		CaveLayerManager.reset()
+	if ChallengeManager:
+		ChallengeManager.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:
@@ -392,6 +394,10 @@ func _collect_game_state() -> void:
 	if CaveLayerManager:
 		current_save.cave_layer_data = CaveLayerManager.get_save_data()
 
+	# Collect from ChallengeManager (challenge run modifiers)
+	if ChallengeManager:
+		current_save.challenge_data = ChallengeManager.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -480,6 +486,12 @@ func _apply_game_state() -> void:
 		var cave_data = current_save.get("cave_layer_data")
 		if cave_data != null and cave_data is Dictionary and not cave_data.is_empty():
 			CaveLayerManager.load_save_data(cave_data)
+
+	# Apply to ChallengeManager (challenge run modifiers)
+	if ChallengeManager:
+		var challenge_data = current_save.get("challenge_data")
+		if challenge_data != null and challenge_data is Dictionary and not challenge_data.is_empty():
+			ChallengeManager.load_save_data(challenge_data)
 
 
 ## Calculate offline earnings based on time since last save

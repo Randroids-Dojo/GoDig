@@ -110,6 +110,7 @@ PATHS = {
     "depth_discovery_manager": "/root/DepthDiscoveryManager",
     "eureka_mechanic_manager": "/root/EurekaMechanicManager",
     "achievement_manager": "/root/AchievementManager",
+    "handcrafted_cave_manager": "/root/HandcraftedCaveManager",
 }
 
 

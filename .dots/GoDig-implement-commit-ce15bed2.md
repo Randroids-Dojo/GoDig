@@ -3,7 +3,7 @@ title: "implement: Commit PrestigeManager integration tests"
 status: active
 priority: 2
 issue-type: task
-created-at: "\"2026-02-03T10:45:57.800952-06:00\""
+created-at: "\"\\\"2026-02-03T10:45:57.800952-06:00\\\"\""
 ---
 
 The test_prestige.py file is untracked. It contains comprehensive tests for the PrestigeManager autoload. Once tests pass, this file should be committed with a proper version bump.

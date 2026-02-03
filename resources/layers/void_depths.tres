@@ -22,3 +22,17 @@ hardness_per_100_depth = 25.0
 max_hardness = 1000.0
 heat_damage = 5.0
 heat_damage_per_100_depth = 2.0
+
+# Visual Identity - Eldritch cosmic horror, reality warping
+signature_element = "void_tears"
+visual_description = "Reality itself warps. Tears in the fabric of existence shimmer with impossible colors."
+atmosphere_particles = "void_particles"
+ambient_sound = "void_whisper"
+fog_intensity = 0.4
+fog_color = Color(0.15, 0.08, 0.25, 0.7)
+decoration_chance = 0.15
+signature_ores = PackedStringArray("void_crystal")
+has_lore_elements = true
+ambient_light_emission = 0.1
+movement_modifier = 0.8
+background_style = "void"

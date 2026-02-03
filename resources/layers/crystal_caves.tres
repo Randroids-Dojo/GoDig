@@ -17,3 +17,17 @@ color_shadow = Color(0.22, 0.28, 0.38, 1)
 color_highlight = Color(0.65, 0.75, 0.88, 1)
 color_ore_tint = Color(0.88, 0.92, 1.0, 1)
 tile_atlas_coords = Vector2i(6, 0)
+
+# Visual Identity - Terraria Hallow-inspired crystalline wonder
+signature_element = "crystals"
+visual_description = "Glittering crystal formations refract dim light into rainbows. Eerily beautiful."
+atmosphere_particles = "crystal_sparkle"
+ambient_sound = "crystal_chime"
+fog_intensity = 0.1
+fog_color = Color(0.5, 0.6, 0.75, 0.3)
+decoration_chance = 0.12
+signature_ores = PackedStringArray("ruby", "sapphire", "emerald", "diamond")
+has_lore_elements = true
+ambient_light_emission = 0.15
+movement_modifier = 1.0
+background_style = "crystalline"

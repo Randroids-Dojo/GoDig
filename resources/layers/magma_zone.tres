@@ -19,3 +19,17 @@ color_ore_tint = Color(1.0, 0.85, 0.75, 1)
 tile_atlas_coords = Vector2i(7, 0)
 heat_damage = 1.5
 heat_damage_per_100_depth = 1.0
+
+# Visual Identity - Terraria Underworld-inspired inferno
+signature_element = "lava_veins"
+visual_description = "Molten rock flows through cracks. The air shimmers with intense heat."
+atmosphere_particles = "embers"
+ambient_sound = "lava_bubble"
+fog_intensity = 0.15
+fog_color = Color(0.8, 0.4, 0.2, 0.4)
+decoration_chance = 0.08
+signature_ores = PackedStringArray("titanium", "obsidian")
+has_lore_elements = false
+ambient_light_emission = 0.25
+movement_modifier = 0.9
+background_style = "magmatic"

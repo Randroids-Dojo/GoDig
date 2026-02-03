@@ -17,3 +17,17 @@ color_shadow = Color(0.32, 0.30, 0.28, 1)
 color_highlight = Color(0.62, 0.58, 0.55, 1)
 color_ore_tint = Color(0.95, 0.95, 0.95, 1)
 tile_atlas_coords = Vector2i(2, 0)
+
+# Visual Identity - True underground, ancient and solid
+signature_element = "veins"
+visual_description = "Solid bedrock with mineral veins. True underground territory."
+atmosphere_particles = "dust"
+ambient_sound = "cave_ambience_deep"
+fog_intensity = 0.15
+fog_color = Color(0.45, 0.45, 0.48, 0.4)
+decoration_chance = 0.05
+signature_ores = PackedStringArray("iron", "silver", "gold")
+has_lore_elements = true
+ambient_light_emission = 0.0
+movement_modifier = 1.0
+background_style = "rocky"

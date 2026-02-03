@@ -53,6 +53,52 @@ class_name LayerData extends Resource
 ## Heat damage scaling per 100 blocks of depth (for infinite layers)
 @export var heat_damage_per_100_depth: float = 0.0
 
+# ============================================
+# VISUAL IDENTITY SYSTEM (Dead Cells/Terraria-inspired)
+# ============================================
+
+## Signature visual element that defines this layer's identity
+## Examples: "roots", "crystals", "lava_veins", "fossils", "thorns"
+@export var signature_element: String = ""
+
+## Description of the layer's visual theme (for UI/tooltips)
+@export var visual_description: String = ""
+
+## Atmospheric particle effect type for this layer
+## Examples: "dust", "spores", "embers", "snowflakes", "void_particles"
+@export_enum("none", "dust", "spores", "embers", "snowflakes", "void_particles", "drip", "crystal_sparkle") var atmosphere_particles: String = "none"
+
+## Ambient sound ID for this layer (connects to SoundManager)
+@export var ambient_sound: String = ""
+
+## Fog/mist intensity (0.0 = none, 1.0 = thick fog)
+@export_range(0.0, 1.0, 0.05) var fog_intensity: float = 0.0
+
+## Fog color (if fog_intensity > 0)
+@export var fog_color: Color = Color(0.5, 0.5, 0.5, 0.5)
+
+## Chance for special decorative blocks (0.0-1.0)
+## Decorative blocks use signature_element for visuals
+@export_range(0.0, 0.3, 0.01) var decoration_chance: float = 0.05
+
+## Array of signature ore IDs that primarily appear in this layer
+## Used for "layer identity" - players associate these ores with this layer
+@export var signature_ores: PackedStringArray = []
+
+## Whether this layer has environmental storytelling elements
+## (ancient ruins, fossils, lost equipment, etc.)
+@export var has_lore_elements: bool = false
+
+## Light emission from layer environment (0.0 = none, affects visibility)
+## Crystal caves and magma zones emit some ambient light
+@export_range(0.0, 0.5, 0.05) var ambient_light_emission: float = 0.0
+
+## Movement speed modifier (1.0 = normal, <1.0 = slowed)
+@export_range(0.5, 1.5, 0.05) var movement_modifier: float = 1.0
+
+## Background parallax style for this layer
+@export_enum("none", "earthy", "rocky", "crystalline", "magmatic", "void") var background_style: String = "none"
+
 
 ## Get hardness with variance based on position for deterministic randomness
 ## Supports infinite depth scaling for endless layers
@@ -136,3 +182,53 @@ func get_palette() -> Array[Color]:
 ## Useful for UI elements that need to match layer feel
 func get_saturation_level() -> float:
 	return color_primary.s
+
+
+## Check if this layer has a distinct visual identity
+func has_visual_identity() -> bool:
+	return not signature_element.is_empty()
+
+
+## Check if a given ore ID is a signature ore for this layer
+func is_signature_ore(ore_id: String) -> bool:
+	return signature_ores.has(ore_id)
+
+
+## Get atmospheric effect intensity based on depth into layer
+func get_atmosphere_intensity_at(depth: int) -> float:
+	if atmosphere_particles == "none":
+		return 0.0
+
+	var depth_into_layer := depth - min_depth
+	if depth_into_layer < 0:
+		return 0.0
+
+	# Ramp up intensity over first 50 blocks, then stay at max
+	var ramp := minf(float(depth_into_layer) / 50.0, 1.0)
+	return ramp
+
+
+## Check if position should have a decorative element
+## Uses deterministic RNG based on position
+func should_have_decoration(grid_pos: Vector2i) -> bool:
+	if decoration_chance <= 0.0:
+		return false
+
+	var seed_value := grid_pos.x * 1337 + grid_pos.y * 7919
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	return rng.randf() < decoration_chance
+
+
+## Get the visibility modifier for this layer (considering ambient light emission)
+## Returns 0.0-1.0 where 1.0 is fully visible
+func get_visibility_modifier() -> float:
+	# Base visibility from ambient light emission
+	return ambient_light_emission
+
+
+## Get a description string for UI display
+func get_identity_description() -> String:
+	if visual_description.is_empty():
+		return "A %s layer." % display_name.to_lower()
+	return visual_description

@@ -17,3 +17,16 @@ color_shadow = Color(0.35, 0.25, 0.15, 1)
 color_highlight = Color(0.75, 0.60, 0.40, 1)
 color_ore_tint = Color(1.0, 0.95, 0.85, 1)
 tile_atlas_coords = Vector2i(0, 0)
+
+# Visual Identity - Home territory, safe and familiar
+signature_element = "roots"
+visual_description = "Rich, fertile soil with tangled roots from the surface above. The warmth of home."
+atmosphere_particles = "dust"
+ambient_sound = "birds_distant"
+fog_intensity = 0.0
+decoration_chance = 0.08
+signature_ores = PackedStringArray("coal", "copper")
+has_lore_elements = false
+ambient_light_emission = 0.3
+movement_modifier = 1.0
+background_style = "earthy"

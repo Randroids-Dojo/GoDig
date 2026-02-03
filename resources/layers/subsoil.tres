@@ -17,3 +17,17 @@ color_shadow = Color(0.28, 0.20, 0.12, 1)
 color_highlight = Color(0.55, 0.42, 0.28, 1)
 color_ore_tint = Color(0.98, 0.95, 0.90, 1)
 tile_atlas_coords = Vector2i(1, 0)
+
+# Visual Identity - Transition zone, last trace of surface
+signature_element = "gravel"
+visual_description = "Compacted soil mixed with gravel. The surface feels distant now."
+atmosphere_particles = "dust"
+ambient_sound = "cave_ambience_light"
+fog_intensity = 0.1
+fog_color = Color(0.5, 0.45, 0.4, 0.3)
+decoration_chance = 0.04
+signature_ores = PackedStringArray("iron", "silver")
+has_lore_elements = false
+ambient_light_emission = 0.1
+movement_modifier = 1.0
+background_style = "earthy"

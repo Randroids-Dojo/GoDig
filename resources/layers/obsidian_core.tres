@@ -22,3 +22,17 @@ hardness_per_100_depth = 15.0
 max_hardness = 500.0
 heat_damage = 2.0
 heat_damage_per_100_depth = 1.0
+
+# Visual Identity - Terraria Corruption-inspired darkness
+signature_element = "obsidian_shards"
+visual_description = "Jagged obsidian formations jut from walls. An oppressive darkness consumes all."
+atmosphere_particles = "embers"
+ambient_sound = "obsidian_hum"
+fog_intensity = 0.3
+fog_color = Color(0.2, 0.15, 0.25, 0.6)
+decoration_chance = 0.1
+signature_ores = PackedStringArray("obsidian", "void_crystal")
+has_lore_elements = true
+ambient_light_emission = 0.05
+movement_modifier = 0.85
+background_style = "magmatic"

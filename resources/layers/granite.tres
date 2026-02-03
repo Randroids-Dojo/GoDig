@@ -17,3 +17,17 @@ color_shadow = Color(0.25, 0.25, 0.28, 1)
 color_highlight = Color(0.55, 0.54, 0.58, 1)
 color_ore_tint = Color(0.92, 0.94, 0.98, 1)
 tile_atlas_coords = Vector2i(4, 0)
+
+# Visual Identity - Ancient, pressure-forged stone
+signature_element = "cracks"
+visual_description = "Pressure-forged granite with deep cracks. Ancient beyond measure."
+atmosphere_particles = "drip"
+ambient_sound = "cave_ambience_pressure"
+fog_intensity = 0.2
+fog_color = Color(0.4, 0.42, 0.48, 0.4)
+decoration_chance = 0.03
+signature_ores = PackedStringArray("gold", "platinum")
+has_lore_elements = true
+ambient_light_emission = 0.0
+movement_modifier = 1.0
+background_style = "rocky"

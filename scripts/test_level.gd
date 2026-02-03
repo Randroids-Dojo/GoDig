@@ -64,10 +64,8 @@ func _ready() -> void:
 	# Add to group for easy lookup (e.g., from shop)
 	add_to_group("test_level")
 
-	# Position player at surface spawn point
-	if surface:
-		player.position = surface.get_spawn_position()
-		player.grid_position = GameManager.world_to_grid(player.position)
+	# Restore player position from save (for instant resume) or use surface spawn
+	_restore_player_position()
 
 	# Give player reference to dirt grid for mining
 	player.dirt_grid = dirt_grid
@@ -195,6 +193,44 @@ func _show_first_time_hint() -> void:
 	var text := "TAP blocks to dig!"
 	floating.show_pickup(text, color, screen_pos)
 	print("[TestLevel] Showing first-time hint")
+
+
+# ============================================
+# PLAYER POSITION RESTORE (Instant Resume)
+# ============================================
+
+func _restore_player_position() -> void:
+	## Restore player position from save for instant resume on mobile.
+	## Falls back to surface spawn point if no save or new game.
+	##
+	## This is critical for mobile gaming where players expect to resume
+	## exactly where they left off after app interruptions.
+
+	var saved_pos: Vector2i = Vector2i(-1, -1)
+
+	# Check if we have a saved position to restore
+	if SaveManager and SaveManager.is_game_loaded():
+		saved_pos = SaveManager.get_player_position()
+		# Validate saved position (must be above surface row or at valid depth)
+		if saved_pos.y >= 0 and saved_pos.y < 10000:  # Sanity check
+			# Restore to exact saved position
+			player.grid_position = saved_pos
+			player.position = GameManager.grid_to_world(saved_pos) + Vector2(GameManager.BLOCK_SIZE / 2.0, GameManager.BLOCK_SIZE / 2.0)
+
+			# Update depth tracking to match restored position
+			var depth := saved_pos.y - GameManager.SURFACE_ROW
+			if depth < 0:
+				depth = 0
+			GameManager.update_depth(depth)
+
+			print("[TestLevel] Player position restored from save: %s (depth: %d)" % [str(saved_pos), depth])
+			return
+
+	# No valid save - use surface spawn point (new game or fresh start)
+	if surface:
+		player.position = surface.get_spawn_position()
+		player.grid_position = GameManager.world_to_grid(player.position)
+		print("[TestLevel] Player spawned at surface (new game)")
 
 
 # ============================================

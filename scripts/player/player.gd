@@ -411,6 +411,11 @@ func _update_depth() -> void:
 	if PlayerStats:
 		PlayerStats.track_depth(depth)
 
+	# Update saved position for instant resume on mobile
+	# This ensures player resumes at exact position after app interruption
+	if SaveManager:
+		SaveManager.set_player_position(grid_position)
+
 	# Check for safe return: going from underground to surface with loot
 	if _previous_depth > 0 and depth == 0:
 		_check_safe_return()

@@ -240,3 +240,25 @@ async def test_enemy_manager_not_in_combat_initially(game):
     """Verify EnemyManager starts not in combat."""
     result = await game.call_method(PATHS["enemy_manager"], "is_in_combat")
     assert result.get("result") is False, "EnemyManager should not be in combat initially"
+
+
+# =============================================================================
+# SETTINGS MANAGER ADDITIONAL SETTINGS TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_settings_manager_auto_sell_enabled_exists(game):
+    """Verify SettingsManager has auto_sell_enabled setting."""
+    result = await game.get_property(PATHS["settings_manager"], "auto_sell_enabled")
+    # auto_sell_enabled should be a boolean (default False)
+    assert result is not None, "auto_sell_enabled property should exist"
+    assert isinstance(result, bool), "auto_sell_enabled should be a boolean"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_tension_audio_enabled_exists(game):
+    """Verify SettingsManager has tension_audio_enabled setting."""
+    result = await game.get_property(PATHS["settings_manager"], "tension_audio_enabled")
+    # tension_audio_enabled should be a boolean (default True)
+    assert result is not None, "tension_audio_enabled property should exist"
+    assert isinstance(result, bool), "tension_audio_enabled should be a boolean"

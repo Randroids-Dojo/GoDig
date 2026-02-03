@@ -228,9 +228,9 @@ func _trigger_crystal_resonance(grid_pos: Vector2i, weakness_multiplier: float) 
 	if not weakened.is_empty():
 		crystal_resonance_triggered.emit(grid_pos, weakened)
 
-		# Play resonance sound
+		# Play resonance sound - subtle UI success for mechanical feedback
 		if SoundManager:
-			SoundManager.play_milestone()  # Crystal chime
+			SoundManager.play_sfx(SoundManager.SOUND_UI_SUCCESS, -8.0, 1.3)  # High-pitched subtle chime
 
 
 # ============================================
@@ -304,9 +304,9 @@ func _activate_void_sight(grid_pos: Vector2i, reveal_radius: int) -> void:
 	if not revealed_ores.is_empty():
 		void_sight_activated.emit(grid_pos, revealed_ores)
 
-		# Play mysterious reveal sound
+		# Play mysterious reveal sound - void sight is a discovery
 		if SoundManager:
-			SoundManager.play_milestone()
+			SoundManager.play_achievement()
 
 		# Haptic
 		if HapticFeedback:
@@ -339,9 +339,9 @@ func _check_reality_tear(grid_pos: Vector2i, trigger_chance: float, multiplier: 
 	# Spawn bonus ore around the position
 	_spawn_jackpot_ore(grid_pos, ore_id, int(multiplier))
 
-	# Major celebration
+	# Major celebration - reality tear jackpot is a major reward
 	if SoundManager:
-		SoundManager.play_milestone()
+		SoundManager.play_level_up()  # Jackpot deserves level-up sound
 	if HapticFeedback:
 		HapticFeedback.on_milestone_reached()
 

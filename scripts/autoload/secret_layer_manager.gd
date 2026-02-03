@@ -235,9 +235,9 @@ func on_secret_wall_broken(grid_pos: Vector2i) -> void:
 		_hidden_rooms_found += 1
 		_spawn_hidden_room_rewards(grid_pos, depth)
 
-	# Celebration feedback
+	# Celebration feedback - use achievement sound for secret discoveries
 	if SoundManager:
-		SoundManager.play_milestone()
+		SoundManager.play_achievement()  # Discovery-appropriate sound
 	if HapticFeedback:
 		HapticFeedback.impact_medium()
 

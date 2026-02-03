@@ -123,9 +123,9 @@ func _play_open_celebration(loot: Array) -> void:
 	# Create burst effect
 	_create_loot_burst()
 
-	# Play sound
+	# Play treasure discovery sound - use achievement for discoveries
 	if SoundManager:
-		SoundManager.play_milestone()  # Reuse milestone sound for now
+		SoundManager.play_achievement()  # Discovery-appropriate sound
 
 	# Haptic feedback
 	if HapticFeedback:

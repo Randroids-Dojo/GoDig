@@ -107,6 +107,7 @@ PATHS = {
     "treasure_room_manager": "/root/TreasureRoomManager",
     "monetization_manager": "/root/MonetizationManager",
     "welcome_back_manager": "/root/WelcomeBackManager",
+    "depth_discovery_manager": "/root/DepthDiscoveryManager",
 }
 
 

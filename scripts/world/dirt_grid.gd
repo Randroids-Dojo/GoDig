@@ -49,6 +49,8 @@ var _near_ore_blocks: Dictionary = {}  # Dictionary[Vector2i, bool] - tracks blo
 var _player: Node2D = null
 var _active_chests: Dictionary = {}  # Dictionary[Vector2i, Node] - treasure chests in caves
 var _active_lore: Dictionary = {}  # Dictionary[Vector2i, Node] - lore pickups in caves
+var _treasure_room_tiles: Dictionary = {}  # Dictionary[Vector2i, bool] - tiles cleared for treasure rooms
+var _active_room_glows: Dictionary = {}  # Dictionary[Vector2i, PointLight2D] - room glow effects
 
 ## MultiMesh-based sparkle manager for performance optimization
 var _sparkle_manager: Node2D = null
@@ -215,6 +217,9 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 	# Track cave positions for chest spawning
 	var cave_positions: Array[Vector2i] = []
 
+	# Generate treasure rooms for this chunk (before block generation)
+	_generate_treasure_rooms_for_chunk(chunk_pos, world_seed)
+
 	# First pass: Generate blocks and determine ore spawns
 	for local_x in range(CHUNK_SIZE):
 		for local_y in range(CHUNK_SIZE):
@@ -226,6 +231,11 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 
 			# Only generate blocks at or below the surface
 			if grid_pos.y >= _surface_row:
+				# Check if this is a treasure room tile (cleared)
+				if _treasure_room_tiles.has(grid_pos):
+					cave_positions.append(grid_pos)  # Treat as cave
+					continue  # Leave as empty/air
+
 				# Check if this should be a cave tile (empty)
 				if _is_cave_tile(grid_pos):
 					cave_positions.append(grid_pos)  # Track for chest spawning
@@ -376,12 +386,15 @@ func _unload_chunk(chunk_pos: Vector2i) -> void:
 		_remove_near_ore_hint(pos)
 		_release(pos)
 
-	# Clean up treasure chests in this chunk
+	# Clean up treasure chests and lore in this chunk
 	for local_x in range(CHUNK_SIZE):
 		for local_y in range(CHUNK_SIZE):
 			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
 			_remove_chest(grid_pos)
 			_remove_lore(grid_pos)
+
+	# Clean up treasure room data for this chunk
+	_cleanup_treasure_room_data(chunk_pos)
 
 	# Clear dug tiles memory for this chunk (will reload from save when needed)
 	_clear_chunk_dug_tiles_memory(chunk_pos)
@@ -824,6 +837,121 @@ func _remove_lore(pos: Vector2i) -> void:
 	# Also remove from JournalManager tracking (will reload from save when chunk loads)
 	if JournalManager:
 		JournalManager.remove_spawned_lore(pos)
+
+
+# ============================================
+# HIDDEN TREASURE ROOM GENERATION
+# ============================================
+
+func _generate_treasure_rooms_for_chunk(chunk_pos: Vector2i, world_seed: int) -> void:
+	## Check for and generate treasure rooms in this chunk.
+	## Rooms are carved spaces with special loot.
+	if not TreasureRoomManager:
+		return
+
+	var start_x := chunk_pos.x * CHUNK_SIZE
+	var start_y := chunk_pos.y * CHUNK_SIZE
+
+	# Check each position in chunk for potential room spawn
+	for local_x in range(CHUNK_SIZE):
+		for local_y in range(CHUNK_SIZE):
+			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
+
+			# Only check below surface
+			if grid_pos.y < _surface_row:
+				continue
+
+			var depth := grid_pos.y - _surface_row
+
+			# Check if this position should have a treasure room
+			# Only check cave tiles as potential room centers
+			if not _is_cave_tile(grid_pos):
+				continue
+
+			var room_type := TreasureRoomManager.check_room_spawn(
+				grid_pos, depth, world_seed, chunk_pos
+			)
+
+			if room_type >= 0:
+				# Generate the room and get positions to clear
+				var cleared_positions := TreasureRoomManager.generate_room(
+					grid_pos, room_type, depth, world_seed
+				)
+
+				# Mark all positions as treasure room tiles
+				for pos in cleared_positions:
+					_treasure_room_tiles[pos] = true
+
+				# Add glow effect at room center
+				_add_room_glow(grid_pos, room_type)
+
+
+func _add_room_glow(center_pos: Vector2i, room_type: int) -> void:
+	## Add a glow effect at the center of a treasure room.
+	if _active_room_glows.has(center_pos):
+		return  # Already has glow
+
+	if not TreasureRoomManager:
+		return
+
+	var config: Dictionary = TreasureRoomManager.ROOM_CONFIG.get(room_type, {})
+	if config.is_empty():
+		return
+
+	# Create point light for room glow
+	var glow := PointLight2D.new()
+	glow.color = config.get("glow_color", Color.WHITE)
+	glow.energy = config.get("glow_energy", 0.5)
+	glow.texture_scale = 1.0
+
+	# Position at room center in world coordinates
+	glow.position = Vector2(
+		center_pos.x * BLOCK_SIZE + GameManager.GRID_OFFSET_X + BLOCK_SIZE / 2,
+		center_pos.y * BLOCK_SIZE + BLOCK_SIZE / 2
+	)
+
+	add_child(glow)
+	_active_room_glows[center_pos] = glow
+
+
+func _remove_room_glow(center_pos: Vector2i) -> void:
+	## Remove a room glow effect.
+	if not _active_room_glows.has(center_pos):
+		return
+
+	var glow = _active_room_glows[center_pos]
+	if is_instance_valid(glow):
+		glow.queue_free()
+	_active_room_glows.erase(center_pos)
+
+
+func _cleanup_treasure_room_data(chunk_pos: Vector2i) -> void:
+	## Clean up treasure room data when chunk unloads.
+	var start_x := chunk_pos.x * CHUNK_SIZE
+	var start_y := chunk_pos.y * CHUNK_SIZE
+
+	# Remove treasure room tiles for this chunk
+	for local_x in range(CHUNK_SIZE):
+		for local_y in range(CHUNK_SIZE):
+			var grid_pos := Vector2i(start_x + local_x, start_y + local_y)
+			_treasure_room_tiles.erase(grid_pos)
+
+	# Remove room glows and notify manager
+	if TreasureRoomManager:
+		TreasureRoomManager.unload_chunk_rooms(chunk_pos)
+
+	# Clean up glows in this chunk
+	var glows_to_remove: Array[Vector2i] = []
+	for center_pos in _active_room_glows:
+		var glow_chunk := Vector2i(
+			int(floor(float(center_pos.x) / CHUNK_SIZE)),
+			int(floor(float(center_pos.y) / CHUNK_SIZE))
+		)
+		if glow_chunk == chunk_pos:
+			glows_to_remove.append(center_pos)
+
+	for center_pos in glows_to_remove:
+		_remove_room_glow(center_pos)
 
 
 # ============================================

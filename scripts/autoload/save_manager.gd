@@ -278,6 +278,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		WelcomeBackManager.reset()
 	if JournalManager:
 		JournalManager.reset()
+	if TreasureRoomManager:
+		TreasureRoomManager.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:
@@ -446,6 +448,10 @@ func _collect_game_state() -> void:
 	if JournalManager:
 		current_save.journal_data = JournalManager.get_save_data()
 
+	# Collect from TreasureRoomManager (hidden treasure rooms)
+	if TreasureRoomManager:
+		current_save.treasure_room_data = TreasureRoomManager.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -594,6 +600,12 @@ func _apply_game_state() -> void:
 		var journal_data = current_save.get("journal_data")
 		if journal_data != null and journal_data is Dictionary and not journal_data.is_empty():
 			JournalManager.load_save_data(journal_data)
+
+	# Apply to TreasureRoomManager (hidden treasure rooms)
+	if TreasureRoomManager:
+		var treasure_room_data = current_save.get("treasure_room_data")
+		if treasure_room_data != null and treasure_room_data is Dictionary and not treasure_room_data.is_empty():
+			TreasureRoomManager.load_save_data(treasure_room_data)
 
 
 ## Calculate offline earnings based on time since last save

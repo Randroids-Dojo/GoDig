@@ -1,9 +1,11 @@
 ---
 title: "implement: GameManager integration tests"
-status: active
+status: closed
 priority: 1
 issue-type: task
-created-at: "\"2026-02-03T11:12:25.568696-06:00\""
+created-at: "\"\\\"2026-02-03T11:12:25.568696-06:00\\\"\""
+closed-at: "2026-02-03T11:14:30.066779-06:00"
+close-reason: Created test_game_manager.py with 73 comprehensive tests. Version bumped to 0.59.31.
 ---
 
 Create comprehensive integration tests for GameManager autoload covering:

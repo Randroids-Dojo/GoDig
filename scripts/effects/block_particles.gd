@@ -50,6 +50,13 @@ func _create_fade_gradient() -> Gradient:
 ## hardness parameter controls particle behavior (soft dirt vs hard stone)
 ## Uses tool identity settings for color tinting and scale when available
 func burst(world_pos: Vector2, block_color: Color, hardness: float = 10.0) -> void:
+	# Check juice level - if OFF, skip particles entirely
+	var juice_mult := 1.0
+	if SettingsManager:
+		juice_mult = SettingsManager.get_particle_multiplier()
+		if juice_mult <= 0.0:
+			return  # Juice OFF - no particles
+
 	global_position = world_pos
 
 	# Apply tool particle color tint if available
@@ -73,6 +80,9 @@ func burst(world_pos: Vector2, block_color: Color, hardness: float = 10.0) -> vo
 
 	# Configure particles based on material hardness
 	_configure_for_material(hardness)
+
+	# Apply juice level multiplier to particle amount
+	amount = maxi(1, int(float(amount) * juice_mult))
 
 	# Apply tool scale modifier
 	scale_amount_min *= scale_mult
@@ -155,6 +165,13 @@ func is_available() -> bool:
 ## Emit a Tier 2 ore discovery particle burst (10-15 particles with glow effect)
 ## This is the celebration moment when ore is found - more dramatic than regular burst
 func ore_burst(world_pos: Vector2, ore_color: Color, hardness: float = 10.0) -> void:
+	# Check juice level - if OFF, skip particles entirely
+	var juice_mult := 1.0
+	if SettingsManager:
+		juice_mult = SettingsManager.get_particle_multiplier()
+		if juice_mult <= 0.0:
+			return  # Juice OFF - no particles
+
 	global_position = world_pos
 	# Use ore color with slight brightening for celebration feel
 	color = ore_color.lightened(0.2)
@@ -163,6 +180,9 @@ func ore_burst(world_pos: Vector2, ore_color: Color, hardness: float = 10.0) -> 
 
 	# Tier 2 discovery celebration: 10-15 particles
 	_configure_for_ore_discovery(hardness)
+
+	# Apply juice level multiplier to particle amount
+	amount = maxi(2, int(float(amount) * juice_mult))
 
 	emitting = true
 
@@ -208,6 +228,13 @@ func _configure_for_ore_discovery(hardness: float) -> void:
 ## Emit a small particle puff for per-hit feedback (lighter than burst)
 ## Called on each swing, not just on block destruction
 func puff(world_pos: Vector2, block_color: Color, hardness: float = 10.0) -> void:
+	# Check juice level - if OFF or LOW, skip puff particles (they're subtle anyway)
+	var juice_mult := 1.0
+	if SettingsManager:
+		juice_mult = SettingsManager.get_particle_multiplier()
+		if juice_mult < 0.75:  # Skip puffs at LOW and OFF
+			return
+
 	global_position = world_pos
 	color = block_color
 	visible = true
@@ -215,6 +242,9 @@ func puff(world_pos: Vector2, block_color: Color, hardness: float = 10.0) -> voi
 
 	# Lighter particles for per-hit (3-6 small debris)
 	_configure_for_puff(hardness)
+
+	# Apply juice level multiplier to particle amount
+	amount = maxi(1, int(float(amount) * juice_mult))
 
 	emitting = true
 

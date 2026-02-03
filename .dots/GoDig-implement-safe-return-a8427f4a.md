@@ -1,9 +1,9 @@
 ---
 title: "implement: Safe return celebration when reaching surface with loot"
-status: open
+status: active
 priority: 2
 issue-type: task
-created-at: "2026-02-01T01:33:00.705112-06:00"
+created-at: "\"2026-02-01T01:33:00.705112-06:00\""
 ---
 
 ## Description

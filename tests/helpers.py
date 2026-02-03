@@ -102,6 +102,7 @@ PATHS = {
     "performance_monitor": "/root/PerformanceMonitor",
     "frustration_tracker": "/root/FrustrationTracker",
     "mining_bonus_manager": "/root/MiningBonusManager",
+    "exploration_manager": "/root/ExplorationManager",
 }
 
 

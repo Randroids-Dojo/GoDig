@@ -60,11 +60,11 @@ func _ready() -> void:
 	# Connect to GameManager depth changes if available
 	if GameManager:
 		if GameManager.has_signal("depth_updated"):
-			GameManager.connect("depth_updated", _on_depth_changed)
+			GameManager.depth_updated.connect(_on_depth_changed)
 	# Connect to PlayerData equipment changes for helmet light bonus
 	if PlayerData:
 		if PlayerData.has_signal("equipment_changed"):
-			PlayerData.connect("equipment_changed", _on_equipment_changed)
+			PlayerData.equipment_changed.connect(_on_equipment_changed)
 		# Initialize helmet bonus from current equipment
 		_update_helmet_bonus()
 	print("[LightingManager] Ready with layer-based unfamiliarity gradient")

@@ -460,6 +460,12 @@ func _check_tutorial_sale_complete() -> void:
 
 func _notify_ftue_first_sale() -> void:
 	## Notify the test level's FTUE overlay that first sale is complete
+	# Track timing for FTUE analytics (target: under 60 seconds)
+	var was_first_sell := SaveManager and not SaveManager.has_ftue_first_sell()
+	if was_first_sell and PlayerStats and AnalyticsManager:
+		var time_to_sell := PlayerStats.get_session_duration()
+		AnalyticsManager.track_first_sell_time(time_to_sell)
+
 	# Find the test_level node and call its FTUE notification
 	var test_level = get_tree().get_first_node_in_group("test_level")
 	if test_level == null:
@@ -694,6 +700,10 @@ func _on_tool_upgrade() -> void:
 		if is_first_upgrade:
 			_show_first_upgrade_celebration(old_tool, next_tool)
 			SaveManager.set_first_upgrade_purchased()
+			# Track timing for FTUE analytics (target: under 3 minutes)
+			if PlayerStats and AnalyticsManager:
+				var time_to_upgrade := PlayerStats.get_session_duration()
+				AnalyticsManager.track_first_upgrade_time(time_to_upgrade, "tool")
 		else:
 			# Standard upgrade celebration for subsequent upgrades
 			_trigger_upgrade_celebration(0, old_damage, new_damage, "Damage")

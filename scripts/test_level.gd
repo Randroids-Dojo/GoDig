@@ -589,6 +589,15 @@ func _on_achievement_animation_finished() -> void:
 func _show_first_ore_celebration(item) -> void:
 	## Show special celebration for the player's FIRST ore discovery!
 	## This is a critical retention moment - make it feel amazing.
+	##
+	## FTUE Timing Target: First ore within 30 seconds of starting.
+	## The guaranteed ore system places coal 2 blocks below spawn.
+
+	# Track timing for FTUE analytics (target: under 30 seconds)
+	if PlayerStats and AnalyticsManager:
+		var time_to_first_ore := PlayerStats.get_session_duration()
+		AnalyticsManager.track_first_ore_time(time_to_first_ore)
+
 	if floating_text_layer == null:
 		return
 

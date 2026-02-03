@@ -1802,6 +1802,88 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Research Spelunky 2 procedural secrets (Session 27)
 - [x] Study Terraria underground layers (Session 27)
 
+### Session 28 (2026-02-02)
+
+**Mobile Haptic Feedback Best Practices (iOS/Android 2025)**:
+- iOS Taptic Engine offers more nuanced control than Android
+- Android: prioritize HapticFeedbackConstants, avoid legacy vibrate() calls
+- Two haptic types: Clear (crisp button presses) vs Rich (expressive, wider frequency)
+- "Given choice of buzzy haptics or no haptics for touch feedback, choose no haptics"
+- Haptics must match visual/audio feedback for cohesive experience
+- Vibration reserved for events requiring immediate attention
+- Unity: Nice Vibrations plugin offers cross-platform HD haptic control
+- Accessibility: always allow users to disable; some users find vibrations overwhelming
+- Performance: avoid excessive triggering, ensure async calls don't block UI
+- **GoDig Implementation**: Subtle haptic on ore discovery, stronger on upgrade purchase. Disable option required.
+
+**Roguelite Meta Progression Balance (2025 Debate)**:
+- Two types: Stat upgrades (power increases) vs Sidegrades (more options/unlocks)
+- Common complaint: "game balanced expecting 500 runs for 500 1% upgrades before you can win"
+- Evergreen concern: "permanent upgrades eventually reach ceiling where you can easily finish"
+- Best practice: "unlock alternate equipment/starting loadouts rather than pure stat increases"
+- Hades solution: Heat system optionally increases difficulty to counterbalance power
+- Quote: "Roguelites with heavy meta-progression prioritize something other than mastery"
+- Sidegrade examples: Binding of Isaac, Enter the Gungeon - expand item pool, not stats
+- **GoDig Application**: Consider sidegrades (new item types, inventory layouts) over pure stat increases for late-game.
+
+**Casual Mobile Session Length (2025 Data)**:
+- Average mobile session: 5-8 minutes, median 5-6 minutes
+- Top 25% games: 8-9 minute average sessions
+- First session design: aim for 10-20 minutes to "have any chance of F2P success"
+- Players average 4-6 sessions daily - snackable gaming behavior
+- Session restriction methods: Energy systems, Lives systems
+- Rule of thumb: 10-minute session possible without spending money
+- Hyper-casual: "tap-reward-repeat" loop, short sessions, clean visuals
+- Hybrid-casual: easy entry + meta layers (progression, cosmetics) for better LTV
+- Interruption handling: player must be able to exit anytime and return to exact state
+- **GoDig Target**: Complete dig-sell-upgrade loop in 5 minutes. Support instant exit/resume.
+
+**Idle Game Offline Progress Calculation**:
+- Core principle: "Players rewarded for coming back, never punished for taking a break"
+- Time caps standard: typically 24 hours to 4 days maximum offline progress
+- Simplified calculations: complex mechanics approximated rather than fully simulated
+- Averaging approach: base calculations on recent performance before going offline
+- Mr Mine: miners keep working offline; early investment in drill power pays off
+- Melvor Idle: full simulation approach - determines skill trained, simulates progression up to 24 hours
+- Some features (auto-upgrades) often disabled during offline periods
+- **GoDig v1.1 Consideration**: If passive income added, cap offline progress and use simplified calculation.
+
+**Block Break Animation & Particle Effects (Mining Games)**:
+- Minecraft Physics Mod: realistic particles that move/fall after block break, move away when player walks through
+- Fancy Block Particles: converts 2D particles to 3D animated particles (763K+ downloads)
+- Particle Interactions: unique particles for placing, breaking, sprinting on blocks
+- Loading bar animation: visual progression gauge makes break times easier to gauge
+- Immersive Mining (Vintage Story): frame-synchronized effects, shake effect, custom animations/sounds
+- Multi-stage crack patterns: gradual web of cracks until block shatters - "more immersive and satisfying"
+- **GoDig Priority**: Progressive crack pattern on blocks, satisfying particle burst on break, subtle screen shake on hard blocks.
+
+### Topics for Future Research
+- [ ] Research Cairn's climbing feedback when full release available (2026)
+- [ ] Study Under A Rock's cave resource harvesting design when released
+- [ ] Analyze Cryptical Path player reviews for "rogue-builder" reception
+- [ ] Study DRG: Rogue Core player feedback when Early Access launches
+- [ ] Analyze Slay the Spire II for roguelite innovation (March 2026)
+- [ ] Research Dome Keeper multiplayer reception after Q1 2026 launch
+- [x] Study mobile game "prestige" system timing and player satisfaction (Session 27)
+- [x] Analyze Keep Digging player reception (Session 26)
+- [x] Study mobile game "comeback" mechanics (Session 26)
+- [x] Analyze Mr. Mine depth-surprise system (Session 26)
+- [x] Research roguelike difficulty balance (Session 27)
+- [x] Study mobile game audio satisfaction (Session 27)
+- [x] Research Spelunky 2 procedural secrets (Session 27)
+- [x] Study Terraria underground layers (Session 27)
+- [x] Research mobile haptic feedback best practices (Session 28)
+- [x] Study roguelite meta progression balance (Session 28)
+- [x] Analyze casual mobile session length (Session 28)
+- [x] Research idle game offline progress calculation (Session 28)
+- [x] Study block break animation patterns (Session 28)
+
+### Implementation Dots Created from Session 28
+- `GoDig-implement-haptic-ore-discovery` - Subtle haptic on ore discovery, stronger on upgrade, with disable option
+- `GoDig-implement-sidegrade-unlocks` - Consider sidegrades over pure stat increases for late-game variety
+- `GoDig-implement-instant-resume` - Support instant exit and resume to exact game state
+- `GoDig-implement-progressive-crack` - Progressive crack pattern on blocks before break
+
 ### Implementation Dots Created from Session 27
 - `GoDig-implement-prestige-indicator` - v1.1 visual indicator when progress stalls suggesting prestige
 - `GoDig-implement-fair-death` - Emergency rescue should feel fair with visible warnings

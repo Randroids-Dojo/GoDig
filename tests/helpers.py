@@ -109,6 +109,7 @@ PATHS = {
     "welcome_back_manager": "/root/WelcomeBackManager",
     "depth_discovery_manager": "/root/DepthDiscoveryManager",
     "eureka_mechanic_manager": "/root/EurekaMechanicManager",
+    "achievement_manager": "/root/AchievementManager",
 }
 
 

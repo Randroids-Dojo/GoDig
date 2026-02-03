@@ -117,6 +117,9 @@ func check_enemy_spawn(grid_pos: Vector2i, depth: int) -> String:
 	return ""
 
 
+## Warning delay before combat starts (no sudden death from RNG)
+const ENEMY_WARNING_DELAY := 0.8  # Seconds of warning before combat
+
 ## Spawn an enemy at a position
 func spawn_enemy(enemy_id: String, grid_pos: Vector2i) -> void:
 	if not ENEMY_TYPES.has(enemy_id):
@@ -132,11 +135,40 @@ func spawn_enemy(enemy_id: String, grid_pos: Vector2i) -> void:
 
 	print("[EnemyManager] Spawned %s at %s" % [enemy_data["name"], grid_pos])
 
-	# Auto-start combat if player is nearby
+	# Play warning sound before combat (no sudden death - player has time to react)
+	if SoundManager:
+		SoundManager.play_ui_error()  # Alert sound
+
+	# Haptic warning for mobile (fair warning principle)
+	if HapticFeedback:
+		HapticFeedback.on_ui_warning()
+
+	# Delay before auto-starting combat (no beheading rule)
+	# Player has time to see the enemy spawn and react
 	if GameManager and GameManager.player:
 		var player_pos := GameManager.get_player_grid_position()
 		if player_pos.distance_to(grid_pos) <= 2:
-			start_combat(enemy_id, grid_pos)
+			_start_combat_delayed(enemy_id, grid_pos)
+
+
+## Start combat after warning delay (implements "no beheading" rule)
+func _start_combat_delayed(enemy_id: String, grid_pos: Vector2i) -> void:
+	# Wait for warning delay before starting combat
+	# This gives player time to see the enemy and react
+	await get_tree().create_timer(ENEMY_WARNING_DELAY).timeout
+
+	# Check if enemy is still there (player might have fled or enemy was removed)
+	if not active_enemies.has(grid_pos):
+		return
+
+	# Check if player is still nearby (they might have escaped during warning)
+	if GameManager and GameManager.player:
+		var player_pos := GameManager.get_player_grid_position()
+		if player_pos.distance_to(grid_pos) > 2:
+			print("[EnemyManager] Player escaped during warning - combat avoided")
+			return
+
+	start_combat(enemy_id, grid_pos)
 
 
 ## Start combat with an enemy

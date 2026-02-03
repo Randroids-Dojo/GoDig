@@ -100,6 +100,7 @@ PATHS = {
     "economy_config": "/root/EconomyConfig",
     "danger_zone_manager": "/root/DangerZoneManager",
     "performance_monitor": "/root/PerformanceMonitor",
+    "frustration_tracker": "/root/FrustrationTracker",
 }
 
 

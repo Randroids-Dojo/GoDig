@@ -235,9 +235,10 @@ func _on_rescue() -> void:
 	_confirm_dialog.title = "Call for Rescue?"
 
 	# Calculate rescue fee - fixed at 40% loss (60% retention, Loop Hero model)
+	# Retention is rounded UP (player-favorable) to reinforce rescue as valid strategy
 	var total_items := InventoryManager.get_total_item_count() if InventoryManager else 0
 	var cargo_retention := 0.60  # Keep 60% of cargo
-	var items_to_keep := int(floor(float(total_items) * cargo_retention))
+	var items_to_keep := int(ceil(float(total_items) * cargo_retention))  # Round UP (player favor)
 	var items_to_lose := total_items - items_to_keep
 
 	# Check for ladder checkpoint
@@ -246,24 +247,29 @@ func _on_rescue() -> void:
 	if dirt_grid and dirt_grid.has_method("get_highest_ladder_position"):
 		ladder_checkpoint = dirt_grid.get_highest_ladder_position()
 
-	# Build dialog message
+	# Build dialog message - frame rescue as VALID STRATEGY (Loop Hero design)
+	# Player should feel smart for choosing rescue, not punished
 	var dialog_text: String
 	if ladder_checkpoint != null:
 		var ladder_depth: int = ladder_checkpoint.y - GameManager.SURFACE_ROW
-		dialog_text = "Rescue to your LADDER checkpoint!\n"
+		dialog_text = "STRATEGIC EVACUATION\n\n"
+		dialog_text += "Rescue to your LADDER checkpoint!\n"
 		dialog_text += "Position: %dm deep\n\n" % ladder_depth
 	else:
-		dialog_text = "A rescue team will bring you to the surface.\n\n"
+		dialog_text = "STRATEGIC EVACUATION\n\n"
+		dialog_text += "A rescue team will bring you to the surface.\n\n"
 
 	if total_items == 0:
-		dialog_text += "(No cargo to lose!)"
+		dialog_text += "No cargo at risk - free rescue!"
 	else:
-		dialog_text += "Cargo Retention: 60%\n"
-		dialog_text += "You will KEEP %d item(s), lose %d." % [items_to_keep, items_to_lose]
+		dialog_text += "Evacuation Fee: 40% of cargo\n\n"
+		dialog_text += "You KEEP: %d item(s)\n" % items_to_keep
+		dialog_text += "You LOSE: %d item(s)\n\n" % items_to_lose
+		dialog_text += "(Smart miners know when to retreat!)"
 
 	_confirm_dialog.dialog_text = dialog_text
-	_confirm_dialog.ok_button_text = "Rescue Me"
-	_confirm_dialog.cancel_button_text = "Cancel"
+	_confirm_dialog.ok_button_text = "Evacuate Now"
+	_confirm_dialog.cancel_button_text = "Continue Mining"
 	_confirm_dialog.popup_centered()
 
 
@@ -351,16 +357,17 @@ func _on_confirm_dialog_confirmed() -> void:
 		"rescue":
 			# Apply 60% cargo retention (Loop Hero model)
 			# Player keeps 60% of items, loses 40%
+			# Retention rounded UP to be player-favorable (rescue = valid strategy)
 			var total_items := InventoryManager.get_total_item_count() if InventoryManager else 0
 			var cargo_retention := 0.60
-			var items_to_keep := int(floor(float(total_items) * cargo_retention))
+			var items_to_keep := int(ceil(float(total_items) * cargo_retention))  # Round UP
 			var items_to_lose := total_items - items_to_keep
 
-			# Remove random items as the rescue fee
+			# Remove random items as the rescue fee (less valuable items prioritized)
 			var lost := 0
 			if items_to_lose > 0 and InventoryManager:
 				lost = InventoryManager.remove_random_items(items_to_lose)
-				print("[PauseMenu] Rescue fee (40%% loss): lost %d items" % lost)
+				print("[PauseMenu] Rescue evacuation fee: lost %d items, kept %d" % [lost, items_to_keep])
 
 			rescue_requested.emit(lost)
 			hide_menu()

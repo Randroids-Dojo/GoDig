@@ -108,6 +108,7 @@ PATHS = {
     "monetization_manager": "/root/MonetizationManager",
     "welcome_back_manager": "/root/WelcomeBackManager",
     "depth_discovery_manager": "/root/DepthDiscoveryManager",
+    "eureka_mechanic_manager": "/root/EurekaMechanicManager",
 }
 
 

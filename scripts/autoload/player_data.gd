@@ -60,6 +60,19 @@ var elevator_depths: Array[int] = []
 ## Discovered ore types (for first-discovery bonus system)
 var discovered_ores: Array[String] = []
 
+## Passive income upgrade level (0 = no upgrade, max 3)
+## Each level increases offline coin income multiplier
+var passive_income_level: int = 0
+
+## Passive income upgrade configurations
+const PASSIVE_INCOME_UPGRADES := {
+	1: {"multiplier": 1.5, "cost": 2000, "min_depth": 100, "name": "Apprentice Collector"},
+	2: {"multiplier": 2.0, "cost": 8000, "min_depth": 300, "name": "Journeyman Collector"},
+	3: {"multiplier": 3.0, "cost": 25000, "min_depth": 600, "name": "Master Collector"},
+}
+
+signal passive_income_upgraded(new_level: int, new_multiplier: float)
+
 ## Flag tracking if player just upgraded their tool (for first-dig celebration)
 var just_upgraded_tool: bool = false
 
@@ -216,6 +229,7 @@ func reset() -> void:
 	current_dive_max_depth = 0
 	tool_durabilities.clear()
 	warehouse_level = 0
+	passive_income_level = 0
 	gadgets_owned.clear()
 	consumables_owned.clear()
 	unlocked_boots.clear()
@@ -578,6 +592,57 @@ func unlock_helmet(helmet_id: String) -> void:
 
 
 # ============================================
+# PASSIVE INCOME UPGRADES
+# ============================================
+
+## Get current passive income multiplier based on upgrade level
+func get_passive_income_multiplier() -> float:
+	if passive_income_level <= 0:
+		return 1.0
+	var config = PASSIVE_INCOME_UPGRADES.get(passive_income_level, {})
+	return config.get("multiplier", 1.0)
+
+
+## Get next passive income upgrade info (null if maxed)
+func get_next_passive_upgrade() -> Dictionary:
+	var next_level := passive_income_level + 1
+	if next_level > PASSIVE_INCOME_UPGRADES.size():
+		return {}
+	return PASSIVE_INCOME_UPGRADES.get(next_level, {})
+
+
+## Check if player can afford and unlock the next passive income upgrade
+func can_upgrade_passive_income() -> bool:
+	var next := get_next_passive_upgrade()
+	if next.is_empty():
+		return false
+	if max_depth_reached < next.get("min_depth", 0):
+		return false
+	return true
+
+
+## Purchase the next passive income upgrade (does not check affordability)
+func upgrade_passive_income() -> bool:
+	if not can_upgrade_passive_income():
+		return false
+
+	var next := get_next_passive_upgrade()
+	if next.is_empty():
+		return false
+
+	passive_income_level += 1
+	var new_mult: float = next.get("multiplier", 1.0)
+	passive_income_upgraded.emit(passive_income_level, new_mult)
+	print("[PlayerData] Passive income upgraded to level %d (%.1fx multiplier)" % [passive_income_level, new_mult])
+	return true
+
+
+## Check if passive income is at max level
+func is_passive_income_maxed() -> bool:
+	return passive_income_level >= PASSIVE_INCOME_UPGRADES.size()
+
+
+# ============================================
 # ELEVATOR SYSTEM
 # ============================================
 
@@ -642,6 +707,7 @@ func get_save_data() -> Dictionary:
 		"current_dive_max_depth": current_dive_max_depth,
 		"tool_durabilities": tool_durabilities.duplicate(),
 		"warehouse_level": warehouse_level,
+		"passive_income_level": passive_income_level,
 		"gadgets_owned": gadgets_owned.duplicate(),
 		"consumables_owned": consumables_owned.duplicate(),
 		"unlocked_boots": unlocked_boots.duplicate(),
@@ -661,6 +727,7 @@ func load_save_data(data: Dictionary) -> void:
 	current_dive_max_depth = data.get("current_dive_max_depth", 0)
 	tool_durabilities = data.get("tool_durabilities", {}).duplicate()
 	warehouse_level = data.get("warehouse_level", 0)
+	passive_income_level = data.get("passive_income_level", 0)
 	gadgets_owned = data.get("gadgets_owned", {}).duplicate()
 	consumables_owned = data.get("consumables_owned", {}).duplicate()
 

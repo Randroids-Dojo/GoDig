@@ -491,10 +491,17 @@ func _notify_ftue_first_sale() -> void:
 # UPGRADES TAB
 # ============================================
 
+## Recommendation highlight color (pulsing gold)
+const RECOMMENDED_COLOR := Color(1.0, 0.85, 0.0, 1.0)  # Gold
+const RECOMMENDED_BG_COLOR := Color(0.3, 0.25, 0.0, 0.3)  # Subtle gold tint
+
 func _refresh_upgrades_tab() -> void:
 	# Clear existing
 	for child in upgrades_container.get_children():
 		child.queue_free()
+
+	# Show frustration-based recommendation banner if applicable
+	_add_recommendation_banner()
 
 	match current_shop_type:
 		ShopBuilding.ShopType.WAREHOUSE:
@@ -555,15 +562,154 @@ func _get_current_backpack_level() -> int:
 	return 1
 
 
-func _create_upgrade_section(title: String, current_level: int, upgrades: Array, callback: String) -> Control:
+## Add a recommendation banner if FrustrationTracker has a suggestion
+func _add_recommendation_banner() -> void:
+	if FrustrationTracker == null:
+		return
+
+	var recommended := FrustrationTracker.get_recommended_upgrade()
+	if recommended.is_empty():
+		return
+
+	var description := FrustrationTracker.get_frustration_description()
+	if description.is_empty():
+		return
+
+	# Create banner panel
+	var banner := PanelContainer.new()
+	banner.name = "RecommendationBanner"
+
+	# Add subtle gold background style
+	var style := StyleBoxFlat.new()
+	style.bg_color = RECOMMENDED_BG_COLOR
+	style.border_color = RECOMMENDED_COLOR
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(12)
+	banner.add_theme_stylebox_override("panel", style)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+	banner.add_child(vbox)
+
+	# Frustration message
+	var msg_label := Label.new()
+	msg_label.text = description
+	msg_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	msg_label.add_theme_font_size_override("font_size", 16)
+	msg_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	vbox.add_child(msg_label)
+
+	# Recommendation hint
+	var hint_label := Label.new()
+	hint_label.text = _get_upgrade_hint(recommended)
+	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint_label.add_theme_font_size_override("font_size", 14)
+	hint_label.add_theme_color_override("font_color", RECOMMENDED_COLOR)
+	vbox.add_child(hint_label)
+
+	upgrades_container.add_child(banner)
+
+
+## Get a human-readable hint for an upgrade type
+func _get_upgrade_hint(upgrade_type: String) -> String:
+	match upgrade_type:
+		"pickaxe":
+			return "Upgrade your pickaxe below!"
+		"backpack":
+			return "Expand your inventory below!"
+		"boots":
+			return "Consider getting some boots!"
+		"helmet":
+			return "A helmet might help!"
+		"supplies":
+			return "Stock up on supplies!"
+		"elevator":
+			return "The elevator could save time!"
+		_:
+			return "Check upgrades below!"
+
+
+## Check if an upgrade type is recommended by FrustrationTracker
+func _is_upgrade_recommended(upgrade_type: String) -> bool:
+	if FrustrationTracker == null:
+		return false
+	return FrustrationTracker.is_upgrade_recommended(upgrade_type)
+
+
+## Clear frustration after player purchases the recommended upgrade
+## This provides the "ah, that's what I needed!" moment
+func _clear_upgrade_frustration(upgrade_type: String) -> void:
+	if FrustrationTracker == null:
+		return
+
+	# Only clear if this upgrade was recommended (addresses a frustration)
+	if not FrustrationTracker.is_upgrade_recommended(upgrade_type):
+		return
+
+	# Clear the frustration based on upgrade type
+	match upgrade_type:
+		"pickaxe":
+			# Clear tool-related frustrations
+			FrustrationTracker.clear_frustration(FrustrationTracker.FrustrationType.SLOW_MINING)
+			FrustrationTracker.clear_frustration(FrustrationTracker.FrustrationType.TOOL_BROKEN)
+			FrustrationTracker.clear_frustration(FrustrationTracker.FrustrationType.HARD_BLOCK)
+		"backpack":
+			FrustrationTracker.clear_frustration(FrustrationTracker.FrustrationType.INVENTORY_FULL)
+		"boots":
+			FrustrationTracker.clear_frustration(FrustrationTracker.FrustrationType.DEATH_FALL)
+		"helmet":
+			FrustrationTracker.clear_frustration(FrustrationTracker.FrustrationType.DEATH_OTHER)
+		"supplies":
+			FrustrationTracker.clear_frustration(FrustrationTracker.FrustrationType.LADDER_SHORTAGE)
+		"elevator":
+			FrustrationTracker.clear_frustration(FrustrationTracker.FrustrationType.DEEP_DIVE_TEDIOUS)
+
+	print("[Shop] Cleared frustration after %s upgrade - 'ah, that's what I needed!'" % upgrade_type)
+
+
+func _create_upgrade_section(title: String, current_level: int, upgrades: Array, callback: String, upgrade_type: String = "") -> Control:
 	var panel := PanelContainer.new()
+
+	# Determine if this upgrade is recommended
+	var is_recommended := false
+	if upgrade_type.is_empty():
+		# Infer upgrade type from title
+		match title.to_lower():
+			"backpack":
+				upgrade_type = "backpack"
+			"pickaxe":
+				upgrade_type = "pickaxe"
+	is_recommended = _is_upgrade_recommended(upgrade_type)
+
+	# Add highlighting if this upgrade is recommended
+	if is_recommended:
+		var style := StyleBoxFlat.new()
+		style.bg_color = RECOMMENDED_BG_COLOR
+		style.border_color = RECOMMENDED_COLOR
+		style.set_border_width_all(2)
+		style.set_corner_radius_all(8)
+		style.set_content_margin_all(12)
+		panel.add_theme_stylebox_override("panel", style)
+
 	var vbox := VBoxContainer.new()
 	panel.add_child(vbox)
+
+	# Recommended badge if applicable
+	if is_recommended:
+		var badge := Label.new()
+		badge.text = "RECOMMENDED"
+		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		badge.add_theme_font_size_override("font_size", 12)
+		badge.add_theme_color_override("font_color", RECOMMENDED_COLOR)
+		vbox.add_child(badge)
 
 	# Title
 	var title_label := Label.new()
 	title_label.text = title
 	title_label.add_theme_font_size_override("font_size", 24)
+	if is_recommended:
+		title_label.add_theme_color_override("font_color", RECOMMENDED_COLOR)
 	vbox.add_child(title_label)
 
 	# Current level info
@@ -617,13 +763,36 @@ func _create_upgrade_section(title: String, current_level: int, upgrades: Array,
 func _create_tool_upgrade_section() -> Control:
 	## Creates the tool upgrade UI section using ToolData resources
 	var panel := PanelContainer.new()
+	var is_recommended := _is_upgrade_recommended("pickaxe")
+
+	# Add highlighting if this upgrade is recommended
+	if is_recommended:
+		var style := StyleBoxFlat.new()
+		style.bg_color = RECOMMENDED_BG_COLOR
+		style.border_color = RECOMMENDED_COLOR
+		style.set_border_width_all(2)
+		style.set_corner_radius_all(8)
+		style.set_content_margin_all(12)
+		panel.add_theme_stylebox_override("panel", style)
+
 	var vbox := VBoxContainer.new()
 	panel.add_child(vbox)
+
+	# Recommended badge if applicable
+	if is_recommended:
+		var badge := Label.new()
+		badge.text = "RECOMMENDED"
+		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		badge.add_theme_font_size_override("font_size", 12)
+		badge.add_theme_color_override("font_color", RECOMMENDED_COLOR)
+		vbox.add_child(badge)
 
 	# Title
 	var title_label := Label.new()
 	title_label.text = "Pickaxe"
 	title_label.add_theme_font_size_override("font_size", 24)
+	if is_recommended:
+		title_label.add_theme_color_override("font_color", RECOMMENDED_COLOR)
 	vbox.add_child(title_label)
 
 	# Get current tool info
@@ -710,6 +879,9 @@ func _on_tool_upgrade() -> void:
 
 		# Emit signal for external listeners
 		upgrade_purchased.emit("tool", old_damage, new_damage)
+
+		# Clear pickaxe-related frustrations since player addressed them
+		_clear_upgrade_frustration("pickaxe")
 
 		_refresh_upgrades_tab()
 		# Track for achievements
@@ -894,6 +1066,9 @@ func _on_backpack_upgrade() -> void:
 
 			# Emit signal
 			upgrade_purchased.emit("backpack", old_slots, new_slots)
+
+			# Clear backpack-related frustrations since player addressed them
+			_clear_upgrade_frustration("backpack")
 
 			_refresh_upgrades_tab()
 			# Track for achievements

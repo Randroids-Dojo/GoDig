@@ -211,6 +211,10 @@ func show_death(cause: String, depth: int) -> void:
 	_death_cause = cause
 	_death_depth = depth
 
+	# Track death frustration for upgrade recommendations
+	if FrustrationTracker != null:
+		FrustrationTracker.record_death(cause, depth)
+
 	# Update cause label
 	var cause_text := _format_death_cause(cause)
 	death_cause_label.text = "Cause: %s" % cause_text

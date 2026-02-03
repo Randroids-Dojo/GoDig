@@ -161,6 +161,20 @@ const ACHIEVEMENTS := {
 		"description": "Collect all journal entries",
 		"icon": "book"
 	},
+
+	# Exploration achievements
+	"explorer": {
+		"id": "explorer",
+		"name": "Explorer",
+		"description": "Discover 10 hidden treasure rooms",
+		"icon": "compass"
+	},
+	"first_treasure_room": {
+		"id": "first_treasure_room",
+		"name": "Secret Found!",
+		"description": "Discover your first hidden treasure room",
+		"icon": "compass"
+	},
 }
 
 ## Unlocked achievement IDs

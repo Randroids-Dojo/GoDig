@@ -93,7 +93,13 @@ signal sound_played(sound_path: String)
 func _ready() -> void:
 	_setup_audio_pools()
 	_setup_audio_buses()
+	_setup_tension_audio()
 	print("[SoundManager] Ready with %d SFX players, %d music players" % [MAX_SFX_PLAYERS, MAX_MUSIC_PLAYERS])
+
+
+func _process(delta: float) -> void:
+	# Update tension audio system
+	_update_tension_audio(delta)
 
 
 func _setup_audio_pools() -> void:
@@ -467,3 +473,230 @@ func stop_all() -> void:
 ## Clear sound cache (for memory management)
 func clear_cache() -> void:
 	_sound_cache.clear()
+
+
+# ============================================
+# TENSION AUDIO SYSTEM
+# ============================================
+# Subtle ambient audio that shifts based on combined risk factors,
+# creating subconscious pressure without being annoying.
+# Intensity levels:
+#   0.0-0.3: Normal ambient (peaceful)
+#   0.3-0.5: Slight low rumble
+#   0.5-0.7: Heartbeat-like pulse (slow)
+#   0.7-0.85: Heartbeat faster, rumble louder
+#   0.85-1.0: Urgent, dramatic tension
+
+## Tension audio constants
+const TENSION_BUS := "SFX"  # Use SFX bus for tension audio
+const TENSION_UPDATE_INTERVAL := 0.5  # Update every 0.5 seconds (not every frame)
+const TENSION_CROSSFADE_DURATION := 1.0  # Smooth transitions between intensity levels
+const TENSION_MAX_VOLUME := -15.0  # Keep tension audio subtle (low volume)
+const TENSION_MIN_VOLUME := -40.0  # Effectively silent
+
+## Risk factor weights for combined score
+const RISK_WEIGHT_INVENTORY := 0.4
+const RISK_WEIGHT_DEPTH := 0.3
+const RISK_WEIGHT_LADDER := 0.3
+
+## Thresholds for safe ladder count (based on depth)
+const SAFE_LADDERS_PER_DEPTH := 5  # 1 ladder per 5m of depth is "safe"
+
+## Tension audio state
+var _tension_player: AudioStreamPlayer = null
+var _tension_rumble_player: AudioStreamPlayer = null
+var _tension_heartbeat_player: AudioStreamPlayer = null
+var _tension_tween: Tween = null
+var _current_risk_score: float = 0.0
+var _target_risk_score: float = 0.0
+var _tension_update_timer: float = 0.0
+var _tension_enabled: bool = true
+
+## Tension audio file paths (placeholder - will use procedural/built-in tones if not available)
+const SOUND_TENSION_RUMBLE := "res://audio/sfx/tension_rumble.wav"
+const SOUND_TENSION_HEARTBEAT := "res://audio/sfx/tension_heartbeat.wav"
+
+signal tension_level_changed(risk_score: float)
+
+
+## Initialize tension audio system
+func _setup_tension_audio() -> void:
+	# Create dedicated audio players for tension layers
+	_tension_rumble_player = AudioStreamPlayer.new()
+	_tension_rumble_player.bus = TENSION_BUS
+	_tension_rumble_player.volume_db = TENSION_MIN_VOLUME
+	add_child(_tension_rumble_player)
+
+	_tension_heartbeat_player = AudioStreamPlayer.new()
+	_tension_heartbeat_player.bus = TENSION_BUS
+	_tension_heartbeat_player.volume_db = TENSION_MIN_VOLUME
+	add_child(_tension_heartbeat_player)
+
+	# Connect to settings changes
+	if SettingsManager:
+		SettingsManager.tension_audio_changed.connect(_on_tension_audio_setting_changed)
+		_tension_enabled = SettingsManager.tension_audio_enabled
+
+	print("[SoundManager] Tension audio system initialized")
+
+
+func _on_tension_audio_setting_changed(enabled: bool) -> void:
+	_tension_enabled = enabled
+	if not enabled:
+		# Fade out all tension audio
+		_fade_tension_audio(0.0, 0.5)
+
+
+## Calculate combined risk score from multiple factors
+## Returns value from 0.0 (safe) to 1.0 (maximum danger)
+func calculate_risk_score() -> float:
+	if not GameManager or not InventoryManager:
+		return 0.0
+
+	# Factor 1: Inventory fill percentage (40% weight)
+	var used_slots := InventoryManager.get_used_slots()
+	var total_slots := InventoryManager.get_total_slots()
+	var inventory_fill := float(used_slots) / float(total_slots) if total_slots > 0 else 0.0
+
+	# Factor 2: Current depth risk (30% weight)
+	# Depth risk increases gradually, maxing out at 100m
+	var depth := GameManager.current_depth
+	var depth_risk := clampf(float(depth) / 100.0, 0.0, 1.0)
+
+	# Factor 3: Ladder safety (30% weight)
+	# Risk increases when player has fewer ladders than needed for current depth
+	var ladder_count := _get_player_ladder_count()
+	var safe_ladders := ceili(float(depth) / SAFE_LADDERS_PER_DEPTH)
+	var ladder_risk := 0.0
+	if safe_ladders > 0:
+		ladder_risk = 1.0 - clampf(float(ladder_count) / float(safe_ladders), 0.0, 1.0)
+
+	# Combine factors with weights
+	var combined_risk := (inventory_fill * RISK_WEIGHT_INVENTORY) + \
+		(depth_risk * RISK_WEIGHT_DEPTH) + \
+		(ladder_risk * RISK_WEIGHT_LADDER)
+
+	return clampf(combined_risk, 0.0, 1.0)
+
+
+## Get player's current ladder count from inventory or player data
+func _get_player_ladder_count() -> int:
+	# Check if DataRegistry has ladder item data
+	if not DataRegistry:
+		return 0
+
+	var ladder_item = DataRegistry.get_item("ladder")
+	if ladder_item and InventoryManager:
+		return InventoryManager.get_item_count(ladder_item)
+
+	# Fallback: check PlayerData consumables
+	if PlayerData and PlayerData.consumables_owned.has("ladder"):
+		return PlayerData.consumables_owned["ladder"]
+
+	return 0
+
+
+## Update tension audio based on current risk score
+## Called periodically, not every frame
+func _update_tension_audio(delta: float) -> void:
+	if not _tension_enabled:
+		return
+
+	_tension_update_timer += delta
+	if _tension_update_timer < TENSION_UPDATE_INTERVAL:
+		return
+	_tension_update_timer = 0.0
+
+	# Calculate new risk score
+	_target_risk_score = calculate_risk_score()
+
+	# Smooth transition to target
+	var score_diff := _target_risk_score - _current_risk_score
+	_current_risk_score = lerpf(_current_risk_score, _target_risk_score, 0.3)
+
+	# Emit signal if changed significantly
+	if absf(score_diff) > 0.05:
+		tension_level_changed.emit(_current_risk_score)
+
+	# Apply audio based on risk level
+	_apply_tension_audio_levels(_current_risk_score)
+
+
+## Apply tension audio levels based on risk score
+func _apply_tension_audio_levels(risk_score: float) -> void:
+	# At surface (depth 0), no tension audio
+	if GameManager and GameManager.current_depth <= 0:
+		_fade_tension_audio(0.0, 0.5)
+		return
+
+	# Determine rumble volume (starts at 0.3 risk, maxes at 0.85)
+	var rumble_volume := TENSION_MIN_VOLUME
+	if risk_score >= 0.3:
+		var rumble_intensity := clampf((risk_score - 0.3) / 0.55, 0.0, 1.0)
+		rumble_volume = lerpf(TENSION_MIN_VOLUME, TENSION_MAX_VOLUME, rumble_intensity)
+
+	# Determine heartbeat volume and speed (starts at 0.5 risk)
+	var heartbeat_volume := TENSION_MIN_VOLUME
+	var heartbeat_pitch := 1.0
+	if risk_score >= 0.5:
+		var heartbeat_intensity := clampf((risk_score - 0.5) / 0.5, 0.0, 1.0)
+		heartbeat_volume = lerpf(TENSION_MIN_VOLUME, TENSION_MAX_VOLUME - 3.0, heartbeat_intensity)
+		# Speed up heartbeat as risk increases (1.0 to 1.5 pitch)
+		heartbeat_pitch = lerpf(1.0, 1.5, heartbeat_intensity)
+
+	# Apply volumes with smooth transitions
+	if _tension_rumble_player:
+		_tension_rumble_player.volume_db = rumble_volume
+		_start_tension_loop(_tension_rumble_player, SOUND_TENSION_RUMBLE)
+
+	if _tension_heartbeat_player:
+		_tension_heartbeat_player.volume_db = heartbeat_volume
+		_tension_heartbeat_player.pitch_scale = heartbeat_pitch
+		_start_tension_loop(_tension_heartbeat_player, SOUND_TENSION_HEARTBEAT)
+
+
+## Start looping a tension audio track if not already playing
+func _start_tension_loop(player: AudioStreamPlayer, sound_path: String) -> void:
+	if player.playing:
+		return
+
+	var stream := _get_or_load_sound(sound_path)
+	if stream:
+		player.stream = stream
+		player.play()
+
+
+## Fade all tension audio to a target volume
+func _fade_tension_audio(target_volume_db: float, duration: float) -> void:
+	if _tension_tween and _tension_tween.is_valid():
+		_tension_tween.kill()
+
+	_tension_tween = create_tween()
+	_tension_tween.set_parallel(true)
+
+	if _tension_rumble_player:
+		_tension_tween.tween_property(_tension_rumble_player, "volume_db", target_volume_db, duration)
+	if _tension_heartbeat_player:
+		_tension_tween.tween_property(_tension_heartbeat_player, "volume_db", target_volume_db, duration)
+
+	# Stop playback if fading to silent
+	if target_volume_db <= TENSION_MIN_VOLUME + 5.0:
+		_tension_tween.tween_callback(_stop_tension_audio).set_delay(duration)
+
+
+## Stop all tension audio playback
+func _stop_tension_audio() -> void:
+	if _tension_rumble_player:
+		_tension_rumble_player.stop()
+	if _tension_heartbeat_player:
+		_tension_heartbeat_player.stop()
+
+
+## Public: Get current risk/tension score
+func get_tension_score() -> float:
+	return _current_risk_score
+
+
+## Public: Force recalculation of tension (call after significant state changes)
+func update_tension_now() -> void:
+	_tension_update_timer = TENSION_UPDATE_INTERVAL  # Force immediate update on next _process

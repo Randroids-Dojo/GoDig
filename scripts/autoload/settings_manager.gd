@@ -19,6 +19,7 @@ signal settings_loaded()
 signal settings_reset()
 signal screen_shake_changed(intensity: float)
 signal auto_sell_changed(enabled: bool)
+signal tension_audio_changed(enabled: bool)
 
 # ============================================
 # ENUMS
@@ -114,6 +115,13 @@ var music_volume: float = 1.0:
 		audio_changed.emit()
 		_queue_save()
 
+## Audio: Tension audio enabled (ambient audio that shifts based on risk factors)
+var tension_audio_enabled: bool = true:
+	set(value):
+		tension_audio_enabled = value
+		tension_audio_changed.emit(value)
+		_queue_save()
+
 # ============================================
 # CONTROL SETTINGS
 # ============================================
@@ -193,6 +201,7 @@ func reset_to_defaults() -> void:
 	master_volume = 1.0
 	sfx_volume = 1.0
 	music_volume = 1.0
+	tension_audio_enabled = true
 	swipe_controls_enabled = false
 	joystick_deadzone = 0.2
 	button_size_scale = 1.0
@@ -254,6 +263,7 @@ func _save_settings() -> void:
 	config.set_value("audio", "master_volume", master_volume)
 	config.set_value("audio", "sfx_volume", sfx_volume)
 	config.set_value("audio", "music_volume", music_volume)
+	config.set_value("audio", "tension_audio_enabled", tension_audio_enabled)
 
 	# Control settings
 	config.set_value("controls", "swipe_controls_enabled", swipe_controls_enabled)
@@ -336,6 +346,11 @@ func _load_settings() -> void:
 	music_volume = _validate_float(
 		config.get_value("audio", "music_volume", 1.0),
 		0.0, 1.0, 1.0
+	)
+
+	tension_audio_enabled = _validate_bool(
+		config.get_value("audio", "tension_audio_enabled", true),
+		true
 	)
 
 	# Load control settings

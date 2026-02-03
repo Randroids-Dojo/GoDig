@@ -87,7 +87,7 @@ func _init_tileset() -> void:
 
 
 func start_game() -> void:
-	is_running = true
+	set_state(GameState.PLAYING)  # Transition to PLAYING state
 	current_depth = 0
 	coins = 0
 	reset_milestones()

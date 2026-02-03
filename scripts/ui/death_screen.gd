@@ -69,6 +69,8 @@ func _create_ui() -> void:
 	background.color = Color(0.1, 0.0, 0.0, 0.8)
 	background.anchors_preset = Control.PRESET_FULL_RECT
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# CRITICAL: Disable input when hidden (for web builds)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 
 	# Panel container
@@ -231,6 +233,9 @@ func show_death(cause: String, depth: int) -> void:
 	# Pause the game
 	get_tree().paused = true
 
+	# Enable background input (for web builds)
+	background.mouse_filter = Control.MOUSE_FILTER_STOP
+
 	# Show screen immediately
 	visible = true
 	background.modulate.a = 0.0
@@ -257,6 +262,9 @@ func hide_death() -> void:
 	## Hide the death screen
 	if _fade_tween and _fade_tween.is_valid():
 		_fade_tween.kill()
+
+	# Disable background input before hiding (for web builds)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	visible = false
 	get_tree().paused = false
@@ -436,6 +444,9 @@ func _quick_hide_death() -> void:
 	## Instant hide with no animation - maximum speed for quick retry
 	if _fade_tween and _fade_tween.is_valid():
 		_fade_tween.kill()
+
+	# Disable background input before hiding (for web builds)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	visible = false
 	get_tree().paused = false

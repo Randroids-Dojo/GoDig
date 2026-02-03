@@ -501,12 +501,17 @@ func _refresh_upgrades_tab() -> void:
 			var rest_section := _create_rest_station_section()
 			upgrades_container.add_child(rest_section)
 		_:
-			# Default: Tool and backpack upgrades
+			# Default: Tool, backpack, and passive income upgrades
 			var tool_section := _create_tool_upgrade_section()
 			upgrades_container.add_child(tool_section)
 
 			var backpack_section := _create_upgrade_section("Backpack", _get_current_backpack_level(), backpack_upgrades, "_on_backpack_upgrade")
 			upgrades_container.add_child(backpack_section)
+
+			# Passive income upgrades (unlocked after reaching 100m depth)
+			if PlayerData and PlayerData.max_depth_reached >= 100:
+				var passive_section := _create_passive_income_section()
+				upgrades_container.add_child(passive_section)
 
 
 func _get_current_tool_level() -> int:
@@ -986,6 +991,109 @@ func _on_warehouse_upgrade() -> void:
 
 		# Emit signal
 		upgrade_purchased.emit("warehouse", prev_bonus, new_bonus)
+
+		_refresh_upgrades_tab()
+		if AchievementManager:
+			AchievementManager.track_upgrade()
+		SaveManager.save_game()
+
+
+# ============================================
+# PASSIVE INCOME UPGRADES
+# ============================================
+
+func _create_passive_income_section() -> Control:
+	var panel := PanelContainer.new()
+	var vbox := VBoxContainer.new()
+	panel.add_child(vbox)
+
+	# Title
+	var title_label := Label.new()
+	title_label.text = "Offline Earnings"
+	title_label.add_theme_font_size_override("font_size", 24)
+	vbox.add_child(title_label)
+
+	# Description
+	var desc_label := Label.new()
+	desc_label.text = "Earn more coins while you're away!"
+	desc_label.add_theme_font_size_override("font_size", 14)
+	desc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	vbox.add_child(desc_label)
+
+	# Current level info
+	var current_level := PlayerData.passive_income_level if PlayerData else 0
+	var current_mult := PlayerData.get_passive_income_multiplier() if PlayerData else 1.0
+
+	var current_info := Label.new()
+	if current_level > 0:
+		var config = PlayerData.PASSIVE_INCOME_UPGRADES.get(current_level, {})
+		var upgrade_name: String = config.get("name", "Level %d" % current_level)
+		current_info.text = "%s: %.1fx offline earnings" % [upgrade_name, current_mult]
+		current_info.add_theme_color_override("font_color", Color(0.5, 1.0, 0.5))  # Green
+	else:
+		current_info.text = "Base Rate: 1x offline earnings"
+	vbox.add_child(current_info)
+
+	# Next upgrade info
+	var next_upgrade := PlayerData.get_next_passive_upgrade() if PlayerData else {}
+	if not next_upgrade.is_empty():
+		var next_name: String = next_upgrade.get("name", "Next Level")
+		var next_mult: float = next_upgrade.get("multiplier", 1.0)
+		var next_cost: int = next_upgrade.get("cost", 0)
+		var min_depth: int = next_upgrade.get("min_depth", 0)
+
+		var next_info := Label.new()
+		next_info.text = "-> %s: %.1fx offline earnings" % [next_name, next_mult]
+		vbox.add_child(next_info)
+
+		var can_afford: bool = GameManager.can_afford(next_cost)
+		var depth_ok: bool = PlayerData.max_depth_reached >= min_depth
+
+		var upgrade_btn := Button.new()
+		if not depth_ok:
+			upgrade_btn.text = "LOCKED - Reach %dm" % min_depth
+			upgrade_btn.disabled = true
+		elif not can_afford:
+			upgrade_btn.text = "UPGRADE - $%d (Need $%d more)" % [next_cost, next_cost - GameManager.get_coins()]
+			upgrade_btn.disabled = true
+		else:
+			upgrade_btn.text = "UPGRADE - $%d" % next_cost
+			upgrade_btn.pressed.connect(_on_passive_income_upgrade)
+
+		vbox.add_child(upgrade_btn)
+	else:
+		# Max level reached
+		var max_label := Label.new()
+		max_label.text = "MAX LEVEL - %.1fx offline earnings!" % current_mult
+		max_label.add_theme_color_override("font_color", Color.GOLD)
+		vbox.add_child(max_label)
+
+	return panel
+
+
+func _on_passive_income_upgrade() -> void:
+	var next_upgrade := PlayerData.get_next_passive_upgrade() if PlayerData else {}
+	if next_upgrade.is_empty():
+		return
+
+	var cost: int = next_upgrade.get("cost", 0)
+	if not GameManager.can_afford(cost):
+		return
+
+	var old_mult := PlayerData.get_passive_income_multiplier()
+
+	if GameManager.spend_coins(cost):
+		PlayerData.upgrade_passive_income()
+		var new_mult := PlayerData.get_passive_income_multiplier()
+		print("[Shop] Passive income upgraded to %.1fx" % new_mult)
+
+		# Play upgrade celebration
+		if SoundManager:
+			SoundManager.play_level_up()
+		_trigger_upgrade_celebration(4, old_mult, new_mult, "Offline Mult")
+
+		# Emit signal
+		upgrade_purchased.emit("passive_income", old_mult, new_mult)
 
 		_refresh_upgrades_tab()
 		if AchievementManager:

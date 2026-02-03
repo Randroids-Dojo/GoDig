@@ -540,9 +540,12 @@ func _calculate_offline_earnings() -> void:
 	# Calculate base income (can be modified by upgrades later)
 	var income_rate := OFFLINE_INCOME_RATE
 
-	# TODO: Apply upgrade multipliers here if player has passive income upgrades
-	# e.g., if PlayerData.has_upgrade("passive_income_2x"):
-	#     income_rate *= 2.0
+	# Apply passive income upgrade multipliers
+	if PlayerData:
+		var multiplier := PlayerData.get_passive_income_multiplier()
+		income_rate *= multiplier
+		if multiplier > 1.0:
+			print("[SaveManager] Passive income multiplier: %.1fx" % multiplier)
 
 	var earned := int(minutes_away * income_rate)
 

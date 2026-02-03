@@ -111,6 +111,7 @@ PATHS = {
     "eureka_mechanic_manager": "/root/EurekaMechanicManager",
     "achievement_manager": "/root/AchievementManager",
     "handcrafted_cave_manager": "/root/HandcraftedCaveManager",
+    "secret_layer_manager": "/root/SecretLayerManager",
 }
 
 

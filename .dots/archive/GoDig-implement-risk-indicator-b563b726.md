@@ -1,0 +1,39 @@
+---
+title: "implement: Risk indicator for deep dives"
+status: closed
+priority: 3
+issue-type: task
+created-at: "\"\\\"2026-02-01T01:09:30.102005-06:00\\\"\""
+closed-at: "2026-02-02T22:05:57.730364-06:00"
+close-reason: Implemented risk indicator HUD element showing green/yellow/red states based on SoundManager tension score. Shows near depth display, pulses in danger zone, respects reduced motion setting. Version 0.26.0
+---
+
+Visual indicator showing risk level as player ventures deeper without return path.
+
+**NOTE: This may be superseded by `GoDig-implement-deep-dive-2e1f97dc` (unified tension meter).**
+Consider implementing as part of the unified meter, or as a simpler MVP alternative.
+Priority lowered to P3 - implement inventory warnings first (`return-to-9ecc2744`).
+
+## Research Findings
+- 'Risk/Reward Gradient' - deeper = more danger but better rewards
+- Players should 'choose their risk tolerance'
+- Dome Keeper: 'How long will you risk mining?'
+- Risk awareness creates strategic decision making
+
+## Implementation
+1. HUD indicator showing 'escape difficulty' (based on depth + ladder count)
+2. Green/Yellow/Red states for low/medium/high risk
+3. Factor in: current depth, ladders owned, known ladder positions
+4. Tooltip: 'You are X blocks from nearest ladder'
+5. Optional: danger pulse when entering red zone
+
+## Files
+- scripts/ui/hud.gd (risk indicator)
+- scripts/autoload/game_manager.gd (calculate risk level)
+- scripts/world/dirt_grid.gd (track placed ladders)
+
+## Verify
+- [ ] Indicator visible but not obtrusive
+- [ ] Risk calculation feels accurate
+- [ ] Red zone warning is noticeable
+- [ ] Doesn't spoil exploration fun

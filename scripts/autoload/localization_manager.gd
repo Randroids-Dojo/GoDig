@@ -67,17 +67,22 @@ func _detect_system_language() -> void:
 # ============================================
 
 func _load_translations() -> void:
-	# Load translation CSV if it exists
-	var translation_file: String = TRANSLATIONS_PATH + "translations.csv"
+	# Load individual .translation files generated from CSV
+	# Godot's CSV importer creates separate .translation files per language
+	var loaded_count := 0
+	for locale in SUPPORTED_LANGUAGES.keys():
+		var translation_path: String = TRANSLATIONS_PATH + "translations." + locale + ".translation"
+		if ResourceLoader.exists(translation_path):
+			var translation = load(translation_path)
+			if translation:
+				TranslationServer.add_translation(translation)
+				loaded_count += 1
 
-	if ResourceLoader.exists(translation_file):
-		var translation = load(translation_file)
-		if translation:
-			TranslationServer.add_translation(translation)
-			_translations_loaded = true
-			translations_loaded.emit()
-			print("[LocalizationManager] Loaded translations from CSV")
-			return
+	if loaded_count > 0:
+		_translations_loaded = true
+		translations_loaded.emit()
+		print("[LocalizationManager] Loaded %d translation file(s)" % loaded_count)
+		return
 
 	# Fall back to individual .po files
 	for locale in SUPPORTED_LANGUAGES.keys():

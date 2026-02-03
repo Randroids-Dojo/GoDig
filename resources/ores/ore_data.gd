@@ -54,6 +54,21 @@ class_name OreData extends ItemData
 @export var required_tool_tier: int = 0
 
 
+## Audio parameters (OreData-specific)
+@export_group("Audio")
+
+## Custom discovery sound path (if empty, uses default ore_found sound)
+## Different ore types can have distinct "sparkle" sounds for discovery moments
+@export_file("*.wav") var discovery_sound: String = ""
+
+## Base pitch for this ore's discovery sound (1.0 = normal, higher = brighter)
+## Precious metals like gold should be higher pitched, coal lower
+@export_range(0.7, 1.5) var discovery_pitch: float = 1.0
+
+## Volume offset for this ore's discovery (-10 to +5 dB)
+@export_range(-10.0, 5.0) var discovery_volume: float = 0.0
+
+
 ## Check if this ore can spawn at the given depth
 func can_spawn_at_depth(depth: int) -> bool:
 	if depth < min_depth:

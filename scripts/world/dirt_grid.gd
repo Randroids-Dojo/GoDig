@@ -479,13 +479,15 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 			block_destroyed.emit(world_pos, block.base_color, block.max_health)
 
 		# Play sound effect with tool tier for satisfying feel differentiation
-		# Ore discovery gets special sound in SoundManager
+		# Ore discovery gets special ore-specific sound in SoundManager
 		if SoundManager:
 			var tool_tier := 1
 			if PlayerData:
 				tool_tier = PlayerData.get_tool_tier()
 			if ore_id != "":
-				SoundManager.play_ore_found()  # Tier 2 discovery sound
+				# Use ore-specific discovery sound (pitch/volume varies by ore type)
+				var ore = DataRegistry.get_ore(ore_id) if DataRegistry else null
+				SoundManager.play_ore_discovery(ore)  # Tier 2 discovery sound
 			# Get streak pitch for combo audio feedback
 			var streak_pitch := 1.0
 			if MiningBonusManager:

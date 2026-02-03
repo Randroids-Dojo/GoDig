@@ -1,9 +1,11 @@
 ---
 title: "research: Biome transition zones in metroidvanias - Hollow Knight, Ori patterns"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-02T18:55:49.248172-06:00"
+created-at: "\"\\\"2026-02-02T18:55:49.248172-06:00\\\"\""
+closed-at: "2026-02-02T19:05:06.416028-06:00"
+close-reason: Documented biome transition patterns in Docs/research/biome-transitions.md - Hollow Knight, Ori, Dead Cells, Terraria case studies with GoDig implementation recommendations
 ---
 
 ## Purpose

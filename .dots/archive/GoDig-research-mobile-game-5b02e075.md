@@ -1,9 +1,11 @@
 ---
 title: "research: Mobile game daily rewards without guilt/FOMO - ethical design patterns"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-02T18:55:42.320063-06:00"
+created-at: "\"\\\"2026-02-02T18:55:42.320063-06:00\\\"\""
+closed-at: "2026-02-02T19:01:51.289799-06:00"
+close-reason: Documented ethical daily rewards patterns in Docs/research/ethical-daily-rewards.md - no-reset streaks, welcome-back gifts, Mistplay/Genshin/Pokemon GO case studies
 ---
 
 ## Purpose

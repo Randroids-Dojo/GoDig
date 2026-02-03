@@ -2004,6 +2004,121 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Study game feel "juice" optimization (Session 29)
 - [x] Research F2P economy balancing (Session 29)
 
+### Session 30 (2026-02-02)
+
+**Mobile Game Onboarding Best Practices (2025-2026)**:
+- FTUE (First Time User Experience): First 60 seconds + first 15 minutes
+- Onboarding: First 7 days of gameplay, forming longer-term goals
+- Key insight: "Teach by doing, not telling" - learning through gameplay, not isolated screens
+- Progressive disclosure: Hide systems not needed for first 15 minutes
+- Start onboarding immediately at launch - avoid splash screens and menus
+- Gamify tutorials: mini-goals, progress tracking, instant rewards
+- Social features early increase retention significantly
+- Micro-interactions (sparkles, dings, character nods) make onboarding delightful
+- Personalization: Not all users need same guidance level
+- Warning: Heavy/long tutorials harm the game - can be "boring, frustrating, and unclear"
+- 25% of users abandon after one session; good onboarding can increase retention by 50%
+- Tap targets: minimum 44x44 pixels with padding
+- **GoDig Application**: First ore in 30 seconds, first sell in 60 seconds, first upgrade in 3 minutes.
+
+**Roguelike Resource Scarcity and Tension Design**:
+- "Reducing grind rule": Spending time depletes finite resources (historically: food timers)
+- Rich Carlson called this a "clock" - imposes deadline limiting exploration
+- Permadeath creates stakes: "Every decision given critical meaning"
+- Balance: "Too much predictability kills tension. Too much randomness makes choices meaningless."
+- Pre-action vs post-action luck: Pre-action (see item, decide if worth spending key) preserves agency
+- Early game: Time constraints incentivize optimizing rather than "sluggishly playing through"
+- Consumables: "Dying with inventory full of great potions" trope - teach players to USE items
+- **GoDig Application**: Ladder depletion is our "clock." Each ladder used is a decision with consequence.
+
+**Pixel Art Underground Atmosphere Design**:
+- Animal Well: 7 years solo development, reduced color palette emphasizes depth and eerie vibe
+- Inmost: Desaturated blues/grays, darkness + light/shadow play creates recognizable atmosphere
+- Early LucasArts: Masterful dithering creates depth/shading with tiny palettes
+- Sierra adventure games: Clever shading makes limited colors feel 3D
+- Design principle: "Choose palette to complement emotional tone and setting"
+- Every pixel should serve a purpose - balance detail and simplicity
+- **GoDig Application**: Use desaturated colors deeper underground. Contrast with warm surface tones.
+
+**Godot Mobile Performance Optimization (2025)**:
+- Draw calls: Keep low, use batching (CanvasItem/MeshInstance grouping)
+- MultiMeshInstance: Instance repeated objects (trees, ores) in single draw call
+- Texture atlases: Combine textures to reduce draw calls
+- Collision detection: Use appropriate algorithm complexity for game needs
+- Profiling: Use Godot built-in tools + Arm Streamline for mobile
+- Specialization constants: Useful but can cause load time issues if overused
+- Godot 4.4: Improved culling system, enhanced MultiMeshInstance3D
+- Memory baseline: 120-160 MB for medium-complexity scene (efficient)
+- Common pitfalls: Over-optimization, under-optimization, ignoring mobile constraints
+- **GoDig Implementation**: Profile regularly, batch ore sprites, optimize collision shapes.
+
+**Terraria Biome Visual Identity System**:
+- Hallow: Pastel colors, cyan grass, multicolored trees, rainbow background - "fairytale graphics"
+- Underground Hallow: Purple background + blue/pink crystals = distinct visual signature
+- Corruption: Dark purple wasteland, death/decay theme, thorny bushes
+- Underground Corruption: Green-ish colors, different soundtrack, unique enemies
+- Background system: Each biome randomly assigned background from set, changeable via World Globe
+- Biome conflict: Corruption/Crimson cannot overlap Hallow (gameplay mechanic)
+- Detection: Numeric threshold (blocks within radius) triggers biome effects
+- **GoDig Layer Design**: Each layer needs: distinct color palette, unique background, specific ore types.
+
+**Subnautica Depth Zone Visual Storytelling**:
+- Biomes contribute to atmosphere AND storytelling, enhancing immersion
+- Progression: Kelp Forest (safe beginning) → Grassy Plateaus → Jellyshroom Caves (purple glow)
+- Deep zones: Lost River + Lava Zones = "alien, biomechanical, hostile territories"
+- Design evolution: Each depth tier more uncomfortable - less oxygen, less visibility, more danger
+- Mushroom Forest described as "hauntingly beautiful" at night with glowing flora + jellyray "ghosts"
+- Environmental storytelling: Architecture + artifacts reveal history, not direct exposition
+- Development process: Keywords/references → concept art riffs → expanded visuals
+- **GoDig Application**: Use visual discomfort progression. Surface = warm/safe, Deep = cold/alien.
+
+### Topics for Future Research
+- [ ] Research Cairn's climbing feedback when full release available (2026)
+- [ ] Study Under A Rock's cave resource harvesting design when released
+- [ ] Analyze Cryptical Path player reviews for "rogue-builder" reception
+- [ ] Research Dome Keeper multiplayer reception after Q1 2026 launch
+- [ ] Study mobile game "juice" calibration - optimal particle density
+- [ ] Research procedural generation seeds and reproducibility patterns
+- [ ] Analyze successful roguelite sidegrade systems (Isaac, Gungeon)
+- [ ] Study biome transition zones in metroidvanias (Hollow Knight, Ori)
+- [ ] Research mobile game daily reward systems without guilt/FOMO
+- [ ] Analyze tutorial skip options and their impact on retention
+- [x] Study DRG: Rogue Core early access feedback (Session 29 - pre-release info only)
+- [x] Analyze Slay the Spire II for roguelite innovation (Session 29)
+- [x] Study mobile game "prestige" system timing and player satisfaction (Session 27)
+- [x] Analyze Keep Digging player reception (Session 26)
+- [x] Study mobile game "comeback" mechanics (Session 26)
+- [x] Analyze Mr. Mine depth-surprise system (Session 26)
+- [x] Research roguelike difficulty balance (Session 27)
+- [x] Study mobile game audio satisfaction (Session 27)
+- [x] Research Spelunky 2 procedural secrets (Session 27)
+- [x] Study Terraria underground layers (Session 27)
+- [x] Research mobile haptic feedback best practices (Session 28)
+- [x] Study roguelite meta progression balance (Session 28)
+- [x] Analyze casual mobile session length (Session 28)
+- [x] Research idle game offline progress calculation (Session 28)
+- [x] Study block break animation patterns (Session 28)
+- [x] Study mobile game retention benchmarks (Session 29)
+- [x] Research thumb zone ergonomics (Session 29)
+- [x] Analyze roguelite progression philosophy (Session 29)
+- [x] Study procedural cave generation algorithms (Session 29)
+- [x] Research mobile save state persistence (Session 29)
+- [x] Study game feel "juice" optimization (Session 29)
+- [x] Research F2P economy balancing (Session 29)
+- [x] Study mobile onboarding best practices (Session 30)
+- [x] Research roguelike resource scarcity tension (Session 30)
+- [x] Analyze pixel art underground atmosphere (Session 30)
+- [x] Study Godot mobile performance optimization (Session 30)
+- [x] Research Terraria biome visual identity (Session 30)
+- [x] Analyze Subnautica depth zone storytelling (Session 30)
+
+### Implementation Dots Created from Session 30
+- `GoDig-implement-ftue-timing` - First ore 30s, first sell 60s, first upgrade 3min
+- `GoDig-implement-progressive-disclosure` - Hide advanced systems until first 15min complete
+- `GoDig-implement-depth-color-gradient` - Desaturated colors deeper, warm tones surface
+- `GoDig-implement-layer-visual-identity` - Each layer: distinct palette, background, ore types
+- `GoDig-implement-ore-batching` - Use MultiMesh for repeated ore sprites
+
 ### Implementation Dots Created from Session 29
 - `GoDig-implement-thumb-zone-hud` - Ensure all HUD elements are in bottom/center thumb zone
 - `GoDig-implement-sidegrade-upgrades` - Design late-game upgrades as sidegrades (options) not stat boosts

@@ -33,3 +33,11 @@ has_lore_elements = true
 ambient_light_emission = 0.0
 movement_modifier = 0.95
 background_style = "rocky"
+
+# Eureka Mechanic - Loose blocks (gravity-affected falling)
+eureka_mechanic = "loose_blocks"
+eureka_name = "Crushing Depth"
+eureka_description = "The pressure is immense. Unsupported blocks may fall!"
+eureka_icon = "weight"
+eureka_trigger_chance = 0.1
+eureka_param_1 = 150.0

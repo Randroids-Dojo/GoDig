@@ -31,3 +31,10 @@ has_lore_elements = true
 ambient_light_emission = 0.2
 movement_modifier = 1.0
 background_style = "earthy"
+
+# Eureka Mechanic - Ore shimmer hints (visual cues near ore)
+eureka_mechanic = "ore_shimmer"
+eureka_name = "Ore Sense"
+eureka_description = "Look for subtle sparkles - ore is nearby!"
+eureka_icon = "sparkle"
+eureka_trigger_chance = 1.0

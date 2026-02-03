@@ -31,3 +31,11 @@ has_lore_elements = true
 ambient_light_emission = 0.15
 movement_modifier = 1.0
 background_style = "crystalline"
+
+# Eureka Mechanic - Crystal resonance (hitting crystal weakens neighbors)
+eureka_mechanic = "crystal_resonance"
+eureka_name = "Crystal Harmony"
+eureka_description = "Crystals resonate together. Mine one and nearby crystals weaken!"
+eureka_icon = "crystal"
+eureka_trigger_chance = 0.25
+eureka_param_1 = 0.4

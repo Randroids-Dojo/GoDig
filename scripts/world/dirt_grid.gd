@@ -680,6 +680,10 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 			if spawned_enemy != "":
 				print("[DirtGrid] Enemy spawned: %s at depth %d" % [spawned_enemy, depth])
 
+		# Check for eureka mechanic trigger (depth-specific 'aha' moments)
+		if EurekaMechanicManager and depth > 0:
+			EurekaMechanicManager.on_block_destroyed(pos, depth)
+
 		_release(pos)
 
 	return destroyed

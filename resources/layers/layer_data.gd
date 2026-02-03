@@ -99,6 +99,41 @@ class_name LayerData extends Resource
 ## Background parallax style for this layer
 @export_enum("none", "earthy", "rocky", "crystalline", "magmatic", "void") var background_style: String = "none"
 
+# ============================================
+# EUREKA MECHANIC SYSTEM
+# Each layer introduces a unique mechanic that creates 'aha' moments
+# ============================================
+
+## The eureka mechanic type for this layer
+## Each mechanic teaches players something new about the game
+@export_enum("none", "basic_dig", "ore_shimmer", "crumbling_blocks", "cave_sense", "pressure_cracks", "crystal_resonance", "loose_blocks", "heat_weaken", "void_sight", "reality_tears") var eureka_mechanic: String = "none"
+
+## Display name for the eureka mechanic (shown when first encountered)
+@export var eureka_name: String = ""
+
+## Description of how the mechanic works (tutorial hint)
+@export var eureka_description: String = ""
+
+## Icon identifier for the eureka mechanic UI
+@export var eureka_icon: String = ""
+
+## Chance for eureka mechanic to trigger (0.0 to 1.0)
+## Some mechanics are always active, others are probabilistic
+@export_range(0.0, 1.0, 0.01) var eureka_trigger_chance: float = 1.0
+
+## Parameter 1 for the eureka mechanic (meaning depends on mechanic type)
+## crumbling_blocks: delay in seconds before block falls
+## pressure_cracks: chain break radius
+## crystal_resonance: weakness multiplier
+## loose_blocks: fall speed
+## heat_weaken: damage bonus per heat tick
+## void_sight: reveal radius
+## reality_tears: jackpot multiplier
+@export var eureka_param_1: float = 0.0
+
+## Parameter 2 for the eureka mechanic (optional secondary parameter)
+@export var eureka_param_2: float = 0.0
+
 
 ## Get hardness with variance based on position for deterministic randomness
 ## Supports infinite depth scaling for endless layers
@@ -232,3 +267,35 @@ func get_identity_description() -> String:
 	if visual_description.is_empty():
 		return "A %s layer." % display_name.to_lower()
 	return visual_description
+
+
+# ============================================
+# EUREKA MECHANIC HELPERS
+# ============================================
+
+## Check if this layer has an eureka mechanic
+func has_eureka_mechanic() -> bool:
+	return eureka_mechanic != "none" and not eureka_mechanic.is_empty()
+
+
+## Check if the eureka mechanic should trigger (based on probability)
+func should_trigger_eureka(rng: RandomNumberGenerator = null) -> bool:
+	if not has_eureka_mechanic():
+		return false
+	if eureka_trigger_chance >= 1.0:
+		return true
+	if rng != null:
+		return rng.randf() < eureka_trigger_chance
+	return randf() < eureka_trigger_chance
+
+
+## Get eureka mechanic display info for UI
+func get_eureka_display_info() -> Dictionary:
+	if not has_eureka_mechanic():
+		return {}
+	return {
+		"mechanic": eureka_mechanic,
+		"name": eureka_name,
+		"description": eureka_description,
+		"icon": eureka_icon,
+	}

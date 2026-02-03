@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="GoDig"
-config/version="0.53.0"
+config/version="0.54.0"
 run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 
@@ -53,6 +53,7 @@ TreasureChestManager="*res://scripts/autoload/treasure_chest_manager.gd"
 JournalManager="*res://scripts/autoload/journal_manager.gd"
 TreasureRoomManager="*res://scripts/autoload/treasure_room_manager.gd"
 FrustrationTracker="*res://scripts/autoload/frustration_tracker.gd"
+EurekaMechanicManager="*res://scripts/autoload/eureka_mechanic_manager.gd"
 PlayGodotServer="*res://addons/playgodot/server.gd"
 
 [display]

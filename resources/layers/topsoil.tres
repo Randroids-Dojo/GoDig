@@ -30,3 +30,10 @@ has_lore_elements = false
 ambient_light_emission = 0.3
 movement_modifier = 1.0
 background_style = "earthy"
+
+# Eureka Mechanic - Basic dig (core mechanic tutorial)
+eureka_mechanic = "basic_dig"
+eureka_name = "Mining Basics"
+eureka_description = "Tap blocks to mine them. Collect ore for coins!"
+eureka_icon = "pickaxe"
+eureka_trigger_chance = 1.0

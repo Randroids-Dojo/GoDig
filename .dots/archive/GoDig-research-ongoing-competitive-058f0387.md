@@ -1878,6 +1878,139 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Research idle game offline progress calculation (Session 28)
 - [x] Study block break animation patterns (Session 28)
 
+### Session 29 (2026-02-02)
+
+**Dome Keeper Multiplayer Update Status (2026)**:
+- Multiplayer announced August 2025, expected release "early 2026" (estimated March 2026)
+- Two-person team making multiplayer despite advice not to: "unreasonable amount of work"
+- Multiple modes planned: cooperative (finding relic together) + competitive (two teams, shared mine)
+- Community excitement overwhelming: "BEST UPDATE EVER!!!"
+- Game at 93% positive (9,766 reviews), 1M+ players at 2-year anniversary
+- **GoDig Lesson**: Multiplayer post-launch is extremely costly. Design for single-player first; MP as bonus.
+
+**Deep Rock Galactic: Rogue Core Development (2026)**:
+- Q2 2026 Early Access launch (delayed from late 2025)
+- 18-24 month Early Access planned for community feedback integration
+- Dev quote: "Early Access lets us collect feedback when it's easier to incorporate changes"
+- Team found their footing: "things finally clicked into place" after feeling "lost in the woods"
+- Community concern: "Roguelike balance can make or break the fun"
+- **GoDig Lesson**: Plan for extensive balance iteration. Roguelike economies need tuning post-launch.
+
+**Slay the Spire 2 Innovation (March 2026)**:
+- Moving from Unity to Godot engine (validates GoDig's engine choice)
+- Early Access approach: "work along with fans to finalize the game"
+- New features: alternate acts unlocked via progression - adds variety to roguelite runs
+- Characters: Returning (Ironclad, Silent) + New (Necrobinder, Regent)
+- Design philosophy: "Deeper systems for returning players, more welcoming on-ramp for newcomers"
+- **GoDig Application**: Alternate starting conditions / run modifiers can extend replay value significantly.
+
+**Mobile Retention Benchmarks (2025-2026 Data)**:
+- Target benchmarks: D1: 45%+, D7: 20%+, D30: 10%+
+- Average benchmark: D1: 30%, D7: 13%, D30: 5%
+- iOS vs Android: iOS has 35.7% D1 (vs 27.5% Android), 5% D30 (vs 2.6%)
+- Match-3 highest retention (32.6% D1, 7.1% D30), Strategy lowest D1 (25.3%)
+- D1 key insight: "If monetization is too aggressive, you'll notice low retention from beginning"
+- Best practice: "Fewer ads in beginning, increase once players are hooked"
+- **GoDig Target**: Aim for 35%+ D1 retention. No ads/monetization in first 3 runs.
+
+**Thumb Zone Ergonomics (2025)**:
+- 80%+ of smartphone users operate with one hand
+- Phones now exceed 6.5 inches - old UX patterns don't work
+- Three zones: Easy (bottom/center), Stretch (sides), Hard (top corners)
+- Bottom navigation, floating action buttons, slide-up drawers are standard
+- Left-handed vs right-handed users have different thumb zones
+- Swipe gestures can replace virtual buttons for cleaner UI
+- **GoDig Validation**: Tap-to-mine is thumb-native. HUD must stay in bottom/center zones.
+
+**Roguelite Progression Philosophy Debate**:
+- Two camps: Permanent unlocks (Hades) vs Pure skill (Spelunky)
+- Progression criticism: "Lazy design - shifts balancing from designer to player"
+- Inverse difficulty curve problem: "Game is hardest at beginning, keeps getting easier"
+- Spelunky argument: "I have everything needed from run 1, just need knowledge and skills"
+- Hybrid solution: Unlocks expand OPTIONS (sidegrades) not raw POWER (stat increases)
+- Ascension/Heat systems: Reward mastery with MORE challenge, not less
+- Quote: "Roguelites with progression 'end' by nature; skill-based games last forever"
+- **GoDig Application**: Consider sidegrades (new items, abilities) over stat boosts for late-game.
+
+**Procedural Cave Generation Algorithms**:
+- Cellular Automata: Initialize 40% filled, smooth via neighbor counting, iterate
+- Random Walk: Simple path creation, mark as you go
+- Perlin/Simplex noise: Natural-looking terrain gradients
+- Connection strategy: Minimum Spanning Tree (Prim's/Kruskal's) ensures all rooms reachable
+- Problem with pure MST: Too linear, no cycles - add extra edges for variety
+- Flood fill: Identify unique rooms, random-walk corridors to connect them
+- Seeds: Ensure reproducibility for testing while appearing random
+- **GoDig Implementation**: Cellular automata for caves, MST+extras for connectivity.
+
+**Mobile Game Save State Best Practices**:
+- Always load latest data on app start/resume, save frequently
+- Offline-first: Core gameplay works without internet, sync when connection resumes
+- JSON preferred (58% of devs) for readability; binary for performance-critical saves
+- Don't store large data in instance state - use IDs to reconstruct
+- Tiered saving: Player progress continuous, secondary elements less frequent
+- 70% of players prefer resuming from last action without downtime
+- 54% prefer manual save control alongside auto-save
+- **GoDig Implementation**: Auto-save every 30 seconds + on key events. Resume to exact state.
+
+**Game Feel "Juice" in Mining Games**:
+- Juice = immediate visual/audio feedback to player actions
+- Key elements: Screen shake, particle explosions, size bouncing, sound effects, trails
+- Minecraft example: Block particles cause stuttering with many breaks - optimize!
+- Research (N=3018): Medium and High juice best; None and Extreme both decrease play time
+- Balance is key: Too much juice is as bad as none
+- Visual effects must: fit tone, match action, happen instantly, add "magic"
+- **GoDig Priority**: Medium-level juice. Progressive cracks + particle burst + subtle shake.
+
+**F2P Economy Balancing (2025)**:
+- 78% of successful titles use multiple currencies
+- Dual currency systems increase engagement by 30%
+- Currency too hard to earn = grind feels offputting, players leave
+- Currency too easy = rewards feel worthless, god-mode boredom
+- Currency sinks prevent inflation - multi-tier crafting effective
+- Time as anchor value: Easiest to track, players understand pace
+- Early game (D1-7): Generous soft currency, sparse hard currency
+- Mid game (W2-8): Resource management complexity increases
+- Late game (M3+): Premium currency importance increases
+- **GoDig Economy**: Single currency (coins) for MVP. Generous early, tighter mid-game.
+
+### Topics for Future Research
+- [ ] Research Cairn's climbing feedback when full release available (2026)
+- [ ] Study Under A Rock's cave resource harvesting design when released
+- [ ] Analyze Cryptical Path player reviews for "rogue-builder" reception
+- [x] Study DRG: Rogue Core early access feedback (Session 29 - pre-release info only)
+- [x] Analyze Slay the Spire II for roguelite innovation (Session 29)
+- [ ] Research Dome Keeper multiplayer reception after Q1 2026 launch
+- [ ] Study mobile game "juice" calibration - optimal particle density
+- [ ] Research procedural generation seeds and reproducibility patterns
+- [ ] Analyze successful roguelite sidegrade systems (Isaac, Gungeon)
+- [x] Study mobile game "prestige" system timing and player satisfaction (Session 27)
+- [x] Analyze Keep Digging player reception (Session 26)
+- [x] Study mobile game "comeback" mechanics (Session 26)
+- [x] Analyze Mr. Mine depth-surprise system (Session 26)
+- [x] Research roguelike difficulty balance (Session 27)
+- [x] Study mobile game audio satisfaction (Session 27)
+- [x] Research Spelunky 2 procedural secrets (Session 27)
+- [x] Study Terraria underground layers (Session 27)
+- [x] Research mobile haptic feedback best practices (Session 28)
+- [x] Study roguelite meta progression balance (Session 28)
+- [x] Analyze casual mobile session length (Session 28)
+- [x] Research idle game offline progress calculation (Session 28)
+- [x] Study block break animation patterns (Session 28)
+- [x] Study mobile game retention benchmarks (Session 29)
+- [x] Research thumb zone ergonomics (Session 29)
+- [x] Analyze roguelite progression philosophy (Session 29)
+- [x] Study procedural cave generation algorithms (Session 29)
+- [x] Research mobile save state persistence (Session 29)
+- [x] Study game feel "juice" optimization (Session 29)
+- [x] Research F2P economy balancing (Session 29)
+
+### Implementation Dots Created from Session 29
+- `GoDig-implement-thumb-zone-hud` - Ensure all HUD elements are in bottom/center thumb zone
+- `GoDig-implement-sidegrade-upgrades` - Design late-game upgrades as sidegrades (options) not stat boosts
+- `GoDig-implement-juice-calibration` - Medium juice level: progressive cracks, particles, subtle shake
+- `GoDig-implement-auto-save-30s` - Auto-save every 30 seconds and on key events
+- `GoDig-implement-d1-retention-focus` - No monetization in first 3 runs, generous early rewards
+
 ### Implementation Dots Created from Session 28
 - `GoDig-implement-haptic-ore-discovery` - Subtle haptic on ore discovery, stronger on upgrade, with disable option
 - `GoDig-implement-sidegrade-unlocks` - Consider sidegrades over pure stat increases for late-game variety

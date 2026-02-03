@@ -12,7 +12,7 @@ offset_left = -5000.0
 offset_top = 0.0
 offset_right = 5000.0
 offset_bottom = 768.0
-color = Color(0.529, 0.808, 0.922, 1)
+color = Color(0.98, 0.85, 0.65, 1)
 metadata/_edit_lock_ = true
 
 [node name="Ground" type="ColorRect" parent="."]
@@ -20,7 +20,7 @@ offset_left = -5000.0
 offset_top = 768.0
 offset_right = 5000.0
 offset_bottom = 896.0
-color = Color(0.4, 0.7, 0.3, 1)
+color = Color(0.55, 0.72, 0.38, 1)
 metadata/_edit_lock_ = true
 
 [node name="SpawnPoint" type="Marker2D" parent="."]

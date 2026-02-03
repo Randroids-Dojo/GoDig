@@ -62,7 +62,7 @@ func _setup_parallax_background() -> void:
 	# Create mountain silhouette
 	var mountains := ColorRect.new()
 	mountains.name = "Mountains"
-	mountains.color = Color(0.35, 0.45, 0.55, 0.6)  # Distant blue-gray
+	mountains.color = Color(0.55, 0.50, 0.45, 0.6)  # Warm distant mountains
 	mountains.position = Vector2(-5000, surface_y - 400)
 	mountains.size = Vector2(10000, 300)
 	mountain_layer.add_child(mountains)
@@ -89,7 +89,7 @@ func _create_mountain_peaks(layer: ParallaxLayer, surface_y: float) -> void:
 	for i in range(peak_positions.size()):
 		var peak := ColorRect.new()
 		peak.name = "Peak%d" % i
-		peak.color = Color(0.3, 0.4, 0.5, 0.7)  # Slightly darker than base
+		peak.color = Color(0.50, 0.45, 0.40, 0.7)  # Warm peak silhouettes
 		peak.position = Vector2(peak_positions[i], surface_y - 300 - peak_heights[i])
 		peak.size = Vector2(400, peak_heights[i])
 		peak.rotation = 0  # Could add slight rotation for variety
@@ -119,7 +119,7 @@ func _create_clouds(layer: ParallaxLayer, surface_y: float) -> void:
 	for i in range(cloud_positions.size()):
 		var cloud := ColorRect.new()
 		cloud.name = "Cloud%d" % i
-		cloud.color = Color(1.0, 1.0, 1.0, 0.7)  # White, semi-transparent
+		cloud.color = Color(1.0, 0.98, 0.92, 0.75)  # Warm, slightly golden clouds
 		cloud.position = cloud_positions[i]
 		cloud.size = cloud_sizes[i]
 		layer.add_child(cloud)
@@ -127,7 +127,7 @@ func _create_clouds(layer: ParallaxLayer, surface_y: float) -> void:
 		# Add a smaller puff on top
 		var puff := ColorRect.new()
 		puff.name = "Puff%d" % i
-		puff.color = Color(1.0, 1.0, 1.0, 0.6)
+		puff.color = Color(1.0, 0.96, 0.88, 0.65)  # Warm cloud puffs
 		puff.position = cloud_positions[i] + Vector2(cloud_sizes[i].x * 0.3, -cloud_sizes[i].y * 0.5)
 		puff.size = cloud_sizes[i] * 0.6
 		layer.add_child(puff)

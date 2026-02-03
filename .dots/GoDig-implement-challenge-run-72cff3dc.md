@@ -1,9 +1,9 @@
 ---
 title: "implement: Challenge run modifier system (v1.1)"
-status: open
+status: active
 priority: 3
 issue-type: task
-created-at: "2026-02-01T09:25:26.724719-06:00"
+created-at: "\"2026-02-01T09:25:26.724719-06:00\""
 ---
 
 ## Description

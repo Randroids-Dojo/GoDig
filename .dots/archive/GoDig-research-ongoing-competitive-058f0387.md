@@ -2072,10 +2072,101 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Development process: Keywords/references → concept art riffs → expanded visuals
 - **GoDig Application**: Use visual discomfort progression. Surface = warm/safe, Deep = cold/alien.
 
+### Session 31 (2026-02-02)
+
+**Cairn Launch Success Analysis (January 2026)**:
+- Released January 29, 2026 after delay from November 2025
+- 200,000+ copies sold in first 4 days - "first success story of 2026"
+- Very Positive on Steam with 800+ user reviews at launch
+- Core mechanic: Manually position each of Aava's limbs as she climbs, manage stamina and posture
+- Piton placement creates checkpoints, preventing full progress reset on fall
+- Described as "survival climber" - manages stamina, posture, and risk without excessive punishment
+- The Game Bakers called it conclusion of "trilogy on freedom" (after Furi, Haven)
+- 25-person team, 4+ years development - validates indie climbing game viability
+- **GoDig Takeaway**: Checkpointing mechanics reduce frustration. Our ladder placement serves similar function - creates player-defined safety points.
+
+**Cryptical Path: Rogue-Builder Reception Analysis (January 2025)**:
+- Released January 29, 2025 - "world's first action roguelite builder"
+- Steam reviews: 86% positive (122 reviews) - Very Positive rating
+- Core innovation: Build dungeon rooms to create your own path to boss
+- Player quote: "Not at mercy of game as your own thriftiness" - player agency over route
+- Positive: "Movement feels great, combat feels great, map building feels great"
+- Positive: "Offers something new and refreshing... building own path brings breath of fresh air"
+- Criticism: "Tuning/balancing of hero/items/enemies is godawful" + "strong unfinished vibe"
+- Criticism: "No sense of progress after 2h mark, just getting punished"
+- Fully optimized for Steam Deck - validates handheld/mobile potential
+- **GoDig Application**: Player-directed path creation increases agency and investment. Our surface building system could offer similar "build your strategy" feel.
+
+**Drill Core: Mining Roguelite Competitor Analysis (July 2025)**:
+- Full release July 17, 2025 after September 2024 Early Access
+- Output Lag scored 8/10: "masterfully blends mining management with tower defense"
+- Core praise: "Meticulously polished, developer truly listened to feedback"
+- Day/night cycle creates tension: "balancing 'I need more iron' vs 'my miners got crushed'"
+- Criticism: Three separate meta-progression systems competing for attention - viewed as padding
+- Criticism: Unit AI "maddeningly obtuse" - workers avoid valuable resources
+- Criticism: Runs last longer than other roguelikes - pacing issues
+- Criticism: "Gameplay gets repetitive quickly" despite new variations
+- **GoDig Advantage**: Our 5-minute loops prevent pacing issues. Single progression system (coin economy) avoids competing systems confusion.
+
+**Loop Hero Retreat Mechanic Deep Dive**:
+- Three-tier resource retention: Camp (100%), Retreat (60%), Death (30%)
+- "Risk/reward dilemma that's fun to engage with on each dive"
+- Design insight: "Players blame game less if they lose after not taking retreat option"
+- "Supplies" perk: Auto-deposit 50% of materials each loop - changes strategic calculus
+- Valid strategy: "Go on resource runs, cash out, not focus on killing boss"
+- Retreat creates management layer: weigh accumulated danger vs possible rewards
+- No permanent death = roguelite, but resource retention creates meaningful progression
+- **GoDig Application**: Model emergency rescue after Loop Hero - surface return = 100%, rescue = 60%, death/failure = 30%. Frame rescue as valid strategy, not punishment.
+
+**Roguelike Difficulty Balance Principles (2025 Consensus)**:
+- Quote: "Challenge without fairness is frustration, fairness without challenge is boredom"
+- Dead Cells model: Early biomes allow experimentation, later areas increase complexity
+- Hades model: Generous early resources, heat system ramps up with proficiency
+- "Positive randomness" principle: RNG should provide varying good outcomes, not punishing bad ones
+- "No beheading rule": Random elements should never instantly end run without warning/counterplay
+- Progressive difficulty via "ascension mode" (Slay the Spire coined) - difficulty modifiers unlock on win
+- Roguelites (meta-progression) are more accessible than roguelikes (pure permadeath)
+- **GoDig Application**: Our ladder warnings provide counterplay. Never sudden-death from RNG. Progressive depth difficulty with player agency over risk.
+
+**Player Agency and Meaningful Choice Design (2025)**:
+- Key elements: Foreseeability, Ability, Desirability, Connection to outcome
+- Simpler model: Choice (options), Control, Influence (decisions change world)
+- Limiting choice can increase engagement - "thoughtful focus on impactful decisions"
+- Disco Elysium example: Each choice reveals personality with rippling consequences
+- Sid Meier quote: Decisions should "let players express personality or gaming style"
+- Avoid "false choices": No information to decide, options seem equal, all lead to same outcome
+- **GoDig Application**: Ladder placement = meaningful choice (where to commit safety). Inventory management = meaningful choice (what to keep). Depth decisions = meaningful choice (risk vs reward).
+
+**Death Penalty Design Across Games**:
+- EVE Online model: "Loss of resources, preservation of capabilities" keeps game tense
+- Design principle: "Take something that can't be replaced by repeating steps" - otherwise just taking time
+- Risk of losing inventory "not inherently poor design" - creates risk measure
+- Modern trend: Configurable death penalties in server settings (Palworld, Hytale examples)
+- Durability loss as middle ground: consequences without full item removal
+- Key insight: "Players unwilling to accept large penalties need accessibility options"
+- **GoDig Application**: Our emergency rescue takes cargo percentage, not capabilities (pickaxe tier). Player can recover through repetition but feels the loss. Accessible, not punishing.
+
+**Mobile Mining Passive Income Trends (2025-2026)**:
+- Idle Miner Tycoon: Automation unlocks, collect idle cash even offline
+- Deep Town: Assign bots to increase motivation, mine resources while offline
+- Play-to-earn trend: Blockchain integration for real-world value
+- Core pattern: Start manual → unlock automation → offline progress based on production rate
+- Mr. Mine Idle: Mining + exploration themes, underground areas to progress
+- **GoDig v1.1 Consideration**: If adding passive income, cap offline progress (24h standard) and use simplified calculation. Passive should feel like bonus, not replacement for active play.
+
+**Visual Depth Progression Design Principles**:
+- Color theory: "Warm and cool zones create contrast, depth, storytelling nuance"
+- Caves of Qud: Fixed 18-color palette with primary/detail/background per tile - consistency matters
+- Elden Ring: Modular terrain with consistent palette, light/color shifts match narrative beats
+- Returnal: Procedural tiles with consistent palette curation maintain visual identity
+- Under A Rock: New cave modules, creatures, underwater visuals for depth variety
+- Principle: "Style guide with color palette, line style, level of detail" ensures consistency
+- **GoDig Implementation**: Define fixed palette per layer. Warm surface → desaturated deep. Consistent within layer, distinct between layers.
+
 ### Topics for Future Research
-- [ ] Research Cairn's climbing feedback when full release available (2026)
+- [x] Research Cairn's climbing feedback when full release available (Session 31)
 - [ ] Study Under A Rock's cave resource harvesting design when released
-- [ ] Analyze Cryptical Path player reviews for "rogue-builder" reception
+- [x] Analyze Cryptical Path player reviews for "rogue-builder" reception (Session 31)
 - [ ] Research Dome Keeper multiplayer reception after Q1 2026 launch
 - [ ] Study mobile game "juice" calibration - optimal particle density
 - [ ] Research procedural generation seeds and reproducibility patterns
@@ -2111,6 +2202,13 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [x] Study Godot mobile performance optimization (Session 30)
 - [x] Research Terraria biome visual identity (Session 30)
 - [x] Analyze Subnautica depth zone storytelling (Session 30)
+
+### Implementation Dots Created from Session 31
+- `GoDig-implement-retreat-percentage` - Emergency rescue keeps 60% cargo (Loop Hero model)
+- `GoDig-implement-player-agency-decisions` - Ladder placement, inventory, depth as meaningful choices
+- `GoDig-implement-no-sudden-death` - Never instant-death from RNG, always provide warning/counterplay
+- `GoDig-implement-depth-palette-system` - Fixed palette per layer, warm→desaturated progression
+- `GoDig-implement-rescue-as-strategy` - Frame emergency rescue as valid strategy, not punishment
 
 ### Implementation Dots Created from Session 30
 - `GoDig-implement-ftue-timing` - First ore 30s, first sell 60s, first upgrade 3min

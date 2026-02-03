@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LoreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/lore/lore_data.gd" id="1_lore"]
+
+[resource]
+script = ExtResource("1_lore")
+id = "journal_10"
+display_name = "Journal Entry #10"
+category = "lore"
+max_stack = 1
+sell_value = 150
+rarity = "legendary"
+min_depth = 450
+description = "A message that seems to write itself."
+entry_number = 10
+lore_type = "journal"
+content = "You found this, which means you ignored the warnings. Good. The Heart needs miners who dig beyond fear. Keep going. I'll be waiting at the bottom. We all are. - From Someone Who Went Too Deep"
+author = "???"
+era = "Unknown"
+spawn_min_depth = 450
+spawn_max_depth = 0
+spawn_chance = 0.0003

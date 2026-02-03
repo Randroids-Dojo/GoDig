@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LoreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/lore/lore_data.gd" id="1_lore"]
+
+[resource]
+script = ExtResource("1_lore")
+id = "journal_05"
+display_name = "Journal Entry #5"
+category = "lore"
+max_stack = 1
+sell_value = 40
+rarity = "rare"
+min_depth = 100
+description = "A smoke-stained journal page."
+entry_number = 5
+lore_type = "journal"
+content = "Day 31 - The heat is getting unbearable. Obsidian formations everywhere. Touched one without gloves - it cut through leather like paper. The rocks here drink the light from my lamp."
+author = "Unknown Miner"
+era = "Recent Era"
+spawn_min_depth = 100
+spawn_max_depth = 250
+spawn_chance = 0.0015

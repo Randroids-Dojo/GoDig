@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LoreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/lore/lore_data.gd" id="1_lore"]
+
+[resource]
+script = ExtResource("1_lore")
+id = "journal_06"
+display_name = "Journal Entry #6"
+category = "lore"
+max_stack = 1
+sell_value = 50
+rarity = "rare"
+min_depth = 150
+description = "A journal page wrapped in fireproof cloth."
+entry_number = 6
+lore_type = "journal"
+content = "Day 45 - Saw something move in the darkness today. Too fast to be natural. The old miners' stories about cave creatures... I always thought they were just warnings to keep us from digging too deep."
+author = "Unknown Miner"
+era = "Recent Era"
+spawn_min_depth = 150
+spawn_max_depth = 300
+spawn_chance = 0.001

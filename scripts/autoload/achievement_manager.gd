@@ -141,6 +141,26 @@ const ACHIEVEMENTS := {
 		"description": "Return to surface in a close-call situation",
 		"icon": "heart"
 	},
+
+	# Lore collection achievements
+	"first_lore": {
+		"id": "first_lore",
+		"name": "Curious Mind",
+		"description": "Find your first journal entry",
+		"icon": "book"
+	},
+	"lore_5": {
+		"id": "lore_5",
+		"name": "Scholar",
+		"description": "Collect 5 journal entries",
+		"icon": "book"
+	},
+	"lore_all": {
+		"id": "lore_all",
+		"name": "Loremaster",
+		"description": "Collect all journal entries",
+		"icon": "book"
+	},
 }
 
 ## Unlocked achievement IDs
@@ -257,6 +277,20 @@ func track_death() -> void:
 ## Track upgrade purchase
 func track_upgrade() -> void:
 	unlock("first_upgrade")
+
+
+## Check lore collection for achievements
+func check_lore_collection(collected_count: int) -> void:
+	if collected_count >= 1:
+		unlock("first_lore")
+	if collected_count >= 5:
+		unlock("lore_5")
+
+	# Check if all lore collected
+	if DataRegistry:
+		var total_lore := DataRegistry.get_all_lore().size()
+		if total_lore > 0 and collected_count >= total_lore:
+			unlock("lore_all")
 
 
 ## Event handlers

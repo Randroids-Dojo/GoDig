@@ -206,6 +206,13 @@ func track_tutorial_step(step_name: String) -> void:
 	})
 
 
+## Track lore entry found
+func track_lore_found(lore_id: String) -> void:
+	log_event("lore_found", {
+		"lore_id": lore_id,
+	})
+
+
 ## Track session end with summary
 func track_session_end(playtime_seconds: float, max_depth: int, coins_earned: int) -> void:
 	log_event("session_end", {

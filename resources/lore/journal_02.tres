@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LoreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/lore/lore_data.gd" id="1_lore"]
+
+[resource]
+script = ExtResource("1_lore")
+id = "journal_02"
+display_name = "Journal Entry #2"
+category = "lore"
+max_stack = 1
+sell_value = 25
+rarity = "uncommon"
+min_depth = 30
+description = "A torn page with faded handwriting."
+entry_number = 2
+lore_type = "journal"
+content = "Day 7 - The caves here are natural, not carved. Yet I keep finding tools. Broken pickaxes, empty lanterns. All pointing deeper. The silence is the worst part."
+author = "Unknown Miner"
+era = "Recent Era"
+spawn_min_depth = 30
+spawn_max_depth = 120
+spawn_chance = 0.002

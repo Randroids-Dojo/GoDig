@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LoreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/lore/lore_data.gd" id="1_lore"]
+
+[resource]
+script = ExtResource("1_lore")
+id = "journal_04"
+display_name = "Journal Entry #4"
+category = "lore"
+max_stack = 1
+sell_value = 35
+rarity = "rare"
+min_depth = 75
+description = "A carefully preserved journal entry."
+entry_number = 4
+lore_type = "journal"
+content = "Day 23 - Found the first crystal cave today. Beautiful. Terrifying. The crystals hum at frequencies I can feel in my teeth. Left a ladder behind - can't shake the feeling I'll need to leave quickly."
+author = "Unknown Miner"
+era = "Recent Era"
+spawn_min_depth = 75
+spawn_max_depth = 200
+spawn_chance = 0.0015

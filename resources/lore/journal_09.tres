@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LoreData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/lore/lore_data.gd" id="1_lore"]
+
+[resource]
+script = ExtResource("1_lore")
+id = "journal_09"
+display_name = "Journal Entry #9"
+category = "lore"
+max_stack = 1
+sell_value = 100
+rarity = "legendary"
+min_depth = 350
+description = "A crystalline tablet with etched words."
+entry_number = 9
+lore_type = "journal"
+content = "We built the stations to rest. We placed ladders to escape. We left these words as warnings. Do not seek the Heart. Its treasures are boundless, but so is its hunger. Turn back while you still can."
+author = "The Founders"
+era = "Forgotten Era"
+spawn_min_depth = 350
+spawn_max_depth = 0
+spawn_chance = 0.0005

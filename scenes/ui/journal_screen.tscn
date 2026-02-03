@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=3 uid="uid://journal_screen_001"]
+
+[ext_resource type="Script" path="res://scripts/ui/journal_screen.gd" id="1_journal"]
+
+[node name="JournalScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_journal")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 80.0
+offset_right = -20.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Panel/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Journal"
+theme_override_font_sizes/font_size = 24
+
+[node name="ProgressLabel" type="Label" parent="Panel/VBox/Header"]
+layout_mode = 2
+text = "0/10 collected"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+
+[node name="CloseButton" type="Button" parent="Panel/VBox/Header"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "X"
+
+[node name="HSeparator" type="HSeparator" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBox"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EntryList" type="VBoxContainer" parent="Panel/VBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HSeparator2" type="HSeparator" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="ContentPanel" type="PanelContainer" parent="Panel/VBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="Panel/VBox/ContentPanel"]
+layout_mode = 2
+
+[node name="ContentHeader" type="Label" parent="Panel/VBox/ContentPanel/VBox"]
+layout_mode = 2
+text = "Journal Entry #1"
+theme_override_font_sizes/font_size = 18
+
+[node name="ContentText" type="Label" parent="Panel/VBox/ContentPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Content goes here..."
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 14
+
+[node name="ContentAuthor" type="Label" parent="Panel/VBox/ContentPanel/VBox"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "- Unknown Miner, Recent Era"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)

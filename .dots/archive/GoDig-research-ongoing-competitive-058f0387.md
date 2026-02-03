@@ -2163,8 +2163,54 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Principle: "Style guide with color palette, line style, level of detail" ensures consistency
 - **GoDig Implementation**: Define fixed palette per layer. Warm surface → desaturated deep. Consistent within layer, distinct between layers.
 
+### Session 32 (2026-02-02)
+
+**Drill Core Pacing Deep Dive**:
+- Runs last 30-50 minutes - "a poor choice can bite you after half an hour, frustrating"
+- Triple-layered progression feels like "unnecessary busywork"
+- "Unlocking meaningful improvements requires significant time and effort, bordering on tedious"
+- Late-game sessions "blur together" despite variations
+- Comparison: BORE BLASTERS proves 5-15 minute runs work for mining roguelites
+- Consensus: 20-30 minutes ideal before "repetition feeling sets in"
+- **GoDig Recommendation**: 5-10 minute loops. Allow player choice over session length (quick dig vs deep dive).
+
+**Multiple Progression Systems - When They Fail**:
+- Drill Core's three systems = cognitive overload, "competing for attention"
+- Players don't understand priorities → feels like padding
+- Slay the Spire model (best): No power via meta-progression, just unlocks for variety
+- Quote: "Games that make you play with no arms/legs until you grind" = bad design
+- Quote: "Power boosting means game is penalized without it"
+- **GoDig Validation**: Single currency (coins) is correct. Simpler mental model, no decision paralysis.
+
+**Cairn Piton System - Player-Defined Checkpoints**:
+- Three placement states: Perfect (reclaimed), Twisted (returns as scrap), Failed (destroyed)
+- Skill-based mini-game: timing slider determines outcome quality
+- Resource recovery: Climbot makes 1 piton from 2 scraps - never truly out
+- Environmental cues: Gray rock = can place, glossy brown = can't place
+- Audio feedback: Aava's breathing indicates trouble before UI shows it
+- Fall resets to last piton, NOT start - proportional progress loss
+- **GoDig Application**: Consider ladder checkpoint system - rescue returns to highest placed ladder, not surface.
+
+**Cairn Stamina Management Lessons**:
+- Audio cues "way more immediate than UI element"
+- "If you hear her breathing getting fast and panicked, she is in trouble"
+- Flat footing = stable, everything else drains stamina
+- Accessibility: Options to make stamina management easier
+- Player frustration: Lack of explicit meters feels directionless for some
+- **GoDig Application**: Audio/visual cues for ladder depletion should be unmistakable. Consider heartbeat audio at low ladders.
+
+**Mining Roguelite Run Length Comparison**:
+
+| Game | Run Length | Notes |
+|------|------------|-------|
+| Drill Core | 30-50 min | Too long, frustrating when late-run mistakes happen |
+| BORE BLASTERS | 5-15 min | Ideal for battery-powered/mobile devices |
+| Wall World | ~20 min | Gets longer with meta upgrades |
+| Dome Keeper | Variable | Player chooses via map size |
+| General consensus | 20-30 min | "Before repetition feeling sets in" |
+
 ### Topics for Future Research
-- [x] Research Cairn's climbing feedback when full release available (Session 31)
+- [x] Research Cairn's climbing feedback when full release available (Session 31, 32)
 - [ ] Study Under A Rock's cave resource harvesting design when released
 - [x] Analyze Cryptical Path player reviews for "rogue-builder" reception (Session 31)
 - [ ] Research Dome Keeper multiplayer reception after Q1 2026 launch
@@ -2173,6 +2219,8 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [ ] Analyze successful roguelite sidegrade systems (Isaac, Gungeon)
 - [ ] Study biome transition zones in metroidvanias (Hollow Knight, Ori)
 - [ ] Research mobile game daily reward systems without guilt/FOMO
+- [x] Drill Core pacing analysis - run length and progression systems (Session 32)
+- [x] Cairn piton checkpoint system deep dive (Session 32)
 - [ ] Analyze tutorial skip options and their impact on retention
 - [x] Study DRG: Rogue Core early access feedback (Session 29 - pre-release info only)
 - [x] Analyze Slay the Spire II for roguelite innovation (Session 29)

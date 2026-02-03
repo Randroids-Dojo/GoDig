@@ -35,6 +35,25 @@ var tool_durability_label: Label = null
 ## Inventory slots label (created programmatically)
 var inventory_label: Label = null
 
+## Inventory tension visual system
+var _inventory_fill_ratio: float = 0.0
+var _inventory_current_color: Color = UIColors.GREEN
+var _inventory_color_tween: Tween = null
+var _inventory_wobble_tween: Tween = null
+var _inventory_pulse_tween: Tween = null
+
+## Inventory tension thresholds
+const INVENTORY_THRESHOLD_SAFE := 0.5       # 0-50% = Green (safe)
+const INVENTORY_THRESHOLD_AWARE := 0.75     # 50-75% = Yellow (awareness)
+const INVENTORY_THRESHOLD_TENSION := 0.90   # 75-90% = Orange (active tension)
+# 90-100% = Red (crisis)
+
+## Inventory tension colors (from UIColors)
+const INVENTORY_COLOR_SAFE := UIColors.GREEN         # Green - keep mining
+const INVENTORY_COLOR_AWARE := UIColors.WARNING_YELLOW  # Yellow - awareness
+const INVENTORY_COLOR_TENSION := UIColors.WARNING_ORANGE  # Orange - tension
+const INVENTORY_COLOR_CRISIS := UIColors.WARNING_RED    # Red - crisis
+
 ## Milestone notification scene
 const MilestoneNotificationScene = preload("res://scenes/ui/milestone_notification.tscn")
 var milestone_notification: Control = null
@@ -181,6 +200,10 @@ func _ready() -> void:
 	if DepthDiscoveryManager:
 		DepthDiscoveryManager.discovery_found.connect(_on_discovery_found)
 		DepthDiscoveryManager.discovery_hint_revealed.connect(_on_discovery_hint_revealed)
+
+	# Connect to BiomeManager for surprise cave discovery notifications
+	if BiomeManager:
+		BiomeManager.surprise_cave_discovered.connect(_on_surprise_cave_discovered)
 
 	# Connect text size changes for accessibility
 	if SettingsManager:
@@ -739,7 +762,12 @@ func _setup_inventory_indicator() -> void:
 
 
 func _update_inventory_indicator() -> void:
-	## Update inventory slots display (X/Y format) with FULL badge when full
+	## Update inventory slots display with graduated tension visual feedback.
+	## Colors transition smoothly based on fill percentage:
+	## - 0-50%: Green (safe, keep mining)
+	## - 50-75%: Yellow (awareness, making progress)
+	## - 75-90%: Orange (active tension, should I head back?)
+	## - 90-100%: Red (crisis, must return now)
 	if inventory_label == null:
 		return
 	if InventoryManager == null:
@@ -748,19 +776,140 @@ func _update_inventory_indicator() -> void:
 
 	var used := InventoryManager.get_used_slots()
 	var total := InventoryManager.get_total_slots()
+	var new_fill_ratio := float(used) / float(total) if total > 0 else 0.0
 
-	# Color code and text based on fullness
-	var fill_ratio := float(used) / float(total) if total > 0 else 0.0
-	if fill_ratio >= 1.0:
-		# Full - show FULL badge with pulsing effect
+	# Determine target color based on fill level
+	var target_color: Color
+	var old_tier := _get_inventory_tier(_inventory_fill_ratio)
+	var new_tier := _get_inventory_tier(new_fill_ratio)
+
+	if new_fill_ratio >= 1.0:
+		target_color = INVENTORY_COLOR_CRISIS
 		inventory_label.text = "Bag: FULL!"
-		inventory_label.add_theme_color_override("font_color", Color.RED)
-	elif fill_ratio >= 0.875:  # 7/8
+	elif new_fill_ratio >= INVENTORY_THRESHOLD_TENSION:
+		target_color = INVENTORY_COLOR_CRISIS
 		inventory_label.text = "Bag: %d/%d" % [used, total]
-		inventory_label.add_theme_color_override("font_color", Color.ORANGE)
+	elif new_fill_ratio >= INVENTORY_THRESHOLD_AWARE:
+		target_color = INVENTORY_COLOR_TENSION
+		inventory_label.text = "Bag: %d/%d" % [used, total]
+	elif new_fill_ratio >= INVENTORY_THRESHOLD_SAFE:
+		target_color = INVENTORY_COLOR_AWARE
+		inventory_label.text = "Bag: %d/%d" % [used, total]
 	else:
+		target_color = INVENTORY_COLOR_SAFE
 		inventory_label.text = "Bag: %d/%d" % [used, total]
-		inventory_label.add_theme_color_override("font_color", Color.WHITE)
+
+	# Check for threshold crossing (tier change) - trigger pulse
+	if new_tier > old_tier and _inventory_fill_ratio > 0.0:
+		_pulse_inventory_label()
+		# Play subtle audio cue at higher thresholds
+		if new_tier >= 2 and SoundManager:  # 75%+ threshold
+			SoundManager.play_ui_click()
+
+	# Smooth color transition
+	_transition_inventory_color(target_color)
+
+	# At 90%+ fill, add wobble strain effect
+	if new_fill_ratio >= INVENTORY_THRESHOLD_TENSION:
+		_start_inventory_wobble()
+	else:
+		_stop_inventory_wobble()
+
+	# Store for next comparison
+	_inventory_fill_ratio = new_fill_ratio
+
+
+## Get the tension tier for a fill ratio (0=safe, 1=aware, 2=tension, 3=crisis)
+func _get_inventory_tier(fill_ratio: float) -> int:
+	if fill_ratio >= 1.0:
+		return 3  # Crisis (full)
+	elif fill_ratio >= INVENTORY_THRESHOLD_TENSION:
+		return 3  # Crisis (90%+)
+	elif fill_ratio >= INVENTORY_THRESHOLD_AWARE:
+		return 2  # Tension (75-90%)
+	elif fill_ratio >= INVENTORY_THRESHOLD_SAFE:
+		return 1  # Aware (50-75%)
+	else:
+		return 0  # Safe (0-50%)
+
+
+## Smoothly transition inventory label color
+func _transition_inventory_color(target_color: Color) -> void:
+	if inventory_label == null:
+		return
+
+	# If same color, no transition needed
+	if _inventory_current_color.is_equal_approx(target_color):
+		return
+
+	# Kill existing color tween
+	if _inventory_color_tween and _inventory_color_tween.is_valid():
+		_inventory_color_tween.kill()
+
+	# Tween to new color over 0.3s
+	_inventory_color_tween = create_tween()
+	_inventory_color_tween.tween_method(
+		func(color: Color): inventory_label.add_theme_color_override("font_color", color),
+		_inventory_current_color,
+		target_color,
+		0.3
+	).set_ease(Tween.EASE_OUT)
+
+	_inventory_current_color = target_color
+
+
+## Pulse the inventory label on threshold crossing
+func _pulse_inventory_label() -> void:
+	if inventory_label == null:
+		return
+
+	# Kill existing pulse tween
+	if _inventory_pulse_tween and _inventory_pulse_tween.is_valid():
+		_inventory_pulse_tween.kill()
+
+	# Quick scale pulse (0.3s total)
+	inventory_label.pivot_offset = inventory_label.size / 2
+	_inventory_pulse_tween = create_tween()
+	_inventory_pulse_tween.tween_property(inventory_label, "scale", Vector2(1.25, 1.25), 0.1) \
+		.set_ease(Tween.EASE_OUT)
+	_inventory_pulse_tween.tween_property(inventory_label, "scale", Vector2(1.0, 1.0), 0.2) \
+		.set_ease(Tween.EASE_IN_OUT)
+
+
+## Start continuous wobble strain effect for high tension
+func _start_inventory_wobble() -> void:
+	if inventory_label == null:
+		return
+
+	# Already wobbling?
+	if _inventory_wobble_tween and _inventory_wobble_tween.is_valid():
+		return
+
+	# Continuous subtle wobble
+	inventory_label.pivot_offset = inventory_label.size / 2
+	_inventory_wobble_tween = create_tween()
+	_inventory_wobble_tween.set_loops()  # Loop forever
+
+	# Wobble left-right subtly
+	_inventory_wobble_tween.tween_property(inventory_label, "rotation_degrees", 1.5, 0.15) \
+		.set_ease(Tween.EASE_IN_OUT)
+	_inventory_wobble_tween.tween_property(inventory_label, "rotation_degrees", -1.5, 0.3) \
+		.set_ease(Tween.EASE_IN_OUT)
+	_inventory_wobble_tween.tween_property(inventory_label, "rotation_degrees", 0.0, 0.15) \
+		.set_ease(Tween.EASE_IN_OUT)
+	# Brief pause between wobble cycles
+	_inventory_wobble_tween.tween_interval(0.8)
+
+
+## Stop the wobble strain effect
+func _stop_inventory_wobble() -> void:
+	if _inventory_wobble_tween and _inventory_wobble_tween.is_valid():
+		_inventory_wobble_tween.kill()
+		_inventory_wobble_tween = null
+
+	# Reset rotation
+	if inventory_label:
+		inventory_label.rotation_degrees = 0.0
 
 
 # ============================================
@@ -824,6 +973,18 @@ func _on_discovery_hint_revealed(direction: String, distance: int) -> void:
 	## Show subtle hint when a discovery is nearby
 	if milestone_notification and milestone_notification.has_method("show_discovery_hint"):
 		milestone_notification.show_discovery_hint(direction, distance)
+
+
+func _on_surprise_cave_discovered(_biome_id: String, biome_data: Dictionary) -> void:
+	## Show celebration notification when a surprise cave biome is discovered
+	if milestone_notification and milestone_notification.has_method("show_surprise_cave"):
+		milestone_notification.show_surprise_cave(biome_data)
+	var biome_name: String = biome_data.get("name", "Unknown Cave")
+	var is_first: bool = biome_data.get("is_first_discovery", false)
+	if is_first:
+		print("[HUD] FIRST surprise cave discovery: %s" % biome_name)
+	else:
+		print("[HUD] Returned to surprise cave: %s" % biome_name)
 	print("[HUD] Discovery hint: %s, %d blocks away" % [direction, distance])
 
 

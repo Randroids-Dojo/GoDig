@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SidegradeData" load_steps=2 format=3 uid="uid://cjqfkl8r5xm4t"]
+
+[ext_resource type="Script" path="res://resources/sidegrades/sidegrade_data.gd" id="1_sidegrade"]
+
+[resource]
+script = ExtResource("1_sidegrade")
+id = "precision_miner"
+display_name = "Precision Miner"
+description = "Mine slower but get more resources"
+detailed_description = "Trade mining speed for guaranteed valuable drops. Expert miners know that patience pays off. Each ore has a chance to yield double resources, but overall mining takes longer."
+category = 0
+cost = 5000
+unlock_depth = 150
+exclusive_with = ["speed_demon"]
+has_trade_off = true
+ui_color = Color(0.4, 0.7, 1.0, 1.0)
+damage_multiplier = 1.0
+speed_multiplier = 0.7
+double_drop_chance = 0.35
+chain_mining_chance = 0.0
+speed_mining_mode = false

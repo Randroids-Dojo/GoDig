@@ -78,6 +78,19 @@ var just_upgraded_tool: bool = false
 
 signal ore_type_discovered(ore_id: String)
 
+## Unlocked sidegrade IDs (permanent unlocks)
+var unlocked_sidegrades: Array[String] = []
+
+## Active sidegrade IDs (currently equipped, can only have non-conflicting ones)
+var active_sidegrades: Array[String] = []
+
+## Second chance used this dive (resets on surface)
+var second_chance_used: bool = false
+
+signal sidegrade_unlocked(sidegrade_id: String)
+signal sidegrade_activated(sidegrade_id: String)
+signal sidegrade_deactivated(sidegrade_id: String)
+
 
 func _ready() -> void:
 	# Defer connection to allow other autoloads to initialize first
@@ -236,6 +249,9 @@ func reset() -> void:
 	unlocked_helmets.clear()
 	elevator_depths.clear()
 	discovered_ores.clear()
+	unlocked_sidegrades.clear()
+	active_sidegrades.clear()
+	second_chance_used = false
 	tool_changed.emit(get_equipped_tool())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.BOOTS, null)
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, null)
@@ -693,6 +709,161 @@ func get_discovery_count() -> int:
 
 
 # ============================================
+# SIDEGRADE SYSTEM
+# ============================================
+
+## Check if a sidegrade is unlocked (permanently purchased)
+func has_sidegrade(sidegrade_id: String) -> bool:
+	return sidegrade_id in unlocked_sidegrades
+
+
+## Check if a sidegrade is currently active
+func is_sidegrade_active(sidegrade_id: String) -> bool:
+	return sidegrade_id in active_sidegrades
+
+
+## Unlock a sidegrade (permanent purchase)
+func unlock_sidegrade(sidegrade_id: String) -> bool:
+	if has_sidegrade(sidegrade_id):
+		return false  # Already unlocked
+	unlocked_sidegrades.append(sidegrade_id)
+	sidegrade_unlocked.emit(sidegrade_id)
+	print("[PlayerData] SIDEGRADE UNLOCKED: %s" % sidegrade_id)
+	return true
+
+
+## Activate a sidegrade (must be unlocked first)
+## Returns false if sidegrade conflicts with currently active ones
+func activate_sidegrade(sidegrade_id: String) -> bool:
+	if not has_sidegrade(sidegrade_id):
+		push_warning("[PlayerData] Cannot activate locked sidegrade: %s" % sidegrade_id)
+		return false
+	if is_sidegrade_active(sidegrade_id):
+		return true  # Already active
+
+	# Check for conflicts with currently active sidegrades
+	if DataRegistry != null:
+		for active_id in active_sidegrades:
+			if DataRegistry.sidegrades_conflict(sidegrade_id, active_id):
+				push_warning("[PlayerData] Sidegrade %s conflicts with active %s" % [sidegrade_id, active_id])
+				return false
+
+	active_sidegrades.append(sidegrade_id)
+	sidegrade_activated.emit(sidegrade_id)
+	print("[PlayerData] Sidegrade activated: %s" % sidegrade_id)
+	return true
+
+
+## Deactivate a sidegrade
+func deactivate_sidegrade(sidegrade_id: String) -> void:
+	if not is_sidegrade_active(sidegrade_id):
+		return
+	active_sidegrades.erase(sidegrade_id)
+	sidegrade_deactivated.emit(sidegrade_id)
+	print("[PlayerData] Sidegrade deactivated: %s" % sidegrade_id)
+
+
+## Get all unlocked sidegrades
+func get_unlocked_sidegrades() -> Array[String]:
+	return unlocked_sidegrades.duplicate()
+
+
+## Get all active sidegrades
+func get_active_sidegrades() -> Array[String]:
+	return active_sidegrades.duplicate()
+
+
+## Calculate combined sidegrade modifiers
+## Returns a dictionary with all accumulated bonuses/penalties
+func get_sidegrade_modifiers() -> Dictionary:
+	var modifiers := {
+		"damage_multiplier": 1.0,
+		"speed_multiplier": 1.0,
+		"double_drop_chance": 0.0,
+		"chain_mining_chance": 0.0,
+		"speed_mining_mode": false,
+		"wall_jump_enabled": false,
+		"wall_slide_enabled": false,
+		"ladder_slide_enabled": false,
+		"extra_jumps": 0,
+		"move_speed_multiplier": 1.0,
+		"fall_damage_multiplier": 1.0,
+		"auto_sell_junk": false,
+		"auto_sell_threshold": 0,
+		"auto_pickup_enabled": false,
+		"auto_pickup_range": 0.0,
+		"sell_value_multiplier": 1.0,
+		"ore_detection_enabled": false,
+		"ore_detection_range": 0.0,
+		"path_hint_enabled": false,
+		"auto_map_enabled": false,
+		"light_radius_multiplier": 1.0,
+		"emergency_teleport_charges": 0,
+		"second_chance_enabled": false,
+		"idle_regen_rate": 0.0,
+		"max_hp_multiplier": 1.0,
+	}
+
+	if DataRegistry == null:
+		return modifiers
+
+	for sg_id in active_sidegrades:
+		var sg = DataRegistry.get_sidegrade(sg_id)
+		if sg == null:
+			continue
+
+		# Multiplicative modifiers
+		modifiers.damage_multiplier *= sg.damage_multiplier
+		modifiers.speed_multiplier *= sg.speed_multiplier
+		modifiers.move_speed_multiplier *= sg.move_speed_multiplier
+		modifiers.fall_damage_multiplier *= sg.fall_damage_multiplier
+		modifiers.sell_value_multiplier *= sg.sell_value_multiplier
+		modifiers.light_radius_multiplier *= sg.light_radius_multiplier
+		modifiers.max_hp_multiplier *= sg.max_hp_multiplier
+
+		# Additive modifiers
+		modifiers.double_drop_chance += sg.double_drop_chance
+		modifiers.chain_mining_chance += sg.chain_mining_chance
+		modifiers.extra_jumps += sg.extra_jumps
+		modifiers.auto_pickup_range = maxf(modifiers.auto_pickup_range, sg.auto_pickup_range)
+		modifiers.auto_sell_threshold = maxi(modifiers.auto_sell_threshold, sg.auto_sell_threshold)
+		modifiers.ore_detection_range = maxf(modifiers.ore_detection_range, sg.ore_detection_range)
+		modifiers.idle_regen_rate += sg.idle_regen_rate
+		modifiers.emergency_teleport_charges += sg.emergency_teleport_charges
+
+		# Boolean modifiers (OR)
+		modifiers.speed_mining_mode = modifiers.speed_mining_mode or sg.speed_mining_mode
+		modifiers.wall_jump_enabled = modifiers.wall_jump_enabled or sg.wall_jump_enabled
+		modifiers.wall_slide_enabled = modifiers.wall_slide_enabled or sg.wall_slide_enabled
+		modifiers.ladder_slide_enabled = modifiers.ladder_slide_enabled or sg.ladder_slide_enabled
+		modifiers.auto_sell_junk = modifiers.auto_sell_junk or sg.auto_sell_junk
+		modifiers.auto_pickup_enabled = modifiers.auto_pickup_enabled or sg.auto_pickup_enabled
+		modifiers.ore_detection_enabled = modifiers.ore_detection_enabled or sg.ore_detection_enabled
+		modifiers.path_hint_enabled = modifiers.path_hint_enabled or sg.path_hint_enabled
+		modifiers.auto_map_enabled = modifiers.auto_map_enabled or sg.auto_map_enabled
+		modifiers.second_chance_enabled = modifiers.second_chance_enabled or sg.second_chance_enabled
+
+	return modifiers
+
+
+## Reset dive-specific sidegrade states (called when returning to surface)
+func reset_dive_sidegrade_states() -> void:
+	second_chance_used = false
+
+
+## Use second chance (returns true if available and consumed)
+func use_second_chance() -> bool:
+	var mods := get_sidegrade_modifiers()
+	if not mods.second_chance_enabled:
+		return false
+	if second_chance_used:
+		return false
+	second_chance_used = true
+	print("[PlayerData] SECOND CHANCE USED - survive with 1 HP!")
+	return true
+
+
+# ============================================
 # SAVE/LOAD
 # ============================================
 
@@ -714,6 +885,8 @@ func get_save_data() -> Dictionary:
 		"unlocked_helmets": unlocked_helmets.duplicate(),
 		"elevator_depths": elevator_depths.duplicate(),
 		"discovered_ores": discovered_ores.duplicate(),
+		"unlocked_sidegrades": unlocked_sidegrades.duplicate(),
+		"active_sidegrades": active_sidegrades.duplicate(),
 	}
 
 
@@ -756,9 +929,21 @@ func load_save_data(data: Dictionary) -> void:
 		if ore_id is String:
 			discovered_ores.append(ore_id)
 
+	unlocked_sidegrades.clear()
+	var saved_sidegrades = data.get("unlocked_sidegrades", [])
+	for sg_id in saved_sidegrades:
+		if sg_id is String:
+			unlocked_sidegrades.append(sg_id)
+
+	active_sidegrades.clear()
+	var saved_active = data.get("active_sidegrades", [])
+	for sg_id in saved_active:
+		if sg_id is String and sg_id in unlocked_sidegrades:
+			active_sidegrades.append(sg_id)
+
 	tool_changed.emit(get_equipped_tool())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.BOOTS, get_equipped_boots())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.HELMET, get_equipped_helmet())
 	equipment_changed.emit(EquipmentDataClass.EquipmentSlot.ACCESSORY, get_equipped_accessory())
 	max_depth_updated.emit(max_depth_reached)
-	print("[PlayerData] Loaded - Tool: %s, Boots: %s, Accessory: %s, Max Depth: %d, Warehouse Lvl: %d, Discoveries: %d" % [equipped_tool_id, equipped_boots_id, equipped_accessory_id, max_depth_reached, warehouse_level, discovered_ores.size()])
+	print("[PlayerData] Loaded - Tool: %s, Boots: %s, Accessory: %s, Max Depth: %d, Warehouse Lvl: %d, Discoveries: %d, Sidegrades: %d" % [equipped_tool_id, equipped_boots_id, equipped_accessory_id, max_depth_reached, warehouse_level, discovered_ores.size(), unlocked_sidegrades.size()])

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SidegradeData" load_steps=2 format=3 uid="uid://dm9rk4xp8gwn3"]
+
+[ext_resource type="Script" path="res://resources/sidegrades/sidegrade_data.gd" id="1_sidegrade"]
+
+[resource]
+script = ExtResource("1_sidegrade")
+id = "second_wind"
+display_name = "Second Wind"
+description = "Survive one fatal hit per dive"
+detailed_description = "When you would take fatal damage, instead survive with 1 HP. This ability resets when you return to the surface. Perfect for risky deep expeditions. Reduced max HP keeps you on your toes."
+category = 4
+cost = 8000
+unlock_depth = 300
+exclusive_with = ["glass_cannon"]
+has_trade_off = true
+ui_color = Color(1.0, 0.3, 0.3, 1.0)
+second_chance_enabled = true
+idle_regen_rate = 0.0
+max_hp_multiplier = 0.8
+emergency_teleport_charges = 0

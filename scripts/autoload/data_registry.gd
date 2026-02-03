@@ -12,6 +12,7 @@ const OreData = preload("res://resources/ores/ore_data.gd")
 const ItemData = preload("res://resources/items/item_data.gd")
 const ToolData = preload("res://resources/tools/tool_data.gd")
 const EquipmentData = preload("res://resources/equipment/equipment_data.gd")
+const SidegradeData = preload("res://resources/sidegrades/sidegrade_data.gd")
 
 # Explicit resource preloads for web export compatibility
 const LAYER_RESOURCES := [
@@ -84,6 +85,16 @@ const EQUIPMENT_RESOURCES := [
 	preload("res://resources/equipment/mining_drill.tres"),
 ]
 
+const SIDEGRADE_RESOURCES := [
+	preload("res://resources/sidegrades/precision_miner.tres"),
+	preload("res://resources/sidegrades/speed_demon.tres"),
+	preload("res://resources/sidegrades/wall_runner.tres"),
+	preload("res://resources/sidegrades/resource_magnet.tres"),
+	preload("res://resources/sidegrades/ore_sense.tres"),
+	preload("res://resources/sidegrades/second_wind.tres"),
+	preload("res://resources/sidegrades/glass_cannon.tres"),
+]
+
 ## All loaded layer definitions, sorted by min_depth
 var layers: Array[LayerData] = []
 
@@ -114,6 +125,15 @@ var _equipment_by_tier: Array = []
 ## Equipment grouped by slot type
 var _equipment_by_slot: Dictionary = {}  # EquipmentSlot -> Array[EquipmentData]
 
+## All loaded sidegrade definitions
+var sidegrades: Dictionary = {}
+
+## Sidegrades sorted by unlock_depth
+var _sidegrades_by_depth: Array = []
+
+## Sidegrades grouped by category
+var _sidegrades_by_category: Dictionary = {}  # Category -> Array[SidegradeData]
+
 
 func _ready() -> void:
 	_load_all_layers()
@@ -121,7 +141,8 @@ func _ready() -> void:
 	_load_all_items()
 	_load_all_tools()
 	_load_all_equipment()
-	print("[DataRegistry] Loaded %d layers, %d ores, %d items, %d tools, %d equipment" % [layers.size(), ores.size(), items.size(), tools.size(), equipment.size()])
+	_load_all_sidegrades()
+	print("[DataRegistry] Loaded %d layers, %d ores, %d items, %d tools, %d equipment, %d sidegrades" % [layers.size(), ores.size(), items.size(), tools.size(), equipment.size(), sidegrades.size()])
 
 
 func _load_all_layers() -> void:
@@ -471,3 +492,69 @@ func get_equipment_at_depth(depth: int) -> Array:
 		if eq.unlock_depth <= depth:
 			result.append(eq)
 	return result
+
+
+# ============================================
+# SIDEGRADE DATA LOADING AND ACCESS
+# ============================================
+
+func _load_all_sidegrades() -> void:
+	## Load all sidegrade resources from preloaded array
+	## NOTE: We don't use "is SidegradeData" check because it fails in web exports
+	for resource in SIDEGRADE_RESOURCES:
+		if resource != null and "id" in resource and "category" in resource:
+			sidegrades[resource.id] = resource
+
+	# Sort sidegrades by unlock_depth for ordered display
+	_sidegrades_by_depth = sidegrades.values()
+	_sidegrades_by_depth.sort_custom(func(a, b): return a.unlock_depth < b.unlock_depth)
+
+	# Group by category
+	_sidegrades_by_category.clear()
+	for sg in _sidegrades_by_depth:
+		var cat: int = sg.category
+		if not _sidegrades_by_category.has(cat):
+			_sidegrades_by_category[cat] = []
+		_sidegrades_by_category[cat].append(sg)
+
+
+## Get a sidegrade by its ID
+func get_sidegrade(sidegrade_id: String) -> SidegradeData:
+	if sidegrades.has(sidegrade_id):
+		return sidegrades[sidegrade_id]
+	return null
+
+
+## Get all sidegrades sorted by unlock_depth
+func get_all_sidegrades() -> Array:
+	return _sidegrades_by_depth.duplicate()
+
+
+## Get all sidegrade IDs
+func get_all_sidegrade_ids() -> Array:
+	return sidegrades.keys()
+
+
+## Get sidegrades by category
+func get_sidegrades_by_category(category: int) -> Array:
+	if _sidegrades_by_category.has(category):
+		return _sidegrades_by_category[category].duplicate()
+	return []
+
+
+## Get sidegrades available at a given depth (unlocked but not necessarily owned)
+func get_sidegrades_at_depth(depth: int) -> Array:
+	var result := []
+	for sg in _sidegrades_by_depth:
+		if sg.unlock_depth <= depth:
+			result.append(sg)
+	return result
+
+
+## Check if two sidegrades conflict with each other
+func sidegrades_conflict(id_a: String, id_b: String) -> bool:
+	var sg_a = get_sidegrade(id_a)
+	var sg_b = get_sidegrade(id_b)
+	if sg_a == null or sg_b == null:
+		return false
+	return sg_a.conflicts_with(id_b) or sg_b.conflicts_with(id_a)

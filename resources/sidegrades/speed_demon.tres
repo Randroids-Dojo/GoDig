@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SidegradeData" load_steps=2 format=3 uid="uid://bx7qm3pkwy2n6"]
+
+[ext_resource type="Script" path="res://resources/sidegrades/sidegrade_data.gd" id="1_sidegrade"]
+
+[resource]
+script = ExtResource("1_sidegrade")
+id = "speed_demon"
+display_name = "Speed Demon"
+description = "Mine faster but blocks drop nothing"
+detailed_description = "Tear through terrain at incredible speed, but blocks crumble to dust. Perfect for reaching deep ores quickly or clearing paths. Ore blocks still drop normally."
+category = 0
+cost = 4000
+unlock_depth = 100
+exclusive_with = ["precision_miner"]
+has_trade_off = true
+ui_color = Color(1.0, 0.5, 0.3, 1.0)
+damage_multiplier = 1.5
+speed_multiplier = 1.5
+double_drop_chance = 0.0
+chain_mining_chance = 0.0
+speed_mining_mode = true

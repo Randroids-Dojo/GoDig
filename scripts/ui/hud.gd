@@ -331,6 +331,8 @@ func connect_to_player(player: Node) -> void:
 		player.hp_changed.connect(_on_player_hp_changed)
 	if player.has_signal("player_died"):
 		player.player_died.connect(_on_player_died)
+	if player.has_signal("arrived_home"):
+		player.arrived_home.connect(_on_player_arrived_home)
 
 	# Track player for mining progress indicator
 	track_player_for_mining(player)
@@ -342,6 +344,8 @@ func disconnect_from_player(player: Node) -> void:
 		player.hp_changed.disconnect(_on_player_hp_changed)
 	if player.has_signal("player_died") and player.player_died.is_connected(_on_player_died):
 		player.player_died.disconnect(_on_player_died)
+	if player.has_signal("arrived_home") and player.arrived_home.is_connected(_on_player_arrived_home):
+		player.arrived_home.disconnect(_on_player_arrived_home)
 
 
 func _on_player_hp_changed(current_hp: int, max_hp: int) -> void:
@@ -351,6 +355,40 @@ func _on_player_hp_changed(current_hp: int, max_hp: int) -> void:
 func _on_player_died(_cause: String) -> void:
 	# Flash the health bar or show death indicator
 	_update_health_display(0, _last_max_hp if _last_max_hp > 0 else 100)
+
+
+## Called when player returns to surface from underground - cozy home arrival
+func _on_player_arrived_home(from_depth: int) -> void:
+	# Show warm welcome message based on depth
+	var message: String
+	var icon: String
+	var duration: float
+
+	if from_depth >= 100:
+		# Deep expedition return - more celebratory
+		message = "Welcome Home!\nSafe from the depths."
+		icon = "~"  # Home symbol (tilde looks cozy)
+		duration = 3.0
+	elif from_depth >= 30:
+		# Moderate depth - standard welcome
+		message = "Back to safety!"
+		icon = "~"
+		duration = 2.0
+	else:
+		# Shallow trip - brief acknowledgment
+		message = "Safe!"
+		icon = "~"
+		duration = 1.5
+
+	show_guidance_toast(message, icon, duration)
+
+	# Trigger surface ambient audio transition
+	if SoundManager:
+		SoundManager.update_music_for_depth(0)
+
+	# Brief haptic pulse for relief
+	if HapticFeedback:
+		HapticFeedback.light_tap()
 
 
 func _update_health_display(current_hp: int, max_hp: int) -> void:

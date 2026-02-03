@@ -28,8 +28,16 @@ const CONFIG_CACHE_PATH := "user://economy_config_cache.json"
 ## User A/B test assignments
 const AB_ASSIGNMENTS_PATH := "user://economy_ab_tests.json"
 
-## Remote config URL (placeholder - replace with actual endpoint)
+## Remote config URL (empty = disabled, fill in to enable remote config)
 const REMOTE_CONFIG_URL := ""
+
+## Cache age before refetching (1 hour)
+const CACHE_MAX_AGE_SECONDS := 3600
+
+## HTTP request configuration
+const REQUEST_TIMEOUT_SECONDS := 10.0
+const MAX_RETRY_COUNT := 3
+const BASE_RETRY_DELAY := 2.0  # Seconds, doubles each retry
 
 # ============================================
 # A/B TEST CONFIGURATION
@@ -171,6 +179,13 @@ var _session_snapshot: Dictionary = {}
 ## Whether config has been loaded this session
 var _config_loaded: bool = false
 
+## HTTP request node for remote config
+var _http_request: HTTPRequest = null
+
+## Retry state
+var _retry_count: int = 0
+var _is_fetching: bool = false
+
 
 func _ready() -> void:
 	_load_ab_assignments()
@@ -243,16 +258,187 @@ func _load_cached_config() -> void:
 
 func _fetch_remote_config() -> void:
 	## Fetch remote config (non-blocking)
-	## NOTE: This is a placeholder - implement actual HTTP request
+	## Uses caching with exponential backoff retry on failure.
+	## Falls back to cached/local config if remote is unavailable.
+
+	# Skip if no URL configured
 	if REMOTE_CONFIG_URL.is_empty():
+		print("[EconomyConfig] Remote config disabled (no URL)")
 		_config_loaded = true
 		config_loaded.emit()
 		return
 
-	# TODO: Implement HTTPRequest for remote config
-	# For now, just mark as loaded
+	# Check if cache is fresh enough (skip fetch if recently updated)
+	if _is_cache_fresh():
+		print("[EconomyConfig] Using fresh cached config")
+		_config_loaded = true
+		config_loaded.emit()
+		return
+
+	# Start fetching
+	_start_remote_fetch()
+
+
+func _is_cache_fresh() -> bool:
+	## Check if the cache file is recent enough to skip refetching
+	if not FileAccess.file_exists(CONFIG_CACHE_PATH):
+		return false
+
+	var modified_time := FileAccess.get_modified_time(CONFIG_CACHE_PATH)
+	var current_time := int(Time.get_unix_time_from_system())
+
+	return (current_time - modified_time) < CACHE_MAX_AGE_SECONDS
+
+
+func _setup_http_request() -> void:
+	## Create or recreate HTTPRequest node
+	## Recreating fixes potential stuck connection issues
+	if _http_request:
+		_http_request.queue_free()
+
+	_http_request = HTTPRequest.new()
+	_http_request.timeout = REQUEST_TIMEOUT_SECONDS
+	_http_request.accept_gzip = true
+	_http_request.request_completed.connect(_on_request_completed)
+	add_child(_http_request)
+
+
+func _start_remote_fetch() -> void:
+	## Start the remote config fetch with retry support
+	if _is_fetching:
+		return
+
+	_is_fetching = true
+	_retry_count = 0
+	_attempt_fetch()
+
+
+func _attempt_fetch() -> void:
+	## Attempt to fetch remote config
+	_setup_http_request()
+
+	print("[EconomyConfig] Fetching remote config... (attempt %d/%d)" % [_retry_count + 1, MAX_RETRY_COUNT + 1])
+	var error := _http_request.request(REMOTE_CONFIG_URL)
+
+	if error != OK:
+		push_warning("[EconomyConfig] Failed to start request: %s" % error_string(error))
+		_handle_fetch_failure()
+
+
+func _on_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+	## Handle HTTP request completion
+
+	# Check for network/connection errors
+	if result != HTTPRequest.RESULT_SUCCESS:
+		push_warning("[EconomyConfig] Request failed: result=%d" % result)
+		_handle_fetch_failure()
+		return
+
+	# Check for HTTP errors
+	if response_code != 200:
+		push_warning("[EconomyConfig] HTTP error: %d" % response_code)
+		_handle_fetch_failure()
+		return
+
+	# Parse JSON response
+	var json_string := body.get_string_from_utf8()
+	var json = JSON.parse_string(json_string)
+
+	if json == null or not json is Dictionary:
+		push_error("[EconomyConfig] Invalid JSON response")
+		_handle_fetch_failure()
+		return
+
+	# Validate config values before applying
+	if not _validate_config(json):
+		push_error("[EconomyConfig] Config validation failed")
+		_handle_fetch_failure()
+		return
+
+	# Success! Apply and cache the config
+	print("[EconomyConfig] Remote config loaded successfully")
+	_apply_config(json)
+	_is_fetching = false
+	_retry_count = 0
 	_config_loaded = true
 	config_loaded.emit()
+
+
+func _handle_fetch_failure() -> void:
+	## Handle fetch failure with retry logic
+	_retry_count += 1
+
+	if _retry_count <= MAX_RETRY_COUNT:
+		# Exponential backoff: 2s, 4s, 8s
+		var delay := BASE_RETRY_DELAY * pow(2.0, _retry_count - 1)
+		print("[EconomyConfig] Retry %d/%d in %.1fs" % [_retry_count, MAX_RETRY_COUNT, delay])
+
+		var timer := get_tree().create_timer(delay)
+		timer.timeout.connect(_attempt_fetch)
+		return
+
+	# Max retries exceeded - use fallback
+	print("[EconomyConfig] Max retries reached, using cached/local config")
+	_use_fallback_config()
+
+
+func _use_fallback_config() -> void:
+	## Use cached or local defaults when remote config unavailable
+	_is_fetching = false
+
+	# Cached config was already loaded in _load_cached_config()
+	# Local defaults are already set as property initial values
+	# Just mark as loaded and continue
+
+	_config_loaded = true
+	config_loaded.emit()
+
+
+func _validate_config(config: Dictionary) -> bool:
+	## Validate remote config values are within expected ranges
+	## Returns false if critical values are invalid
+
+	# Validate ore_value_multiplier (0.1 to 10.0)
+	if config.has("ore_value_multiplier"):
+		var mult = config["ore_value_multiplier"]
+		if not mult is float and not mult is int:
+			push_warning("[EconomyConfig] Invalid ore_value_multiplier type")
+			return false
+		if mult < 0.1 or mult > 10.0:
+			push_warning("[EconomyConfig] ore_value_multiplier out of range: %s" % str(mult))
+			return false
+
+	# Validate tool_cost_multiplier (0.1 to 10.0)
+	if config.has("tool_cost_multiplier"):
+		var mult = config["tool_cost_multiplier"]
+		if not mult is float and not mult is int:
+			push_warning("[EconomyConfig] Invalid tool_cost_multiplier type")
+			return false
+		if mult < 0.1 or mult > 10.0:
+			push_warning("[EconomyConfig] tool_cost_multiplier out of range: %s" % str(mult))
+			return false
+
+	# Validate ladder_cost (1 to 1000)
+	if config.has("ladder_cost"):
+		var cost = config["ladder_cost"]
+		if not cost is int and not cost is float:
+			push_warning("[EconomyConfig] Invalid ladder_cost type")
+			return false
+		if cost < 1 or cost > 1000:
+			push_warning("[EconomyConfig] ladder_cost out of range: %s" % str(cost))
+			return false
+
+	# Validate jackpot_chance (0.0 to 1.0)
+	if config.has("jackpot_chance"):
+		var chance = config["jackpot_chance"]
+		if not chance is float and not chance is int:
+			push_warning("[EconomyConfig] Invalid jackpot_chance type")
+			return false
+		if chance < 0.0 or chance > 1.0:
+			push_warning("[EconomyConfig] jackpot_chance out of range: %s" % str(chance))
+			return false
+
+	return true
 
 
 func _apply_config(config: Dictionary) -> void:

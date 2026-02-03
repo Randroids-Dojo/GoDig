@@ -180,3 +180,63 @@ async def test_ladder_quickslot_exists_in_hud(game):
     """Verify ladder quickslot exists in HUD."""
     result = await game.node_exists(PATHS["ladder_quickslot"])
     assert result.get("exists", False), "Ladder quickslot should exist in HUD"
+
+
+# =============================================================================
+# ENEMY SYSTEM INTEGRATION TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_enemy_manager_enemies_enabled_method(game):
+    """Verify EnemyManager has enemies_enabled method for peaceful mode check."""
+    result = await game.call_method(PATHS["enemy_manager"], "has_method", ["enemies_enabled"])
+    assert result.get("result", False), "EnemyManager should have enemies_enabled method"
+
+
+@pytest.mark.asyncio
+async def test_enemy_manager_check_enemy_spawn_method(game):
+    """Verify EnemyManager has check_enemy_spawn method."""
+    result = await game.call_method(PATHS["enemy_manager"], "has_method", ["check_enemy_spawn"])
+    assert result.get("result", False), "EnemyManager should have check_enemy_spawn method"
+
+
+@pytest.mark.asyncio
+async def test_enemy_manager_start_combat_method(game):
+    """Verify EnemyManager has start_combat method."""
+    result = await game.call_method(PATHS["enemy_manager"], "has_method", ["start_combat"])
+    assert result.get("result", False), "EnemyManager should have start_combat method"
+
+
+@pytest.mark.asyncio
+async def test_enemy_manager_attack_enemy_method(game):
+    """Verify EnemyManager has attack_enemy method."""
+    result = await game.call_method(PATHS["enemy_manager"], "has_method", ["attack_enemy"])
+    assert result.get("result", False), "EnemyManager should have attack_enemy method"
+
+
+@pytest.mark.asyncio
+async def test_settings_manager_peaceful_mode_exists(game):
+    """Verify SettingsManager has peaceful_mode setting."""
+    result = await game.get_property(PATHS["settings_manager"], "peaceful_mode")
+    # peaceful_mode should be a boolean (default False)
+    assert result is not None, "peaceful_mode property should exist"
+    assert isinstance(result, bool), "peaceful_mode should be a boolean"
+
+
+@pytest.mark.asyncio
+async def test_enemy_spawn_depths_configured(game):
+    """Verify enemy spawn depths are configured correctly."""
+    # Cave Bat should spawn at depth 100+
+    enemies_at_100 = await game.call_method(PATHS["enemy_manager"], "get_enemies_at_depth", [100])
+    assert "cave_bat" in enemies_at_100.get("result", []), "Cave Bat should spawn at depth 100"
+
+    # No enemies at surface (depth 0)
+    enemies_at_0 = await game.call_method(PATHS["enemy_manager"], "get_enemies_at_depth", [0])
+    assert len(enemies_at_0.get("result", [])) == 0, "No enemies should spawn at surface"
+
+
+@pytest.mark.asyncio
+async def test_enemy_manager_not_in_combat_initially(game):
+    """Verify EnemyManager starts not in combat."""
+    result = await game.call_method(PATHS["enemy_manager"], "is_in_combat")
+    assert result.get("result") is False, "EnemyManager should not be in combat initially"

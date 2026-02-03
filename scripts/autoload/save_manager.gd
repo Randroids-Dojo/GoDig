@@ -282,6 +282,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		TreasureRoomManager.reset()
 	if EurekaMechanicManager:
 		EurekaMechanicManager.reset()
+	if HandcraftedCaveManager:
+		HandcraftedCaveManager.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:

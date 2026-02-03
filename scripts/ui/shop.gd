@@ -420,6 +420,10 @@ func _on_sell_animation_complete(_total: int) -> void:
 
 func _finalize_sale(total: int) -> void:
 	## Complete the sale after animation (or directly if no animation)
+	# Haptic feedback for successful sale
+	if HapticFeedback:
+		HapticFeedback.on_sell()
+
 	# Track for achievements
 	if AchievementManager:
 		AchievementManager.track_sale(total)
@@ -663,6 +667,10 @@ func _on_tool_upgrade() -> void:
 		PlayerData.equip_tool(next_tool.id)
 		print("[Shop] Tool upgraded to: %s" % next_tool.display_name)
 
+		# Haptic feedback for upgrade purchase (stronger than regular purchase)
+		if HapticFeedback:
+			HapticFeedback.on_purchase()
+
 		# Play dramatic upgrade celebration sound
 		if SoundManager:
 			SoundManager.play_tool_upgrade()
@@ -850,6 +858,10 @@ func _on_backpack_upgrade() -> void:
 			InventoryManager.upgrade_capacity(next.slots)
 			print("[Shop] Backpack upgraded to %d slots" % next.slots)
 
+			# Haptic feedback for upgrade purchase
+			if HapticFeedback:
+				HapticFeedback.on_purchase()
+
 			# Play upgrade celebration
 			if SoundManager:
 				SoundManager.play_level_up()
@@ -984,6 +996,10 @@ func _on_warehouse_upgrade() -> void:
 		InventoryManager.upgrade_capacity(InventoryManager.get_total_slots() + new_slots)
 		print("[Shop] Warehouse upgraded to level %d (+%d slots)" % [current_level + 1, new_slots])
 
+		# Haptic feedback for upgrade purchase
+		if HapticFeedback:
+			HapticFeedback.on_purchase()
+
 		# Play upgrade celebration
 		if SoundManager:
 			SoundManager.play_level_up()
@@ -1087,6 +1103,10 @@ func _on_passive_income_upgrade() -> void:
 		var new_mult := PlayerData.get_passive_income_multiplier()
 		print("[Shop] Passive income upgraded to %.1fx" % new_mult)
 
+		# Haptic feedback for upgrade purchase
+		if HapticFeedback:
+			HapticFeedback.on_purchase()
+
 		# Play upgrade celebration
 		if SoundManager:
 			SoundManager.play_level_up()
@@ -1165,6 +1185,10 @@ func _on_buy_gadget(gadget_id: String, cost: int) -> void:
 	if GameManager.spend_coins(cost):
 		PlayerData.add_gadget(gadget_id, 1)
 		print("[Shop] Purchased gadget: %s" % gadget_id)
+
+		# Haptic feedback for purchase
+		if HapticFeedback:
+			HapticFeedback.light_tap()
 
 		# Play minor celebration for gadget purchase
 		if SoundManager:
@@ -1438,6 +1462,10 @@ func _on_buy_equipment(equip_id: String, equip_type: String, cost: int) -> void:
 			PlayerData.unlock_helmet(equip_id)
 			PlayerData.equip_helmet(equip_id)
 		print("[Shop] Purchased and equipped %s: %s" % [equip_type, equip_id])
+
+		# Haptic feedback for upgrade purchase
+		if HapticFeedback:
+			HapticFeedback.on_purchase()
 
 		# Play upgrade celebration for equipment purchase
 		if SoundManager:

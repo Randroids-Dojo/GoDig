@@ -1,9 +1,9 @@
 ---
 title: "implement: Depth palette system - fixed palette per layer with warm→desaturated progression"
-status: open
+status: active
 priority: 2
 issue-type: task
-created-at: "2026-02-02T18:50:56.819004-06:00"
+created-at: "\"2026-02-02T18:50:56.819004-06:00\""
 ---
 
 ## Purpose

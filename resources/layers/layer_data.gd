@@ -17,11 +17,23 @@ class_name LayerData extends Resource
 ## Base hardness value - affects hits needed to break blocks
 @export var base_hardness: float = 10.0
 
-## Primary color for this layer's blocks
+## Primary color for this layer's blocks (most common)
 @export var color_primary: Color = Color.BROWN
 
-## Accent color for visual variation
+## Secondary color for visual variety (less common)
+@export var color_secondary: Color = Color.TAN
+
+## Accent color for highlights and transitions
 @export var color_accent: Color = Color.TAN
+
+## Background/shadow color for depth
+@export var color_shadow: Color = Color.DIM_GRAY
+
+## Highlight color for special blocks
+@export var color_highlight: Color = Color.WHITE
+
+## Ore tint color - applied to ores in this layer for cohesion
+@export var color_ore_tint: Color = Color.WHITE
 
 ## TileSet atlas coordinates for this layer's tile (if using TileMap)
 @export var tile_atlas_coords: Vector2i = Vector2i.ZERO
@@ -89,3 +101,38 @@ func get_heat_damage_at(depth: int) -> float:
 			damage += (float(depth_into_layer) / 100.0) * heat_damage_per_100_depth
 
 	return damage
+
+
+## Get a color for a block at grid position with deterministic variation.
+## Uses the full palette for natural-looking terrain.
+## Weights: primary (60%), secondary (25%), accent (15%)
+func get_color_at(grid_pos: Vector2i) -> Color:
+	var seed_value := grid_pos.x * 1000 + grid_pos.y
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var roll := rng.randf()
+
+	if roll < 0.60:
+		return color_primary
+	elif roll < 0.85:
+		return color_secondary
+	else:
+		return color_accent
+
+
+## Get the full palette as an array for external systems
+func get_palette() -> Array[Color]:
+	return [
+		color_primary,
+		color_secondary,
+		color_accent,
+		color_shadow,
+		color_highlight,
+		color_ore_tint,
+	]
+
+
+## Get the saturation level of this layer's palette (0.0 to 1.0)
+## Useful for UI elements that need to match layer feel
+func get_saturation_level() -> float:
+	return color_primary.s

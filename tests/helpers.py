@@ -103,6 +103,7 @@ PATHS = {
     "frustration_tracker": "/root/FrustrationTracker",
     "mining_bonus_manager": "/root/MiningBonusManager",
     "exploration_manager": "/root/ExplorationManager",
+    "journal_manager": "/root/JournalManager",
 }
 
 

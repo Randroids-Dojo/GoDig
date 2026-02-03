@@ -84,8 +84,19 @@ func _ready() -> void:
 	print("[EnemyManager] Ready with %d enemy types" % ENEMY_TYPES.size())
 
 
+## Check if enemies are enabled (respects peaceful mode)
+func enemies_enabled() -> bool:
+	if SettingsManager and SettingsManager.peaceful_mode:
+		return false
+	return true
+
+
 ## Check if an enemy should spawn when breaking a block
 func check_enemy_spawn(grid_pos: Vector2i, depth: int) -> String:
+	# Respect peaceful mode setting
+	if not enemies_enabled():
+		return ""
+
 	if in_combat:
 		return ""  # Don't spawn during combat
 

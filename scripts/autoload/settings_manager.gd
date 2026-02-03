@@ -21,6 +21,7 @@ signal screen_shake_changed(intensity: float)
 signal auto_sell_changed(enabled: bool)
 signal tension_audio_changed(enabled: bool)
 signal juice_level_changed(level: int)
+signal peaceful_mode_changed(enabled: bool)
 
 # ============================================
 # ENUMS
@@ -134,6 +135,14 @@ var tension_audio_enabled: bool = true:
 		tension_audio_changed.emit(value)
 		_queue_save()
 
+## Gameplay: Peaceful mode (no enemies spawn, focus on mining)
+## When enabled, players can enjoy pure mining without combat encounters
+var peaceful_mode: bool = false:
+	set(value):
+		peaceful_mode = value
+		peaceful_mode_changed.emit(value)
+		_queue_save()
+
 # ============================================
 # CONTROL SETTINGS
 # ============================================
@@ -243,6 +252,7 @@ func reset_to_defaults() -> void:
 	screen_shake_intensity = 1.0
 	juice_level = JuiceLevel.MEDIUM  # Research shows Medium is optimal
 	auto_sell_enabled = false
+	peaceful_mode = false
 	master_volume = 1.0
 	sfx_volume = 1.0
 	music_volume = 1.0
@@ -304,6 +314,7 @@ func _save_settings() -> void:
 
 	# Gameplay settings
 	config.set_value("gameplay", "auto_sell_enabled", auto_sell_enabled)
+	config.set_value("gameplay", "peaceful_mode", peaceful_mode)
 
 	# Audio settings
 	config.set_value("audio", "master_volume", master_volume)
@@ -381,6 +392,11 @@ func _load_settings() -> void:
 	# Load gameplay settings
 	auto_sell_enabled = _validate_bool(
 		config.get_value("gameplay", "auto_sell_enabled", false),
+		false
+	)
+
+	peaceful_mode = _validate_bool(
+		config.get_value("gameplay", "peaceful_mode", false),
 		false
 	)
 

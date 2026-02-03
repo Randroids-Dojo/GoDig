@@ -512,6 +512,13 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 		if ExplorationManager:
 			ExplorationManager.mark_block_mined(pos)
 
+		# Check for enemy spawn (depth-gated, respects peaceful mode)
+		var depth := pos.y - _surface_row
+		if EnemyManager and depth > 0:
+			var spawned_enemy := EnemyManager.check_enemy_spawn(pos, depth)
+			if spawned_enemy != "":
+				print("[DirtGrid] Enemy spawned: %s at depth %d" % [spawned_enemy, depth])
+
 		_release(pos)
 
 	return destroyed

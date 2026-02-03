@@ -172,6 +172,15 @@ var _last_return_safety_level: int = 0  # 0=safe, 1=risky, 2=danger
 var _return_safety_update_timer: float = 0.0
 const RETURN_SAFETY_UPDATE_INTERVAL := 0.5  # Don't recalculate every frame
 
+## Danger zone warning system
+var danger_zone_warning_container: Control = null
+var danger_zone_warning_icon: Label = null
+var danger_zone_warning_label: Label = null
+var _danger_zone_pulse_time: float = 0.0
+var _danger_zone_visible: bool = false
+var _current_danger_zone_name: String = ""
+const DANGER_ZONE_PULSE_SPEED := 3.0
+
 
 ## Apply standard dark outline to a label for readability
 static func apply_text_outline(label: Label, outline_size: int = HUD_OUTLINE_SIZE, outline_color: Color = HUD_OUTLINE_COLOR) -> void:
@@ -298,6 +307,15 @@ func _ready() -> void:
 	# Create risk indicator (deep dive warning)
 	_setup_risk_indicator()
 
+	# Create danger zone warning system
+	_setup_danger_zone_warning()
+
+	# Connect to DangerZoneManager signals
+	if DangerZoneManager:
+		DangerZoneManager.danger_zone_entered.connect(_on_danger_zone_entered)
+		DangerZoneManager.danger_zone_exited.connect(_on_danger_zone_exited)
+		DangerZoneManager.danger_zone_warning.connect(_on_danger_zone_approaching)
+
 	# Connect to coins_added for floater animations
 	if GameManager:
 		GameManager.coins_added.connect(_on_coins_added)
@@ -338,6 +356,9 @@ func _process(delta: float) -> void:
 
 	# Update return safety calculation (throttled)
 	_update_return_safety(delta)
+
+	# Update danger zone warning pulse
+	_update_danger_zone_pulse(delta)
 
 
 ## Connect to a player's HP signals
@@ -3053,3 +3074,159 @@ func _update_upgrade_glow(delta: float) -> void:
 	else:
 		_upgrade_glow_active = false
 		_upgrade_glow_time = 0.0
+
+
+# ============================================
+# DANGER ZONE WARNING SYSTEM
+# ============================================
+
+func _setup_danger_zone_warning() -> void:
+	## Create the danger zone warning indicator (top center of screen)
+	danger_zone_warning_container = Control.new()
+	danger_zone_warning_container.name = "DangerZoneWarning"
+	danger_zone_warning_container.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	danger_zone_warning_container.position = Vector2(0, 120)
+	danger_zone_warning_container.custom_minimum_size = Vector2(0, 60)
+	danger_zone_warning_container.modulate.a = 0.0  # Start hidden
+	add_child(danger_zone_warning_container)
+
+	# Center container for alignment
+	var center := CenterContainer.new()
+	center.name = "CenterContainer"
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	danger_zone_warning_container.add_child(center)
+
+	# HBox for icon + text
+	var hbox := HBoxContainer.new()
+	hbox.name = "HBox"
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox.add_theme_constant_override("separation", 8)
+	center.add_child(hbox)
+
+	# Warning icon
+	danger_zone_warning_icon = Label.new()
+	danger_zone_warning_icon.name = "Icon"
+	danger_zone_warning_icon.text = "!"
+	danger_zone_warning_icon.add_theme_font_size_override("font_size", 32)
+	danger_zone_warning_icon.add_theme_color_override("font_color", UIColors.WARNING_YELLOW)
+	apply_text_outline(danger_zone_warning_icon, 4)
+	hbox.add_child(danger_zone_warning_icon)
+
+	# Warning text
+	danger_zone_warning_label = Label.new()
+	danger_zone_warning_label.name = "Label"
+	danger_zone_warning_label.text = "DANGER ZONE"
+	danger_zone_warning_label.add_theme_font_size_override("font_size", 20)
+	danger_zone_warning_label.add_theme_color_override("font_color", Color.WHITE)
+	apply_text_outline(danger_zone_warning_label, 3)
+	hbox.add_child(danger_zone_warning_label)
+
+
+func _on_danger_zone_entered(zone_name: String, _grid_pos: Vector2i) -> void:
+	## Called when player enters a danger zone
+	_current_danger_zone_name = zone_name
+	_danger_zone_visible = true
+
+	if danger_zone_warning_label:
+		danger_zone_warning_label.text = zone_name.to_upper()
+
+	# Update icon color based on zone type
+	_update_danger_zone_icon_color(zone_name)
+
+	# Show warning with fade in
+	_show_danger_zone_warning()
+
+	# Show guidance toast with zone description
+	var zone_info := {}
+	if DangerZoneManager:
+		zone_info = DangerZoneManager.get_current_zone_info()
+	var description: String = zone_info.get("description", "Dangerous area ahead!")
+	show_guidance_toast(description, "!", 3.0)
+
+	# Haptic feedback for zone entry
+	if HapticFeedback:
+		HapticFeedback.medium_tap()
+
+
+func _on_danger_zone_exited(_zone_name: String) -> void:
+	## Called when player exits a danger zone
+	_danger_zone_visible = false
+	_current_danger_zone_name = ""
+
+	# Hide warning with fade out
+	_hide_danger_zone_warning()
+
+	# Show exit message
+	show_guidance_toast("Zone cleared!", "", 1.5)
+
+
+func _on_danger_zone_approaching(zone_name: String, _grid_pos: Vector2i) -> void:
+	## Called when player is approaching a danger zone entrance
+	# Show brief warning toast
+	var message := "DANGER AHEAD: %s" % zone_name
+	show_guidance_toast(message, "!", 2.5)
+
+	# Haptic feedback for warning
+	if HapticFeedback:
+		HapticFeedback.light_tap()
+
+
+func _update_danger_zone_icon_color(zone_name: String) -> void:
+	## Update warning icon color based on zone type
+	if danger_zone_warning_icon == null:
+		return
+
+	var color := UIColors.WARNING_YELLOW  # Default
+
+	# Match zone type by name
+	if "Lava" in zone_name or "Molten" in zone_name:
+		color = Color(1.0, 0.3, 0.1)  # Lava orange
+	elif "Flooded" in zone_name or "Sunken" in zone_name:
+		color = Color(0.3, 0.6, 1.0)  # Water blue
+	elif "Gas" in zone_name or "Toxic" in zone_name:
+		color = Color(0.4, 0.9, 0.3)  # Poison green
+	elif "Collapsed" in zone_name or "Crumbling" in zone_name:
+		color = Color(0.8, 0.6, 0.4)  # Dusty brown
+
+	danger_zone_warning_icon.add_theme_color_override("font_color", color)
+
+
+func _update_danger_zone_pulse(delta: float) -> void:
+	## Update danger zone warning pulse animation
+	if danger_zone_warning_container == null:
+		return
+
+	if not _danger_zone_visible:
+		return
+
+	_danger_zone_pulse_time += delta * DANGER_ZONE_PULSE_SPEED
+
+	# Pulse the alpha between 0.7 and 1.0
+	var pulse := (sin(_danger_zone_pulse_time) + 1.0) / 2.0
+	var alpha := lerpf(0.7, 1.0, pulse)
+	danger_zone_warning_container.modulate.a = alpha
+
+	# Subtle scale pulse on icon
+	if danger_zone_warning_icon and (not SettingsManager or not SettingsManager.reduced_motion):
+		var scale_pulse := lerpf(1.0, 1.1, pulse)
+		danger_zone_warning_icon.scale = Vector2(scale_pulse, scale_pulse)
+
+
+func _show_danger_zone_warning() -> void:
+	## Show danger zone warning with fade in
+	if danger_zone_warning_container == null:
+		return
+
+	_danger_zone_pulse_time = 0.0
+
+	var tween := create_tween()
+	tween.tween_property(danger_zone_warning_container, "modulate:a", 1.0, 0.2)
+
+
+func _hide_danger_zone_warning() -> void:
+	## Hide danger zone warning with fade out
+	if danger_zone_warning_container == null:
+		return
+
+	var tween := create_tween()
+	tween.tween_property(danger_zone_warning_container, "modulate:a", 0.0, 0.3)

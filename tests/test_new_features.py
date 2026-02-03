@@ -262,3 +262,115 @@ async def test_settings_manager_tension_audio_enabled_exists(game):
     # tension_audio_enabled should be a boolean (default True)
     assert result is not None, "tension_audio_enabled property should exist"
     assert isinstance(result, bool), "tension_audio_enabled should be a boolean"
+
+
+# =============================================================================
+# ENEMY-MINING INTEGRATION TESTS
+# =============================================================================
+
+@pytest.mark.asyncio
+async def test_peaceful_mode_disables_enemy_spawning(game):
+    """Verify peaceful mode prevents enemy spawning."""
+    # Enable peaceful mode
+    await game.set_property(PATHS["settings_manager"], "peaceful_mode", True)
+
+    # Check that enemies are disabled
+    result = await game.call_method(PATHS["enemy_manager"], "enemies_enabled")
+    assert result.get("result") is False, "Enemies should be disabled in peaceful mode"
+
+    # Restore default state
+    await game.set_property(PATHS["settings_manager"], "peaceful_mode", False)
+
+
+@pytest.mark.asyncio
+async def test_normal_mode_enables_enemy_spawning(game):
+    """Verify normal mode (non-peaceful) allows enemy spawning."""
+    # Ensure peaceful mode is off
+    await game.set_property(PATHS["settings_manager"], "peaceful_mode", False)
+
+    # Check that enemies are enabled
+    result = await game.call_method(PATHS["enemy_manager"], "enemies_enabled")
+    assert result.get("result") is True, "Enemies should be enabled in normal mode"
+
+
+@pytest.mark.asyncio
+async def test_enemy_spawn_check_returns_empty_at_surface(game):
+    """Verify no enemy spawns at depth 0 (surface)."""
+    # Ensure enemies are enabled
+    await game.set_property(PATHS["settings_manager"], "peaceful_mode", False)
+
+    # Check spawn at surface - should return empty string (no spawn)
+    result = await game.call_method(
+        PATHS["enemy_manager"],
+        "check_enemy_spawn",
+        [{"x": 0, "y": 0, "_type": "Vector2i"}, 0]  # grid_pos, depth
+    )
+    assert result.get("result") == "", "No enemies should spawn at surface (depth 0)"
+
+
+@pytest.mark.asyncio
+async def test_enemy_types_have_valid_depth_ranges(game):
+    """Verify all enemy types have sensible depth configurations."""
+    # Check multiple depths for expected enemy availability
+    depth_tests = [
+        (50, 0, "No enemies below depth 100"),
+        (100, 1, "At least 1 enemy at depth 100"),
+        (200, 2, "At least 2 enemies at depth 200"),
+        (500, 3, "At least 3 enemies at depth 500"),
+    ]
+
+    for depth, min_count, description in depth_tests:
+        result = await game.call_method(PATHS["enemy_manager"], "get_enemies_at_depth", [depth])
+        enemies = result.get("result", [])
+        assert len(enemies) >= min_count, f"{description}, got {len(enemies)}"
+
+
+@pytest.mark.asyncio
+async def test_enemy_manager_reset_clears_state(game):
+    """Verify EnemyManager reset clears all state."""
+    # Reset the manager
+    await game.call(PATHS["enemy_manager"], "reset")
+
+    # Verify state is cleared
+    in_combat = await game.call_method(PATHS["enemy_manager"], "is_in_combat")
+    defeated = await game.call_method(PATHS["enemy_manager"], "get_enemies_defeated")
+
+    assert in_combat.get("result") is False, "Should not be in combat after reset"
+    assert defeated.get("result") == 0, "Defeated count should be 0 after reset"
+
+
+@pytest.mark.asyncio
+async def test_enemy_type_cave_bat_properties(game):
+    """Verify cave_bat enemy has correct configuration."""
+    result = await game.call_method(PATHS["enemy_manager"], "get_enemy_info", ["cave_bat"])
+    info = result.get("result", {})
+
+    assert info.get("name") == "Cave Bat", "Cave Bat should have correct name"
+    assert info.get("min_depth") == 100, "Cave Bat min depth should be 100"
+    assert info.get("hp") == 10, "Cave Bat should have 10 HP"
+    assert info.get("damage") == 5, "Cave Bat should deal 5 damage"
+    assert info.get("reward_coins") == 25, "Cave Bat should reward 25 coins"
+
+
+@pytest.mark.asyncio
+async def test_enemy_type_rock_crawler_properties(game):
+    """Verify rock_crawler enemy has correct configuration."""
+    result = await game.call_method(PATHS["enemy_manager"], "get_enemy_info", ["rock_crawler"])
+    info = result.get("result", {})
+
+    assert info.get("name") == "Rock Crawler", "Rock Crawler should have correct name"
+    assert info.get("min_depth") == 200, "Rock Crawler min depth should be 200"
+    assert info.get("hp") == 25, "Rock Crawler should have 25 HP"
+    assert info.get("damage") == 10, "Rock Crawler should deal 10 damage"
+
+
+@pytest.mark.asyncio
+async def test_enemy_warning_delay_configured(game):
+    """Verify enemy warning delay is set (no sudden death from RNG)."""
+    # The warning delay ensures players have time to react before combat starts
+    # This is part of the "no beheading" rule - fair warning principle
+    result = await game.get_property(PATHS["enemy_manager"], "ENEMY_WARNING_DELAY")
+    delay = result
+
+    # Warning delay should be at least 0.5 seconds for fair warning
+    assert delay >= 0.5, f"Enemy warning delay should be at least 0.5s for fairness, got {delay}"

@@ -98,7 +98,9 @@ func start_game() -> void:
 		push_warning("[GameManager] set_state did not transition to PLAYING, forcing state directly")
 		state = GameState.PLAYING
 		is_running = true
-		get_tree().paused = false
+		var tree := get_tree()
+		if tree:
+			tree.paused = false
 		state_changed.emit(GameState.PLAYING)
 
 	print("[GameManager] After set_state, state is now: %d, is_running: %s" % [state, is_running])
@@ -130,17 +132,24 @@ func set_state(new_state: GameState) -> void:
 	state = new_state
 	state_changed.emit(new_state)
 
+	# Web build safety: get_tree() can be null during early initialization
+	var tree := get_tree()
+
 	match new_state:
 		GameState.PLAYING:
-			get_tree().paused = false
+			if tree:
+				tree.paused = false
 			is_running = true
 		GameState.PAUSED, GameState.SHOP:
-			get_tree().paused = true
+			if tree:
+				tree.paused = true
 		GameState.GAME_OVER:
-			get_tree().paused = true
+			if tree:
+				tree.paused = true
 			is_running = false
 		GameState.MENU:
-			get_tree().paused = false
+			if tree:
+				tree.paused = false
 			is_running = false
 
 

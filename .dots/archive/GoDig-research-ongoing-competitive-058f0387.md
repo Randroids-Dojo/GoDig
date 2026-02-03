@@ -1617,15 +1617,122 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Despite polarization: 92% positive recent reviews (9,700+ total)
 - **GoDig Learning**: Return trip must feel like ACHIEVEMENT. Wall-jump + ladders = skill expression. Elevator = late convenience.
 
+### Session 26 (2026-02-02)
+
+**Mr. Mine Depth-Surprise System Analysis**:
+- Core philosophy: "Adventure and discovery" emphasized over pure incremental progress
+- Each new depth introduces "rarer minerals, hidden structures, surprises" - breaks monotony
+- 100+ drill upgrades create constant progression milestones
+- Random events like "finding a mysterious cave" mix up routine gameplay
+- Unlocking secrets (new areas, special upgrades) adds excitement most idle games skip
+- Light narrative woven in: "hints of a bigger purpose" as you dig deeper
+- Spans 3 distinct worlds (Earth, Moon, Titan) - major content gates prevent burnout
+- Secret achievements system adds meta-goal layer for completionists
+- **GoDig Application**: Each depth layer should introduce discoverable surprises - caves, abandoned equipment, rare ore veins. Not just harder blocks.
+
+**Keep Digging (September 2025) Player Reception Analysis**:
+- Released September 11, 2025 at $5 price point - validates low barrier entry
+- Current reviews: 81% positive (recent), 80% overall (2,350+ reviews) - solid reception
+- Core loop praised: "relaxing satisfaction of digging, discovery, and upgrading"
+- Up to 8 players co-op, 10 layers to 1,000m depth
+- **No combat, no stealth** - validates cozy mining approach
+- Cross-progression between solo and multiplayer praised highly
+- Player quote: "pure exploration focus" works for casual audience
+- Criticism: "performance hiccups in co-op at deeper layers" + lobby matching issues
+- **GoDig Competitive Position**: Our ladder-based risk system remains unique; Keep Digging has no tension mechanic. We differentiate on push-your-luck, they differentiate on multiplayer.
+
+**Mobile Game Lapsed Player Re-engagement (2025-2026 Best Practices)**:
+- Key driver 2026: "re-engaging known user via retargeting significantly cheaper than acquiring new one"
+- Login calendars especially popular in Japan - acknowledge returning players warmly
+- State of Survival's "Survivor Recall" event includes its own Battle Pass for lapsed players
+- Pokémon GO "comeback events" reward returning players with bonus XP and rare items
+- ML-driven prediction separates: at-risk mid-value (moderate rewards), high-value whales (VIP treatment), low-value free (ad-based incentives)
+- Mistplay learning: "players were happier without having the pressure" of streak systems - remove guilt
+- Playable ads remind lapsed players of core gameplay loop without app friction
+- **GoDig Application**: Welcome-back rewards should feel like gift, not guilt. Show depth record + progress reminder + free ladders.
+
+**Dome Keeper Multiplayer Update (Early 2026)**:
+- Multiplayer was most requested feature since day 1
+- December 2025 playtest completed, early 2026 release expected
+- Modes: Cooperative (up to 8 players online) + Competitive Versus (two teams, one shared mine)
+- Developer quote: "Adding multiplayer to singleplayer game is unreasonable amount of work"
+- Game hit 1M players milestone, 12,000+ reviews at Very Positive rating
+- **GoDig Learning**: Focus on single-player core loop perfection. Multiplayer is v2+ feature if ever.
+
+**Deep Rock Galactic: Rogue Core (Q3 2025 Early Access)**:
+- Roguelite spinoff - start each mission with ONLY pickaxe, scavenge weapons/equipment
+- "The Greyout Barrier" disables technology on contact - forces scavenging gameplay
+- Expenite mineral powers temporary upgrades within runs
+- Meta-progression: unlock Reclaimer Weapons, Phase Suits, Suit Mods between runs
+- 1-4 player co-op, made by Ghost Ship Games in Unreal Engine 4
+- Difficulty increases drastically as you progress (vs consistent difficulty in original DRG)
+- **GoDig Distinction**: Our game is mobile-first with ladder economy. DRG:RC is PC co-op shooter.
+
+**Push-Your-Luck Mechanics Deep Dive (Board Game Design)**:
+- Core definition: "Decide whether to settle for existing gains or risk them all for further rewards"
+- Key distinction: Push-your-luck is DIFFERENT from pure luck - requires meaningful CHOICES
+- Psychology: "The thrill of potentially enormous success, and the devastation of losing it all"
+- Balance formula: Risk AND reward must both increase during turn duration
+- Beginning: low risk, low reward - most players keep going
+- Middle: moderate risk, greater reward - should be rewarded for stopping here
+- End: high risk, highest reward - only for committed players
+- Can't Stop (Sid Sackson): 44 years of success proves the mechanic's timeless appeal
+- Zombie Dice: "3 strikes and you're out" rule creates gradual tension
+- Quacks of Quedlinburg: bag-building + push-your-luck with mitigation mechanics
+- **GoDig Validation**: Our ladder depletion creates superior progressive risk vs sudden bust.
+
+**Mobile Game First Upgrade Psychology (2025)**:
+- D1 retention is where "most of the retention is made"
+- Only 2-5% of players ever spend money in F2P games
+- Games like Head Ball 2 don't show IAPs to new users at all initially
+- Daily rewards establish habit loop - "people hate breaking streaks"
+- If D1 is weak, onboarding is the issue; if D1 solid but D7 tanks, early content lacks depth
+- UA costs have skyrocketed due to privacy changes - retention > acquisition in 2025
+- Mobile gaming generated $92B in 2024, 98% from F2P
+- **GoDig Critical**: First upgrade must be achievable quickly AND feel transformative. No IAPs shown until player has experienced full loop.
+
+**Multi-Layer Progression Design (2025 Best Practices)**:
+- Single 'progression system' not enough - need short, medium, and long-term goals
+- Hybrid progression combines XP-based, item-based, skill-based, narrative layers
+- Meta layer "must feed core game, and core game must feed meta layer"
+- "Tower of Wants" philosophy: players must always anticipate something new
+- Hybrid casual games (hyper-casual + deeper mechanics) showing higher LTV
+- AI enabling adaptive, personalized progression structures
+- **GoDig Implementation**: Short-term (ore discovery), medium-term (pickaxe upgrade), long-term (layer unlock, shop expansion).
+
+**New Mining Roguelikes 2025-2026 Landscape Update**:
+- **Slay the Spire II** expected March 2026 - major roguelite event
+- **Tears of Metal** Scottish Musou roguelike - slipped from 2025 to early 2026
+- **Returnal 2** slated for 2026 - validates roguelite + narrative structure
+- itch.io growing: Terra Pit, Illumine, BORE BLASTERS, Blast Mining Co. (steampunk)
+- 2026 trend: season-style progression, deeper simulation systems, long-term content updates
+- **GoDig Competitive Position**: Mobile-first ladder-based push-your-luck still unique.
+
+**Balatro Development Update (LocalThunk)**:
+- 1.1 update pushed back to 2026 - "done when it's done"
+- Creator cites burnout after 1.0 launch + mobile port work
+- Will include new Jokers + Matador overhaul + blue stake difficulty changes
+- 5M+ copies sold as of January 2025
+- Vampire Survivors crossover: 4 Balatro characters added (Jimbo, Canio, Chicot, Perkeo)
+- **GoDig Learning**: Solo dev burnout is real. Plan for sustainable development pace.
+
 ### Topics for Future Research
-- [ ] Analyze Windblown's "Endless Mode" for post-game content ideas
-- [ ] Study how Core Keeper balances XP gain vs efficient tools
-- [ ] Research "inventory Tetris" satisfaction patterns (Resident Evil, Diablo)
-- [ ] Study mobile game "abundance/scarcity" cycle timing
-- [ ] Analyze Keep Digging (2026) player reception post-launch
-- [ ] Research Balatro sequel/DLC for variable reward evolution
-- [ ] Study mobile game "comeback" mechanics after 7+ day absence
-- [ ] Analyze Mr. Mine depth-surprise system for GoDig layer design
+- [ ] Research Cairn's climbing feedback when full release available (2026)
+- [ ] Study Under A Rock's cave resource harvesting design when released
+- [ ] Analyze Cryptical Path player reviews for "rogue-builder" reception
+- [ ] Study DRG: Rogue Core player feedback when Early Access launches
+- [ ] Analyze Slay the Spire II for roguelite innovation (March 2026)
+- [ ] Research Dome Keeper multiplayer reception after Q1 2026 launch
+- [ ] Study mobile game "prestige" system timing and player satisfaction
+- [x] Analyze Keep Digging player reception (Session 26)
+- [x] Study mobile game "comeback" mechanics (Session 26)
+- [x] Analyze Mr. Mine depth-surprise system (Session 26)
+
+### Implementation Dots Created from Session 26
+- `GoDig-implement-depth-surprise-caves` - Add discoverable cave surprises at random depths
+- `GoDig-implement-welcome-gift` - Welcome-back rewards without guilt/streak pressure
+- `GoDig-implement-layer-identity` - Each layer should have unique visual/mechanical identity
+- `GoDig-implement-no-iap-ftue` - Hide monetization until player completes first full loop
 
 ### Implementation Dots Created from Session 25
 - `GoDig-implement-decision-moment-design` - Design for decision moments, not just digging satisfaction

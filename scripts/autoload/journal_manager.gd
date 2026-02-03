@@ -266,9 +266,10 @@ func load_save_data(data: Dictionary) -> void:
 func get_stats() -> Dictionary:
 	var stats_by_type := {}
 	for lore_type in _lore_by_type:
-		var total: int = _lore_by_type[lore_type].size()
-		var collected_count := 0
-		for lore in _lore_by_type[lore_type]:
+		var lore_array: Array = _lore_by_type[lore_type]
+		var total: int = lore_array.size()
+		var collected_count: int = 0
+		for lore in lore_array:
 			if is_collected(lore.id):
 				collected_count += 1
 		stats_by_type[lore_type] = {

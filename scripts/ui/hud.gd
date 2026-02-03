@@ -1947,11 +1947,11 @@ const GUIDANCE_TOAST_DURATION := 4.0  # Seconds to show each toast
 const GUIDANCE_TOAST_FADE := 0.3  # Fade in/out duration
 
 func _setup_guidance_toast() -> void:
-	## Create the guidance toast container (appears at top-center, below pause button)
+	## Create the guidance toast container (appears at bottom-left in thumb zone)
 	guidance_toast = Control.new()
 	guidance_toast.name = "GuidanceToast"
-	guidance_toast.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	guidance_toast.position = Vector2(-340, 10)  # 340px from right edge
+	guidance_toast.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	guidance_toast.position = Vector2(16, -130)  # Above quick-sell button in thumb zone
 	guidance_toast.custom_minimum_size = Vector2(280, 50)
 	guidance_toast.modulate.a = 0.0  # Start hidden
 	add_child(guidance_toast)
@@ -2075,11 +2075,11 @@ func _update_inventory_indicator_with_guidance() -> void:
 # ============================================
 
 func _setup_ladder_warning() -> void:
-	## Create the low ladder warning indicator (positioned near ladder quickslot)
+	## Create the low ladder warning indicator (positioned near ladder quickslot in thumb zone)
 	ladder_warning_container = Control.new()
 	ladder_warning_container.name = "LadderWarningContainer"
-	ladder_warning_container.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	ladder_warning_container.position = Vector2(-140, 100)  # Left of ladder quickslot
+	ladder_warning_container.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	ladder_warning_container.position = Vector2(-140, -130)  # Left of ladder quickslot at bottom
 	ladder_warning_container.custom_minimum_size = Vector2(64, 56)
 	ladder_warning_container.modulate.a = 0.0  # Start hidden
 	add_child(ladder_warning_container)

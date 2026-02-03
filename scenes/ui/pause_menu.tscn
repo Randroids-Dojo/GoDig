@@ -1,12 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://pause_menu_001"]
+[gd_scene load_steps=3 format=3 uid="uid://pause_menu_001"]
 
 [ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="1_pause"]
+[ext_resource type="Theme" uid="uid://game_theme_001" path="res://resources/themes/game_theme.tres" id="2_theme"]
 
 [node name="PauseMenu" type="CanvasLayer"]
 layer = 100
 script = ExtResource("1_pause")
 
 [node name="Background" type="ColorRect" parent="."]
+theme = ExtResource("2_theme")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

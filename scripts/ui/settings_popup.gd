@@ -23,6 +23,7 @@ var haptics_check: CheckBox
 var reduced_motion_check: CheckBox
 var shake_slider: HSlider
 var shake_label: Label
+var juice_level_option: OptionButton
 var master_slider: HSlider
 var sfx_slider: HSlider
 var music_slider: HSlider
@@ -116,6 +117,11 @@ func _build_ui() -> void:
 	shake_slider = shake_row.get_node("Slider")
 	shake_label = shake_row.get_node("ValueLabel")
 	vbox.add_child(shake_row)
+
+	# Juice Level (visual effects intensity)
+	var juice_row := _create_option_row("Visual Effects:", ["Off", "Low", "Medium", "High"])
+	juice_level_option = juice_row.get_node("Option")
+	vbox.add_child(juice_row)
 
 	vbox.add_child(HSeparator.new())
 
@@ -241,6 +247,7 @@ func _connect_signals() -> void:
 	haptics_check.toggled.connect(_on_haptics_toggled)
 	reduced_motion_check.toggled.connect(_on_reduced_motion_toggled)
 	shake_slider.value_changed.connect(_on_shake_changed)
+	juice_level_option.item_selected.connect(_on_juice_level_changed)
 	master_slider.value_changed.connect(_on_master_volume_changed)
 	sfx_slider.value_changed.connect(_on_sfx_volume_changed)
 	music_slider.value_changed.connect(_on_music_volume_changed)
@@ -264,6 +271,7 @@ func _load_current_settings() -> void:
 	reduced_motion_check.button_pressed = SettingsManager.reduced_motion
 	shake_slider.value = SettingsManager.screen_shake_intensity * 100
 	_update_shake_label()
+	juice_level_option.selected = SettingsManager.juice_level
 
 	master_slider.value = SettingsManager.master_volume * 100
 	sfx_slider.value = SettingsManager.sfx_volume * 100
@@ -336,6 +344,10 @@ func _on_reduced_motion_toggled(enabled: bool) -> void:
 func _on_shake_changed(value: float) -> void:
 	SettingsManager.screen_shake_intensity = value / 100.0
 	_update_shake_label()
+
+
+func _on_juice_level_changed(index: int) -> void:
+	SettingsManager.juice_level = index
 
 
 func _on_master_volume_changed(value: float) -> void:

@@ -20,6 +20,7 @@ signal settings_reset()
 signal screen_shake_changed(intensity: float)
 signal auto_sell_changed(enabled: bool)
 signal tension_audio_changed(enabled: bool)
+signal juice_level_changed(level: int)
 
 # ============================================
 # ENUMS
@@ -27,6 +28,9 @@ signal tension_audio_changed(enabled: bool)
 
 enum ColorblindMode { OFF, SYMBOLS, HIGH_CONTRAST }
 enum HandMode { STANDARD, LEFT_HAND, RIGHT_HAND }
+## Juice level affects particle amounts, screen shake intensity, and visual feedback
+## Research (N=3018) shows Medium/High is optimal - both None and Extreme decrease play time
+enum JuiceLevel { OFF, LOW, MEDIUM, HIGH }
 
 # ============================================
 # CONSTANTS
@@ -82,6 +86,14 @@ var screen_shake_intensity: float = 1.0:
 	set(value):
 		screen_shake_intensity = clampf(value, 0.0, 1.0)
 		screen_shake_changed.emit(screen_shake_intensity)
+		_queue_save()
+
+## Visual Effects: Juice level (particle amounts, effects intensity)
+## Research (N=3018) shows Medium/High is optimal - default to MEDIUM
+var juice_level: JuiceLevel = JuiceLevel.MEDIUM:
+	set(value):
+		juice_level = value
+		juice_level_changed.emit(value)
 		_queue_save()
 
 ## Gameplay: Auto-sell ores on pickup when inventory full
@@ -188,6 +200,38 @@ func get_text_scale_options() -> Array:
 	return TEXT_SCALES.duplicate()
 
 
+## Get particle multiplier based on juice level
+## Returns 0.0 for OFF, 0.5 for LOW, 1.0 for MEDIUM (default), 1.5 for HIGH
+func get_particle_multiplier() -> float:
+	match juice_level:
+		JuiceLevel.OFF:
+			return 0.0
+		JuiceLevel.LOW:
+			return 0.5
+		JuiceLevel.MEDIUM:
+			return 1.0
+		JuiceLevel.HIGH:
+			return 1.5
+		_:
+			return 1.0
+
+
+## Get shake multiplier based on juice level (screen shake is scaled by this)
+## Returns 0.0 for OFF, 0.5 for LOW, 1.0 for MEDIUM, 1.3 for HIGH
+func get_shake_multiplier() -> float:
+	match juice_level:
+		JuiceLevel.OFF:
+			return 0.0
+		JuiceLevel.LOW:
+			return 0.5
+		JuiceLevel.MEDIUM:
+			return 1.0
+		JuiceLevel.HIGH:
+			return 1.3
+		_:
+			return 1.0
+
+
 ## Reset all settings to defaults
 func reset_to_defaults() -> void:
 	_loading = true  # Prevent intermediate saves
@@ -197,6 +241,7 @@ func reset_to_defaults() -> void:
 	haptics_enabled = true
 	reduced_motion = false
 	screen_shake_intensity = 1.0
+	juice_level = JuiceLevel.MEDIUM  # Research shows Medium is optimal
 	auto_sell_enabled = false
 	master_volume = 1.0
 	sfx_volume = 1.0
@@ -255,6 +300,7 @@ func _save_settings() -> void:
 	config.set_value("accessibility", "haptics_enabled", haptics_enabled)
 	config.set_value("accessibility", "reduced_motion", reduced_motion)
 	config.set_value("accessibility", "screen_shake_intensity", screen_shake_intensity)
+	config.set_value("accessibility", "juice_level", juice_level)
 
 	# Gameplay settings
 	config.set_value("gameplay", "auto_sell_enabled", auto_sell_enabled)
@@ -325,6 +371,12 @@ func _load_settings() -> void:
 		config.get_value("accessibility", "screen_shake_intensity", 1.0),
 		0.0, 1.0, 1.0
 	)
+
+	juice_level = _validate_enum(
+		config.get_value("accessibility", "juice_level", JuiceLevel.MEDIUM),
+		JuiceLevel.values(),
+		JuiceLevel.MEDIUM
+	) as JuiceLevel
 
 	# Load gameplay settings
 	auto_sell_enabled = _validate_bool(

@@ -53,6 +53,8 @@ func shake(intensity: float) -> void:
 	var adjusted_intensity := intensity
 	if SettingsManager:
 		adjusted_intensity *= SettingsManager.screen_shake_intensity
+		# Also apply juice level shake multiplier
+		adjusted_intensity *= SettingsManager.get_shake_multiplier()
 
 	# Skip if intensity is too low
 	if adjusted_intensity < 0.1:

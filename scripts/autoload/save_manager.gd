@@ -270,6 +270,8 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 		AutoMinerManager.reset()
 	if RestStationManager:
 		RestStationManager.reset()
+	if ProgressionGateManager:
+		ProgressionGateManager.reset()
 
 	# Give player starting supplies (5 ladders for first dive)
 	if InventoryManager and DataRegistry:
@@ -410,6 +412,10 @@ func _collect_game_state() -> void:
 	if RestStationManager:
 		current_save.rest_station_data = RestStationManager.get_save_data()
 
+	# Collect from ProgressionGateManager (feature unlock tracking)
+	if ProgressionGateManager:
+		current_save.progression_gate_data = ProgressionGateManager.get_save_data()
+
 
 ## Apply loaded game state to various managers
 func _apply_game_state() -> void:
@@ -516,6 +522,12 @@ func _apply_game_state() -> void:
 		var rest_station_data = current_save.get("rest_station_data")
 		if rest_station_data != null and rest_station_data is Dictionary and not rest_station_data.is_empty():
 			RestStationManager.load_save_data(rest_station_data)
+
+	# Apply to ProgressionGateManager (feature unlock tracking)
+	if ProgressionGateManager:
+		var progression_gate_data = current_save.get("progression_gate_data")
+		if progression_gate_data != null and progression_gate_data is Dictionary and not progression_gate_data.is_empty():
+			ProgressionGateManager.load_save_data(progression_gate_data)
 
 
 ## Calculate offline earnings based on time since last save

@@ -508,8 +508,8 @@ func _refresh_upgrades_tab() -> void:
 			var backpack_section := _create_upgrade_section("Backpack", _get_current_backpack_level(), backpack_upgrades, "_on_backpack_upgrade")
 			upgrades_container.add_child(backpack_section)
 
-			# Passive income upgrades (unlocked after reaching 100m depth)
-			if PlayerData and PlayerData.max_depth_reached >= 100:
+			# Passive income upgrades (unlocked via ProgressionGateManager)
+			if ProgressionGateManager and ProgressionGateManager.is_feature_unlocked("passive_income_upgrades"):
 				var passive_section := _create_passive_income_section()
 				upgrades_container.add_child(passive_section)
 

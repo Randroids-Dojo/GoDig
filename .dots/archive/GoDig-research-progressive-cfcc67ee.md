@@ -1,9 +1,11 @@
 ---
 title: "research: Progressive disclosure UX in mobile games - hiding complexity without frustration"
-status: open
+status: closed
 priority: 2
 issue-type: task
-created-at: "2026-02-02T19:07:29.577637-06:00"
+created-at: "\"\\\"2026-02-02T19:07:29.577637-06:00\\\"\""
+closed-at: "2026-02-02T19:14:31.634023-06:00"
+close-reason: Documented progressive disclosure UX in Docs/research/progressive-disclosure-ux.md - Clash Royale arenas, Stardew Valley seasons, depth-based unlock timeline for GoDig
 ---
 
 ## Purpose

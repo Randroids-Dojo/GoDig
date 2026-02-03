@@ -1,7 +1,7 @@
 extends Camera2D
 ## Camera that follows the player with optional screen shake.
 ## Should be a child of the player node for automatic following.
-## Also manages depth-based lighting via CanvasModulate.
+## Also manages depth-based lighting via CanvasModulate and fog overlay.
 
 # Offset from player origin
 # X=64 centers on player sprite (player is 128px wide)
@@ -16,6 +16,10 @@ var _base_offset: Vector2
 
 # Lighting modulation
 var _ambient_modulate: CanvasModulate = null
+
+# Depth fog overlay
+var _fog_overlay: ColorRect = null
+var _fog_canvas_layer: CanvasLayer = null
 
 
 func _ready() -> void:
@@ -85,6 +89,41 @@ func _setup_ambient_lighting() -> void:
 	# Register with LightingManager
 	if LightingManager:
 		LightingManager.register_canvas_modulate(_ambient_modulate)
+
+	# Setup depth fog overlay for atmospheric effect
+	_setup_fog_overlay(main_node)
+
+
+## Setup fog overlay for depth-based atmospheric fog
+func _setup_fog_overlay(main_node: Node) -> void:
+	# Create a CanvasLayer for the fog (renders above game but below UI)
+	if main_node.has_node("FogLayer"):
+		_fog_canvas_layer = main_node.get_node("FogLayer")
+		_fog_overlay = _fog_canvas_layer.get_node_or_null("FogOverlay")
+	else:
+		_fog_canvas_layer = CanvasLayer.new()
+		_fog_canvas_layer.name = "FogLayer"
+		_fog_canvas_layer.layer = 50  # Above game world, below UI (UI is typically 100+)
+		main_node.add_child(_fog_canvas_layer)
+
+		# Create the fog ColorRect
+		_fog_overlay = ColorRect.new()
+		_fog_overlay.name = "FogOverlay"
+		_fog_overlay.color = Color(0.5, 0.5, 0.5, 0.0)  # Start transparent
+		_fog_overlay.visible = false  # Start hidden (surface has no fog)
+
+		# Make it cover the full screen
+		_fog_overlay.anchors_preset = Control.PRESET_FULL_RECT
+		_fog_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+		# Use multiply blend mode for atmospheric fog effect
+		_fog_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE  # Don't block input
+
+		_fog_canvas_layer.add_child(_fog_overlay)
+
+	# Register with LightingManager
+	if LightingManager and _fog_overlay:
+		LightingManager.register_fog_overlay(_fog_overlay)
 
 
 ## Find the Main scene node (root of game scene)

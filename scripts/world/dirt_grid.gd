@@ -7,6 +7,7 @@ const DirtBlockScript = preload("res://scripts/world/dirt_block.gd")
 const OreSparkleScene = preload("res://scenes/effects/ore_sparkle.tscn")
 const RarityBorderScene = preload("res://scenes/effects/rarity_border.tscn")
 const NearOreHintScene = preload("res://scenes/effects/near_ore_hint.tscn")
+const OreSparkleManagerScript = preload("res://scripts/effects/ore_sparkle_manager.gd")
 
 const BLOCK_SIZE := 128
 const CHUNK_SIZE := 16  # 16x16 blocks per chunk
@@ -38,23 +39,39 @@ var _ore_map: Dictionary = {}  # Dictionary[Vector2i, String ore_id] - what ore 
 var _dug_tiles: Dictionary = {}  # Dictionary[Vector2i, bool] - tiles that have been mined/dug
 var _placed_objects: Dictionary = {}  # Dictionary[Vector2i, int tile_type] - ladders, torches, etc.
 var _dirty_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] - chunks with unsaved changes
-var _sparkles: Dictionary = {}  # Dictionary[Vector2i, CPUParticles2D] - sparkle effects for ore blocks
+var _sparkles: Dictionary = {}  # Dictionary[Vector2i, CPUParticles2D] - sparkle effects for ore blocks (legacy)
 var _rarity_borders: Dictionary = {}  # Dictionary[Vector2i, Node2D] - rarity border effects for ore blocks
 var _near_ore_hints: Dictionary = {}  # Dictionary[Vector2i, CPUParticles2D] - subtle hints for near-ore blocks
 var _near_ore_blocks: Dictionary = {}  # Dictionary[Vector2i, bool] - tracks blocks adjacent to ore
 var _player: Node2D = null
+
+## MultiMesh-based sparkle manager for performance optimization
+var _sparkle_manager: Node2D = null
+
+## Use MultiMesh batching for ore sparkles (reduces draw calls significantly)
+## Set to false to fall back to individual CPUParticles2D nodes
+var use_multimesh_sparkles: bool = true
 var _surface_row: int = 0
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 
 func _ready() -> void:
 	_preallocate_pool()
+	_setup_sparkle_manager()
 	# Connect to SaveManager to save dirty chunks before game save
 	if SaveManager:
 		SaveManager.save_started.connect(_on_save_started)
 	# Connect to ExplorationManager for fog updates
 	if ExplorationManager:
 		ExplorationManager.exploration_updated.connect(_on_exploration_updated)
+
+
+func _setup_sparkle_manager() -> void:
+	## Setup the MultiMesh-based sparkle manager for optimized rendering
+	if use_multimesh_sparkles:
+		_sparkle_manager = OreSparkleManagerScript.new()
+		_sparkle_manager.name = "OreSparkleManager"
+		add_child(_sparkle_manager)
 
 
 func initialize(player: Node2D, surface_row: int) -> void:
@@ -723,11 +740,6 @@ func _add_ore_sparkle(pos: Vector2i, ore) -> void:
 	## Add sparkle effect to an ore block
 	if not _active.has(pos):
 		return
-	if _sparkles.has(pos):
-		return  # Already has a sparkle
-
-	var block = _active[pos]
-	var sparkle = OreSparkleScene.instantiate()
 
 	# Get rarity from ore (convert string to int if needed)
 	var rarity_value := 0
@@ -747,20 +759,40 @@ func _add_ore_sparkle(pos: Vector2i, ore) -> void:
 	if "colorblind_symbol" in ore:
 		symbol = ore.colorblind_symbol
 
-	sparkle.configure(ore.color, rarity_value, symbol)
-	block.add_child(sparkle)
-	_sparkles[pos] = sparkle
+	# Use MultiMesh manager if available (better performance)
+	if use_multimesh_sparkles and _sparkle_manager != null:
+		# Calculate world position for the sparkle
+		var world_pos := Vector2(
+			pos.x * BLOCK_SIZE + GameManager.GRID_OFFSET_X + BLOCK_SIZE / 2,
+			pos.y * BLOCK_SIZE + BLOCK_SIZE / 2
+		)
+		_sparkle_manager.register_sparkle(pos, world_pos, ore.color, rarity_value, symbol)
+	else:
+		# Fallback to individual sparkle nodes (legacy approach)
+		if _sparkles.has(pos):
+			return  # Already has a sparkle
+
+		var block = _active[pos]
+		var sparkle = OreSparkleScene.instantiate()
+		sparkle.configure(ore.color, rarity_value, symbol)
+		block.add_child(sparkle)
+		_sparkles[pos] = sparkle
 
 
 func _remove_ore_sparkle(pos: Vector2i) -> void:
 	## Remove sparkle effect from a position
-	if not _sparkles.has(pos):
-		return
+	# Use MultiMesh manager if available
+	if use_multimesh_sparkles and _sparkle_manager != null:
+		_sparkle_manager.unregister_sparkle(pos)
+	else:
+		# Fallback to individual sparkle nodes (legacy approach)
+		if not _sparkles.has(pos):
+			return
 
-	var sparkle = _sparkles[pos]
-	if is_instance_valid(sparkle):
-		sparkle.queue_free()
-	_sparkles.erase(pos)
+		var sparkle = _sparkles[pos]
+		if is_instance_valid(sparkle):
+			sparkle.queue_free()
+		_sparkles.erase(pos)
 
 
 func _add_rarity_border(pos: Vector2i, ore) -> void:
@@ -1097,6 +1129,22 @@ func debug_surface_row() -> int:
 func debug_chunk_count() -> int:
 	## Get count of loaded chunks for debugging
 	return _loaded_chunks.size()
+
+
+func debug_sparkle_stats() -> Dictionary:
+	## Get sparkle system statistics for performance monitoring
+	var stats := {
+		"using_multimesh": use_multimesh_sparkles,
+		"registered_ores": 0,
+		"active_sparkles": 0,
+		"legacy_sparkles": _sparkles.size(),
+	}
+
+	if use_multimesh_sparkles and _sparkle_manager != null:
+		stats["registered_ores"] = _sparkle_manager.get_registered_count()
+		stats["active_sparkles"] = _sparkle_manager.get_active_sparkle_count()
+
+	return stats
 
 
 # ============================================

@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=3 uid="uid://treasure_chest_001"]
+
+[ext_resource type="Script" path="res://scripts/world/treasure_chest.gd" id="1_chest"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_chest"]
+size = Vector2(96, 64)
+
+[node name="TreasureChest" type="Area2D"]
+script = ExtResource("1_chest")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_chest")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.8, 0.6, 0.3, 1)
+scale = Vector2(8, 8)
+
+[node name="Sparkle" type="CPUParticles2D" parent="."]
+position = Vector2(0, -20)
+emitting = true
+amount = 5
+lifetime = 1.0
+explosiveness = 0.0
+direction = Vector2(0, -1)
+spread = 60.0
+gravity = Vector2(0, -20)
+initial_velocity_min = 10.0
+initial_velocity_max = 30.0
+scale_amount_min = 2.0
+scale_amount_max = 4.0
+color = Color(1, 0.9, 0.5, 0.8)
+
+[node name="Glow" type="PointLight2D" parent="."]
+color = Color(1, 0.8, 0.4, 1)
+energy = 0.5
+texture_scale = 0.5

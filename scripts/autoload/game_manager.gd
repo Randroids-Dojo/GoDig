@@ -87,13 +87,27 @@ func _init_tileset() -> void:
 
 
 func start_game() -> void:
+	print("[GameManager] start_game() called, current state: %d" % state)
+
+	# Web build safety: Ensure state transition happens even if set_state has issues
+	var old_state := state
 	set_state(GameState.PLAYING)  # Transition to PLAYING state
+
+	# Belt and suspenders: Verify state actually changed (critical for web builds)
+	if state != GameState.PLAYING:
+		push_warning("[GameManager] set_state did not transition to PLAYING, forcing state directly")
+		state = GameState.PLAYING
+		is_running = true
+		get_tree().paused = false
+		state_changed.emit(GameState.PLAYING)
+
+	print("[GameManager] After set_state, state is now: %d, is_running: %s" % [state, is_running])
 	current_depth = 0
 	coins = 0
 	reset_milestones()
 	game_started.emit()
 	coins_changed.emit(coins)
-	print("[GameManager] Game started")
+	print("[GameManager] Game started successfully")
 
 
 func end_game() -> void:

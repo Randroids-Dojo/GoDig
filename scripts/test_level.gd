@@ -61,11 +61,14 @@ func _process(delta: float) -> void:
 
 
 func _ready() -> void:
+	print("[TestLevel] _ready() START")
+
 	# Add to group for easy lookup (e.g., from shop)
 	add_to_group("test_level")
 
 	# Restore player position from save (for instant resume) or use surface spawn
 	_restore_player_position()
+	print("[TestLevel] Player position restored")
 
 	# Give player reference to dirt grid for mining
 	player.dirt_grid = dirt_grid
@@ -145,8 +148,14 @@ func _ready() -> void:
 		inventory_full_popup.item_dropped.connect(_on_inv_full_item_dropped)
 		inventory_full_popup.return_to_surface_requested.connect(_on_inv_full_return_requested)
 
+	print("[TestLevel] About to call GameManager.start_game(), current GameManager.state: %d" % GameManager.state)
 	# Start the game
 	GameManager.start_game()
+	print("[TestLevel] After GameManager.start_game(), state: %d, is_running: %s" % [GameManager.state, GameManager.is_running])
+
+	# Web build safety: Verify game state is PLAYING after a frame
+	# This catches edge cases where state didn't transition correctly
+	call_deferred("_verify_game_state")
 
 	# Update initial coins display
 	_on_coins_changed(GameManager.get_coins())
@@ -158,6 +167,51 @@ func _ready() -> void:
 	_init_ftue()
 
 	print("[TestLevel] Level initialized")
+
+
+func _verify_game_state() -> void:
+	## Verify game state is PLAYING after _ready() completes.
+	## This is a safety check for web builds where state transition may fail silently.
+	##
+	## Web builds have unique timing issues:
+	## - Scene loading may complete before autoloads are fully ready
+	## - call_deferred may execute before get_tree() is valid
+	## - State transitions may fail silently due to script loading order
+
+	# Wait for tree to be valid on web builds
+	if get_tree() == null:
+		push_warning("[TestLevel] Tree not valid yet, retrying state verification...")
+		call_deferred("_verify_game_state")
+		return
+
+	# Additional wait for web builds to ensure autoloads are ready
+	if OS.get_name() == "Web":
+		# Wait one more frame to ensure everything is initialized
+		await get_tree().process_frame
+
+	if GameManager.state != GameManager.GameState.PLAYING:
+		push_warning("[TestLevel] Game state not PLAYING after _ready()! State: %d. Forcing PLAYING state." % GameManager.state)
+		# Force the game to PLAYING state
+		GameManager.set_state(GameManager.GameState.PLAYING)
+
+		# Double-check is_running is also set (belt and suspenders)
+		if not GameManager.is_running:
+			push_warning("[TestLevel] is_running still false after set_state, forcing it true")
+			GameManager.is_running = true
+
+		print("[TestLevel] Forced game state to PLAYING. New state: %d, is_running: %s" % [GameManager.state, GameManager.is_running])
+
+		# On web, verify again after another frame to ensure it stuck
+		if OS.get_name() == "Web":
+			await get_tree().process_frame
+			if GameManager.state != GameManager.GameState.PLAYING:
+				push_error("[TestLevel] CRITICAL: Game state reverted after force! Something is resetting state.")
+				# Last resort: directly set state variable
+				GameManager.state = GameManager.GameState.PLAYING
+				GameManager.is_running = true
+				GameManager.state_changed.emit(GameManager.GameState.PLAYING)
+	else:
+		print("[TestLevel] Game state verified: PLAYING")
 
 
 func _show_first_time_hint() -> void:

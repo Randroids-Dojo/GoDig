@@ -1,12 +1,11 @@
 ---
 title: "v1.0: ChunkManager - load/unload around player"
-status: open
+status: closed
 priority: 3
 issue-type: task
-created-at: "2026-01-16T00:37:51.427311-06:00"
-after:
-  - GoDig-dev-chunk-data-0fe0f614
-  - GoDig-dev-noise-based-3afe498c
+created-at: "\"\\\"\\\\\\\"2026-01-16T00:37:51.427311-06:00\\\\\\\"\\\"\""
+closed-at: "2026-02-03T05:50:37.748464-06:00"
+close-reason: Implemented ChunkManager with TileMap-based terrain rendering, threaded chunk generation, chunk persistence via SaveManager
 ---
 
 > **Scope: v1.0 Enhancement** - MVP uses DirtGrid for simplicity. ChunkManager will replace it in v1.0 for horizontal expansion and better persistence. See research: GoDig-research-assess-dirtgrid-1f19fea7

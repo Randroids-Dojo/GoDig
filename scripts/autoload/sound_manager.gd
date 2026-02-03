@@ -219,6 +219,28 @@ func play_ore_found() -> void:
 	play_sfx_varied(SOUND_ORE_FOUND, -3.0, 1.1, 1.2)
 
 
+## Play ore-specific discovery sound based on ore data
+## Uses the ore's custom discovery_sound if set, or falls back to default ore_found
+## Different ore types have distinct pitches: coal (lower), gold (higher)
+func play_ore_discovery(ore: OreData) -> void:
+	if ore == null:
+		play_ore_found()
+		return
+
+	# Use custom sound if defined, otherwise default
+	var sound_path: String = ore.discovery_sound if ore.discovery_sound != "" else SOUND_ORE_FOUND
+
+	# Get ore's audio settings
+	var base_pitch: float = ore.discovery_pitch if ore.discovery_pitch > 0 else 1.1
+	var volume_offset: float = ore.discovery_volume if ore.discovery_volume != 0 else -3.0
+
+	# Add slight variation for natural feel
+	var pitch_min := base_pitch - 0.05
+	var pitch_max := base_pitch + 0.05
+
+	play_sfx_varied(sound_path, volume_offset, pitch_min, pitch_max)
+
+
 ## Play generic pickup sound
 func play_pickup() -> void:
 	play_sfx_varied(SOUND_PICKUP_ORE, -6.0)

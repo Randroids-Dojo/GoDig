@@ -1716,6 +1716,76 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - Vampire Survivors crossover: 4 Balatro characters added (Jimbo, Canio, Chicot, Perkeo)
 - **GoDig Learning**: Solo dev burnout is real. Plan for sustainable development pace.
 
+### Session 27 (2026-02-02)
+
+**Prestige System Timing (Mobile/Idle Game Best Practices)**:
+- Key question: When is the optimal time to reset for maximum efficiency?
+- Signs it's time to prestige: upgrade costs grow faster than gains, multiplier growth flattens, progress stalls
+- Time efficiency: "better to prestige when you have good relic gain per minute rather than pushing extremely high stages slowly"
+- Common mistakes: prestiging too early (missing bigger rewards), waiting too long (wasting time on low-value upgrades)
+- Pre-prestige strategy: upgrade heavily before resetting, save multipliers for end of run
+- Advanced timing: Early = every 2-4 hours active play; Late = every 30-60 minutes as scaling improves
+- Result: "Each prestige run should take less time but yield exponentially higher gains"
+- **GoDig v1.1 Application**: If prestige system added, signal when player "should" prestige (progress stalled indicator), make it feel like strategic choice not punishment.
+
+**Roguelike Difficulty Curve Balance (2025 Consensus)**:
+- Perfectly balanced difficulty: "turns every setback into a learning opportunity"
+- Balance comes from "clever enemy design, well-paced unlocks, or adaptive difficulty curves"
+- Hades example: God Mode "gradually increases damage reduction with each death" - customizable challenge
+- Dead Cells example: "Boss Cell system lets you customize your challenge level as skills improve"
+- Into the Breach example: "mistakes are punishing, but solutions are always within reach"
+- Meta-progression debate: some prefer pure skill (Spelunky), others like permanent unlocks (Hades)
+- RNG fairness: Three layers - Fixed (skill baseline), Semi-Random (strategy playground), Pure RNG (memorable moments)
+- Quote: "I died because I deserved it — that's exactly why I have to go again"
+- **GoDig Application**: Emergency rescue should feel fair - player saw warnings, made choices. Not sudden-death RNG.
+
+**Mobile Game Audio Design (2025 Research)**:
+- 85% of players appreciate audio impact on gaming experience
+- Well-executed audio can boost player satisfaction by 70%
+- 88% of players consider audio as important as visuals
+- Audio signals enhance awareness of interactive elements (resource collection, character actions)
+- Games with effective audio integration see 20% increase in player retention
+- FMOD/Wwise middleware enables dynamic audio that responds to player actions
+- AI/ML expected to automate sound design and create adaptive audio environments
+- **GoDig Priority**: Mining sound must be satisfying. Each ore type needs distinct collection sound. Upgrade sounds need celebration feel.
+
+**Touch Controls Best Practices (Mobile Design)**:
+- "Subway Thumb" control: same hand holds device and controls game action
+- Touch controls "will make or break your game on a mobile device"
+- Best mobile games "accepted that touchscreens aren't the same as gamepads"
+- Tap-and-drag most common for one-handed play
+- Pointer system: most frameworks support 2 simultaneous touches minimum
+- Gesture controls (swipe, tap, hold) can replace virtual buttons for cleaner UI
+- **GoDig Validation**: Our tap-to-mine design is mobile-native. HUD elements must stay in thumb-reachable zones.
+
+**Spelunky 2 Procedural Generation Secrets**:
+- Two-layer system: front layer (entrance/exit) + back layer (doors/tunnels to secret areas)
+- Back layer contains treasure rooms, hidden passages, special places
+- Secret areas require items from previous zones (Eye of Udjat, Hedjet, Scepter, etc.)
+- Multi-step secrets: Black Market → Temple → City of Gold → Cosmic Ocean
+- "No two expeditions are identical" yet all paths are fair and completable
+- Community maintained 5+ years of engagement via layered secrets discovery
+- March 2025: PS5 upgrade with 120 FPS - continued platform investment
+- **GoDig Application**: Consider two-layer caves - visible front + hidden back areas accessible with special items.
+
+**Terraria Underground Layer Design**:
+- Five distinct layers: Space → Surface → Underground → Cavern → Underworld
+- Each layer has proportional depth regardless of world size
+- Underground begins at 0ft depth, contains early game ores (T1, T2)
+- Cavern layer: T3 and T4 ores, true underground biome versions (Ice, Jungle, Desert)
+- Biomes span multiple layers but have distinct underground variants
+- Numeric threshold system: ~1,500 blocks within 84-tile radius triggers biome effects
+- "Spelunking is key to gameplay... many great weapons and item drops littered below surface"
+- **GoDig Layer System**: Model after Terraria's clear depth progression. Each layer introduces new ore tier + visual identity.
+
+**Pixel Art Mining Games (2025 Landscape)**:
+- PixelVerse Explorer: randomly generated maps, new biomes, hidden caves, dangerous dungeons
+- Core Keeper: "Terraria meets Stardew Valley" - lighting and shadows create tension + wonder
+- CraftPix mining assets available for rapid prototyping
+- itch.io growing ecosystem: Aground, UNEARTHED, Arcane Earth, Kin and Quarry
+- Common praise: "retro-inspired pixel graphics with modern smooth animations"
+- **GoDig Art Direction**: Pixel art validated for mining games. Lighting/shadows critical for depth atmosphere.
+
 ### Topics for Future Research
 - [ ] Research Cairn's climbing feedback when full release available (2026)
 - [ ] Study Under A Rock's cave resource harvesting design when released
@@ -1723,10 +1793,20 @@ Continuous monitoring of mining game releases, player feedback, and game design 
 - [ ] Study DRG: Rogue Core player feedback when Early Access launches
 - [ ] Analyze Slay the Spire II for roguelite innovation (March 2026)
 - [ ] Research Dome Keeper multiplayer reception after Q1 2026 launch
-- [ ] Study mobile game "prestige" system timing and player satisfaction
+- [x] Study mobile game "prestige" system timing and player satisfaction (Session 27)
 - [x] Analyze Keep Digging player reception (Session 26)
 - [x] Study mobile game "comeback" mechanics (Session 26)
 - [x] Analyze Mr. Mine depth-surprise system (Session 26)
+- [x] Research roguelike difficulty balance (Session 27)
+- [x] Study mobile game audio satisfaction (Session 27)
+- [x] Research Spelunky 2 procedural secrets (Session 27)
+- [x] Study Terraria underground layers (Session 27)
+
+### Implementation Dots Created from Session 27
+- `GoDig-implement-prestige-indicator` - v1.1 visual indicator when progress stalls suggesting prestige
+- `GoDig-implement-fair-death` - Emergency rescue should feel fair with visible warnings
+- `GoDig-implement-audio-satisfaction` - Each ore type needs distinct collection sound
+- `GoDig-implement-two-layer-caves` - Hidden back areas accessible with special items
 
 ### Implementation Dots Created from Session 26
 - `GoDig-implement-depth-surprise-caves` - Add discoverable cave surprises at random depths

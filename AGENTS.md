@@ -225,6 +225,57 @@ The Randroid loop file at `.claude/randroid-loop.local.md` controls iterative im
 
 The Randroid loop is designed to run autonomously. Completion of work within an iteration does not mean the loop should stop.
 
+## Parallel Agent Execution
+
+**Multiple agents may be running simultaneously. Respect shared resources.**
+
+When multiple Randroid loops or agents run in parallel:
+
+### DO NOT Kill Other Agents' Processes
+
+```bash
+# BAD - This kills ALL test processes including other agents'
+pkill -f "pytest"
+pkill -f "godot.*headless"
+
+# GOOD - Only kill processes you started (track your own PIDs)
+# Or simply don't kill processes at all - let them complete
+```
+
+If you see stale processes, **do not kill them** unless you are certain they are from your own session. Other agents may be running tests.
+
+### Only Commit Your Own Changes
+
+Before committing, verify you're only staging files YOU modified:
+
+```bash
+# Check what's staged
+git status
+
+# Only add specific files you changed
+git add path/to/your/file.gd
+
+# NEVER use these when other agents are active:
+git add -A
+git add .
+```
+
+### Shared Resource Awareness
+
+| Resource | Conflict Risk | Mitigation |
+|----------|---------------|------------|
+| `project.godot` | Version bumps | Coordinate or use unique patch versions |
+| Test ports | Port conflicts | PlayGodot uses dynamic ports automatically |
+| `.dots/` files | Task conflicts | Use unique dot IDs, check before closing |
+| Git staging area | Mixed commits | Only `git add` specific files |
+
+### If You Encounter Conflicts
+
+1. **Don't force through** - stop and assess
+2. **Check for other agents** - `ps aux | grep -E "claude|godot"`
+3. **Wait or coordinate** - let the other agent finish if possible
+4. **Report to user** - if conflicts persist, ask for guidance
+
 ## Asset Generation Pipeline
 
 **Use the established procedural/composable pipelines for art assets.**

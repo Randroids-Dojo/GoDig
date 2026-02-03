@@ -9,6 +9,11 @@ display_name = "Crystal Caves"
 min_depth = 450
 max_depth = 550
 base_hardness = 60.0
-color_primary = Color(0.4, 0.55, 0.7, 1)
-color_accent = Color(0.6, 0.75, 0.9, 1)
+# Cool blue-gray with crystalline sparkle - mysterious but beautiful
+color_primary = Color(0.38, 0.48, 0.58, 1)
+color_secondary = Color(0.32, 0.42, 0.52, 1)
+color_accent = Color(0.50, 0.60, 0.72, 1)
+color_shadow = Color(0.22, 0.28, 0.38, 1)
+color_highlight = Color(0.65, 0.75, 0.88, 1)
+color_ore_tint = Color(0.88, 0.92, 1.0, 1)
 tile_atlas_coords = Vector2i(6, 0)

@@ -9,6 +9,11 @@ display_name = "Granite"
 min_depth = 350
 max_depth = 450
 base_hardness = 55.0
-color_primary = Color(0.376, 0.376, 0.376, 1)
-color_accent = Color(0.45, 0.42, 0.4, 1)
+# Cool gray with subtle blue undertone - deeper, less familiar
+color_primary = Color(0.40, 0.40, 0.42, 1)
+color_secondary = Color(0.35, 0.35, 0.38, 1)
+color_accent = Color(0.48, 0.46, 0.50, 1)
+color_shadow = Color(0.25, 0.25, 0.28, 1)
+color_highlight = Color(0.55, 0.54, 0.58, 1)
+color_ore_tint = Color(0.92, 0.94, 0.98, 1)
 tile_atlas_coords = Vector2i(4, 0)

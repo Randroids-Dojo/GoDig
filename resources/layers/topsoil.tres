@@ -9,6 +9,11 @@ display_name = "Topsoil"
 min_depth = 0
 max_depth = 30
 base_hardness = 10.0
-color_primary = Color(0.545, 0.353, 0.169, 1)
-color_accent = Color(0.6, 0.4, 0.2, 1)
+# Warm, inviting browns with golden highlights - home territory
+color_primary = Color(0.55, 0.38, 0.22, 1)
+color_secondary = Color(0.50, 0.35, 0.20, 1)
+color_accent = Color(0.62, 0.45, 0.28, 1)
+color_shadow = Color(0.35, 0.25, 0.15, 1)
+color_highlight = Color(0.75, 0.60, 0.40, 1)
+color_ore_tint = Color(1.0, 0.95, 0.85, 1)
 tile_atlas_coords = Vector2i(0, 0)

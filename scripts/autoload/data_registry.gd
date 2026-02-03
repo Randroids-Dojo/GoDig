@@ -176,6 +176,7 @@ func get_block_hardness(grid_pos: Vector2i) -> float:
 
 
 ## Get the color for a block at a grid position
+## Uses the layer's full palette for natural variation
 func get_block_color(grid_pos: Vector2i) -> Color:
 	var depth := grid_pos.y - GameManager.SURFACE_ROW
 	if depth < 0:
@@ -185,16 +186,19 @@ func get_block_color(grid_pos: Vector2i) -> Color:
 	if layer == null:
 		return Color.BROWN
 
-	# In transition zones, potentially blend or show accent color
+	# In transition zones, blend with next layer's colors
 	if layer.is_transition_zone(depth):
-		# Use position for deterministic variation
-		var seed_value := grid_pos.x * 1000 + grid_pos.y
-		var rng := RandomNumberGenerator.new()
-		rng.seed = seed_value
-		if rng.randf() < 0.3:  # 30% chance for accent color in transition
-			return layer.color_accent
+		var next_layer := get_layer_at_depth(depth + 15)  # Look ahead
+		if next_layer != null and next_layer != layer:
+			# Blend colors in transition zone
+			var seed_value := grid_pos.x * 1000 + grid_pos.y
+			var rng := RandomNumberGenerator.new()
+			rng.seed = seed_value
+			if rng.randf() < 0.4:  # 40% chance for next layer's colors
+				return next_layer.get_color_at(grid_pos)
 
-	return layer.color_primary
+	# Use layer's palette-based color selection
+	return layer.get_color_at(grid_pos)
 
 
 ## Check if a position is in a transition zone between layers

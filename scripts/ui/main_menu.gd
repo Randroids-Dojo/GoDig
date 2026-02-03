@@ -40,8 +40,12 @@ func _ready() -> void:
 
 	# FTUE: Auto-start for brand new players (no saves exist)
 	# This creates a seamless first experience - no menus, just play
+	# On web, we need user interaction first for keyboard focus
 	if _should_auto_start_ftue():
-		_auto_start_new_game()
+		if OS.get_name() == "Web":
+			_show_tap_to_start_overlay()
+		else:
+			_auto_start_new_game()
 
 
 func _should_auto_start_ftue() -> bool:
@@ -57,6 +61,84 @@ func _should_auto_start_ftue() -> bool:
 
 	# No saves exist - this is a brand new player
 	return true
+
+
+## "Tap to Start" overlay for web builds
+## Required because browsers need user interaction before keyboard input works
+var _tap_to_start_overlay: ColorRect = null
+
+func _show_tap_to_start_overlay() -> void:
+	## Show a "Tap to Start" overlay for web builds
+	## This ensures user interaction happens before game starts, granting keyboard focus
+	print("[MainMenu] Web build: Showing tap to start overlay")
+
+	# Create fullscreen overlay
+	_tap_to_start_overlay = ColorRect.new()
+	_tap_to_start_overlay.color = Color(0.1, 0.08, 0.06, 0.95)
+	_tap_to_start_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_tap_to_start_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_tap_to_start_overlay)
+
+	# Create centered container
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_tap_to_start_overlay.add_child(center)
+
+	# Create text container
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 20)
+	center.add_child(vbox)
+
+	# Title
+	var title := Label.new()
+	title.text = "GoDig"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 64)
+	title.add_theme_color_override("font_color", Color(0.95, 0.76, 0.34))  # Gold
+	vbox.add_child(title)
+
+	# Tap instruction
+	var instruction := Label.new()
+	instruction.text = "Tap or Click to Start"
+	instruction.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	instruction.add_theme_font_size_override("font_size", 28)
+	instruction.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	vbox.add_child(instruction)
+
+	# Keyboard hint for desktop web
+	var hint := Label.new()
+	hint.text = "(WASD or Arrow Keys to move)"
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 16)
+	hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+	vbox.add_child(hint)
+
+	# Connect input
+	_tap_to_start_overlay.gui_input.connect(_on_tap_to_start_input)
+
+
+func _on_tap_to_start_input(event: InputEvent) -> void:
+	## Handle tap/click on the start overlay
+	var should_start := false
+
+	# Mouse click
+	if event is InputEventMouseButton and event.pressed:
+		should_start = true
+	# Touch
+	elif event is InputEventScreenTouch and event.pressed:
+		should_start = true
+	# Any key press
+	elif event is InputEventKey and event.pressed:
+		should_start = true
+
+	if should_start:
+		print("[MainMenu] Tap to start received - starting game")
+		# Remove overlay
+		if _tap_to_start_overlay:
+			_tap_to_start_overlay.queue_free()
+			_tap_to_start_overlay = null
+		# Now start the game (user interaction has granted focus)
+		_auto_start_new_game()
 
 
 func _auto_start_new_game() -> void:

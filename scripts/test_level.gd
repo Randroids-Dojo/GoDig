@@ -1135,43 +1135,79 @@ func _on_pause_menu_forfeit_cargo(cargo_lost_count: int = 0) -> void:
 
 
 func _on_pause_menu_rescue(cargo_lost_count: int = 0) -> void:
-	## Emergency rescue: teleport player back to surface
-	## cargo_lost_count: number of items lost as rescue fee (depth-proportional)
-	print("[TestLevel] Emergency rescue requested (lost %d cargo)" % cargo_lost_count)
+	## Emergency rescue with ladder checkpoint system (Cairn-inspired)
+	## - Teleports to highest placed ladder, not surface
+	## - Applies 60% cargo retention (40% loss) using Loop Hero model
+	## cargo_lost_count: number of items already removed by pause_menu
+	print("[TestLevel] Emergency rescue requested")
 
-	# Teleport player to surface spawn point
-	if surface:
-		player.position = surface.get_spawn_position()
-		player.grid_position = GameManager.world_to_grid(player.position)
+	# Find highest ladder checkpoint
+	var ladder_pos: Variant = null
+	if dirt_grid and dirt_grid.has_method("get_highest_ladder_position"):
+		ladder_pos = dirt_grid.get_highest_ladder_position()
+
+	# Apply 60% cargo retention (if not already applied by pause_menu)
+	# The pause_menu now handles the fee calculation, so we just use what it passed
+	var total_items := InventoryManager.get_total_item_count() if InventoryManager else 0
+	var actual_lost := cargo_lost_count  # Already calculated/applied by pause_menu
+
+	# If pause_menu didn't apply the fee (backwards compatibility), apply it now
+	if cargo_lost_count == 0 and total_items > 0:
+		var items_to_keep := int(floor(float(total_items) * 0.60))
+		var items_to_lose := total_items - items_to_keep
+		if items_to_lose > 0 and InventoryManager:
+			actual_lost = InventoryManager.remove_random_items(items_to_lose)
+			print("[TestLevel] Rescue fee (60%% retention): lost %d items" % actual_lost)
+
+	# Teleport to ladder checkpoint or surface
+	var rescue_to_ladder := false
+	if ladder_pos != null:
+		# Teleport to the ladder position
+		var world_pos := GameManager.grid_to_world(ladder_pos)
+		player.position = world_pos
+		player.grid_position = ladder_pos
+		rescue_to_ladder = true
+
+		# Calculate new depth
+		var new_depth: int = ladder_pos.y - GameManager.SURFACE_ROW
+		if new_depth < 0:
+			new_depth = 0
+		GameManager.update_depth(new_depth)
+
+		print("[TestLevel] Player rescued to ladder at %s (depth %dm)" % [str(ladder_pos), new_depth])
 	else:
-		# Fallback if surface scene is not available
-		var surface_y := GameManager.SURFACE_ROW * 128 - 128  # One row above dirt
-		var center_x := GameManager.GRID_WIDTH / 2
-		var spawn_pos := GameManager.grid_to_world(Vector2i(center_x, GameManager.SURFACE_ROW - 1))
-		player.position = spawn_pos
-		player.grid_position = GameManager.world_to_grid(spawn_pos)
+		# No ladders - teleport to surface
+		if surface:
+			player.position = surface.get_spawn_position()
+			player.grid_position = GameManager.world_to_grid(player.position)
+		else:
+			var spawn_pos := GameManager.grid_to_world(Vector2i(GameManager.GRID_WIDTH / 2, GameManager.SURFACE_ROW - 1))
+			player.position = spawn_pos
+			player.grid_position = GameManager.world_to_grid(spawn_pos)
+
+		GameManager.update_depth(0)
+		print("[TestLevel] Player rescued to surface (no ladder checkpoint)")
 
 	player.current_state = player.State.IDLE
 	player.velocity = Vector2.ZERO
 
-	# Update depth display
-	GameManager.update_depth(0)
-
-	# Show toast about rescue fee (if any items were lost)
-	if cargo_lost_count > 0 and floating_text_layer:
+	# Show feedback about rescue
+	if floating_text_layer:
 		var floating := FloatingTextScene.instantiate()
 		floating_text_layer.add_child(floating)
 		var viewport_size := get_viewport().get_visible_rect().size
 		var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
-		floating.show_pickup("Rescue Fee: Lost %d item(s)" % cargo_lost_count, Color(1.0, 0.6, 0.2), screen_pos)
-	elif floating_text_layer:
-		var floating := FloatingTextScene.instantiate()
-		floating_text_layer.add_child(floating)
-		var viewport_size := get_viewport().get_visible_rect().size
-		var screen_pos := Vector2(viewport_size.x / 2.0, viewport_size.y / 3.0)
-		floating.show_pickup("Rescued!", Color(0.5, 1.0, 0.5), screen_pos)
 
-	print("[TestLevel] Player rescued to surface")
+		if rescue_to_ladder:
+			floating.show_pickup("Rescued to Ladder!", Color(0.5, 0.8, 1.0), screen_pos)
+		elif actual_lost > 0:
+			floating.show_pickup("Rescued! Lost %d item(s)" % actual_lost, Color(1.0, 0.6, 0.2), screen_pos)
+		else:
+			floating.show_pickup("Rescued!", Color(0.5, 1.0, 0.5), screen_pos)
+
+	# Auto-save after rescue
+	if SaveManager.is_game_loaded():
+		SaveManager.save_game()
 
 
 func _on_pause_menu_reload() -> void:

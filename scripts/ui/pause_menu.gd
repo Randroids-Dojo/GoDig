@@ -228,34 +228,51 @@ func _on_settings() -> void:
 
 
 func _on_rescue() -> void:
-	"""Show confirmation dialog before emergency rescue with depth-scaled fee."""
+	"""Show confirmation dialog before emergency rescue with depth-scaled fee.
+	Now uses ladder checkpoint system (Cairn-inspired) - rescue returns to
+	highest placed ladder, not surface. Keeps 60% cargo (Loop Hero model)."""
 	_pending_action = "rescue"
 	_confirm_dialog.title = "Call for Rescue?"
 
-	# Calculate rescue fee based on current depth
-	var depth := GameManager.current_depth if GameManager else 0
-	var fee_percent := _calculate_rescue_fee_percent(depth)
+	# Calculate rescue fee - fixed at 40% loss (60% retention, Loop Hero model)
 	var total_items := InventoryManager.get_total_item_count() if InventoryManager else 0
-	var items_to_lose := _calculate_items_to_lose(total_items, fee_percent)
+	var cargo_retention := 0.60  # Keep 60% of cargo
+	var items_to_keep := int(floor(float(total_items) * cargo_retention))
+	var items_to_lose := total_items - items_to_keep
+
+	# Check for ladder checkpoint
+	var ladder_checkpoint: Variant = null
+	var dirt_grid = _get_dirt_grid()
+	if dirt_grid and dirt_grid.has_method("get_highest_ladder_position"):
+		ladder_checkpoint = dirt_grid.get_highest_ladder_position()
 
 	# Build dialog message
 	var dialog_text: String
-	if total_items == 0:
-		dialog_text = "A rescue team will bring you to the surface.\n(No cargo to lose!)"
-	elif items_to_lose == 0:
-		dialog_text = "A rescue team will bring you to the surface.\nRescue fee: FREE (shallow depth)"
+	if ladder_checkpoint != null:
+		var ladder_depth: int = ladder_checkpoint.y - GameManager.SURFACE_ROW
+		dialog_text = "Rescue to your LADDER checkpoint!\n"
+		dialog_text += "Position: %dm deep\n\n" % ladder_depth
 	else:
-		var items_kept := total_items - items_to_lose
 		dialog_text = "A rescue team will bring you to the surface.\n\n"
-		dialog_text += "Rescue Fee: %d%% of cargo\n" % int(fee_percent)
-		dialog_text += "You will lose %d item(s), keeping %d." % [items_to_lose, items_kept]
-		if depth >= 100:
-			dialog_text += "\n\n(Deep rescue = higher fee)"
+
+	if total_items == 0:
+		dialog_text += "(No cargo to lose!)"
+	else:
+		dialog_text += "Cargo Retention: 60%\n"
+		dialog_text += "You will KEEP %d item(s), lose %d." % [items_to_keep, items_to_lose]
 
 	_confirm_dialog.dialog_text = dialog_text
 	_confirm_dialog.ok_button_text = "Rescue Me"
 	_confirm_dialog.cancel_button_text = "Cancel"
 	_confirm_dialog.popup_centered()
+
+
+func _get_dirt_grid() -> Node:
+	"""Get reference to DirtGrid node for ladder checkpoint lookup."""
+	var test_level := get_tree().get_first_node_in_group("test_level")
+	if test_level and test_level.has_node("DirtGrid"):
+		return test_level.get_node("DirtGrid")
+	return null
 
 
 func _calculate_rescue_fee_percent(depth: int) -> float:
@@ -332,17 +349,18 @@ func _on_confirm_dialog_confirmed() -> void:
 			forfeit_cargo_requested.emit(lost)
 			hide_menu()
 		"rescue":
-			# Apply depth-proportional rescue fee (lose some cargo, not all)
-			var depth := GameManager.current_depth if GameManager else 0
-			var fee_percent := _calculate_rescue_fee_percent(depth)
+			# Apply 60% cargo retention (Loop Hero model)
+			# Player keeps 60% of items, loses 40%
 			var total_items := InventoryManager.get_total_item_count() if InventoryManager else 0
-			var items_to_lose := _calculate_items_to_lose(total_items, fee_percent)
+			var cargo_retention := 0.60
+			var items_to_keep := int(floor(float(total_items) * cargo_retention))
+			var items_to_lose := total_items - items_to_keep
 
 			# Remove random items as the rescue fee
 			var lost := 0
 			if items_to_lose > 0 and InventoryManager:
 				lost = InventoryManager.remove_random_items(items_to_lose)
-				print("[PauseMenu] Rescue fee: lost %d items (fee was %d%%)" % [lost, int(fee_percent)])
+				print("[PauseMenu] Rescue fee (40%% loss): lost %d items" % lost)
 
 			rescue_requested.emit(lost)
 			hide_menu()

@@ -332,6 +332,44 @@ func has_ladder(pos: Vector2i) -> bool:
 	return _placed_objects.get(pos, TileTypes.Type.AIR) == TileTypes.Type.LADDER
 
 
+## Get the highest placed ladder position (smallest Y value, closest to surface)
+## Returns null if no ladders are placed
+func get_highest_ladder_position() -> Variant:
+	var highest_pos: Vector2i = Vector2i(0, 999999)
+	var found := false
+
+	for pos in _placed_objects:
+		if _placed_objects[pos] == TileTypes.Type.LADDER:
+			if pos.y < highest_pos.y:
+				highest_pos = pos
+				found = true
+
+	if found:
+		return highest_pos
+	return null
+
+
+## Get all ladder positions sorted by depth (highest first)
+func get_all_ladder_positions() -> Array[Vector2i]:
+	var positions: Array[Vector2i] = []
+	for pos in _placed_objects:
+		if _placed_objects[pos] == TileTypes.Type.LADDER:
+			positions.append(pos)
+
+	# Sort by Y coordinate (ascending = highest first)
+	positions.sort_custom(func(a: Vector2i, b: Vector2i): return a.y < b.y)
+	return positions
+
+
+## Get the number of placed ladders
+func get_ladder_count() -> int:
+	var count := 0
+	for pos in _placed_objects:
+		if _placed_objects[pos] == TileTypes.Type.LADDER:
+			count += 1
+	return count
+
+
 ## Get all placed objects as a saveable dictionary
 ## Format: {"x,y": tile_type, ...}
 func get_placed_objects_dict() -> Dictionary:

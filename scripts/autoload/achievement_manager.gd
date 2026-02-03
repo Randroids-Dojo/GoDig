@@ -133,6 +133,14 @@ const ACHIEVEMENTS := {
 		"description": "Purchase your first upgrade",
 		"icon": "star"
 	},
+
+	# Close-call achievements
+	"narrow_escape": {
+		"id": "narrow_escape",
+		"name": "Narrow Escape",
+		"description": "Return to surface in a close-call situation",
+		"icon": "heart"
+	},
 }
 
 ## Unlocked achievement IDs

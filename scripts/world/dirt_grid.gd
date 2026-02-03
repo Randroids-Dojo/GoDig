@@ -267,12 +267,16 @@ func _generate_chunk(chunk_pos: Vector2i) -> void:
 						# Weak/crumbling block - create block but mark it
 						if not _active.has(grid_pos):
 							_acquire(grid_pos)
-							# TODO: Mark as weak block for eureka mechanics
+							var block: ColorRect = _active[grid_pos]
+							if block:
+								block.is_weak_block = true
 					elif tile_char == "S":
 						# Secret wall - looks solid but is breakable
 						if not _active.has(grid_pos):
 							_acquire(grid_pos)
-							# TODO: Mark as secret wall
+							var block: ColorRect = _active[grid_pos]
+							if block:
+								block.is_secret_wall = true
 					elif tile_char == "#":
 						# Solid block
 						if not _active.has(grid_pos):

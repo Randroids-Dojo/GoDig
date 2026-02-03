@@ -466,6 +466,97 @@ func show_discovery(discovery_type: String, discovery_name: String) -> void:
 	_tween.tween_callback(_hide)
 
 
+## Display surprise cave biome discovery notification
+func show_surprise_cave(biome_data: Dictionary) -> void:
+	if label == null or panel == null:
+		return
+
+	# Get biome info
+	var biome_name: String = biome_data.get("name", "Unknown Cave")
+	var discovery_text: String = biome_data.get("discovery_text", "You've discovered a special cave!")
+	var color_tint: Color = biome_data.get("color_tint", Color.CYAN)
+	var is_first: bool = biome_data.get("is_first_discovery", false)
+
+	# Title based on first discovery vs return visit
+	if is_first:
+		label.text = "SURPRISE DISCOVERY!"
+	else:
+		label.text = "RETURNING TO:"
+
+	# Make color more vibrant for the notification
+	var vibrant_color := Color(
+		minf(color_tint.r * 1.3, 1.0),
+		minf(color_tint.g * 1.3, 1.0),
+		minf(color_tint.b * 1.3, 1.0)
+	)
+	label.add_theme_color_override("font_color", vibrant_color)
+
+	if _subtitle_label:
+		_subtitle_label.text = biome_name
+		_subtitle_label.visible = true
+
+	# Show bonus message for first discovery
+	if _bonus_label:
+		if is_first:
+			_bonus_label.text = "First discovery!"
+			_bonus_label.visible = true
+		else:
+			_bonus_label.visible = false
+
+	# Reset state
+	visible = true
+	modulate.a = 0.0
+	scale = Vector2(0.6, 0.6) if is_first else Vector2(0.8, 0.8)
+
+	if _tween and _tween.is_valid():
+		_tween.kill()
+
+	# More dramatic effects for first discovery
+	var shake_intensity := 6.0 if is_first else 2.5
+	_trigger_camera_shake(shake_intensity)
+
+	if is_first:
+		_trigger_screen_flash(vibrant_color)
+
+	if SettingsManager and SettingsManager.reduced_motion:
+		modulate.a = 1.0
+		scale = Vector2(1.0, 1.0)
+		_tween = create_tween()
+		_tween.tween_interval(3.0 if is_first else 2.0)
+		_tween.tween_property(self, "modulate:a", 0.0, 0.3)
+		_tween.tween_callback(_hide)
+		return
+
+	# Enhanced animation for first discovery
+	_tween = create_tween()
+	_tween.tween_property(self, "modulate:a", 1.0, 0.1) \
+		.set_ease(Tween.EASE_OUT)
+
+	if is_first:
+		# Big pop for first discovery
+		_tween.tween_property(self, "scale", Vector2(1.25, 1.25), 0.25) \
+			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.15) \
+			.set_ease(Tween.EASE_IN_OUT)
+		# Double pulse for excitement
+		_tween.tween_property(self, "scale", Vector2(1.1, 1.1), 0.1)
+		_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.1)
+		_tween.tween_property(self, "scale", Vector2(1.06, 1.06), 0.1)
+		_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.1)
+		_tween.tween_interval(2.5)
+	else:
+		# Subtle animation for return visits
+		_tween.tween_property(self, "scale", Vector2(1.05, 1.05), 0.15) \
+			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.1) \
+			.set_ease(Tween.EASE_IN_OUT)
+		_tween.tween_interval(1.5)
+
+	_tween.tween_property(self, "modulate:a", 0.0, 0.5) \
+		.set_ease(Tween.EASE_IN)
+	_tween.tween_callback(_hide)
+
+
 ## Display discovery hint notification
 func show_discovery_hint(direction: String, distance: int) -> void:
 	if label == null or panel == null:

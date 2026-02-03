@@ -6,6 +6,11 @@ extends Node
 
 signal biome_entered(biome_id: String, biome_name: String)
 signal biome_exited(biome_id: String)
+signal surprise_cave_discovered(biome_id: String, biome_data: Dictionary)
+
+## Surprise cave biome types - rare discoveries that override normal generation
+## Each has ~5% spawn chance in appropriate depth ranges
+const SURPRISE_CAVE_BIOMES := ["crystal_cave", "mushroom_grotto", "lava_pocket", "ancient_ruins"]
 
 ## Biome type definitions
 const BIOMES := {
@@ -15,6 +20,7 @@ const BIOMES := {
 		"ore_multiplier": 1.0,
 		"hazard_chance": 0.0,
 		"color_tint": Color.WHITE,
+		"is_surprise": false,
 	},
 	"rich_vein": {
 		"name": "Rich Vein",
@@ -22,24 +28,31 @@ const BIOMES := {
 		"ore_multiplier": 2.0,
 		"hazard_chance": 0.0,
 		"color_tint": Color(1.0, 1.0, 0.8),  # Slight gold tint
+		"is_surprise": false,
 	},
 	"crystal_cave": {
-		"name": "Crystal Cave",
+		"name": "Crystal Cavern",
 		"description": "Glittering crystals line the walls. Gems are more common.",
 		"ore_multiplier": 0.5,
 		"gem_multiplier": 3.0,
 		"hazard_chance": 0.0,
 		"color_tint": Color(0.9, 0.9, 1.1),  # Slight blue tint
 		"light_bonus": 0.1,
+		"is_surprise": true,
+		"discovery_text": "You've discovered a Crystal Cavern!",
+		"discovery_icon": "crystal",
 	},
 	"lava_pocket": {
 		"name": "Lava Pocket",
-		"description": "Dangerous heat emanates from nearby magma.",
+		"description": "Dangerous heat emanates from nearby magma. Rich in rare ores!",
 		"ore_multiplier": 1.5,
 		"hazard_chance": 0.1,
 		"hazard_type": "heat",
 		"damage_per_second": 2.0,
 		"color_tint": Color(1.1, 0.9, 0.8),  # Orange tint
+		"is_surprise": true,
+		"discovery_text": "You've found a Lava Pocket!",
+		"discovery_icon": "fire",
 	},
 	"frozen_cavern": {
 		"name": "Frozen Cavern",
@@ -48,23 +61,32 @@ const BIOMES := {
 		"hazard_chance": 0.0,
 		"movement_multiplier": 0.8,
 		"color_tint": Color(0.85, 0.95, 1.1),  # Blue-white tint
+		"is_surprise": false,
 	},
 	"mushroom_grotto": {
 		"name": "Mushroom Grotto",
-		"description": "Bioluminescent fungi provide natural light.",
+		"description": "Bioluminescent fungi provide natural light. Ladders drop more often.",
 		"ore_multiplier": 0.8,
 		"hazard_chance": 0.0,
 		"color_tint": Color(0.9, 1.0, 0.85),  # Green tint
 		"light_bonus": 0.2,
+		"ladder_drop_bonus": 2.0,  # Double ladder drop chance
+		"is_surprise": true,
+		"discovery_text": "You've stumbled into a Mushroom Grotto!",
+		"discovery_icon": "mushroom",
 	},
 	"ancient_ruins": {
-		"name": "Ancient Ruins",
-		"description": "Remnants of a forgotten civilization. Artifacts are more common.",
+		"name": "Ancient Mining Camp",
+		"description": "Remnants of a forgotten expedition. Artifacts and equipment remain.",
 		"ore_multiplier": 0.7,
 		"artifact_multiplier": 5.0,
 		"hazard_chance": 0.05,
 		"hazard_type": "trap",
 		"color_tint": Color(1.0, 0.95, 0.85),  # Sepia tint
+		"equipment_drop_bonus": 3.0,  # More abandoned equipment
+		"is_surprise": true,
+		"discovery_text": "You've discovered an Ancient Mining Camp!",
+		"discovery_icon": "tent",
 	},
 	"toxic_marsh": {
 		"name": "Toxic Marsh",
@@ -74,6 +96,7 @@ const BIOMES := {
 		"hazard_type": "poison",
 		"damage_per_second": 1.0,
 		"color_tint": Color(0.85, 1.0, 0.75),  # Sickly green
+		"is_surprise": false,
 	},
 	"void_rift": {
 		"name": "Void Rift",
@@ -83,6 +106,7 @@ const BIOMES := {
 		"hazard_chance": 0.2,
 		"hazard_type": "instability",
 		"color_tint": Color(0.8, 0.7, 1.0),  # Purple tint
+		"is_surprise": false,
 	},
 }
 
@@ -105,13 +129,17 @@ var current_biome_data: Dictionary = {}
 ## Biome zones in the world (chunk_coord -> biome_id)
 var _biome_map: Dictionary = {}
 
+## Discovered surprise biomes (tracked for save/load and achievements)
+## Key: biome_id, Value: first discovery timestamp
+var _discovered_surprise_biomes: Dictionary = {}
+
 ## RNG for biome generation
 var _biome_rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
 	current_biome_data = BIOMES["normal"].duplicate()
-	print("[BiomeManager] Ready with %d biomes" % BIOMES.size())
+	print("[BiomeManager] Ready with %d biomes (%d surprise caves)" % [BIOMES.size(), SURPRISE_CAVE_BIOMES.size()])
 
 
 ## Generate biome for a chunk based on its position
@@ -165,6 +193,10 @@ func update_player_biome(grid_pos: Vector2i, world_seed: int) -> void:
 
 		biome_entered.emit(new_biome, current_biome_data["name"])
 		print("[BiomeManager] Entered biome: %s" % current_biome_data["name"])
+
+		# Check for surprise cave discovery
+		if _is_surprise_biome(new_biome):
+			_handle_surprise_discovery(new_biome)
 
 
 ## Get current biome ID
@@ -251,6 +283,7 @@ func reset() -> void:
 	current_biome = "normal"
 	current_biome_data = BIOMES["normal"].duplicate()
 	clear_biome_map()
+	_discovered_surprise_biomes.clear()
 
 
 ## Get all available biome IDs
@@ -263,3 +296,127 @@ func get_biome_name(biome_id: String) -> String:
 	if BIOMES.has(biome_id):
 		return BIOMES[biome_id]["name"]
 	return "Unknown"
+
+
+# ============================================
+# SURPRISE CAVE DISCOVERY SYSTEM
+# ============================================
+
+## Check if a biome is a surprise cave type
+func _is_surprise_biome(biome_id: String) -> bool:
+	if not BIOMES.has(biome_id):
+		return false
+	return BIOMES[biome_id].get("is_surprise", false)
+
+
+## Handle discovery of a surprise cave biome
+func _handle_surprise_discovery(biome_id: String) -> void:
+	var is_first_discovery := not _discovered_surprise_biomes.has(biome_id)
+
+	# Track discovery
+	if is_first_discovery:
+		_discovered_surprise_biomes[biome_id] = Time.get_unix_time_from_system()
+		print("[BiomeManager] FIRST discovery of surprise biome: %s" % biome_id)
+
+	# Emit discovery signal with biome data
+	var biome_data: Dictionary = BIOMES[biome_id].duplicate()
+	biome_data["is_first_discovery"] = is_first_discovery
+	biome_data["biome_id"] = biome_id
+	surprise_cave_discovered.emit(biome_id, biome_data)
+
+
+## Check if a surprise biome has been discovered before
+func has_discovered_biome(biome_id: String) -> bool:
+	return _discovered_surprise_biomes.has(biome_id)
+
+
+## Get count of discovered surprise biomes
+func get_discovered_surprise_count() -> int:
+	return _discovered_surprise_biomes.size()
+
+
+## Get total count of surprise biomes
+func get_total_surprise_count() -> int:
+	return SURPRISE_CAVE_BIOMES.size()
+
+
+## Get all discovered surprise biome IDs
+func get_discovered_surprise_biomes() -> Array:
+	return _discovered_surprise_biomes.keys()
+
+
+## Check if all surprise biomes have been discovered
+func has_discovered_all_surprises() -> bool:
+	for biome_id in SURPRISE_CAVE_BIOMES:
+		if not _discovered_surprise_biomes.has(biome_id):
+			return false
+	return true
+
+
+## Get ladder drop bonus for current biome (for Mushroom Grotto)
+func get_ladder_drop_bonus() -> float:
+	return current_biome_data.get("ladder_drop_bonus", 1.0)
+
+
+## Get equipment drop bonus for current biome (for Ancient Mining Camp)
+func get_equipment_drop_bonus() -> float:
+	return current_biome_data.get("equipment_drop_bonus", 1.0)
+
+
+## Check if current biome is a surprise cave
+func is_in_surprise_cave() -> bool:
+	return _is_surprise_biome(current_biome)
+
+
+## Get discovery text for current biome (or empty string if not surprise)
+func get_discovery_text() -> String:
+	return current_biome_data.get("discovery_text", "")
+
+
+## Get discovery icon for current biome (or empty string if not surprise)
+func get_discovery_icon() -> String:
+	return current_biome_data.get("discovery_icon", "")
+
+
+# ============================================
+# SAVE/LOAD SUPPORT
+# ============================================
+
+## Get save data for biome discoveries
+func get_save_data() -> Dictionary:
+	return {
+		"discovered_surprise_biomes": _discovered_surprise_biomes.duplicate(),
+		"biome_map": _serialize_biome_map(),
+	}
+
+
+## Load save data
+func load_save_data(data: Dictionary) -> void:
+	_discovered_surprise_biomes = data.get("discovered_surprise_biomes", {}).duplicate()
+
+	var serialized_map = data.get("biome_map", {})
+	_deserialize_biome_map(serialized_map)
+
+	print("[BiomeManager] Loaded - %d/%d surprise biomes discovered" % [
+		_discovered_surprise_biomes.size(),
+		SURPRISE_CAVE_BIOMES.size()
+	])
+
+
+## Serialize biome map for saving (Vector2i keys to strings)
+func _serialize_biome_map() -> Dictionary:
+	var result := {}
+	for coord in _biome_map:
+		var key := "%d,%d" % [coord.x, coord.y]
+		result[key] = _biome_map[coord]
+	return result
+
+
+## Deserialize biome map from save (strings to Vector2i keys)
+func _deserialize_biome_map(serialized: Dictionary) -> void:
+	_biome_map.clear()
+	for key in serialized:
+		var parts: PackedStringArray = key.split(",")
+		if parts.size() == 2:
+			var coord := Vector2i(int(parts[0]), int(parts[1]))
+			_biome_map[coord] = serialized[key]

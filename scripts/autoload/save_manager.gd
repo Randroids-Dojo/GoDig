@@ -432,6 +432,10 @@ func _collect_game_state() -> void:
 	if DepthDiscoveryManager:
 		current_save.depth_discovery_data = DepthDiscoveryManager.get_save_data()
 
+	# Collect from BiomeManager (surprise cave discovery tracking)
+	if BiomeManager:
+		current_save.biome_data = BiomeManager.get_save_data()
+
 	# Collect from TreasureChestManager (cave treasure chests)
 	if TreasureChestManager:
 		current_save.treasure_chest_data = TreasureChestManager.get_save_data()
@@ -566,6 +570,12 @@ func _apply_game_state() -> void:
 		var depth_discovery_data = current_save.get("depth_discovery_data")
 		if depth_discovery_data != null and depth_discovery_data is Dictionary and not depth_discovery_data.is_empty():
 			DepthDiscoveryManager.load_save_data(depth_discovery_data)
+
+	# Apply to BiomeManager (surprise cave discovery tracking)
+	if BiomeManager:
+		var biome_data = current_save.get("biome_data")
+		if biome_data != null and biome_data is Dictionary and not biome_data.is_empty():
+			BiomeManager.load_save_data(biome_data)
 
 	# Apply to TreasureChestManager (cave treasure chests)
 	if TreasureChestManager:

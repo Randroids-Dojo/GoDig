@@ -178,13 +178,11 @@ func show_step(step: int) -> void:
 
 	# Fade in
 	visible = true
-	# Re-enable background input interception when showing
-	if background:
-		background.mouse_filter = Control.MOUSE_FILTER_STOP
-		# Connect gui_input signal if not already connected
-		if not _background_input_connected:
-			background.gui_input.connect(_on_background_input)
-			_background_input_connected = true
+
+	# CRITICAL for web builds: Enable input on ALL controls when showing
+	# Web builds don't properly disable input based on visibility alone
+	_enable_all_input()
+
 	background.modulate.a = 0.0
 	panel.modulate.a = 0.0
 
@@ -228,20 +226,52 @@ func hide_tutorial() -> void:
 	if _fade_tween and _fade_tween.is_valid():
 		_fade_tween.kill()
 
-	# Immediately disable input on background to prevent blocking game input
-	# This is CRITICAL for web builds where visibility changes may not fully disable input
-	# We must DISCONNECT the gui_input signal, not just set mouse_filter to IGNORE
-	if background:
-		background.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		# Disconnect the signal to prevent any input interception during/after fade-out
-		if _background_input_connected:
-			background.gui_input.disconnect(_on_background_input)
-			_background_input_connected = false
+	# CRITICAL for web builds: Disable input on ALL controls BEFORE hiding
+	# Setting visible = false alone doesn't fully disable input on web builds
+	# All Controls (background, panel, buttons) must have mouse_filter = IGNORE
+	_disable_all_input()
 
 	_fade_tween = create_tween()
 	_fade_tween.tween_property(background, "modulate:a", 0.0, 0.2)
 	_fade_tween.parallel().tween_property(panel, "modulate:a", 0.0, 0.2)
 	_fade_tween.tween_callback(func(): visible = false)
+
+
+func _disable_all_input() -> void:
+	## Disable input on all Controls to prevent blocking game input on web builds.
+	## This is CRITICAL because web builds don't properly disable input based on visibility.
+	if background:
+		background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if _background_input_connected:
+			background.gui_input.disconnect(_on_background_input)
+			_background_input_connected = false
+
+	if panel:
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	if continue_btn:
+		continue_btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	if skip_btn:
+		skip_btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func _enable_all_input() -> void:
+	## Re-enable input on all Controls when showing the overlay.
+	if background:
+		background.mouse_filter = Control.MOUSE_FILTER_STOP
+		if not _background_input_connected:
+			background.gui_input.connect(_on_background_input)
+			_background_input_connected = true
+
+	if panel:
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	if continue_btn:
+		continue_btn.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	if skip_btn:
+		skip_btn.mouse_filter = Control.MOUSE_FILTER_STOP
 
 
 func _on_continue_pressed() -> void:

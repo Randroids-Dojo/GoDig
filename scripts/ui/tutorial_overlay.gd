@@ -47,6 +47,7 @@ var skip_btn: Button = null
 
 var _current_step: int = -1
 var _fade_tween: Tween = null
+var _background_input_connected: bool = false
 
 @export var process_mode_paused: bool = true
 
@@ -89,7 +90,7 @@ func _build_ui() -> void:
 	background.name = "Background"
 	background.color = Color(0, 0, 0, 0.5)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	background.gui_input.connect(_on_background_input)
+	# Don't connect gui_input here - connect only when showing to prevent input blocking
 	add_child(background)
 
 	# Panel container - auto-sizes to content
@@ -180,6 +181,10 @@ func show_step(step: int) -> void:
 	# Re-enable background input interception when showing
 	if background:
 		background.mouse_filter = Control.MOUSE_FILTER_STOP
+		# Connect gui_input signal if not already connected
+		if not _background_input_connected:
+			background.gui_input.connect(_on_background_input)
+			_background_input_connected = true
 	background.modulate.a = 0.0
 	panel.modulate.a = 0.0
 
@@ -224,9 +229,14 @@ func hide_tutorial() -> void:
 		_fade_tween.kill()
 
 	# Immediately disable input on background to prevent blocking game input
-	# This is important for web builds where visibility changes may not fully disable input
+	# This is CRITICAL for web builds where visibility changes may not fully disable input
+	# We must DISCONNECT the gui_input signal, not just set mouse_filter to IGNORE
 	if background:
 		background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Disconnect the signal to prevent any input interception during/after fade-out
+		if _background_input_connected:
+			background.gui_input.disconnect(_on_background_input)
+			_background_input_connected = false
 
 	_fade_tween = create_tween()
 	_fade_tween.tween_property(background, "modulate:a", 0.0, 0.2)
@@ -269,9 +279,11 @@ func _on_background_input(event: InputEvent) -> void:
 	# Handle mouse clicks (desktop)
 	if event is InputEventMouseButton and event.pressed:
 		_on_continue_pressed()
+		get_viewport().set_input_as_handled()
 	# Handle touch events (mobile web)
 	elif event is InputEventScreenTouch and event.pressed:
 		_on_continue_pressed()
+		get_viewport().set_input_as_handled()
 
 
 func _on_tutorial_state_changed(new_state: int) -> void:

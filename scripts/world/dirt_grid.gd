@@ -910,14 +910,14 @@ func _spawn_guaranteed_chest(grid_pos: Vector2i, world_seed: int) -> void:
 		return
 
 	var depth: int = grid_pos.y - _surface_row
-	var chest_data := TreasureChestManager.generate_chest_loot(depth)
+	TreasureChestManager.spawn_chest(grid_pos, depth, world_seed)
 
-	# Create chest instance
-	var chest := TreasureChestScene.instantiate()
-	chest.position = Vector2(grid_pos.x * BLOCK_SIZE + BLOCK_SIZE / 2, grid_pos.y * BLOCK_SIZE + BLOCK_SIZE / 2)
-	chest.grid_pos = grid_pos
-	chest.loot_data = chest_data
-	chest.chest_opened.connect(_on_chest_opened.bind(grid_pos))
+	# Create chest instance using the standard API
+	var chest = TreasureChestScene.instantiate()
+	var chest_data: Dictionary = TreasureChestManager.get_chest_data(grid_pos)
+	var tier: int = chest_data.get("tier", 0)
+	var tier_name: String = chest_data.get("tier_name", "Chest")
+	chest.configure(grid_pos, tier, tier_name)
 
 	add_child(chest)
 	_active_chests[grid_pos] = chest
@@ -1097,32 +1097,15 @@ func _handle_danger_zone_treasure_spawn(grid_pos: Vector2i, world_seed: int) -> 
 
 	var depth: int = grid_pos.y - _surface_row
 
-	# Get zone info for unique drops
-	var zone_config := {}
-	if DangerZoneManager:
-		zone_config = DangerZoneManager.get_zone_config_at(grid_pos)
-
-	# Generate chest with zone-specific loot
-	var chest_data := TreasureChestManager.generate_chest_loot(depth)
-
-	# Add unique drops from danger zone
-	var unique_drops: Array = zone_config.get("unique_drops", [])
-	if not unique_drops.is_empty():
-		# Seed RNG
-		var pos_hash := grid_pos.x * 73856093 + grid_pos.y * 19349663 + world_seed
-		_rng.seed = pos_hash
-
-		# 40% chance for unique drop in danger zone treasure
-		if _rng.randf() < 0.4:
-			var unique_item: String = unique_drops[_rng.randi() % unique_drops.size()]
-			chest_data["unique_item"] = unique_item
+	# Spawn chest using the standard TreasureChestManager API
+	TreasureChestManager.spawn_chest(grid_pos, depth, world_seed)
 
 	# Create chest instance
-	var chest := TreasureChestScene.instantiate()
-	chest.position = Vector2(grid_pos.x * BLOCK_SIZE + BLOCK_SIZE / 2, grid_pos.y * BLOCK_SIZE + BLOCK_SIZE / 2)
-	chest.grid_pos = grid_pos
-	chest.loot_data = chest_data
-	chest.chest_opened.connect(_on_chest_opened.bind(grid_pos))
+	var chest = TreasureChestScene.instantiate()
+	var chest_data: Dictionary = TreasureChestManager.get_chest_data(grid_pos)
+	var tier: int = chest_data.get("tier", 0)
+	var tier_name: String = chest_data.get("tier_name", "Chest")
+	chest.configure(grid_pos, tier, tier_name)
 
 	add_child(chest)
 	_active_chests[grid_pos] = chest
@@ -1505,6 +1488,19 @@ func _place_ore_at(pos: Vector2i, ore) -> void:
 
 	# Mark adjacent blocks as "near ore" for subtle hints
 	_mark_adjacent_near_ore(pos)
+
+
+func _register_ore_effects(pos: Vector2i, _ore_id: String, ore) -> void:
+	## Register visual effects (sparkle, border, near-ore hints) for an ore block.
+	_add_ore_sparkle(pos, ore)
+	_add_rarity_border(pos, ore)
+	_mark_adjacent_near_ore(pos)
+
+
+func _on_chest_opened(_loot: Array, grid_pos: Vector2i) -> void:
+	## Handle chest opened signal - remove from active tracking.
+	if _active_chests.has(grid_pos):
+		_active_chests.erase(grid_pos)
 
 
 func _should_spawn_guaranteed_ore(pos: Vector2i, depth: int) -> bool:

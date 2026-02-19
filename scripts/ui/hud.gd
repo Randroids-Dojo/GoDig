@@ -1059,7 +1059,6 @@ func _on_surprise_cave_discovered(_biome_id: String, biome_data: Dictionary) -> 
 		print("[HUD] FIRST surprise cave discovery: %s" % biome_name)
 	else:
 		print("[HUD] Returned to surprise cave: %s" % biome_name)
-	print("[HUD] Discovery hint: %s, %d blocks away" % [direction, distance])
 
 
 # ============================================
@@ -1436,7 +1435,7 @@ func _on_ladder_quickslot_pressed() -> void:
 
 	# Try to place the ladder
 	if player.has_method("place_ladder_at_position"):
-		var success := player.place_ladder_at_position()
+		var success: bool = player.place_ladder_at_position()
 		if success:
 			# Update the quickslot display immediately
 			_update_ladder_quickslot()

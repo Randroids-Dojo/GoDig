@@ -382,7 +382,7 @@ func _on_animation_finished() -> void:
 	var hardness: float = dirt_grid.get_block_hardness(mining_target)
 
 	# Check if this block contains ore before hitting (for Tier 2 juice)
-	var is_ore_block := dirt_grid.get_ore_at(mining_target) != ""
+	var is_ore_block: bool = dirt_grid.get_ore_at(mining_target) != ""
 
 	var destroyed: bool = dirt_grid.hit_block(mining_target)
 
@@ -1104,7 +1104,7 @@ func _hit_tap_target() -> void:
 	var hardness: float = dirt_grid.get_block_hardness(_tap_target_tile)
 
 	# Check if this block contains ore before hitting (for Tier 2 juice)
-	var is_ore_block := dirt_grid.get_ore_at(_tap_target_tile) != ""
+	var is_ore_block: bool = dirt_grid.get_ore_at(_tap_target_tile) != ""
 
 	var destroyed: bool = dirt_grid.hit_block(_tap_target_tile)
 
@@ -2073,7 +2073,7 @@ func _check_close_call() -> void:
 	var ladder_count := _get_ladder_count()
 	var hp_percent := float(current_hp) / float(MAX_HP)
 	var has_loot := _calculate_cargo_value() > 0
-	var inventory_full := InventoryManager.is_full() if InventoryManager else false
+	var inventory_full: bool = not InventoryManager.has_space() if InventoryManager else false
 
 	# 1. Last-Ladder Escape: 0-1 ladders remaining after deep trip
 	if ladder_count <= CLOSE_CALL_LOW_LADDERS:

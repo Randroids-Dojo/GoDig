@@ -8,7 +8,7 @@ signal slot_pressed(slot_index: int)
 
 @export var slot_index: int = 0
 
-@onready var icon: TextureRect = $Icon
+@onready var item_icon: TextureRect = $Icon
 @onready var quantity_label: Label = $QuantityLabel
 @onready var border: Panel = $Border
 
@@ -25,13 +25,13 @@ func display_item(item, quantity: int) -> void:
 	current_item = item
 
 	# Show icon if available
-	if icon:
+	if item_icon:
 		if item.icon != null:
-			icon.texture = item.icon
-			icon.visible = true
+			item_icon.texture = item.icon
+			item_icon.visible = true
 		else:
 			# Fallback: create a colored rect as placeholder
-			icon.visible = false
+			item_icon.visible = false
 
 	# Show quantity if > 1
 	if quantity_label:
@@ -51,8 +51,8 @@ func display_empty() -> void:
 	## Clear the slot display
 	current_item = null
 
-	if icon:
-		icon.visible = false
+	if item_icon:
+		item_icon.visible = false
 
 	if quantity_label:
 		quantity_label.visible = false

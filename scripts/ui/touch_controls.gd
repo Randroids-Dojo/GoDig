@@ -190,23 +190,21 @@ func _handle_button_touch(event: InputEventScreenTouch) -> void:
 	## Manual touch detection for action buttons (fallback for mobile web)
 	## This ensures buttons work even when TouchScreenButton has viewport issues
 
-	# Convert screen position to canvas coordinates
-	var canvas_xform := get_viewport().canvas_transform
-	var world_pos := canvas_xform.affine_inverse() * event.position
-
 	if event.pressed:
 		# Check if touch is on jump button
 		if jump_button and jump_button.visible:
-			var jump_rect := _get_button_rect(jump_button)
-			if jump_rect.has_point(world_pos):
+			var jump_local := _get_button_local_pos(jump_button, event.position)
+			var jump_rect := _get_button_local_rect(jump_button)
+			if jump_rect.has_point(jump_local):
 				_active_button_touch = event.index
 				_on_jump_pressed()
 				return
 
 		# Check if touch is on inventory button
 		if inventory_button and inventory_button.visible:
-			var inv_rect := _get_button_rect(inventory_button)
-			if inv_rect.has_point(world_pos):
+			var inv_local := _get_button_local_pos(inventory_button, event.position)
+			var inv_rect := _get_button_local_rect(inventory_button)
+			if inv_rect.has_point(inv_local):
 				_active_button_touch = event.index
 				_on_inventory_pressed()
 				return
@@ -216,18 +214,28 @@ func _handle_button_touch(event: InputEventScreenTouch) -> void:
 			_active_button_touch = -1
 
 
-func _get_button_rect(button: TouchScreenButton) -> Rect2:
-	## Get the global rect for a TouchScreenButton based on its shape
-	var button_global_pos := button.global_position
+func _get_button_local_pos(button: TouchScreenButton, screen_pos: Vector2) -> Vector2:
+	## Convert screen position to button-local coordinates using proper canvas transform
+	var parent_control := button.get_parent() as Control
+	if parent_control:
+		var xform := parent_control.get_global_transform_with_canvas()
+		return xform.affine_inverse() * screen_pos - button.position
+	# Fallback: use canvas transform manually
+	var canvas_xform := get_viewport().canvas_transform
+	return canvas_xform.affine_inverse() * screen_pos - button.global_position
+
+
+func _get_button_local_rect(button: TouchScreenButton) -> Rect2:
+	## Get the local rect for a TouchScreenButton based on its shape
 	var shape := button.shape as RectangleShape2D
 	if shape:
-		var size := shape.size
+		var btn_size := shape.size
 		if button.shape_centered:
-			return Rect2(button_global_pos - size / 2.0, size)
+			return Rect2(-btn_size / 2.0, btn_size)
 		else:
-			return Rect2(button_global_pos, size)
+			return Rect2(Vector2.ZERO, btn_size)
 	# Fallback: use a reasonable default size
-	return Rect2(button_global_pos, Vector2(100, 100))
+	return Rect2(Vector2.ZERO, Vector2(100, 100))
 
 
 func _start_swipe(pos: Vector2) -> void:
@@ -311,18 +319,16 @@ func _is_over_control(pos: Vector2) -> bool:
 	if pos == Vector2.ZERO:
 		return false
 
-	# Convert screen position to canvas/world coordinates
-	var canvas_xform := get_viewport().canvas_transform
-	var world_pos := canvas_xform.affine_inverse() * pos
-
 	if joystick and joystick.visible:
-		var joystick_rect := Rect2(joystick.global_position, joystick.size)
-		if joystick_rect.has_point(world_pos):
+		var joystick_local := joystick.get_global_transform_with_canvas().affine_inverse() * pos
+		var joystick_rect := Rect2(Vector2.ZERO, joystick.size)
+		if joystick_rect.has_point(joystick_local):
 			return true
 
 	if action_buttons and action_buttons.visible:
-		var buttons_rect := Rect2(action_buttons.global_position, action_buttons.size)
-		if buttons_rect.has_point(world_pos):
+		var buttons_local := action_buttons.get_global_transform_with_canvas().affine_inverse() * pos
+		var buttons_rect := Rect2(Vector2.ZERO, action_buttons.size)
+		if buttons_rect.has_point(buttons_local):
 			return true
 
 	return false

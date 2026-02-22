@@ -127,8 +127,8 @@ const HUD_PANEL_COLOR := UIColors.PANEL_DARK
 const HUD_BUTTON_COLOR := UIColors.PANEL_MEDIUM
 
 ## Mobile touch controls offset for bottom-right HUD elements
-## ActionButtons (Jump/Inventory) occupy ~180px from bottom-right; shift HUD above them
-const TOUCH_CONTROLS_BOTTOM_OFFSET := 192.0
+## ActionButtons (Jump/Inventory) occupy 140-300px from bottom-right; shift quickslots above them
+const TOUCH_CONTROLS_BOTTOM_OFFSET := 244.0
 
 ## Left panel backdrop
 var left_panel_bg: ColorRect = null

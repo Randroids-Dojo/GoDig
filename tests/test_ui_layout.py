@@ -372,3 +372,38 @@ async def test_depth_bonus_not_overlapping_coins(game):
     # Depth bonus should be anchored to bottom (1.0), not top (0.0) where coins is
     assert bonus_anchor == 1.0, \
         "Depth bonus should be anchored to bottom of screen, not top where it overlaps coins"
+
+
+@pytest.mark.asyncio
+async def test_quickslots_visible(game):
+    """Quickslots should always be visible on screen."""
+    for name in ["ladder_quickslot", "rope_quickslot", "teleport_quickslot"]:
+        visible = await game.get_property(PATHS[name], "visible")
+        assert visible, f"{name} should be visible"
+
+
+@pytest.mark.asyncio
+async def test_quickslots_not_overlapping_action_buttons(game):
+    """Quickslots should not overlap with ActionButtons area on desktop.
+
+    ActionButtons occupy y=[viewport_height-300, viewport_height-140] from
+    bottom-right. Quickslots (also bottom-right) must sit below that range
+    when no touch-controls offset is applied (desktop mode).
+    """
+    viewport_height = 1280  # Portrait base resolution
+
+    # ActionButtons top edge is 300px from bottom
+    action_buttons_top_from_bottom = 300
+
+    # Ladder is the lowest quickslot (closest to action buttons)
+    ladder_pos = await game.get_property(PATHS["ladder_quickslot"], "position")
+    # position.y is negative (relative to bottom anchor), so bottom-from-bottom = abs(pos.y) - height
+    # e.g. pos.y=-120, size=56 → top is 120px from bottom, bottom is 64px from bottom
+    ladder_top_from_bottom = abs(ladder_pos["y"])
+
+    # On desktop (no offset), the ladder top should be below ActionButtons bottom (140px from bottom)
+    # Ladder is at 120px from bottom, ActionButtons bottom is at 140px → no overlap
+    action_buttons_bottom_from_bottom = 140
+    assert ladder_top_from_bottom <= action_buttons_bottom_from_bottom, \
+        f"Ladder quickslot ({ladder_top_from_bottom}px from bottom) should not overlap " \
+        f"ActionButtons bottom ({action_buttons_bottom_from_bottom}px from bottom)"

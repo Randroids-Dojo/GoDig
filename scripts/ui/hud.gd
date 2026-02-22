@@ -126,6 +126,10 @@ const HUD_OUTLINE_COLOR := UIColors.OUTLINE
 const HUD_PANEL_COLOR := UIColors.PANEL_DARK
 const HUD_BUTTON_COLOR := UIColors.PANEL_MEDIUM
 
+## Mobile touch controls offset for bottom-right HUD elements
+## ActionButtons (Jump/Inventory) occupy ~180px from bottom-right; shift HUD above them
+const TOUCH_CONTROLS_BOTTOM_OFFSET := 192.0
+
 ## Left panel backdrop
 var left_panel_bg: ColorRect = null
 
@@ -326,6 +330,11 @@ func _ready() -> void:
 
 	# Setup button visual feedback (must be deferred to ensure buttons exist)
 	call_deferred("_setup_button_feedback")
+
+	# Adjust bottom-right elements to avoid overlap with touch controls ActionButtons
+	if PlatformDetector:
+		PlatformDetector.platform_changed.connect(_on_platform_changed_adjust_hud)
+	call_deferred("_adjust_bottom_right_for_touch_controls")
 
 
 func _process(delta: float) -> void:
@@ -1727,6 +1736,38 @@ func _on_teleport_quickslot_pressed() -> void:
 	var player = get_tree().get_first_node_in_group("player")
 	if player and player.has_method("use_teleport_scroll"):
 		player.use_teleport_scroll()
+
+
+# ============================================
+# TOUCH CONTROLS OVERLAP ADJUSTMENT
+# ============================================
+
+func _on_platform_changed_adjust_hud(_is_mobile: bool) -> void:
+	_adjust_bottom_right_for_touch_controls()
+
+
+func _adjust_bottom_right_for_touch_controls() -> void:
+	## Shift bottom-right HUD elements up when touch controls are visible
+	## to prevent overlap with ActionButtons (Jump + Inventory buttons)
+	var is_mobile := PlatformDetector != null and PlatformDetector.should_show_touch_controls()
+	var offset := TOUCH_CONTROLS_BOTTOM_OFFSET if is_mobile else 0.0
+
+	# Adjust PauseButton (uses anchor offsets from .tscn)
+	if pause_button:
+		pause_button.offset_top = -72.0 - offset
+		pause_button.offset_bottom = -16.0 - offset
+
+	# Adjust quickslots (use position-based positioning)
+	if ladder_quickslot:
+		ladder_quickslot.position.y = -120.0 - offset
+	if rope_quickslot:
+		rope_quickslot.position.y = -236.0 - offset
+	if teleport_quickslot:
+		teleport_quickslot.position.y = -300.0 - offset
+
+	# Adjust ladder warning (positioned left of ladder quickslot)
+	if ladder_warning_container:
+		ladder_warning_container.position.y = -130.0 - offset
 
 
 # ============================================

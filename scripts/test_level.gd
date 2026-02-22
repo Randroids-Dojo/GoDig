@@ -1022,7 +1022,7 @@ func _use_ladder_from_inventory(slot_index: int) -> void:
 		return
 
 	# Try to place ladder at player's feet
-	var grid_pos := player.grid_position
+	var grid_pos: Vector2i = player.grid_position
 	var success := dirt_grid.place_ladder(grid_pos)
 
 	if success:
@@ -1057,7 +1057,7 @@ func _use_rope_from_inventory(slot_index: int) -> void:
 		return
 
 	# Try to place rope at player position
-	var grid_pos := player.grid_position
+	var grid_pos: Vector2i = player.grid_position
 	var success := false
 	if dirt_grid.has_method("place_rope"):
 		success = dirt_grid.place_rope(grid_pos)
@@ -1134,7 +1134,7 @@ func _use_torch_from_inventory(slot_index: int) -> void:
 	if player == null or dirt_grid == null:
 		return
 
-	var grid_pos := player.grid_position
+	var grid_pos: Vector2i = player.grid_position
 	var success := false
 
 	if dirt_grid.has_method("place_torch"):

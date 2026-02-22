@@ -1752,10 +1752,7 @@ func _adjust_bottom_right_for_touch_controls() -> void:
 	var is_mobile := PlatformDetector != null and PlatformDetector.should_show_touch_controls()
 	var offset := TOUCH_CONTROLS_BOTTOM_OFFSET if is_mobile else 0.0
 
-	# Adjust PauseButton (uses anchor offsets from .tscn)
-	if pause_button:
-		pause_button.offset_top = -72.0 - offset
-		pause_button.offset_bottom = -16.0 - offset
+	# PauseButton is now top-right, no bottom offset needed
 
 	# Adjust quickslots (use position-based positioning)
 	if ladder_quickslot:

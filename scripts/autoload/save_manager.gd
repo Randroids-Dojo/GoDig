@@ -296,13 +296,17 @@ func new_game(slot: int, slot_name: String = "") -> bool:
 			InventoryManager.add_item(ladder_item, 5)
 
 	# Initial save (force=true to bypass debounce)
-	var success := save_game(true)
+	var save_success := save_game(true)
 
-	if success:
-		save_slot_changed.emit(current_slot)
-		print("[SaveManager] New game in slot %d" % slot)
+	if not save_success:
+		# Save failed (common in embedded web iframes where IndexedDB is restricted)
+		# The game state is set up correctly in memory, so we can still play
+		push_warning("[SaveManager] Initial save failed for slot %d (game will run without persistence)" % slot)
 
-	return success
+	save_slot_changed.emit(current_slot)
+	print("[SaveManager] New game in slot %d (save persisted: %s)" % [slot, save_success])
+
+	return true  # Game state is valid even if save persistence failed
 
 
 ## Delete a save slot

@@ -118,6 +118,35 @@ async def test_main_menu_buttons_are_visible(main_menu):
     assert settings_visible, "Settings button should be visible"
 
 
+@pytest.mark.asyncio
+async def test_main_menu_has_loading_label(main_menu):
+    """Main menu should have a loading label node (used during scene transitions)."""
+    exists = await main_menu.node_exists(MAIN_MENU_PATHS["main_menu_loading"])
+    assert exists, "Loading label should exist"
+
+
+@pytest.mark.asyncio
+async def test_save_manager_exists(main_menu):
+    """SaveManager autoload should be available."""
+    exists = await main_menu.node_exists("/root/SaveManager")
+    assert exists, "SaveManager should exist as autoload"
+
+
+@pytest.mark.asyncio
+async def test_save_manager_max_slots(main_menu):
+    """SaveManager should have 3 save slots."""
+    max_slots = await main_menu.get_property("/root/SaveManager", "MAX_SLOTS")
+    assert max_slots == 3, f"MAX_SLOTS should be 3, got {max_slots}"
+
+
+@pytest.mark.asyncio
+async def test_game_manager_initial_state(main_menu):
+    """GameManager should be in MENU state on main menu."""
+    state = await main_menu.get_property("/root/GameManager", "state")
+    # GameState.MENU = 0
+    assert state == 0, f"GameManager state should be MENU (0), got {state}"
+
+
 # =============================================================================
 # GAME SCENE TESTS (verify game fixture properly loads scene)
 # These tests require imported resources (terrain_atlas.png) which need

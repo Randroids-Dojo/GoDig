@@ -81,6 +81,8 @@ PATHS = {
     "upgrade_goal_container": "/root/Main/UI/HUD/UpgradeGoalContainer",
     "save_indicator_label": "/root/Main/UI/HUD/SaveIndicatorLabel",
     "ladder_quickslot": "/root/Main/UI/HUD/LadderQuickSlot",
+    "rope_quickslot": "/root/Main/UI/HUD/RopeQuickSlot",
+    "teleport_quickslot": "/root/Main/UI/HUD/TeleportQuickSlot",
     "surface_parallax": "/root/Main/Surface/ParallaxBackground",
     "lighting_manager": "/root/LightingManager",
     "ambient_modulate": "/root/Main/AmbientModulate",

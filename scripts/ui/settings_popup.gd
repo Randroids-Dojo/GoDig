@@ -67,17 +67,34 @@ func _build_ui() -> void:
 
 	# Main panel with theme
 	panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(400, 600)
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.position = Vector2(-200, -300)
+	panel.anchor_left = 0.5
+	panel.anchor_right = 0.5
+	panel.anchor_top = 0.0
+	panel.anchor_bottom = 1.0
+	panel.offset_left = -200
+	panel.offset_right = 200
+	panel.offset_top = 20
+	panel.offset_bottom = -20
 	if UITheme:
 		UITheme.apply_theme(panel)
 	add_child(panel)
 
-	# Main container
+	# Outer layout container: scroll area + close button
+	var outer_vbox := VBoxContainer.new()
+	outer_vbox.add_theme_constant_override("separation", 8)
+	panel.add_child(outer_vbox)
+
+	# ScrollContainer for settings content (enables mobile scrolling)
+	var scroll_container := ScrollContainer.new()
+	scroll_container.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	outer_vbox.add_child(scroll_container)
+
+	# Main content container inside scroll
 	vbox = VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.add_theme_constant_override("separation", 12)
-	panel.add_child(vbox)
+	scroll_container.add_child(vbox)
 
 	# Title
 	var title := Label.new()
@@ -211,13 +228,11 @@ func _build_ui() -> void:
 	tension_audio_check.text = "Tension Audio (Depth Ambience)"
 	vbox.add_child(tension_audio_check)
 
-	vbox.add_child(HSeparator.new())
-
-	# Close button
+	# Close button (outside scroll, always visible at bottom)
 	close_btn = Button.new()
 	close_btn.text = "Close"
 	close_btn.custom_minimum_size = Vector2(0, 40)
-	vbox.add_child(close_btn)
+	outer_vbox.add_child(close_btn)
 
 
 func _create_slider_row(label_text: String, min_val: float, max_val: float, default: float) -> HBoxContainer:
@@ -356,8 +371,10 @@ func _on_close() -> void:
 
 
 func _on_background_input(event: InputEvent) -> void:
-	# Close on background click
+	# Close on background click or touch
 	if event is InputEventMouseButton and event.pressed:
+		_on_close()
+	elif event is InputEventScreenTouch and event.pressed:
 		_on_close()
 
 

@@ -115,6 +115,7 @@ PATHS = {
     "achievement_manager": "/root/AchievementManager",
     "handcrafted_cave_manager": "/root/HandcraftedCaveManager",
     "secret_layer_manager": "/root/SecretLayerManager",
+    "copy_logs_button": "/root/Main/UI/HUD/CopyLogsButton",
 }
 
 

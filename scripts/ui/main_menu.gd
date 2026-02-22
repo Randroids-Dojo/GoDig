@@ -123,6 +123,20 @@ func _show_tap_to_start_overlay() -> void:
 
 func _on_tap_to_start_input(event: InputEvent) -> void:
 	## Handle tap/click on the start overlay
+	_check_start_input(event)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	## Fallback input handler for embedded iframe contexts where gui_input may not fire
+	if _tap_to_start_overlay != null:
+		_check_start_input(event)
+
+
+func _check_start_input(event: InputEvent) -> void:
+	## Check if the input event should trigger game start from the tap-to-start overlay
+	if _tap_to_start_overlay == null:
+		return
+
 	var should_start := false
 
 	# Mouse click
@@ -138,9 +152,8 @@ func _on_tap_to_start_input(event: InputEvent) -> void:
 	if should_start:
 		print("[MainMenu] Tap to start received - starting game")
 		# Remove overlay
-		if _tap_to_start_overlay:
-			_tap_to_start_overlay.queue_free()
-			_tap_to_start_overlay = null
+		_tap_to_start_overlay.queue_free()
+		_tap_to_start_overlay = null
 		# Now start the game (user interaction has granted focus)
 		_auto_start_new_game()
 
@@ -158,11 +171,9 @@ func _auto_start_new_game() -> void:
 	if SaveManager.new_game(0):
 		_transition_to_game()
 	else:
-		# If failed, let them use the menu normally
+		# If failed, let them use the menu normally with all buttons re-enabled
 		push_warning("[MainMenu] FTUE auto-start failed, showing menu")
-		_is_loading = false
-		if loading_label:
-			loading_label.visible = false
+		_hide_loading()
 
 
 func _setup_loading_indicator() -> void:
@@ -191,6 +202,19 @@ func _show_loading() -> void:
 		continue_btn.disabled = true
 	if settings_btn:
 		settings_btn.disabled = true
+
+
+func _hide_loading() -> void:
+	## Hide loading indicator and re-enable buttons
+	_is_loading = false
+	if loading_label:
+		loading_label.visible = false
+	if new_game_btn:
+		new_game_btn.disabled = false
+	if continue_btn:
+		continue_btn.disabled = false
+	if settings_btn:
+		settings_btn.disabled = false
 
 
 func _setup_version() -> void:
@@ -244,6 +268,7 @@ func _on_new_game_pressed() -> void:
 		_transition_to_game()
 	else:
 		push_warning("[MainMenu] Failed to start new game")
+		_hide_loading()
 
 
 func _on_continue_pressed() -> void:
@@ -264,9 +289,13 @@ func _on_continue_pressed() -> void:
 	if slot >= 0:
 		if SaveManager.load_game(slot):
 			_transition_to_game()
+		else:
+			# Load failed - re-enable buttons so user can try again
+			_hide_loading()
 		# Error handling is done via _on_load_error signal
 	else:
 		# No save found - this shouldn't happen since button is hidden
+		_hide_loading()
 		_show_error("No save file found to continue.")
 
 

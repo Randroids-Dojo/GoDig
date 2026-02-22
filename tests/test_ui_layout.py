@@ -330,3 +330,80 @@ async def test_quickslots_anchored_bottom_right(game):
         anchor_top = await game.get_property(PATHS[name], "anchor_top")
         assert anchor_left == 1.0, f"{name} should be anchored to right edge"
         assert anchor_top == 1.0, f"{name} should be anchored to bottom edge"
+
+
+@pytest.mark.asyncio
+async def test_hud_left_panel_no_overlap(game):
+    """HUD left-panel elements should have sufficient spacing and not overlap."""
+    # Get positions of vertically stacked elements
+    health_pos = await game.get_property(PATHS["health_bar"], "position")
+    health_size = await game.get_property(PATHS["health_bar"], "size")
+    coins_pos = await game.get_property(PATHS["hud_coins_label"], "position")
+    coins_size = await game.get_property(PATHS["hud_coins_label"], "size")
+    tool_pos = await game.get_property(PATHS["tool_label"], "position")
+    inv_pos = await game.get_property(PATHS["inventory_label"], "position")
+    save_pos = await game.get_property(PATHS["save_indicator_label"], "position")
+
+    # Health bar bottom must be above coins top (min 4px gap for outline clearance)
+    health_bottom = health_pos["y"] + health_size["y"]
+    assert coins_pos["y"] >= health_bottom + 4, \
+        f"CoinsLabel (y={coins_pos['y']}) should be >= 4px below HealthBar bottom (y={health_bottom})"
+
+    # Coins bottom must be above tool top
+    coins_bottom = coins_pos["y"] + coins_size["y"]
+    assert tool_pos["y"] >= coins_bottom + 4, \
+        f"ToolLabel (y={tool_pos['y']}) should be >= 4px below CoinsLabel bottom (y={coins_bottom})"
+
+    # Tool must be above inventory (tool min height 24px)
+    assert inv_pos["y"] >= tool_pos["y"] + 24 + 4, \
+        f"InventoryLabel (y={inv_pos['y']}) should be >= 4px below ToolLabel bottom"
+
+    # Inventory must be above save indicator (inventory min height 20px)
+    assert save_pos["y"] >= inv_pos["y"] + 20 + 4, \
+        f"SaveIndicator (y={save_pos['y']}) should be >= 4px below InventoryLabel bottom"
+
+
+@pytest.mark.asyncio
+async def test_depth_bonus_not_overlapping_coins(game):
+    """Depth bonus label should not overlap with the coins label."""
+    coins_pos = await game.get_property(PATHS["hud_coins_label"], "position")
+    bonus_anchor = await game.get_property(PATHS["depth_bonus_label"], "anchor_top")
+
+    # Depth bonus should be anchored to bottom (1.0), not top (0.0) where coins is
+    assert bonus_anchor == 1.0, \
+        "Depth bonus should be anchored to bottom of screen, not top where it overlaps coins"
+
+
+@pytest.mark.asyncio
+async def test_quickslots_visible(game):
+    """Quickslots should always be visible on screen."""
+    for name in ["ladder_quickslot", "rope_quickslot", "teleport_quickslot"]:
+        visible = await game.get_property(PATHS[name], "visible")
+        assert visible, f"{name} should be visible"
+
+
+@pytest.mark.asyncio
+async def test_quickslots_not_overlapping_action_buttons(game):
+    """Quickslots should not overlap with ActionButtons area on desktop.
+
+    ActionButtons occupy y=[viewport_height-300, viewport_height-140] from
+    bottom-right. Quickslots (also bottom-right) must sit below that range
+    when no touch-controls offset is applied (desktop mode).
+    """
+    viewport_height = 1280  # Portrait base resolution
+
+    # ActionButtons top edge is 300px from bottom
+    action_buttons_top_from_bottom = 300
+
+    # Ladder is the lowest quickslot (closest to action buttons)
+    ladder_pos = await game.get_property(PATHS["ladder_quickslot"], "position")
+    # position.y is negative (relative to bottom anchor), so bottom-from-bottom = abs(pos.y) - height
+    # e.g. pos.y=-120, size=56 → top is 120px from bottom, bottom is 64px from bottom
+    ladder_top_from_bottom = abs(ladder_pos["y"])
+
+    # On desktop (no offset), the ladder top should be below ActionButtons bottom (140px from bottom)
+    # Ladder is at 120px from bottom, ActionButtons bottom is at 140px → no overlap
+    action_buttons_bottom_from_bottom = 140
+    assert ladder_top_from_bottom <= action_buttons_bottom_from_bottom, \
+        f"Ladder quickslot ({ladder_top_from_bottom}px from bottom) should not overlap " \
+        f"ActionButtons bottom ({action_buttons_bottom_from_bottom}px from bottom)"

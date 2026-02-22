@@ -547,9 +547,9 @@ func _setup_depth_bonus_indicator() -> void:
 	depth_bonus_label = Label.new()
 	depth_bonus_label.name = "DepthBonusLabel"
 
-	# Position below the depth label
-	depth_bonus_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	depth_bonus_label.position = Vector2(16, 72)  # Below depth label
+	# Position above quick-sell button (bottom-left) - thematically near sell controls
+	depth_bonus_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	depth_bonus_label.position = Vector2(16, -104)
 	depth_bonus_label.custom_minimum_size = Vector2(200, 20)
 
 	# Style the label
@@ -703,7 +703,7 @@ func _setup_tool_indicator() -> void:
 
 	# Position below the coins label (left side)
 	tool_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	tool_label.position = Vector2(16, 96)
+	tool_label.position = Vector2(16, 90)
 	tool_label.custom_minimum_size = Vector2(200, 24)
 
 	# Style the label - PRIMARY hierarchy (largest secondary element after HP/Coins/Depth)
@@ -829,7 +829,7 @@ func _setup_inventory_indicator() -> void:
 
 	# Position below tool label (adjusted for new tool label size)
 	inventory_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	inventory_label.position = Vector2(16, 122)  # Slightly lower to account for larger tool label
+	inventory_label.position = Vector2(16, 120)
 	inventory_label.custom_minimum_size = Vector2(100, 20)
 
 	# Style the label - SECONDARY hierarchy (smaller than tool)
@@ -1005,7 +1005,7 @@ func _setup_left_panel_backdrop() -> void:
 	left_panel_bg.name = "LeftPanelBackdrop"
 	left_panel_bg.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	left_panel_bg.position = Vector2(8, 8)
-	left_panel_bg.size = Vector2(330, 166)  # Wider to match HP bar, includes all status info
+	left_panel_bg.size = Vector2(330, 162)  # Covers HP bar through save indicator with proper spacing
 	left_panel_bg.color = HUD_PANEL_COLOR
 	left_panel_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(left_panel_bg)
@@ -1079,7 +1079,7 @@ func _setup_upgrade_goal_display() -> void:
 	upgrade_goal_container = Control.new()
 	upgrade_goal_container.name = "UpgradeGoalContainer"
 	upgrade_goal_container.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	upgrade_goal_container.position = Vector2(8, 178)  # Aligned with main panel, closer spacing
+	upgrade_goal_container.position = Vector2(8, 174)  # Below left panel with 4px gap
 	upgrade_goal_container.custom_minimum_size = Vector2(330, 55)
 	add_child(upgrade_goal_container)
 
@@ -1232,7 +1232,7 @@ func _setup_save_indicator() -> void:
 
 	# Position below inventory label
 	save_indicator_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	save_indicator_label.position = Vector2(16, 142)
+	save_indicator_label.position = Vector2(16, 146)
 	save_indicator_label.custom_minimum_size = Vector2(150, 18)
 
 	# Style
@@ -2505,8 +2505,8 @@ func _setup_inventory_value_display() -> void:
 
 	# Position below the inventory label
 	inventory_value_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	inventory_value_label.position = Vector2(120, 118)  # Right of inventory label
-	inventory_value_label.custom_minimum_size = Vector2(100, 24)
+	inventory_value_label.position = Vector2(120, 120)  # Right of inventory label, aligned
+	inventory_value_label.custom_minimum_size = Vector2(100, 22)
 
 	# Style the label
 	inventory_value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT

@@ -277,3 +277,56 @@ async def test_touch_controls_full_screen_coverage(game):
     assert anchor_right == 1.0, "Touch controls should anchor to right edge"
     assert anchor_top == 0.0, "Touch controls should anchor to top edge"
     assert anchor_bottom == 1.0, "Touch controls should anchor to bottom edge"
+
+
+@pytest.mark.asyncio
+async def test_ladder_quickslot_exists(game):
+    """Ladder quickslot should exist in HUD."""
+    exists = await game.node_exists(PATHS["ladder_quickslot"])
+    assert exists, "Ladder quickslot should exist in HUD"
+
+
+@pytest.mark.asyncio
+async def test_rope_quickslot_exists(game):
+    """Rope quickslot should exist in HUD."""
+    exists = await game.node_exists(PATHS["rope_quickslot"])
+    assert exists, "Rope quickslot should exist in HUD"
+
+
+@pytest.mark.asyncio
+async def test_teleport_quickslot_exists(game):
+    """Teleport (warp) quickslot should exist in HUD."""
+    exists = await game.node_exists(PATHS["teleport_quickslot"])
+    assert exists, "Teleport quickslot should exist in HUD"
+
+
+@pytest.mark.asyncio
+async def test_quickslots_stacked_above_each_other(game):
+    """Quickslots should be stacked vertically without overlapping each other."""
+    ladder_pos = await game.get_property(PATHS["ladder_quickslot"], "position")
+    rope_pos = await game.get_property(PATHS["rope_quickslot"], "position")
+    teleport_pos = await game.get_property(PATHS["teleport_quickslot"], "position")
+
+    # All quickslots should be at the same x position (right-aligned column)
+    assert ladder_pos["x"] == rope_pos["x"], "Ladder and rope should share the same x position"
+    assert rope_pos["x"] == teleport_pos["x"], "Rope and teleport should share the same x position"
+
+    # Quickslots stack upward: teleport above rope above ladder (more negative y = higher)
+    assert rope_pos["y"] < ladder_pos["y"], "Rope should be above ladder (more negative y)"
+    assert teleport_pos["y"] < rope_pos["y"], "Teleport should be above rope (more negative y)"
+
+    # Each quickslot is 56px tall; ensure no overlap (minimum 56px gap between positions)
+    assert ladder_pos["y"] - rope_pos["y"] >= 56, \
+        "Rope and ladder should not overlap vertically"
+    assert rope_pos["y"] - teleport_pos["y"] >= 56, \
+        "Teleport and rope should not overlap vertically"
+
+
+@pytest.mark.asyncio
+async def test_quickslots_anchored_bottom_right(game):
+    """All quickslots should be anchored to bottom-right for thumb reach."""
+    for name in ["ladder_quickslot", "rope_quickslot", "teleport_quickslot"]:
+        anchor_left = await game.get_property(PATHS[name], "anchor_left")
+        anchor_top = await game.get_property(PATHS[name], "anchor_top")
+        assert anchor_left == 1.0, f"{name} should be anchored to right edge"
+        assert anchor_top == 1.0, f"{name} should be anchored to bottom edge"

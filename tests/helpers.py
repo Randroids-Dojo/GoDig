@@ -23,6 +23,7 @@ MAIN_MENU_PATHS = {
     "main_menu_version": "/root/MainMenu/VersionLabel",
     "main_menu_title": "/root/MainMenu/CenterContainer/VBox/TitleContainer/TitleLabel",
     "main_menu_subtitle": "/root/MainMenu/CenterContainer/VBox/TitleContainer/SubtitleLabel",
+    "main_menu_loading": "/root/MainMenu/LoadingLabel",
 }
 
 # Game scene paths (after navigating from main menu)

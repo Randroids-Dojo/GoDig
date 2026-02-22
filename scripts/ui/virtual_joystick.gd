@@ -82,6 +82,21 @@ func _input(event: InputEvent) -> void:
 		if event.index == _touch_index:
 			_handle_touch(event.position)
 
+	# Mouse fallback for web builds where touch may be emulated as mouse events
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			if _touch_index == -1 and _is_within_bounds(event.position):
+				_touch_index = 0
+				_handle_touch(event.position)
+		else:
+			if _touch_index == 0:
+				_touch_index = -1
+				_reset_joystick()
+
+	elif event is InputEventMouseMotion and _touch_index == 0:
+		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+			_handle_touch(event.position)
+
 
 func _is_within_bounds(screen_pos: Vector2) -> bool:
 	var local_pos = _screen_to_local(screen_pos)

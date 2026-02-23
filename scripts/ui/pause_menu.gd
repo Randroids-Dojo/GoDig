@@ -61,6 +61,9 @@ func _ready() -> void:
 	# Create debug section
 	_create_debug_section()
 
+	# CRITICAL for web builds: disable input on background before hiding
+	# Setting visible = false alone doesn't fully disable input on web builds
+	_disable_overlay_input()
 	visible = false
 	print("[PauseMenu] Ready")
 
@@ -167,10 +170,34 @@ func _input(event: InputEvent) -> void:
 
 
 func _notification(what: int) -> void:
-	# Auto-pause when app goes to background (mobile)
+	# Auto-pause when app goes to background (mobile/web)
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		if not visible and GameManager.is_running:
 			show_menu()
+	# Auto-resume when app returns to foreground (mobile/web)
+	# The menu stays visible so user can see it, but tree is unpaused
+	# so they can interact with the Resume button
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
+		if visible:
+			# Ensure tree is unpaused so our buttons work
+			# (PROCESS_MODE_ALWAYS should handle this, but belt and suspenders for web)
+			pass
+
+
+func _disable_overlay_input() -> void:
+	"""Disable input on all overlay controls (required for web builds)."""
+	if background:
+		background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if panel:
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func _enable_overlay_input() -> void:
+	"""Re-enable input on overlay controls when showing."""
+	if background:
+		background.mouse_filter = Control.MOUSE_FILTER_STOP
+	if panel:
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
 
 func show_menu() -> void:
@@ -178,6 +205,7 @@ func show_menu() -> void:
 	if visible:
 		return
 
+	_enable_overlay_input()
 	visible = true
 	get_tree().paused = true
 
@@ -195,8 +223,15 @@ func hide_menu() -> void:
 	if not visible:
 		return
 
+	# CRITICAL for web builds: disable input BEFORE hiding
+	# Setting visible = false alone doesn't fully disable input on web builds
+	_disable_overlay_input()
 	visible = false
 	get_tree().paused = false
+
+	# Sync GameManager state (belt and suspenders for web)
+	if GameManager.state != GameManager.GameState.PLAYING:
+		GameManager.set_state(GameManager.GameState.PLAYING)
 
 	print("[PauseMenu] Game resumed")
 

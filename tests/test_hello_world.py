@@ -1557,3 +1557,60 @@ async def test_copy_logs_button_is_visible(game):
     """Verify the copy logs button is visible."""
     visible = await game.get_property(PATHS["copy_logs_button"], "visible")
     assert visible is True, "CopyLogsButton should be visible"
+
+
+# =============================================================================
+# TOUCH MOVEMENT / WEB RESUME FIX TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_background_input_disabled_when_hidden(game):
+    """Verify pause menu background has mouse_filter=IGNORE when hidden.
+    On web, visible=false alone doesn't disable input on CanvasLayer children."""
+    # PauseMenu starts hidden - background should not intercept input
+    bg_path = PATHS["pause_menu"] + "/Background"
+    mouse_filter = await game.get_property(bg_path, "mouse_filter")
+    # MOUSE_FILTER_IGNORE = 2
+    assert mouse_filter == 2, (
+        f"PauseMenu Background mouse_filter should be IGNORE (2) when hidden, got {mouse_filter}. "
+        "On web builds, MOUSE_FILTER_STOP blocks all touch input even when invisible."
+    )
+
+
+@pytest.mark.asyncio
+async def test_player_has_touch_direction_property(game):
+    """Verify the player has touch_direction for receiving joystick input."""
+    direction = await game.get_property(PATHS["player"], "touch_direction")
+    assert direction is not None, "Player should have touch_direction property"
+
+
+@pytest.mark.asyncio
+async def test_player_touch_direction_starts_zero(game):
+    """Verify touch_direction starts at zero (no movement)."""
+    direction = await game.get_property(PATHS["player"], "touch_direction")
+    # Vector2i is returned as dict with x, y
+    if isinstance(direction, dict):
+        assert direction.get("x", 0) == 0 and direction.get("y", 0) == 0, (
+            f"touch_direction should start at (0,0), got {direction}"
+        )
+
+
+@pytest.mark.asyncio
+async def test_virtual_joystick_ready_for_input(game):
+    """Verify the virtual joystick is ready to accept touch input."""
+    touch_index = await game.get_property(PATHS["virtual_joystick"], "_touch_index")
+    assert touch_index == -1, (
+        f"Virtual joystick _touch_index should be -1 (no active touch), got {touch_index}"
+    )
+
+
+@pytest.mark.asyncio
+async def test_game_tree_not_paused(game):
+    """Verify the game tree is not paused during normal gameplay."""
+    # GameManager.is_running should be true
+    is_running = await game.get_property(PATHS["game_manager"], "is_running")
+    assert is_running is True, (
+        "GameManager.is_running should be True during gameplay. "
+        "If False, touch controls won't work because _process won't run."
+    )

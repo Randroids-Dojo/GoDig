@@ -445,8 +445,14 @@ func _notification(what: int) -> void:
 				SaveManager.save_game(true)  # Force save
 				pause_game()
 		NOTIFICATION_APPLICATION_RESUMED:
-			# Mobile: app returned to foreground - stay paused, player can resume
-			pass
+			# Mobile/Web: app returned to foreground - resume if we paused it
+			if state == GameState.PAUSED:
+				resume_game()
+		NOTIFICATION_APPLICATION_FOCUS_IN:
+			# Web: browser tab regained focus - resume if we paused it
+			# Web builds may fire focus events instead of/alongside app lifecycle events
+			if state == GameState.PAUSED:
+				resume_game()
 
 
 # ============================================

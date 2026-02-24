@@ -824,8 +824,7 @@ func _handle_ladder_fall(dug_pos: Vector2i) -> void:
 		scan_down = scan_down + Vector2i(0, 1)
 
 	# Bottom of column (column[0] = above_pos) lands at scan_down.y - 1.
-	var bottom_landing_y := scan_down.y - 1
-	var shift := bottom_landing_y - above_pos.y
+	var shift := scan_down.y - 1 - above_pos.y
 	if shift <= 0:
 		return  # Nothing to do
 

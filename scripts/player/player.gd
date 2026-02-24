@@ -1773,10 +1773,6 @@ func place_ladder_at_position() -> bool:
 	if not InventoryManager.has_item_by_id("ladder"):
 		return false
 
-	# Check if dirt_grid is available
-	if dirt_grid == null:
-		return false
-
 	# Determine placement position (handles "top of ladder" logic and surface limit)
 	var place_pos := _get_ladder_placement_pos()
 	if place_pos == LADDER_PLACEMENT_INVALID:

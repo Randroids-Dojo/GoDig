@@ -83,11 +83,9 @@ async def test_dirt_grid_has_handle_ladder_fall_method(game):
 @pytest.mark.asyncio
 async def test_cannot_place_ladder_without_inventory(game):
     """Cannot place ladder if inventory has none."""
-    # Player starts with no ladders - can_place_ladder should be false
+    # Player starts in IDLE state with no ladders in inventory
     can_place = await game.call(PLAYER, "can_place_ladder", [])
-    # This could fail for state reasons too, but primarily inventory check
-    # We verify the method runs without error
-    assert can_place is False or can_place is True, "can_place_ladder should return bool"
+    assert can_place is False, "can_place_ladder should be False when inventory has no ladders"
 
 
 @pytest.mark.asyncio
@@ -103,17 +101,12 @@ async def test_dirt_grid_no_ladder_at_spawn(game):
 @pytest.mark.asyncio
 async def test_place_ladder_then_has_ladder(game):
     """After placing a ladder via DirtGrid, has_ladder should return true."""
-    # Place a ladder 2 blocks below surface using DirtGrid directly
-    # Surface row is 7, so place at y=10 (depth 3)
-    test_pos = {"x": 5, "y": 10}
-
-    # Ensure position is clear first
-    is_block = await game.call(DIRT_GRID, "has_block_at", [test_pos["x"], test_pos["y"]])
-    if is_block:
-        pytest.skip("Test position has a block, skipping")
+    # Use y=2 (above surface, guaranteed AIR — chunks never place blocks above SURFACE_ROW=7)
+    test_pos = {"x": 10, "y": 2}
+    await game.call(DIRT_GRID, "remove_ladder", [test_pos])  # ensure clean slate
 
     placed = await game.call(DIRT_GRID, "place_ladder", [test_pos])
-    assert placed is True, "Should be able to place ladder at empty underground position"
+    assert placed is True, "Should be able to place ladder at an empty position"
 
     has_ladder = await game.call(DIRT_GRID, "has_ladder", [test_pos])
     assert has_ladder is True, "has_ladder should return true after placement"
@@ -125,11 +118,9 @@ async def test_place_ladder_then_has_ladder(game):
 @pytest.mark.asyncio
 async def test_cannot_place_two_ladders_same_square(game):
     """Cannot place two ladders at the same grid position."""
-    test_pos = {"x": 6, "y": 10}
-
-    is_block = await game.call(DIRT_GRID, "has_block_at", [test_pos["x"], test_pos["y"]])
-    if is_block:
-        pytest.skip("Test position has a block, skipping")
+    # Use y=2 (above surface, guaranteed AIR)
+    test_pos = {"x": 11, "y": 2}
+    await game.call(DIRT_GRID, "remove_ladder", [test_pos])  # ensure clean slate
 
     # Place first ladder
     first = await game.call(DIRT_GRID, "place_ladder", [test_pos])
@@ -144,56 +135,44 @@ async def test_cannot_place_two_ladders_same_square(game):
 
 
 @pytest.mark.asyncio
-async def test_ladder_fall_mechanic_method_exists(game):
-    """_handle_ladder_fall should exist and be callable on DirtGrid."""
-    has_method = await game.call(DIRT_GRID, "has_method", ["_handle_ladder_fall"])
-    assert has_method is True, "_handle_ladder_fall method must exist for fall mechanic"
-
-
-@pytest.mark.asyncio
 async def test_ladder_fall_with_no_ladder_above_is_noop(game):
-    """_handle_ladder_fall at a position with no ladder above should be a no-op."""
-    # Call with a position that has no ladder above it
+    """_handle_ladder_fall at a position with no ladder above is a no-op."""
+    # Use a position well above-surface where no ladders exist
     test_pos = {"x": 20, "y": 15}
-    # This should complete without error
     await game.call(DIRT_GRID, "_handle_ladder_fall", [test_pos])
-    # No assertion needed - just verifying it doesn't crash
+    # Verify nothing was placed/changed at that position
+    has_ladder = await game.call(DIRT_GRID, "has_ladder", [test_pos])
+    assert has_ladder is False, "No ladder should appear after a no-op fall call"
 
 
 @pytest.mark.asyncio
 async def test_ladder_fall_shifts_ladder_down(game):
-    """When dirt under a ladder is removed, the ladder shifts down."""
-    # Set up: place a ladder at y=9, then call _handle_ladder_fall at y=10
-    # (simulating dirt at y=10 being dug while solid ground is at y=11)
-    ladder_pos = {"x": 30, "y": 9}
-    dug_pos = {"x": 30, "y": 10}
+    """When _handle_ladder_fall is called and a ladder is directly above, it moves down."""
+    # Use positions above the surface (y < SURFACE_ROW=7) which are guaranteed AIR.
+    # y=3: ladder will be placed here; y=4: the "dug" position; y=5: still air (fall continues);
+    # y=7: first solid row — ladder lands at y=6 after scanning through y=4 and y=5.
+    ladder_pos = {"x": 40, "y": 3}
+    dug_pos = {"x": 40, "y": 4}
+    expected_land = {"x": 40, "y": 6}  # one above first solid row (SURFACE_ROW = 7)
 
-    # Ensure positions are clear
-    is_block_ladder = await game.call(DIRT_GRID, "has_block_at", [ladder_pos["x"], ladder_pos["y"]])
-    is_block_dug = await game.call(DIRT_GRID, "has_block_at", [dug_pos["x"], dug_pos["y"]])
-    # We need dug_pos to not be solid for the fall to work correctly in test
-    if is_block_ladder or not is_block_dug:
-        pytest.skip("Test positions not in expected state, skipping")
+    # Ensure no pre-existing ladder at our positions
+    for pos in [ladder_pos, dug_pos, expected_land]:
+        await game.call(DIRT_GRID, "remove_ladder", [pos])
 
-    # Place ladder above dug position
+    # Place ladder at y=3 (above-surface AIR, no block, so place_ladder accepts it)
     placed = await game.call(DIRT_GRID, "place_ladder", [ladder_pos])
     if not placed:
-        pytest.skip("Could not place test ladder")
+        pytest.skip("Could not place test ladder at y=3")
 
-    # Verify ladder is at original position
-    has_at_original = await game.call(DIRT_GRID, "has_ladder", [ladder_pos])
-    assert has_at_original is True, "Ladder should be at y=9 before fall"
-
-    # Trigger the fall (as if block at y=10 was just dug)
+    # Trigger the fall as if the block at y=4 was just dug (y=4 is AIR, _active has nothing there)
     await game.call(DIRT_GRID, "_handle_ladder_fall", [dug_pos])
 
-    # After fall: ladder at y=9 should be gone, ladder should now be at y=10
-    has_at_original_after = await game.call(DIRT_GRID, "has_ladder", [ladder_pos])
-    has_at_new = await game.call(DIRT_GRID, "has_ladder", [dug_pos])
+    has_at_original = await game.call(DIRT_GRID, "has_ladder", [ladder_pos])
+    has_at_land = await game.call(DIRT_GRID, "has_ladder", [expected_land])
 
-    # Clean up regardless of result
+    # Clean up
     await game.call(DIRT_GRID, "remove_ladder", [ladder_pos])
-    await game.call(DIRT_GRID, "remove_ladder", [dug_pos])
+    await game.call(DIRT_GRID, "remove_ladder", [expected_land])
 
-    assert has_at_original_after is False, "Ladder should no longer be at y=9 after fall"
-    assert has_at_new is True, "Ladder should have fallen to y=10"
+    assert has_at_original is False, "Ladder should have left y=3"
+    assert has_at_land is True, "Ladder should have fallen to y=6 (just above surface dirt at y=7)"

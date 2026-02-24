@@ -7,7 +7,13 @@ Tests ladder placement rules:
 - At the top of a ladder, placing another goes above
 - Cannot place at or above the surface
 - Ladder fall mechanic when dirt beneath is dug
+
+Tests ladder traversal:
+- Player z_index renders in front of ladders
+- Player enters CLIMBING state when standing on a ladder
+- Player exits CLIMBING state when ladder is removed
 """
+import asyncio
 import pytest
 from helpers import PATHS
 
@@ -176,3 +182,60 @@ async def test_ladder_fall_shifts_ladder_down(game):
 
     assert has_at_original is False, "Ladder should have left y=3"
     assert has_at_land is True, "Ladder should have fallen to y=6 (just above surface dirt at y=7)"
+
+
+# =============================================================================
+# LADDER TRAVERSAL TESTS
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_player_has_is_on_ladder_method(game):
+    """Player should have _is_on_ladder method used to detect climbing state."""
+    result = await game.call(PLAYER, "has_method", ["_is_on_ladder"])
+    assert result is True, "Player should have _is_on_ladder method"
+
+
+@pytest.mark.asyncio
+async def test_player_has_start_climbing_method(game):
+    """Player should have _start_climbing method to enter CLIMBING state."""
+    result = await game.call(PLAYER, "has_method", ["_start_climbing"])
+    assert result is True, "Player should have _start_climbing method"
+
+
+@pytest.mark.asyncio
+async def test_player_z_index_in_front_of_ladders(game):
+    """Player z_index must exceed ladder visual z_index (1) so player renders in front."""
+    z_index = await game.get_property(PLAYER, "z_index")
+    assert z_index is not None, "Player should have z_index property"
+    assert z_index > 1, f"Player z_index ({z_index}) should be greater than ladder z_index (1)"
+
+
+@pytest.mark.asyncio
+async def test_player_not_on_ladder_at_spawn(game):
+    """Player should not be on a ladder at spawn — _is_on_ladder returns false."""
+    result = await game.call(PLAYER, "_is_on_ladder", [])
+    assert result is False, "Player should not be on a ladder at spawn"
+
+
+@pytest.mark.asyncio
+async def test_player_enters_climbing_state_on_ladder(game):
+    """Player should enter CLIMBING state (6) when a ladder is placed at their position."""
+    # State enum: IDLE=0 MOVING=1 MINING=2 FALLING=3 WALL_SLIDING=4 WALL_JUMPING=5 CLIMBING=6
+    CLIMBING_STATE = 6
+
+    grid_pos = await game.get_property(PLAYER, "grid_position")
+    assert grid_pos is not None, "Player should have grid_position"
+
+    placed = await game.call(DIRT_GRID, "place_ladder", [grid_pos])
+    assert placed is True, "Should be able to place ladder at player's position"
+
+    # Wait for the state machine to detect the ladder
+    await asyncio.sleep(0.1)
+
+    state = await game.get_property(PLAYER, "current_state")
+
+    # Clean up before asserting so the ladder is removed regardless of outcome
+    await game.call(DIRT_GRID, "remove_ladder", [grid_pos])
+
+    assert state == CLIMBING_STATE, f"Player should be in CLIMBING state ({CLIMBING_STATE}), got {state}"

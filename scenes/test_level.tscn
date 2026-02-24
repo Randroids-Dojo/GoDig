@@ -37,6 +37,7 @@ script = ExtResource("2_grid")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(256, 768)
+z_index = 2
 script = ExtResource("3_player")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]

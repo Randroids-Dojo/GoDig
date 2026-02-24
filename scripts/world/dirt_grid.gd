@@ -41,6 +41,7 @@ var _loaded_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] tracks loaded 
 var _ore_map: Dictionary = {}  # Dictionary[Vector2i, String ore_id] - what ore is in each block
 var _dug_tiles: Dictionary = {}  # Dictionary[Vector2i, bool] - tiles that have been mined/dug
 var _placed_objects: Dictionary = {}  # Dictionary[Vector2i, int tile_type] - ladders, torches, etc.
+var _ladder_visuals: Dictionary = {}  # Dictionary[Vector2i, TextureRect] - visual nodes for placed ladders
 var _dirty_chunks: Dictionary = {}  # Dictionary[Vector2i, bool] - chunks with unsaved changes
 var _sparkles: Dictionary = {}  # Dictionary[Vector2i, CPUParticles2D] - sparkle effects for ore blocks (legacy)
 var _rarity_borders: Dictionary = {}  # Dictionary[Vector2i, Node2D] - rarity border effects for ore blocks
@@ -551,6 +552,29 @@ func get_tile_type(pos: Vector2i) -> int:
 	return TileTypes.Type.AIR
 
 
+func _create_ladder_visual(pos: Vector2i) -> void:
+	## Create a TextureRect visual for a ladder at the given grid position.
+	if _ladder_visuals.has(pos):
+		return  # Already has a visual
+	var atlas := AtlasTexture.new()
+	atlas.atlas = load("res://resources/tileset/terrain_atlas.png")
+	atlas.region = Rect2(0, 256, 128, 128)  # LADDER tile at atlas coords (0, 2)
+	var rect := TextureRect.new()
+	rect.texture = atlas
+	rect.size = Vector2(BLOCK_SIZE, BLOCK_SIZE)
+	rect.position = Vector2(pos.x * BLOCK_SIZE + GameManager.GRID_OFFSET_X, pos.y * BLOCK_SIZE)
+	rect.z_index = 1
+	add_child(rect)
+	_ladder_visuals[pos] = rect
+
+
+func _remove_ladder_visual(pos: Vector2i) -> void:
+	## Remove the visual node for a ladder at the given position.
+	if _ladder_visuals.has(pos):
+		_ladder_visuals[pos].queue_free()
+		_ladder_visuals.erase(pos)
+
+
 func place_ladder(pos: Vector2i) -> bool:
 	## Place a ladder at the specified position
 	## Returns true if placed successfully, false if position is occupied
@@ -560,6 +584,7 @@ func place_ladder(pos: Vector2i) -> bool:
 		return false  # Already has a placed object
 
 	_placed_objects[pos] = TileTypes.Type.LADDER
+	_create_ladder_visual(pos)
 
 	# Mark chunk as dirty for persistence
 	var chunk_pos := _grid_to_chunk(pos)
@@ -581,6 +606,7 @@ func remove_ladder(pos: Vector2i) -> bool:
 		return false
 
 	_placed_objects.erase(pos)
+	_remove_ladder_visual(pos)
 
 	# Mark chunk as dirty for persistence
 	var chunk_pos := _grid_to_chunk(pos)
@@ -646,11 +672,16 @@ func get_placed_objects_dict() -> Dictionary:
 ## Format: {"x,y": tile_type, ...}
 func load_placed_objects_dict(data: Dictionary) -> void:
 	_placed_objects.clear()
+	for pos in _ladder_visuals:
+		_ladder_visuals[pos].queue_free()
+	_ladder_visuals.clear()
 	for key in data:
 		var parts = key.split(",")
 		if parts.size() == 2:
 			var pos := Vector2i(int(parts[0]), int(parts[1]))
 			_placed_objects[pos] = data[key]
+			if data[key] == TileTypes.Type.LADDER:
+				_create_ladder_visual(pos)
 	print("[DirtGrid] Loaded %d placed objects" % _placed_objects.size())
 
 
@@ -831,12 +862,14 @@ func _handle_ladder_fall(dug_pos: Vector2i) -> void:
 	# Remove all ladders from current positions first.
 	for lpos in column:
 		_placed_objects.erase(lpos)
+		_remove_ladder_visual(lpos)
 		_dirty_chunks[_grid_to_chunk(lpos)] = true
 
 	# Re-place at shifted positions and update exploration tracking.
 	for lpos in column:
 		var new_pos := Vector2i(lpos.x, lpos.y + shift)
 		_placed_objects[new_pos] = TileTypes.Type.LADDER
+		_create_ladder_visual(new_pos)
 		_dirty_chunks[_grid_to_chunk(new_pos)] = true
 		if ExplorationManager:
 			ExplorationManager.mark_ladder_placed(new_pos)
@@ -977,10 +1010,8 @@ func _spawn_handcrafted_ladder(grid_pos: Vector2i) -> void:
 	## Spawn a ladder at a handcrafted ladder spawn point
 	## Places a ladder pickup or pre-placed ladder
 	# Mark position as having a ladder object
-	_placed_objects[grid_pos] = 1  # 1 = ladder
-
-	# The actual ladder rendering is handled by the placed objects system
-	# This ensures the ladder persists across chunk loading
+	_placed_objects[grid_pos] = TileTypes.Type.LADDER
+	_create_ladder_visual(grid_pos)
 
 
 # ============================================

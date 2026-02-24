@@ -48,9 +48,9 @@ func _ready() -> void:
 	if process_mode_paused:
 		process_mode = Node.PROCESS_MODE_ALWAYS
 
-	_build_ui()
-	_connect_signals()
-	_load_current_settings()
+	call_deferred("_build_ui")
+	call_deferred("_connect_signals")
+	call_deferred("_load_current_settings")
 
 	visible = false
 	print("[SettingsPopup] Ready")

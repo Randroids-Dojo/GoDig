@@ -50,7 +50,7 @@ var _fade_tween: Tween = null
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_create_ui()
+	call_deferred("_create_ui")
 	visible = false
 	print("[InventoryFullPopup] Ready")
 

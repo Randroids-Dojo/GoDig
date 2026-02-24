@@ -55,7 +55,7 @@ func _ready() -> void:
 	if process_mode_paused:
 		process_mode = Node.PROCESS_MODE_ALWAYS
 
-	_create_ui()
+	call_deferred("_create_ui")
 	visible = false
 	print("[DeathScreen] Ready")
 

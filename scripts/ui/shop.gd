@@ -66,10 +66,10 @@ func _ready() -> void:
 	InventoryManager.inventory_changed.connect(_refresh_sell_tab)
 
 	# Create sell animation instance
-	_setup_sell_animation()
+	call_deferred("_setup_sell_animation")
 
 	# Create upgrade celebration instance
-	_setup_upgrade_celebration()
+	call_deferred("_setup_upgrade_celebration")
 
 
 func _setup_sell_animation() -> void:

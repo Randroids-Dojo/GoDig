@@ -33,7 +33,7 @@ var _welcome_data: Dictionary = {}
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_create_ui()
+	call_deferred("_create_ui")
 	visible = false
 
 	# Connect to WelcomeBackManager

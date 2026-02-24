@@ -53,13 +53,13 @@ func _ready() -> void:
 	quit_btn.pressed.connect(_on_quit)
 
 	# Create confirmation dialog
-	_create_confirm_dialog()
+	call_deferred("_create_confirm_dialog")
 
 	# Create stats label
-	_create_stats_label()
+	call_deferred("_create_stats_label")
 
 	# Create debug section
-	_create_debug_section()
+	call_deferred("_create_debug_section")
 
 	# CRITICAL for web builds: disable input on background before hiding
 	# Setting visible = false alone doesn't fully disable input on web builds

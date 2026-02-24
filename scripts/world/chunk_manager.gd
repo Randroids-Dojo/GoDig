@@ -198,7 +198,7 @@ func _generate_chunk(chunk_coord: Vector2i) -> void:
 
 			# Check saved modifications (dug tiles)
 			var local_key := "%d,%d" % [world.x, world.y]
-			if saved_mods.has(local_key) and saved_mods[local_key] == true:
+			if saved_mods.has(local_key) and saved_mods[local_key]:
 				_dug_tiles[world] = true
 				continue  # Tile was dug, leave as air
 

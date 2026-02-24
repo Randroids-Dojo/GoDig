@@ -1446,7 +1446,7 @@ func _determine_ore_spawn(pos: Vector2i) -> void:
 		return
 
 	# Get all ores that can spawn at this depth
-	var available_ores := DataRegistry.get_ores_at_depth(depth)
+	var available_ores: Array = DataRegistry.get_ores_at_depth(depth)
 	if available_ores.is_empty():
 		return
 
@@ -1859,7 +1859,7 @@ func _load_chunk_dug_tiles(chunk_pos: Vector2i) -> void:
 	# chunk_data is Dictionary[String, bool] where key is "x,y" format
 	# (Vector2i keys don't serialize well to JSON/binary)
 	for key in chunk_data.keys():
-		if chunk_data[key] == true:
+		if chunk_data[key]:
 			# Parse "x,y" string back to Vector2i
 			var parts := (key as String).split(",")
 			if parts.size() == 2:

@@ -480,7 +480,7 @@ func _notify_ftue_first_sale() -> void:
 		# Fallback: Check if SaveManager has FTUE tracking
 		if SaveManager and not SaveManager.has_ftue_first_sell():
 			SaveManager.set_ftue_first_sell()
-			if SaveManager.is_ftue_completed() == false:
+			if not SaveManager.is_ftue_completed():
 				SaveManager.set_ftue_completed()
 	else:
 		if test_level.has_method("_notify_ftue_first_sale"):

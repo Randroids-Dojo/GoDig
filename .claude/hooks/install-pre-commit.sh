@@ -38,6 +38,16 @@ if [ -n "$STAGED_GD" ]; then
       echo "Warning: $file is empty"
     fi
   done
+
+  # Type inference check - catches := on script methods called via base-typed vars
+  if [ -f "scripts/tools/gdscript_type_lint.py" ]; then
+    if ! python3 scripts/tools/gdscript_type_lint.py $STAGED_GD; then
+      echo ""
+      echo "Fix the type errors above before committing."
+      echo "To skip: git commit --no-verify"
+      exit 1
+    fi
+  fi
 fi
 
 exit 0

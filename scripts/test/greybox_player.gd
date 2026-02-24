@@ -107,7 +107,7 @@ func _mine_block(block_pos: Vector2i) -> void:
 	if dirt_grid == null:
 		return
 
-	var destroyed := dirt_grid.hit_block(block_pos, MINE_DAMAGE)
+	var destroyed: bool = dirt_grid.hit_block(block_pos, MINE_DAMAGE)
 
 	if destroyed:
 		# Block was destroyed - provide feedback

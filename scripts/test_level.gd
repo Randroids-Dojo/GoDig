@@ -868,7 +868,7 @@ func _on_shop_button_pressed() -> void:
 
 func _on_shop_closed() -> void:
 	# Shop was closed, check if player is still near shop building
-	var shop_building := surface.get_node_or_null("ShopBuilding")
+	var shop_building: Node = surface.get_node_or_null("ShopBuilding")
 	if shop_building and shop_building.is_player_nearby():
 		shop_button.visible = true
 
@@ -1023,7 +1023,7 @@ func _use_ladder_from_inventory(slot_index: int) -> void:
 
 	# Try to place ladder at player's feet
 	var grid_pos: Vector2i = player.grid_position
-	var success := dirt_grid.place_ladder(grid_pos)
+	var success: bool = dirt_grid.place_ladder(grid_pos)
 
 	if success:
 		# Remove ladder from inventory

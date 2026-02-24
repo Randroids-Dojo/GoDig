@@ -168,7 +168,7 @@ func _on_blocks_mined_changed(count: int) -> void:
 	check_all_gates()
 
 
-func _on_achievement_unlocked(achievement_id: String) -> void:
+func _on_achievement_unlocked(_achievement: Dictionary) -> void:
 	check_all_gates()
 
 

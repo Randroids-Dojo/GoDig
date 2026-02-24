@@ -187,7 +187,7 @@ func _generate_chunk_thread(context: Dictionary) -> void:
 			tile_data.grid_pos = grid_pos
 
 			# Get hardness and color from depth
-			var depth := grid_pos.y - surface_row
+			var depth: int = grid_pos.y - surface_row
 			tile_data.hardness = _get_block_hardness_thread(grid_pos, depth)
 			tile_data.color = _get_block_color_thread(grid_pos, depth, rng)
 
@@ -196,7 +196,7 @@ func _generate_chunk_thread(context: Dictionary) -> void:
 	# Second pass: Determine ore spawns (needs all tiles first for vein expansion)
 	for grid_pos in result.tiles:
 		var tile_data: TileGenerationData = result.tiles[grid_pos]
-		var depth := grid_pos.y - surface_row
+		var depth: int = grid_pos.y - surface_row
 
 		# Skip if already has ore from vein expansion
 		if result.ore_map.has(grid_pos):

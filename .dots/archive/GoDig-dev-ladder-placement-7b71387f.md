@@ -3,9 +3,9 @@ title: "implement: Ladder placement system"
 status: closed
 priority: 2
 issue-type: task
-created-at: "\"2026-01-16T01:58:30.849009-06:00\""
-closed-at: "2026-01-25T01:20:41.458300+00:00"
-close-reason: Ladder placement system implemented in dirt_grid.gd with place_ladder/remove_ladder methods
+created-at: "\"\\\"\\\\\\\"2026-01-16T01:58:30.849009-06:00\\\\\\\"\\\"\""
+closed-at: "2026-02-24T00:47:14.723848-06:00"
+close-reason: "Implemented: place at current square, one per square, top-of-ladder stacking, surface limit, fall mechanic when dirt beneath is dug"
 ---
 
 Grid-based ladder placement with validation and visual feedback. See ladder-traversal-items.md

@@ -55,6 +55,10 @@ func _get_port() -> int:
 
 
 func _start_server() -> void:
+	if OS.get_name() == "Web":
+		print("[PlayGodot] Skipping server start (Web platform does not support TCP servers)")
+		return
+
 	_server = TCPServer.new()
 	var err = _server.listen(_port)
 	if err != OK:

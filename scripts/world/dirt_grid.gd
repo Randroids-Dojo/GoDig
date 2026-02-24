@@ -805,41 +805,42 @@ func _handle_ladder_fall(dug_pos: Vector2i) -> void:
 	if not has_ladder(above_pos):
 		return
 
-	# Collect the consecutive ladder column directly above the dug block (bottom-to-top order)
+	# Collect the consecutive ladder column directly above the dug block (bottom-to-top order).
+	# Column positions all have y <= above_pos.y, so they never appear in the downward scan below.
 	var column: Array[Vector2i] = []
-	var column_set: Dictionary = {}
 	var scan := above_pos
 	while has_ladder(scan):
 		column.append(scan)
-		column_set[scan] = true
 		scan = scan + Vector2i(0, -1)
 
-	# Scan downward from dug_pos to find the first obstacle (solid block or separate ladder)
+	# Scan downward from dug_pos to find the first obstacle (solid block or unrelated ladder).
 	var scan_down := dug_pos
 	var scan_limit := dug_pos.y + 1000
 	while scan_down.y < scan_limit:
 		if _active.has(scan_down):
 			break  # Hit solid ground
-		if has_ladder(scan_down) and not column_set.has(scan_down):
-			break  # Hit an unrelated ladder
+		if has_ladder(scan_down):
+			break  # Hit an unrelated ladder (column positions can't appear here)
 		scan_down = scan_down + Vector2i(0, 1)
 
-	# bottom of column (column[0] = above_pos) lands at scan_down.y - 1
+	# Bottom of column (column[0] = above_pos) lands at scan_down.y - 1.
 	var bottom_landing_y := scan_down.y - 1
 	var shift := bottom_landing_y - above_pos.y
 	if shift <= 0:
 		return  # Nothing to do
 
-	# Remove all ladders from current positions first
+	# Remove all ladders from current positions first.
 	for lpos in column:
 		_placed_objects.erase(lpos)
 		_dirty_chunks[_grid_to_chunk(lpos)] = true
 
-	# Re-place at shifted positions
+	# Re-place at shifted positions and update exploration tracking.
 	for lpos in column:
 		var new_pos := Vector2i(lpos.x, lpos.y + shift)
 		_placed_objects[new_pos] = TileTypes.Type.LADDER
 		_dirty_chunks[_grid_to_chunk(new_pos)] = true
+		if ExplorationManager:
+			ExplorationManager.mark_ladder_placed(new_pos)
 
 	print("[DirtGrid] Ladder column of %d fell %d block(s) at x=%d" % [column.size(), shift, above_pos.x])
 

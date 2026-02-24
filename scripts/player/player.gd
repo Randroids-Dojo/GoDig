@@ -1731,12 +1731,14 @@ func use_grappling_hook_to(screen_pos: Vector2) -> bool:
 
 signal ladder_placed(grid_pos: Vector2i)
 
+## Sentinel returned by _get_ladder_placement_pos() when placement is invalid.
+const LADDER_PLACEMENT_INVALID := Vector2i(-999999, -999999)
+
 ## Determine where a ladder would be placed given the player's current state.
-## Returns Vector2i(-999999, -999999) if placement is invalid.
+## Returns LADDER_PLACEMENT_INVALID if no valid placement exists.
 func _get_ladder_placement_pos() -> Vector2i:
-	const INVALID := Vector2i(-999999, -999999)
 	if dirt_grid == null:
-		return INVALID
+		return LADDER_PLACEMENT_INVALID
 
 	var place_pos := grid_position
 
@@ -1746,15 +1748,15 @@ func _get_ladder_placement_pos() -> Vector2i:
 		if not dirt_grid.has_block(above) and not dirt_grid.has_ladder(above):
 			place_pos = above
 		else:
-			return INVALID  # Top is blocked, can't stack higher
+			return LADDER_PLACEMENT_INVALID  # Top is blocked, can't stack higher
 	else:
 		# Normal placement - current position must be empty
-		if dirt_grid.has_block(grid_position) or dirt_grid.has_ladder(grid_position):
-			return INVALID
+		if dirt_grid.has_block(grid_position):
+			return LADDER_PLACEMENT_INVALID
 
 	# Cannot place above the surface (ladders must be underground)
 	if place_pos.y < GameManager.SURFACE_ROW:
-		return INVALID
+		return LADDER_PLACEMENT_INVALID
 
 	return place_pos
 
@@ -1777,7 +1779,7 @@ func place_ladder_at_position() -> bool:
 
 	# Determine placement position (handles "top of ladder" logic and surface limit)
 	var place_pos := _get_ladder_placement_pos()
-	if place_pos == Vector2i(-999999, -999999):
+	if place_pos == LADDER_PLACEMENT_INVALID:
 		return false
 
 	# Try to place the ladder
@@ -1819,7 +1821,7 @@ func can_place_ladder() -> bool:
 	if not InventoryManager.has_item_by_id("ladder"):
 		return false
 
-	return _get_ladder_placement_pos() != Vector2i(-999999, -999999)
+	return _get_ladder_placement_pos() != LADDER_PLACEMENT_INVALID
 
 
 # ============================================

@@ -27,31 +27,38 @@ var _current_direction: Vector2i = Vector2i.ZERO
 
 
 func _ready() -> void:
-	# Create the base (outer circle)
+	# Build the node subtree entirely off-tree first, then attach in one call.
+	# Adding to an already-in-tree node while the parent scene is still calling
+	# _ready() on its children triggers "parent busy" errors in Godot 4.6.
+
+	# Base (outer circle)
 	base = Control.new()
 	base.name = "Base"
 	base.custom_minimum_size = Vector2(base_size, base_size)
 	base.size = Vector2(base_size, base_size)
-	add_child(base)
 
-	var base_bg = ColorRect.new()
+	var base_bg := ColorRect.new()
 	base_bg.name = "BaseBG"
 	base_bg.color = Color(0.2, 0.2, 0.2, 0.5)
 	base_bg.size = Vector2(base_size, base_size)
-	base.add_child(base_bg)
+	base.add_child(base_bg)  # off-tree: safe
 
-	# Create the knob (inner circle)
+	# Knob (inner movable circle)
 	knob = Control.new()
 	knob.name = "Knob"
 	knob.custom_minimum_size = Vector2(knob_size, knob_size)
 	knob.size = Vector2(knob_size, knob_size)
-	base.add_child(knob)
 
-	var knob_bg = ColorRect.new()
+	var knob_bg := ColorRect.new()
 	knob_bg.name = "KnobBG"
 	knob_bg.color = Color(0.4, 0.4, 0.4, 0.8)
 	knob_bg.size = Vector2(knob_size, knob_size)
-	knob.add_child(knob_bg)
+	knob.add_child(knob_bg)  # off-tree: safe
+
+	base.add_child(knob)  # off-tree: safe
+
+	# Single add_child call onto the in-tree node
+	add_child(base)
 
 	# Center the knob initially
 	_center_position = Vector2(base_size / 2.0, base_size / 2.0)

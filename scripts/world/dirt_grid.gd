@@ -883,7 +883,7 @@ func _spawn_handcrafted_ore(grid_pos: Vector2i, depth: int, world_seed: int) -> 
 	_rng.seed = pos_hash
 
 	# Get valid ores for this depth
-	var ore_id := DataRegistry.get_random_ore_for_depth(depth, _rng)
+	var ore_id: String = DataRegistry.get_random_ore_for_depth(depth, _rng)
 	if ore_id == "":
 		return
 
@@ -1068,7 +1068,7 @@ func _handle_danger_zone_ore_spawn(grid_pos: Vector2i, world_seed: int) -> void:
 		return
 
 	# Get valid ores for this depth
-	var ore_id := DataRegistry.get_random_ore_for_depth(depth, _rng)
+	var ore_id: String = DataRegistry.get_random_ore_for_depth(depth, _rng)
 	if ore_id == "":
 		return
 

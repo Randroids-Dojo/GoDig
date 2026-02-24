@@ -300,6 +300,15 @@ func get_ores_at_depth(depth: int) -> Array:
 	return result
 
 
+## Pick a random ore valid at a given depth using the provided RNG. Returns "" if none.
+func get_random_ore_for_depth(depth: int, rng: RandomNumberGenerator) -> String:
+	var valid: Array = get_ores_at_depth(depth)
+	if valid.is_empty():
+		return ""
+	var ore: OreData = valid[rng.randi() % valid.size()]
+	return ore.id
+
+
 ## Get all ores sorted by min_depth
 func get_all_ores() -> Array:
 	return _ores_by_depth.duplicate()

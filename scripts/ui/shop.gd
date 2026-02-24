@@ -1817,7 +1817,7 @@ func _on_elevator_travel(target_depth: int, cost: int) -> void:
 		var target_grid := Vector2i(player.grid_position.x, target_y)
 
 		# Teleport player
-		player.position = GameManager.grid_to_world(target_grid) + Vector2(player.BLOCK_SIZE / 2.0, player.BLOCK_SIZE / 2.0)
+		player.position = GameManager.grid_to_world(target_grid)
 		player.grid_position = target_grid
 		player.current_state = player.State.IDLE
 		player.velocity = Vector2.ZERO

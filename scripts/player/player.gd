@@ -1540,7 +1540,7 @@ func use_rope() -> bool:
 		return false
 
 	# Teleport player up
-	position = GameManager.grid_to_world(target) + Vector2(BLOCK_SIZE / 2.0, BLOCK_SIZE / 2.0)
+	position = GameManager.grid_to_world(target)
 	grid_position = target
 	current_state = State.IDLE
 	velocity = Vector2.ZERO
@@ -1585,7 +1585,7 @@ func use_teleport_scroll() -> bool:
 	var spawn_y := GameManager.SURFACE_ROW - 1
 	var target := Vector2i(grid_position.x, spawn_y)
 
-	position = GameManager.grid_to_world(target) + Vector2(BLOCK_SIZE / 2.0, BLOCK_SIZE / 2.0)
+	position = GameManager.grid_to_world(target)
 	grid_position = target
 	current_state = State.IDLE
 	velocity = Vector2.ZERO

@@ -95,22 +95,15 @@ func _ready() -> void:
 	touch_controls.jump_pressed.connect(player.trigger_jump)
 	touch_controls.inventory_pressed.connect(_on_inventory_pressed)
 
-	# Connect depth tracking
-	player.depth_changed.connect(_on_player_depth_changed)
-
 	# Connect coins display
 	GameManager.coins_changed.connect(_on_coins_changed)
 
 	# Connect HUD to player HP
 	if hud:
 		hud.connect_to_player(player)
-		# Connect death signal for game over handling
-		player.player_died.connect(_on_player_died)
 
 	# Connect death screen signals
 	if death_screen:
-		death_screen.respawn_requested.connect(_on_death_screen_respawn)
-		death_screen.reload_requested.connect(_on_death_screen_reload)
 		if death_screen.has_signal("dive_again_requested"):
 			death_screen.dive_again_requested.connect(_on_death_screen_dive_again)
 		if death_screen.has_signal("quick_retry_requested"):
@@ -139,7 +132,6 @@ func _ready() -> void:
 
 	# Connect shop dive again signal
 	if shop:
-		shop.closed.connect(_on_shop_closed)
 		if shop.has_signal("dive_again_requested"):
 			shop.dive_again_requested.connect(_on_shop_dive_again)
 

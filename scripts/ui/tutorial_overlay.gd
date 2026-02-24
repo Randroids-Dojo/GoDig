@@ -56,7 +56,7 @@ func _ready() -> void:
 	if process_mode_paused:
 		process_mode = Node.PROCESS_MODE_ALWAYS
 
-	_build_ui()
+	call_deferred("_build_ui")
 	visible = false
 
 	# Connect to GameManager tutorial signals

@@ -20,7 +20,7 @@ var _sell_animation: CanvasLayer = null
 var _upgrade_celebration: CanvasLayer = null
 
 @onready var coins_label: Label = $Panel/VBox/Header/CoinsLabel
-@onready var shop_title: Label = $Panel/VBox/Header/ShopTitle
+@onready var shop_title: Label = $Panel/VBox/Header/TitleLabel
 @onready var sell_tab: Control = $Panel/VBox/TabContainer/Sell
 @onready var upgrades_tab: Control = $Panel/VBox/TabContainer/Upgrades
 @onready var sell_items_container: GridContainer = $Panel/VBox/TabContainer/Sell/ScrollContainer/ItemsGrid

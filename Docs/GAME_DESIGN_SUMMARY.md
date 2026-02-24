@@ -104,6 +104,13 @@ Wall-jumping transforms "stuck" from binary failure to a challenge, making playe
 | Rope | 20 | 50 | Extends downward from anchor, 10 tiles max |
 | Teleport Scroll | 5 | 500 | Emergency return to surface |
 
+#### Ladder Placement Rules (implemented)
+- Placed at the player's current grid square (one square = one block)
+- Only one ladder per square — duplicate placement is blocked
+- When standing at the **top of a ladder** (no ladder above), placing another puts it in the square directly above
+- Cannot be placed above or at the surface row (must be underground)
+- **Fall mechanic**: if the dirt block directly beneath a ladder column is mined, the entire consecutive column shifts down until the bottom rests on solid ground or another ladder
+
 ### Permanent Tools
 | Item | Cost | Unlock | Function |
 |------|------|--------|----------|

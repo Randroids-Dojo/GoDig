@@ -104,10 +104,10 @@ dot blocked        # Show what's blocked
 Core loop working: dig → collect → sell → upgrade → repeat
 
 ### v1.0 (Full Release)
-- Ladder placement
-- Fall damage
-- Cave generation
-- Achievement system
+- ✅ Ladder placement (with stacking, surface limit, fall mechanic)
+- ✅ Fall damage
+- ✅ Cave generation
+- ✅ Achievement system
 - Multiple shop types
 - Surface building placement
 
@@ -149,11 +149,11 @@ All major research questions have been resolved. Remaining items are deferred to
 - v1.1+: Void Depths layer (5000m+, end-game)
 
 ### Traversal System Tasks
-- DEV: Ladder placement system (grid-based, validation)
-- DEV: Climbing state for player
-- DEV: Traversal item persistence
-- DEV: Ladder quick-slot HUD
-- v1.0: Placeable ladders, Rope item, Grappling hook, Elevator
+- ✅ DEV: Ladder placement system (grid-based, validation, surface limit, fall mechanic)
+- ✅ DEV: Climbing state for player
+- ✅ DEV: Traversal item persistence
+- ✅ DEV: Ladder quick-slot HUD
+- v1.0: Rope item, Grappling hook, Elevator
 
 ## Key Design Decisions Made
 1. **No fuel mechanic** - Inventory pressure creates return-to-surface tension

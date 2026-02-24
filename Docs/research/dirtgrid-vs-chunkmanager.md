@@ -30,9 +30,16 @@ The current `dirt_grid.gd` is a **hybrid system** that already incorporates many
 - Fossil and traversal item drops
 
 **What It's Missing:**
-- TileMap integration (uses ColorRect blocks)
+- TileMap integration (terrain blocks use ColorRect; placed objects use TextureRect with AtlasTexture)
 - Background threading for generation
 - Formal ChunkData resource usage
+
+**Placed Objects Rendering (Ladders):**
+- `_placed_objects: Dictionary` — stores grid position → tile type for ladders, torches, etc.
+- `_ladder_visuals: Dictionary` — parallel dict of grid position → `TextureRect` node
+- `_create_ladder_visual()` / `_remove_ladder_visual()` manage the visual lifecycle
+- Visual nodes use `AtlasTexture` on the terrain atlas (ladder tile at region `Rect2(0, 256, 128, 128)`)
+- `load_placed_objects_dict()` recreates visuals when loading from save
 
 ### ChunkData (Prepared Resource)
 

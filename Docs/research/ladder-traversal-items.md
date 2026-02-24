@@ -284,9 +284,11 @@ var chunk_data = {
 ## Visual Design
 
 ### Ladder Sprite
-- Simple wooden rungs
-- 16x16 per segment
-- Connects visually when stacked
+- Wooden ladder graphic in `resources/tileset/terrain_atlas.png` at atlas coords (0, 2)
+- 128×128 pixels (matches BLOCK_SIZE)
+- Rendered as `TextureRect` with `AtlasTexture` region `Rect2(0, 256, 128, 128)`
+- `z_index = 1` ensures it renders above background terrain
+- Tracked per grid position in `DirtGrid._ladder_visuals` dict
 
 ### Rope Sprite
 - Braided texture
@@ -307,3 +309,5 @@ var chunk_data = {
 - [x] Teleport scroll: emergency use
 - [x] Elevator: late-game building
 - [x] Mobile controls: quick-slot + tap placement
+- [x] Ladder rendering: `TextureRect` + `AtlasTexture` from terrain atlas, managed by `_ladder_visuals` dict in `DirtGrid`
+- [x] Ladder fall mechanic: `_handle_ladder_fall()` shifts entire column down when support block is removed; visuals are removed and recreated at new positions

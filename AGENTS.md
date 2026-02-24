@@ -322,6 +322,25 @@ python scripts/tools/validate_all.py
 
 **Avoid these common GDScript errors that cause test failures.**
 
+### Placed Objects Missing Visual Nodes
+
+Storing a world object in a data dictionary does NOT create a visual. Always pair data storage with visual node creation:
+
+```gdscript
+# BAD - data stored, nothing appears on screen
+func place_ladder(pos: Vector2i) -> void:
+    _placed_objects[pos] = TileTypes.Type.LADDER  # invisible!
+
+# GOOD - data + visual node together
+func place_ladder(pos: Vector2i) -> void:
+    _placed_objects[pos] = TileTypes.Type.LADDER
+    _create_ladder_visual(pos)  # renders it
+
+# Also update visuals in: remove, fall/move, load-from-save
+```
+
+Terrain atlas tiles (e.g. `resources/tileset/terrain_atlas.png`) are the right source for world object visuals. Use `AtlasTexture` with the correct `Rect2` region.
+
 ### Node Name Mismatches
 
 Script `@onready` references must match actual node names in scenes:

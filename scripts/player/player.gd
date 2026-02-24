@@ -1731,9 +1731,37 @@ func use_grappling_hook_to(screen_pos: Vector2) -> bool:
 
 signal ladder_placed(grid_pos: Vector2i)
 
-## Place a ladder at the player's current position
-## Called from the HUD quickslot for one-tap ladder placement
-## Returns true if ladder was placed successfully
+## Determine where a ladder would be placed given the player's current state.
+## Returns Vector2i(-999999, -999999) if placement is invalid.
+func _get_ladder_placement_pos() -> Vector2i:
+	const INVALID := Vector2i(-999999, -999999)
+	if dirt_grid == null:
+		return INVALID
+
+	var place_pos := grid_position
+
+	if dirt_grid.has_ladder(grid_position):
+		# Standing on a ladder - if this is the top (no ladder above), place above
+		var above := grid_position + Vector2i(0, -1)
+		if not dirt_grid.has_block(above) and not dirt_grid.has_ladder(above):
+			place_pos = above
+		else:
+			return INVALID  # Top is blocked, can't stack higher
+	else:
+		# Normal placement - current position must be empty
+		if dirt_grid.has_block(grid_position) or dirt_grid.has_ladder(grid_position):
+			return INVALID
+
+	# Cannot place above the surface (ladders must be underground)
+	if place_pos.y < GameManager.SURFACE_ROW:
+		return INVALID
+
+	return place_pos
+
+
+## Place a ladder at the player's current position (or above if at top of ladder).
+## Called from the HUD quickslot for one-tap ladder placement.
+## Returns true if ladder was placed successfully.
 func place_ladder_at_position() -> bool:
 	# Can't place while falling or wall jumping (safety)
 	if current_state in [State.FALLING, State.WALL_JUMPING]:
@@ -1747,22 +1775,19 @@ func place_ladder_at_position() -> bool:
 	if dirt_grid == null:
 		return false
 
-	# Check if there's already a ladder at current position
-	if dirt_grid.has_ladder(grid_position):
-		return false
-
-	# Check if current position has a solid block (can't place ladder inside block)
-	if dirt_grid.has_block(grid_position):
+	# Determine placement position (handles "top of ladder" logic and surface limit)
+	var place_pos := _get_ladder_placement_pos()
+	if place_pos == Vector2i(-999999, -999999):
 		return false
 
 	# Try to place the ladder
-	if not dirt_grid.place_ladder(grid_position):
+	if not dirt_grid.place_ladder(place_pos):
 		return false
 
 	# Consume the ladder from inventory
 	if not InventoryManager.remove_item_by_id("ladder", 1):
 		# Failed to remove ladder - this shouldn't happen, but undo the placement
-		dirt_grid.remove_ladder(grid_position)
+		dirt_grid.remove_ladder(place_pos)
 		return false
 
 	# Play sound effect for placement
@@ -1777,9 +1802,9 @@ func place_ladder_at_position() -> bool:
 	)
 
 	# Emit signal for other systems to react
-	ladder_placed.emit(grid_position)
+	ladder_placed.emit(place_pos)
 
-	print("[Player] Placed ladder at %s" % str(grid_position))
+	print("[Player] Placed ladder at %s" % str(place_pos))
 	return true
 
 
@@ -1794,19 +1819,7 @@ func can_place_ladder() -> bool:
 	if not InventoryManager.has_item_by_id("ladder"):
 		return false
 
-	# Check if dirt_grid is available
-	if dirt_grid == null:
-		return false
-
-	# Check if there's already a ladder at current position
-	if dirt_grid.has_ladder(grid_position):
-		return false
-
-	# Check if current position has a solid block
-	if dirt_grid.has_block(grid_position):
-		return false
-
-	return true
+	return _get_ladder_placement_pos() != Vector2i(-999999, -999999)
 
 
 # ============================================

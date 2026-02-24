@@ -791,7 +791,57 @@ func hit_block(pos: Vector2i, tool_damage: float = -1.0) -> bool:
 
 		_release(pos)
 
+		# Check if digging this block causes ladders above to fall
+		_handle_ladder_fall(pos)
+
 	return destroyed
+
+
+func _handle_ladder_fall(dug_pos: Vector2i) -> void:
+	## When a block is destroyed, check if ladders directly above need to fall.
+	## Finds the consecutive column of ladders above dug_pos and shifts them
+	## down until the bottom ladder rests on solid ground or another ladder.
+	var above_pos := dug_pos + Vector2i(0, -1)
+	if not has_ladder(above_pos):
+		return
+
+	# Collect the consecutive ladder column directly above the dug block (bottom-to-top order)
+	var column: Array[Vector2i] = []
+	var column_set: Dictionary = {}
+	var scan := above_pos
+	while has_ladder(scan):
+		column.append(scan)
+		column_set[scan] = true
+		scan = scan + Vector2i(0, -1)
+
+	# Scan downward from dug_pos to find the first obstacle (solid block or separate ladder)
+	var scan_down := dug_pos
+	var scan_limit := dug_pos.y + 1000
+	while scan_down.y < scan_limit:
+		if _active.has(scan_down):
+			break  # Hit solid ground
+		if has_ladder(scan_down) and not column_set.has(scan_down):
+			break  # Hit an unrelated ladder
+		scan_down = scan_down + Vector2i(0, 1)
+
+	# bottom of column (column[0] = above_pos) lands at scan_down.y - 1
+	var bottom_landing_y := scan_down.y - 1
+	var shift := bottom_landing_y - above_pos.y
+	if shift <= 0:
+		return  # Nothing to do
+
+	# Remove all ladders from current positions first
+	for lpos in column:
+		_placed_objects.erase(lpos)
+		_dirty_chunks[_grid_to_chunk(lpos)] = true
+
+	# Re-place at shifted positions
+	for lpos in column:
+		var new_pos := Vector2i(lpos.x, lpos.y + shift)
+		_placed_objects[new_pos] = TileTypes.Type.LADDER
+		_dirty_chunks[_grid_to_chunk(new_pos)] = true
+
+	print("[DirtGrid] Ladder column of %d fell %d block(s) at x=%d" % [column.size(), shift, above_pos.x])
 
 
 # ============================================

@@ -67,7 +67,7 @@ func _process(delta: float) -> void:
 	if inventory_panel and inventory_panel.visible:
 		if Input.is_action_just_pressed("ui_accept"):
 			inventory_panel.confirm_selection()
-		elif Input.is_key_just_pressed(KEY_DELETE) or Input.is_key_just_pressed(KEY_BACKSPACE):
+		elif Input.is_action_just_pressed("ui_text_delete") or Input.is_action_just_pressed("ui_text_backspace"):
 			inventory_panel.drop_selection()
 		elif Input.is_action_just_pressed("ui_cancel"):
 			inventory_panel.close()

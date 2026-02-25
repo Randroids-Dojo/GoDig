@@ -146,7 +146,7 @@ func _emit_sparkle(grid_pos: Vector2i) -> void:
 	var start_pos := world_pos + offset
 
 	# Set initial position
-	_sparkle_pool.set_position(index, start_pos)
+	_sparkle_pool.set_instance_position(index, start_pos)
 
 	# Set color with brightness boost based on rarity
 	var brightness_boost := 0.1 + (rarity * 0.1)
@@ -200,7 +200,7 @@ func _update_active_sparkles(delta: float) -> void:
 				alpha = 1.0 - ((progress - 0.5) / 0.5)
 
 			# Apply animation
-			_sparkle_pool.set_position(index, new_pos)
+			_sparkle_pool.set_instance_position(index, new_pos)
 			_sparkle_pool.set_scale_uniform(index, 0.5 + scale_curve * 0.5)
 
 			var base_color: Color = data["color"]

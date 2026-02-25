@@ -121,14 +121,14 @@ func get_transform(index: int) -> Transform2D:
 	return _multimesh.get_instance_transform_2d(index)
 
 
-func set_position(index: int, pos: Vector2) -> void:
+func set_instance_position(index: int, pos: Vector2) -> void:
 	## Set position while preserving rotation/scale
 	var current := _multimesh.get_instance_transform_2d(index)
 	current.origin = pos
 	_multimesh.set_instance_transform_2d(index, current)
 
 
-func get_position(index: int) -> Vector2:
+func get_instance_position(index: int) -> Vector2:
 	## Get position of an instance
 	return _multimesh.get_instance_transform_2d(index).origin
 

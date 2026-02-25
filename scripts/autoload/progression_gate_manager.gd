@@ -127,7 +127,7 @@ func _get_current_progression() -> Dictionary:
 		"depth": PlayerData.max_depth_reached if PlayerData else 0,
 		"coins_earned": SaveManager.current_save.lifetime_coins if SaveManager and SaveManager.current_save else 0,
 		"blocks_mined": SaveManager.current_save.blocks_mined if SaveManager and SaveManager.current_save else 0,
-		"runs": PlayerStats.total_runs if PlayerStats else 0,
+		"runs": PlayerStats.sessions_played if PlayerStats else 0,
 		"achievements": AchievementManager.get_unlocked_count() if AchievementManager else 0,
 		"first_sale": SaveManager.has_ftue_first_sell() if SaveManager else false,
 		"first_upgrade": SaveManager.has_first_upgrade_purchased() if SaveManager else false,
@@ -142,7 +142,7 @@ func _check_gate(gate: Dictionary, progression: Dictionary) -> bool:
 
 		# Boolean conditions
 		if required_value is bool:
-			if current_value != required_value:
+			if bool(current_value) != required_value:
 				return false
 		# Numeric conditions (>=)
 		elif current_value < required_value:

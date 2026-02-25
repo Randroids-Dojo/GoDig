@@ -76,6 +76,12 @@ const CURRENT_VERSION := 1
 ## Monetization gate data (tracks eligibility for ads/IAP)
 @export var monetization_data: Dictionary = {}
 
+## Mining bonus system state
+@export var mining_bonus_data: Dictionary = {}
+
+## Daily rewards system state
+@export var daily_rewards_data: Dictionary = {}
+
 ## FTUE (First Time User Experience) flags
 @export var ftue_completed: bool = false  # True after completing the 60-second hook
 @export var ftue_first_dig: bool = false  # True after first block mined

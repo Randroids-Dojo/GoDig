@@ -383,17 +383,11 @@ func _collect_game_state() -> void:
 
 	# Collect from MiningBonusManager
 	if MiningBonusManager:
-		var bonus_data = MiningBonusManager.get_save_data()
-		if not current_save.get("mining_bonus_data"):
-			current_save.set("mining_bonus_data", {})
-		current_save.mining_bonus_data = bonus_data
+		current_save.mining_bonus_data = MiningBonusManager.get_save_data()
 
 	# Collect from DailyRewardsManager
 	if DailyRewardsManager:
-		var daily_data = DailyRewardsManager.get_save_data()
-		if not current_save.get("daily_rewards_data"):
-			current_save.set("daily_rewards_data", {})
-		current_save.daily_rewards_data = daily_data
+		current_save.daily_rewards_data = DailyRewardsManager.get_save_data()
 
 	# Collect from DayNightManager
 	if DayNightManager:

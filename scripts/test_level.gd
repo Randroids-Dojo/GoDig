@@ -107,6 +107,7 @@ func _ready() -> void:
 	# Connect HUD to player HP
 	if hud:
 		hud.connect_to_player(player)
+		hud.pause_requested.connect(_on_pause_button_pressed)
 
 	# Connect death screen signals
 	if death_screen:

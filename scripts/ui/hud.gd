@@ -4,6 +4,8 @@ extends Control
 ## Displays player health, depth, coins, and status indicators.
 ## Provides visual feedback for low health and damage.
 
+signal pause_requested
+
 ## Reference to the health bar
 @onready var health_bar: ProgressBar = $HealthBar
 @onready var health_label: Label = $HealthBar/HealthLabel
@@ -534,8 +536,7 @@ func _update_depth_display(depth: int) -> void:
 
 
 func _on_pause_pressed() -> void:
-	if GameManager:
-		GameManager.pause_game()
+	pause_requested.emit()
 
 
 # ============================================

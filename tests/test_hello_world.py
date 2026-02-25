@@ -1633,3 +1633,28 @@ async def test_inventory_keyboard_toggle_opens(game):
     # Clean up: close the inventory
     await game.call_method(PATHS["main"], "_on_inventory_pressed")
     await asyncio.sleep(0.1)
+
+
+@pytest.mark.asyncio
+async def test_pause_menu_starts_hidden(game):
+    """Verify the pause menu starts hidden."""
+    visible = await game.get_property(PATHS["pause_menu"], "visible")
+    assert visible is False, "Pause menu should start hidden"
+
+
+@pytest.mark.asyncio
+async def test_pause_button_shows_pause_menu(game):
+    """Verify calling the pause handler shows the pause menu."""
+    visible_before = await game.get_property(PATHS["pause_menu"], "visible")
+    assert visible_before is False, "Pause menu should start hidden"
+
+    # Call the pause button handler (same code path as HUD pause button)
+    await game.call_method(PATHS["main"], "_on_pause_button_pressed")
+    await asyncio.sleep(0.1)
+
+    visible_after = await game.get_property(PATHS["pause_menu"], "visible")
+    assert visible_after is True, "Pause menu should be visible after pause button pressed"
+
+    # Clean up: resume
+    await game.call_method(PATHS["pause_menu"], "hide_menu")
+    await asyncio.sleep(0.1)

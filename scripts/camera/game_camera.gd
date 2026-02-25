@@ -30,7 +30,8 @@ func _ready() -> void:
 	make_current()
 
 	# Create CanvasModulate for depth-based lighting
-	_setup_ambient_lighting()
+	# Deferred to avoid "parent busy setting up children" error during _ready
+	_setup_ambient_lighting.call_deferred()
 
 
 func _process(delta: float) -> void:

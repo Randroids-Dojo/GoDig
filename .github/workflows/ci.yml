@@ -68,12 +68,29 @@ jobs:
             echo "WARNING: Global class cache not found!"
           fi
 
+      - name: Check GDScript Compilation
+        run: |
+          echo "=== Checking GDScript for parse/compile errors ==="
+          # Start Godot for ~60 frames (≈1s), capture stderr, then check for SCRIPT ERRORs.
+          # This catches parse errors (e.g. calling a non-existent method) before running tests.
+          xvfb-run --auto-servernum ./godot-automation/godot.linuxbsd.editor.x86_64.mono \
+            --headless --path . --quit-after 60 2>&1 | tee /tmp/godot_compile.txt || true
+          if grep -q "SCRIPT ERROR" /tmp/godot_compile.txt; then
+            echo ""
+            echo "=== SCRIPT ERRORS DETECTED ==="
+            grep "SCRIPT ERROR" /tmp/godot_compile.txt
+            exit 1
+          fi
+          echo "No script errors found"
+
       - name: Run PlayGodot Tests
         run: |
           echo "=== Running PlayGodot Integration Tests ==="
           export GODOT_PATH="${{ github.workspace }}/godot-automation/godot.linuxbsd.editor.x86_64.mono"
           # Run with xvfb for headless display support
-          xvfb-run --auto-servernum pytest tests/test_main_menu.py -v --tb=short
+          # test_main_menu.py: main menu UI + autoload checks (fast, no scene change)
+          # test_game_smoke.py: loads test_level.tscn, confirms game scene + scripts compile
+          xvfb-run --auto-servernum pytest tests/test_main_menu.py tests/test_game_smoke.py -v --tb=short
           echo "PlayGodot tests completed"
 
       - name: Upload Screenshots

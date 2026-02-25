@@ -495,6 +495,9 @@ func _should_fall() -> bool:
 	## Returns true if the player should start falling (no block below)
 	if dirt_grid == null:
 		return false
+	# The visual surface (rows < SURFACE_ROW) is always solid ground
+	if grid_position.y < GameManager.SURFACE_ROW:
+		return false
 	var below := grid_position + Vector2i(0, 1)
 	return not dirt_grid.has_block(below)
 
@@ -517,8 +520,18 @@ func _handle_falling(delta: float) -> void:
 	# Apply gravity
 	velocity.y += GRAVITY * delta
 
-	# Check for ladder - can grab while falling
-	if _is_on_ladder():
+	# Use actual world position for checks — grid_position can be stale mid-fall
+	var actual_grid := _world_to_grid(position)
+
+	# Land on the visual surface (no dirt blocks exist above SURFACE_ROW)
+	if actual_grid.y < GameManager.SURFACE_ROW:
+		_land_on_grid(Vector2i(actual_grid.x, GameManager.SURFACE_ROW - 1))
+		return
+
+	# Check for ladder at actual current position (not stale grid_position)
+	if dirt_grid and dirt_grid.has_ladder(actual_grid):
+		grid_position = actual_grid
+		position = _grid_to_world(grid_position)
 		_start_climbing()
 		return
 

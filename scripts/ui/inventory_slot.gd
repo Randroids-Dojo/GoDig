@@ -26,11 +26,11 @@ func display_item(item, quantity: int) -> void:
 
 	# Show icon if available
 	if item_icon:
-		if item.icon != null:
-			item_icon.texture = item.icon
+		var tex = _resolve_item_icon(item)
+		if tex:
+			item_icon.texture = tex
 			item_icon.visible = true
 		else:
-			# Fallback: create a colored rect as placeholder
 			item_icon.visible = false
 
 	# Show quantity if > 1
@@ -88,6 +88,28 @@ func _get_rarity_color(rarity) -> Color:
 			3: return Color.PURPLE     # Epic
 			4: return Color.ORANGE     # Legendary
 			_: return Color.WHITE
+
+
+func _resolve_item_icon(item) -> Texture2D:
+	## Return the best available icon for an item.
+	## Priority: explicit icon → icons/items/<id>.png → atlas tile (ores) → null
+	if item.icon != null:
+		return item.icon
+
+	# Convention-based icon file
+	var icon_path := "res://resources/icons/items/" + item.id + ".png"
+	if ResourceLoader.exists(icon_path):
+		return load(icon_path) as Texture2D
+
+	# Ores and other tiles with atlas coordinates
+	if "tile_atlas_coords" in item:
+		var coords: Vector2i = item.tile_atlas_coords
+		var atlas_tex := AtlasTexture.new()
+		atlas_tex.atlas = load("res://resources/tileset/terrain_atlas.png")
+		atlas_tex.region = Rect2(coords.x * 128, coords.y * 128, 128, 128)
+		return atlas_tex
+
+	return null
 
 
 func _on_pressed() -> void:

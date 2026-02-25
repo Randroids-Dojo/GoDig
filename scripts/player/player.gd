@@ -697,6 +697,9 @@ func _handle_climbing(_delta: float) -> void:
 		_start_falling()
 		return
 
+	if input_blocked:
+		return  # Hold position while UI (inventory) is open
+
 	var input_dir := _get_input_direction()
 
 	# Vertical movement on ladder - move if clear, mine if blocked

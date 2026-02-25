@@ -213,13 +213,8 @@ func _input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_down", true):
 		_keyboard_move(0, 1)
 		get_viewport().set_input_as_handled()
-	elif event.is_action_just_pressed("ui_accept"):
-		if selected_slot >= 0:
-			_on_use_pressed()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_just_pressed("ui_cancel"):
-		close()
-		get_viewport().set_input_as_handled()
+	# Note: confirm (Enter) and cancel (Escape) are handled in test_level._process
+	# using Input.is_action_just_pressed for reliability inside CanvasLayer
 
 
 func _keyboard_move(dx: int, dy: int) -> void:
@@ -240,6 +235,20 @@ func _keyboard_select(index: int) -> void:
 		slot_selected.emit(selected_slot)
 	_update_action_buttons()
 	_update_info_panel()
+
+
+func confirm_selection() -> void:
+	## Keyboard confirm: use/place the selected item.
+	if selected_slot >= 0:
+		_on_use_pressed()
+
+
+func drop_selection() -> void:
+	## Keyboard drop: drop 1 of the selected item without a dialog.
+	var item = get_selected_item()
+	if item == null:
+		return
+	_do_drop(1)
 
 
 func _on_close_pressed() -> void:

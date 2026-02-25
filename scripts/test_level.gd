@@ -63,6 +63,16 @@ func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("inventory"):
 		_on_inventory_pressed()
 
+	# Keyboard actions inside inventory (only when open)
+	if inventory_panel and inventory_panel.visible:
+		if Input.is_action_just_pressed("ui_accept"):
+			inventory_panel.confirm_selection()
+		elif Input.is_key_just_pressed(KEY_DELETE) or Input.is_key_just_pressed(KEY_BACKSPACE):
+			inventory_panel.drop_selection()
+		elif Input.is_action_just_pressed("ui_cancel"):
+			inventory_panel.close()
+			player.input_blocked = false
+
 
 func _ready() -> void:
 	print("[TestLevel] _ready() START")

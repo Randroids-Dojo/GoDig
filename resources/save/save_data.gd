@@ -82,6 +82,39 @@ const CURRENT_VERSION := 1
 ## Daily rewards system state
 @export var daily_rewards_data: Dictionary = {}
 
+## Day/night cycle system state
+@export var day_night_data: Dictionary = {}
+
+## Prestige system state
+@export var prestige_data: Dictionary = {}
+
+## Biome system state
+@export var biome_data: Dictionary = {}
+
+## Enemy system state
+@export var enemy_data: Dictionary = {}
+
+## Depth discovery system state
+@export var depth_discovery_data: Dictionary = {}
+
+## Eureka mechanic system state
+@export var eureka_mechanic_data: Dictionary = {}
+
+## Frustration tracker state
+@export var frustration_tracker_data: Dictionary = {}
+
+## Journal system state
+@export var journal_data: Dictionary = {}
+
+## Treasure chest system state
+@export var treasure_chest_data: Dictionary = {}
+
+## Treasure room system state
+@export var treasure_room_data: Dictionary = {}
+
+## Welcome back system state
+@export var welcome_back_data: Dictionary = {}
+
 ## FTUE (First Time User Experience) flags
 @export var ftue_completed: bool = false  # True after completing the 60-second hook
 @export var ftue_first_dig: bool = false  # True after first block mined

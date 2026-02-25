@@ -370,9 +370,6 @@ func _collect_game_state() -> void:
 		current_save.blocks_mined = stats_data.get("blocks_mined_total", 0)
 		current_save.ores_collected = stats_data.get("ores_collected_total", 0)
 		current_save.deaths = stats_data.get("deaths_total", 0)
-		# Extended stats stored in a dictionary (for migration support)
-		if not current_save.get("extended_stats"):
-			current_save.set("extended_stats", {})
 		current_save.extended_stats = stats_data
 
 	# Collect tutorial state from GameManager
@@ -391,24 +388,15 @@ func _collect_game_state() -> void:
 
 	# Collect from DayNightManager
 	if DayNightManager:
-		var daynight_data = DayNightManager.get_save_data()
-		if not current_save.get("day_night_data"):
-			current_save.set("day_night_data", {})
-		current_save.day_night_data = daynight_data
+		current_save.day_night_data = DayNightManager.get_save_data()
 
 	# Collect from PrestigeManager
 	if PrestigeManager:
-		var prestige_data = PrestigeManager.get_save_data()
-		if not current_save.get("prestige_data"):
-			current_save.set("prestige_data", {})
-		current_save.prestige_data = prestige_data
+		current_save.prestige_data = PrestigeManager.get_save_data()
 
 	# Collect from EnemyManager
 	if EnemyManager:
-		var enemy_data = EnemyManager.get_save_data()
-		if not current_save.get("enemy_data"):
-			current_save.set("enemy_data", {})
-		current_save.enemy_data = enemy_data
+		current_save.enemy_data = EnemyManager.get_save_data()
 
 	# Collect from CaveLayerManager (two-layer cave system)
 	if CaveLayerManager:

@@ -86,7 +86,7 @@ func acquire() -> int:
 		push_warning("MultiMeshPool exhausted! Pool size: %d" % pool_size)
 		return -1
 
-	var index := _available_indices.pop_back()
+	var index: int = _available_indices.pop_back()
 	_active_indices.append(index)
 	instance_activated.emit(index)
 	return index
@@ -111,12 +111,12 @@ func release(index: int) -> void:
 	instance_deactivated.emit(index)
 
 
-func set_transform(index: int, transform: Transform2D) -> void:
+func set_instance_transform(index: int, transform: Transform2D) -> void:
 	## Set full transform for an instance
 	_multimesh.set_instance_transform_2d(index, transform)
 
 
-func get_transform(index: int) -> Transform2D:
+func get_instance_transform(index: int) -> Transform2D:
 	## Get current transform for an instance
 	return _multimesh.get_instance_transform_2d(index)
 

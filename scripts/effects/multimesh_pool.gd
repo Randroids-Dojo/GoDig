@@ -42,6 +42,10 @@ var _available_indices: Array[int] = []
 ## Position used to "hide" inactive instances (moved off-screen)
 const OFF_SCREEN := Vector2(-100000, -100000)
 
+## Throttle exhaustion warnings to avoid flooding the debug channel
+var _last_exhausted_warning_time: float = -9999.0
+const EXHAUSTED_WARNING_INTERVAL := 5.0
+
 
 func _ready() -> void:
 	_initialize_pool()
@@ -83,7 +87,10 @@ func acquire() -> int:
 	## Acquire an instance from the pool.
 	## Returns the instance index, or -1 if pool is exhausted.
 	if _available_indices.is_empty():
-		push_warning("MultiMeshPool exhausted! Pool size: %d" % pool_size)
+		var now := Time.get_ticks_msec() / 1000.0
+		if now - _last_exhausted_warning_time >= EXHAUSTED_WARNING_INTERVAL:
+			push_warning("MultiMeshPool exhausted! Pool size: %d" % pool_size)
+			_last_exhausted_warning_time = now
 		return -1
 
 	var index: int = _available_indices.pop_back()

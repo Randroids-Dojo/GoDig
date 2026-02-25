@@ -25,6 +25,7 @@ var _exploration_modulate: Color = Color.WHITE  # Fog of war modulation
 ## Special block types for handcrafted caves
 var is_weak_block: bool = false  # Crumbling/breakable weak blocks for eureka mechanics
 var is_secret_wall: bool = false  # Hidden passages that look solid but are breakable
+var ore_id: String = ""  # ID of embedded ore, empty if none
 
 
 func _init() -> void:
@@ -71,6 +72,7 @@ func deactivate() -> void:
 	# Reset special block flags
 	is_weak_block = false
 	is_secret_wall = false
+	ore_id = ""
 
 
 func take_hit(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> bool:
@@ -120,6 +122,15 @@ func get_hits_remaining(tool_damage: float = DEFAULT_TOOL_DAMAGE) -> int:
 	if current_health <= 0:
 		return 0
 	return ceili(current_health / tool_damage)
+
+
+func set_ore(p_ore_id: String, ore_color: Color) -> void:
+	## Mark this block as containing an ore and tint it accordingly.
+	ore_id = p_ore_id
+	base_color = base_color.lerp(ore_color, 0.4)
+	color = base_color
+	if _crack_overlay:
+		_crack_overlay.set_crack_color(base_color)
 
 
 func apply_ore_hardness(ore_hardness: float) -> void:

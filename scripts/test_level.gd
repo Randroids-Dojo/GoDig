@@ -261,7 +261,7 @@ func _restore_player_position() -> void:
 		if saved_pos.y >= 0 and saved_pos.y < 10000:  # Sanity check
 			# Restore to exact saved position
 			player.grid_position = saved_pos
-			player.position = GameManager.grid_to_world(saved_pos) + Vector2(GameManager.BLOCK_SIZE / 2.0, GameManager.BLOCK_SIZE / 2.0)
+			player.position = GameManager.grid_to_world(saved_pos)
 
 			# Update depth tracking to match restored position
 			var depth := saved_pos.y - GameManager.SURFACE_ROW

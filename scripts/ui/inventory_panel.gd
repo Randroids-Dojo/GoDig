@@ -36,12 +36,15 @@ func _ready() -> void:
 
 	# Connect close button
 	if close_button:
+		close_button.focus_mode = Control.FOCUS_NONE
 		close_button.pressed.connect(_on_close_pressed)
 
 	# Connect action buttons
 	if use_button:
+		use_button.focus_mode = Control.FOCUS_NONE
 		use_button.pressed.connect(_on_use_pressed)
 	if drop_button:
+		drop_button.focus_mode = Control.FOCUS_NONE
 		drop_button.pressed.connect(_on_drop_pressed)
 
 	_create_slots()
@@ -174,11 +177,16 @@ func refresh() -> void:
 	_refresh_display()
 
 
+const GRID_COLUMNS := 4  ## Must match GridContainer columns in inventory_panel.tscn
+
+
 func open() -> void:
 	## Show the inventory panel
 	visible = true
 	clear_selection()
 	_refresh_display()
+	# Auto-select first occupied slot for keyboard nav
+	_keyboard_select(0)
 
 
 func close() -> void:
@@ -186,6 +194,52 @@ func close() -> void:
 	visible = false
 	clear_selection()
 	closed.emit()
+
+
+func _input(event: InputEvent) -> void:
+	## Keyboard navigation when inventory is open.
+	if not visible:
+		return
+
+	if event.is_action_pressed("ui_left", true):
+		_keyboard_move(-1, 0)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_right", true):
+		_keyboard_move(1, 0)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_up", true):
+		_keyboard_move(0, -1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_down", true):
+		_keyboard_move(0, 1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_just_pressed("ui_accept"):
+		if selected_slot >= 0:
+			_on_use_pressed()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_just_pressed("ui_cancel"):
+		close()
+		get_viewport().set_input_as_handled()
+
+
+func _keyboard_move(dx: int, dy: int) -> void:
+	## Move keyboard selection by dx cols and dy rows.
+	var start := selected_slot if selected_slot >= 0 else 0
+	var new_slot := start + dx + dy * GRID_COLUMNS
+	new_slot = clampi(new_slot, 0, slots.size() - 1)
+	_keyboard_select(new_slot)
+
+
+func _keyboard_select(index: int) -> void:
+	## Select a slot by index for keyboard navigation.
+	if selected_slot >= 0 and selected_slot < slots.size():
+		slots[selected_slot].set_selected(false)
+	selected_slot = index
+	if selected_slot >= 0 and selected_slot < slots.size():
+		slots[selected_slot].set_selected(true)
+		slot_selected.emit(selected_slot)
+	_update_action_buttons()
+	_update_info_panel()
 
 
 func _on_close_pressed() -> void:

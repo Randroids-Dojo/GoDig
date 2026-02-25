@@ -984,10 +984,12 @@ func _on_inventory_pressed() -> void:
 
 	if inventory_panel.visible:
 		inventory_panel.close()
+		player.input_blocked = false
 	else:
 		# Close shop if open
 		if shop.visible:
 			shop.close()
+		player.input_blocked = true
 		inventory_panel.open()
 
 
@@ -1176,6 +1178,7 @@ func _on_inventory_item_dropped(item, quantity: int, _slot_index: int) -> void:
 func _on_inventory_closed() -> void:
 	## Handle inventory panel closed
 	print("[TestLevel] Inventory panel closed")
+	player.input_blocked = false
 
 
 # ============================================

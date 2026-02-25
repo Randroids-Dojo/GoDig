@@ -2131,7 +2131,7 @@ func _setup_keyboard_hints() -> void:
 	## Create a bottom-center label showing keyboard shortcuts (hidden on mobile/touch)
 	keyboard_hints_label = Label.new()
 	keyboard_hints_label.name = "KeyboardHintsLabel"
-	keyboard_hints_label.text = "[I] Inventory   [E] Dig"
+	keyboard_hints_label.text = "WASD/Arrows: Move & Dig   I: Inventory   Space: Jump"
 	keyboard_hints_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	keyboard_hints_label.position = Vector2(16, -18)
 	keyboard_hints_label.add_theme_font_size_override("font_size", 12)

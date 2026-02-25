@@ -54,6 +54,7 @@ const HITSTOP_TIME_SCALE: float = 0.1  # Slow-mo instead of full stop
 var dirt_grid: Node2D  # Set by test_level.gd
 var touch_direction: Vector2i = Vector2i.ZERO  # Direction from touch controls
 var wants_jump: bool = false  # Set by touch controls or keyboard
+var input_blocked: bool = false  # Set true while inventory/UI is open
 
 var current_state: State = State.IDLE
 var grid_position: Vector2i  # Player's grid cell (1x1 now)
@@ -195,6 +196,9 @@ func _process(delta: float) -> void:
 
 
 func _handle_idle_input() -> void:
+	if input_blocked:
+		return
+
 	if _is_on_ladder():
 		_start_climbing()
 		return
@@ -695,14 +699,24 @@ func _handle_climbing(_delta: float) -> void:
 
 	var input_dir := _get_input_direction()
 
-	# Vertical movement on ladder (mine if blocked)
+	# Vertical movement on ladder - move if clear, mine if blocked
 	if input_dir.y != 0:
-		_try_move_or_mine(Vector2i(0, input_dir.y))
+		var target := grid_position + Vector2i(0, input_dir.y)
+		if dirt_grid.has_block(target):
+			if can_dig_at(target):
+				_start_mining(Vector2i(0, input_dir.y), target)
+		else:
+			_start_move(target)
 		return
 
-	# Horizontal movement off ladder (mine if blocked)
+	# Horizontal movement off ladder - move if clear, mine if blocked
 	if input_dir.x != 0:
-		_try_move_or_mine(Vector2i(input_dir.x, 0))
+		var target := grid_position + Vector2i(input_dir.x, 0)
+		if dirt_grid.has_block(target):
+			if can_dig_at(target):
+				_start_mining(Vector2i(input_dir.x, 0), target)
+		else:
+			_start_move(target)
 		return
 
 	# Jump off ladder

@@ -8,6 +8,22 @@ signal slot_pressed(slot_index: int)
 
 const _TERRAIN_ATLAS := preload("res://resources/tileset/terrain_atlas.png")
 
+## Preloaded item icons for web export compatibility.
+## Runtime load() can fail in WASM builds; preload() ensures textures are packed.
+const _ITEM_ICONS := {
+	"ladder": preload("res://resources/icons/items/ladder.png"),
+	"rope": preload("res://resources/icons/items/rope.png"),
+	"teleport_scroll": preload("res://resources/icons/items/teleport_scroll.png"),
+	"fossil_common": preload("res://resources/icons/items/fossil_common.png"),
+	"fossil_rare": preload("res://resources/icons/items/fossil_rare.png"),
+	"fossil_legendary": preload("res://resources/icons/items/fossil_legendary.png"),
+	"fossil_amber": preload("res://resources/icons/items/fossil_amber.png"),
+	"artifact_ancient_coin": preload("res://resources/icons/items/artifact_ancient_coin.png"),
+	"artifact_crystal_skull": preload("res://resources/icons/items/artifact_crystal_skull.png"),
+	"artifact_fossilized_crown": preload("res://resources/icons/items/artifact_fossilized_crown.png"),
+	"artifact_obsidian_tablet": preload("res://resources/icons/items/artifact_obsidian_tablet.png"),
+}
+
 @export var slot_index: int = 0
 
 @onready var item_icon: TextureRect = $Icon
@@ -94,14 +110,15 @@ func _get_rarity_color(rarity) -> Color:
 
 func _resolve_item_icon(item) -> Texture2D:
 	## Return the best available icon for an item.
-	## Priority: explicit icon → icons/items/<id>.png → atlas tile (ores) → null
+	## Priority: explicit icon → preloaded icon dict → atlas tile (ores) → null
+
 	if item.icon != null:
 		return item.icon
 
-	# Convention-based icon file
-	var icon_path := "res://resources/icons/items/" + item.id + ".png"
-	if ResourceLoader.exists(icon_path):
-		return load(icon_path) as Texture2D
+	# Preloaded icon lookup (web-safe: avoids runtime load() in WASM)
+	var item_id: String = item.id
+	if _ITEM_ICONS.has(item_id):
+		return _ITEM_ICONS[item_id]
 
 	# Ores and other tiles with atlas coordinates
 	var coords = item.get("tile_atlas_coords")

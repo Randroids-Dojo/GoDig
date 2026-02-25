@@ -70,15 +70,27 @@ var _pending_threaded_chunks: Dictionary = {}  # Chunks awaiting threaded genera
 
 
 func _ready() -> void:
-	_preallocate_pool()
-	_setup_sparkle_manager()
-	_setup_threaded_generator()
+	# Defer heavy initialization so _ready() completes quickly.
+	# This allows the PlayGodot change_scene response to be sent before
+	# the expensive pool/sparkle setup blocks the main thread.
+	call_deferred("_deferred_setup")
 	# Connect to SaveManager to save dirty chunks before game save
 	if SaveManager:
 		SaveManager.save_started.connect(_on_save_started)
 	# Connect to ExplorationManager for fog updates
 	if ExplorationManager:
 		ExplorationManager.exploration_updated.connect(_on_exploration_updated)
+
+
+func _deferred_setup() -> void:
+	## Perform heavy initialization after _ready() to avoid blocking change_scene.
+	_preallocate_pool()
+	_setup_sparkle_manager()
+	_setup_threaded_generator()
+	# Re-run initialize if player was already set (initialize was called before deferred setup)
+	if _player != null and _threaded_generator:
+		var world_seed := SaveManager.get_world_seed() if SaveManager else 0
+		_threaded_generator.initialize(_surface_row, world_seed, _dug_tiles)
 
 
 func _setup_sparkle_manager() -> void:
@@ -112,14 +124,14 @@ func initialize(player: Node2D, surface_row: int) -> void:
 	_player = player
 	_surface_row = surface_row
 
-	# Initialize threaded generator with current state
+	# Initialize threaded generator with current state (if already set up)
+	# If _deferred_setup hasn't run yet, it will initialize the threaded generator itself.
 	if _threaded_generator:
 		var world_seed := SaveManager.get_world_seed() if SaveManager else 0
 		_threaded_generator.initialize(_surface_row, world_seed, _dug_tiles)
 
-	# Generate initial chunks around player spawn position
-	var player_chunk := _world_to_chunk(_player.position)
-	_generate_chunks_around(player_chunk)
+	# Initial chunk generation is handled by _process() on the first frame.
+	# This avoids blocking _ready() with expensive synchronous chunk generation.
 
 
 func _process(_delta: float) -> void:

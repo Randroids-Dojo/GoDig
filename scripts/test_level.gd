@@ -60,6 +60,12 @@ func _process(delta: float) -> void:
 		_inventory_full_cooldown -= delta
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_just_pressed("inventory"):
+		_on_inventory_pressed()
+		get_viewport().set_input_as_handled()
+
+
 func _ready() -> void:
 	print("[TestLevel] _ready() START")
 

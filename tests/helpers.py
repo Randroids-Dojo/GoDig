@@ -120,6 +120,7 @@ PATHS = {
     "left_panel_backdrop": "/root/Main/UI/HUD/LeftPanelBackdrop",
     "depth_bonus_label": "/root/Main/UI/HUD/DepthBonusLabel",
     "copy_logs_button": "/root/Main/PauseMenu/Panel/VBox/CopyLogsButton",
+    "inventory_panel": "/root/Main/UI/InventoryPanel",
 }
 
 

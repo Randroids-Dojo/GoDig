@@ -1607,3 +1607,29 @@ async def test_game_tree_not_paused(game):
         "GameManager.is_running should be True during gameplay. "
         "If False, touch controls won't work because _process won't run."
     )
+
+
+@pytest.mark.asyncio
+async def test_inventory_panel_starts_hidden(game):
+    """Verify the inventory panel starts hidden (closed by default)."""
+    visible = await game.get_property(PATHS["inventory_panel"], "visible")
+    assert visible is False, "Inventory panel should start hidden"
+
+
+@pytest.mark.asyncio
+async def test_inventory_keyboard_toggle_opens(game):
+    """Verify calling the inventory toggle opens the inventory panel (desktop keyboard path)."""
+    # Ensure inventory is closed first
+    visible_before = await game.get_property(PATHS["inventory_panel"], "visible")
+    assert visible_before is False, "Inventory should start closed"
+
+    # Call the toggle method directly (same code path triggered by the I key)
+    await game.call_method(PATHS["main"], "_on_inventory_pressed")
+    await asyncio.sleep(0.1)
+
+    visible_after = await game.get_property(PATHS["inventory_panel"], "visible")
+    assert visible_after is True, "Inventory panel should open after _on_inventory_pressed"
+
+    # Clean up: close the inventory
+    await game.call_method(PATHS["main"], "_on_inventory_pressed")
+    await asyncio.sleep(0.1)

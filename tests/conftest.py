@@ -13,6 +13,7 @@ from typing import Optional
 import pytest_asyncio
 from pathlib import Path
 from playgodot import Godot
+import playgodot.exceptions as pg_exc
 
 GODOT_PROJECT = Path(__file__).parent.parent
 
@@ -242,12 +243,21 @@ async def game():
                 await g.wait_for_node("/root/MainMenu", timeout=MENU_TIMEOUT)
                 await asyncio.sleep(0.5)
 
-                # Change to game scene with extended timeout.
-                # The scene's _ready() initializes heavy systems (400-node pool,
-                # 300-instance MultiMesh), which can take >30s on CI runners.
-                await g._client.send("change_scene", {"path": "res://scenes/test_level.tscn"}, timeout=120.0)
+                # Send the scene change command. We don't wait for
+                # automation:scene_changed because on CI the scene initialization
+                # (400-node block pool, 300-instance MultiMesh sparkle pool)
+                # floods the debug protocol with messages, preventing the
+                # scene_changed response from arriving within any reasonable timeout.
+                # Instead, we fire-and-forget the command, then poll for /root/Main.
+                try:
+                    await g._client.send("change_scene", {"path": "res://scenes/test_level.tscn"}, timeout=5.0)
+                except pg_exc.TimeoutError:
+                    # Expected: scene_changed may not arrive due to protocol flooding.
+                    # We'll verify the scene loaded by waiting for /root/Main below.
+                    pass
 
-                # Wait for game scene to load with extended timeout
+                # Wait for game scene to load - poll until /root/Main exists.
+                # This works even if automation:scene_changed was never received.
                 await g.wait_for_node("/root/Main", timeout=SCENE_TIMEOUT)
                 yield g
                 return  # Success - exit the retry loop

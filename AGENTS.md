@@ -500,19 +500,34 @@ HTTPServer(('', 8080), CORSHandler).serve_forever()
 
 **DirAccess doesn't work in web builds.** Files are packed into `.pck` and can't be enumerated at runtime.
 
+**Runtime `load()` and `ResourceLoader.exists()` silently fail for textures in web/WASM builds.** Always use `preload()` for any texture or resource referenced at runtime.
+
 ```gdscript
 # BAD - DirAccess.open() returns null in web builds
 var dir := DirAccess.open("res://resources/items/")
 dir.list_dir_begin()  # Fails on web
 
-# GOOD - Preload resources explicitly
+# BAD - load() and ResourceLoader.exists() silently fail for textures in WASM
+var icon_exists := ResourceLoader.exists("res://resources/icons/items/ladder.png")
+if icon_exists:
+    var tex := load("res://resources/icons/items/ladder.png") as Texture2D  # Returns null on web!
+
+# GOOD - Preload all resources explicitly as constants
 const ITEM_RESOURCES := [
     preload("res://resources/items/rope.tres"),
     preload("res://resources/items/ladder.tres"),
 ]
+
+# GOOD - Preload textures into a dictionary for icon lookups
+const _ITEM_ICONS := {
+    "ladder": preload("res://resources/icons/items/ladder.png"),
+    "rope": preload("res://resources/icons/items/rope.png"),
+}
 ```
 
-See `scripts/autoload/data_registry.gd` for the pattern.
+This applies to **all resource types**: `.tres` files, `.png` textures, `.tscn` scenes. If a resource is loaded at runtime (not at scene load time), use `preload()` as a `const` instead.
+
+See `scripts/autoload/data_registry.gd` and `scripts/ui/inventory_slot.gd` for the pattern.
 
 ### Godot 4.6 Stricter Type Inference
 

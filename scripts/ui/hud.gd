@@ -603,6 +603,7 @@ func _setup_quick_sell_button() -> void:
 	quick_sell_button = Button.new()
 	quick_sell_button.name = "QuickSellButton"
 	quick_sell_button.text = "Sell All"
+	quick_sell_button.focus_mode = Control.FOCUS_NONE
 	quick_sell_button.visible = false  # Hidden until items exist
 
 	# Position at bottom-left for thumb accessibility
@@ -1364,6 +1365,7 @@ func _setup_ladder_quickslot() -> void:
 	ladder_button = Button.new()
 	ladder_button.name = "LadderButton"
 	ladder_button.flat = true
+	ladder_button.focus_mode = Control.FOCUS_NONE
 	ladder_button.size = Vector2(56, 56)
 	ladder_button.pressed.connect(_on_ladder_quickslot_pressed)
 	ladder_quickslot.add_child(ladder_button)
@@ -1371,6 +1373,7 @@ func _setup_ladder_quickslot() -> void:
 	# Quick-buy button (positioned ABOVE the quickslot for thumb-friendly stacking)
 	ladder_buy_button = Button.new()
 	ladder_buy_button.name = "LadderBuyButton"
+	ladder_buy_button.focus_mode = Control.FOCUS_NONE
 	ladder_buy_button.text = "+$%d" % LADDER_COST
 	ladder_buy_button.position = Vector2(0, -48)  # Above the quickslot (44px + 4px gap)
 	ladder_buy_button.custom_minimum_size = Vector2(56, 44)  # Minimum 44px for touch accessibility
@@ -1604,6 +1607,7 @@ func _setup_rope_quickslot() -> void:
 	rope_button = Button.new()
 	rope_button.name = "RopeButton"
 	rope_button.flat = true
+	rope_button.focus_mode = Control.FOCUS_NONE
 	rope_button.size = Vector2(56, 56)
 	rope_button.pressed.connect(_on_rope_quickslot_pressed)
 	rope_quickslot.add_child(rope_button)
@@ -1698,6 +1702,7 @@ func _setup_teleport_quickslot() -> void:
 	teleport_button = Button.new()
 	teleport_button.name = "TeleportButton"
 	teleport_button.flat = true
+	teleport_button.focus_mode = Control.FOCUS_NONE
 	teleport_button.size = Vector2(56, 56)
 	teleport_button.pressed.connect(_on_teleport_quickslot_pressed)
 	teleport_quickslot.add_child(teleport_button)

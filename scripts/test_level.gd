@@ -59,11 +59,9 @@ func _process(delta: float) -> void:
 	if _inventory_full_cooldown > 0:
 		_inventory_full_cooldown -= delta
 
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_just_pressed("inventory"):
+	# Keyboard inventory toggle - use Input polling so UI focus doesn't block it
+	if Input.is_action_just_pressed("inventory"):
 		_on_inventory_pressed()
-		get_viewport().set_input_as_handled()
 
 
 func _ready() -> void:

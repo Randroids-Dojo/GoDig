@@ -100,4 +100,5 @@ offset_right = -16.0
 offset_bottom = 72.0
 grow_horizontal = 0
 grow_vertical = 0
+focus_mode = 0
 text = "||"

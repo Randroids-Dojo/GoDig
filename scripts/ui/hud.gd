@@ -157,6 +157,9 @@ var _ladder_warning_pulse_time: float = 0.0
 var _ladder_warning_visible: bool = false
 var _last_ladder_warning_level: int = 0  # 0=none, 1=warning, 2=urgent
 
+## Keyboard hints bar (desktop only)
+var keyboard_hints_label: Label = null
+
 ## Low ladder warning thresholds (depth-aware)
 ## Formula: safe_ladders = ceil(depth / 5) accounting for wall-jump every 3-5 tiles
 ## Yellow warning at 80% of safe minimum, Red at 50%
@@ -332,6 +335,9 @@ func _ready() -> void:
 
 	# Setup button visual feedback (must be deferred to ensure buttons exist)
 	call_deferred("_setup_button_feedback")
+
+	# Create keyboard hints bar (desktop only)
+	_setup_keyboard_hints()
 
 	# Adjust bottom-right elements to avoid overlap with touch controls ActionButtons
 	if PlatformDetector:
@@ -1755,6 +1761,10 @@ func _adjust_bottom_right_for_touch_controls() -> void:
 
 	# PauseButton is now top-right, no bottom offset needed
 
+	# Show keyboard hints only on desktop
+	if keyboard_hints_label:
+		keyboard_hints_label.visible = not is_mobile
+
 	# Adjust quickslots (use position-based positioning)
 	if ladder_quickslot:
 		ladder_quickslot.position.y = -120.0 - offset
@@ -2109,6 +2119,26 @@ func _update_inventory_indicator_with_guidance() -> void:
 
 
 # ============================================
+# KEYBOARD HINTS BAR
+# ============================================
+
+func _setup_keyboard_hints() -> void:
+	## Create a bottom-center label showing keyboard shortcuts (hidden on mobile/touch)
+	keyboard_hints_label = Label.new()
+	keyboard_hints_label.name = "KeyboardHintsLabel"
+	keyboard_hints_label.text = "[I] Inventory   [E] Dig"
+	keyboard_hints_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	keyboard_hints_label.position = Vector2(16, -18)
+	keyboard_hints_label.add_theme_font_size_override("font_size", 12)
+	keyboard_hints_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.55))
+	keyboard_hints_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(keyboard_hints_label)
+
+	# Hide immediately if touch controls are active
+	var is_mobile := PlatformDetector != null and PlatformDetector.should_show_touch_controls()
+	keyboard_hints_label.visible = not is_mobile
+
+
 # LOW LADDER WARNING SYSTEM
 # ============================================
 

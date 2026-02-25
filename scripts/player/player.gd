@@ -695,19 +695,15 @@ func _handle_climbing(_delta: float) -> void:
 
 	var input_dir := _get_input_direction()
 
-	# Vertical movement on ladder
+	# Vertical movement on ladder (mine if blocked)
 	if input_dir.y != 0:
-		var target := grid_position + Vector2i(0, input_dir.y)
-		if not dirt_grid.has_block(target):
-			_start_move(target)
-			return
+		_try_move_or_mine(Vector2i(0, input_dir.y))
+		return
 
-	# Horizontal movement off ladder
+	# Horizontal movement off ladder (mine if blocked)
 	if input_dir.x != 0:
-		var target := grid_position + Vector2i(input_dir.x, 0)
-		if not dirt_grid.has_block(target):
-			_start_move(target)
-			return
+		_try_move_or_mine(Vector2i(input_dir.x, 0))
+		return
 
 	# Jump off ladder
 	if _check_jump_input():

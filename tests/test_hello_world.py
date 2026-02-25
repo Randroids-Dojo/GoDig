@@ -446,6 +446,28 @@ async def test_pause_button_has_text(game):
 
 
 @pytest.mark.asyncio
+async def test_pause_button_focus_mode_none(game):
+    """Verify the pause button has FOCUS_NONE so spacebar doesn't trigger it."""
+    # FOCUS_NONE = 0, FOCUS_CLICK = 1, FOCUS_ALL = 2
+    focus_mode = await game.get_property(PATHS["pause_button"], "focus_mode")
+    assert focus_mode == 0, f"Pause button should have FOCUS_NONE (0), got {focus_mode}"
+
+
+@pytest.mark.asyncio
+async def test_hud_has_keyboard_hints(game):
+    """Verify keyboard hints label exists in HUD on desktop."""
+    exists = await game.node_exists(PATHS["hud"] + "/KeyboardHintsLabel")
+    assert exists, "KeyboardHintsLabel should exist in HUD"
+
+
+@pytest.mark.asyncio
+async def test_keyboard_hints_show_inventory_key(game):
+    """Verify keyboard hints mention the inventory key."""
+    text = await game.get_property(PATHS["hud"] + "/KeyboardHintsLabel", "text")
+    assert "I" in text, f"Keyboard hints should mention I key, got '{text}'"
+
+
+@pytest.mark.asyncio
 async def test_pause_menu_exists(game):
     """Verify the pause menu node exists."""
     exists = await game.node_exists(PATHS["pause_menu"])

@@ -242,8 +242,10 @@ async def game():
                 await g.wait_for_node("/root/MainMenu", timeout=MENU_TIMEOUT)
                 await asyncio.sleep(0.5)
 
-                # Change to game scene
-                await g.change_scene("res://scenes/test_level.tscn")
+                # Change to game scene with extended timeout.
+                # The scene's _ready() initializes heavy systems (400-node pool,
+                # 300-instance MultiMesh), which can take >30s on CI runners.
+                await g._client.send("change_scene", {"path": "res://scenes/test_level.tscn"}, timeout=120.0)
 
                 # Wait for game scene to load with extended timeout
                 await g.wait_for_node("/root/Main", timeout=SCENE_TIMEOUT)

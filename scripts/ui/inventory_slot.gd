@@ -6,6 +6,8 @@ extends Button
 
 signal slot_pressed(slot_index: int)
 
+const _TERRAIN_ATLAS := preload("res://resources/tileset/terrain_atlas.png")
+
 @export var slot_index: int = 0
 
 @onready var item_icon: TextureRect = $Icon
@@ -102,10 +104,10 @@ func _resolve_item_icon(item) -> Texture2D:
 		return load(icon_path) as Texture2D
 
 	# Ores and other tiles with atlas coordinates
-	if "tile_atlas_coords" in item:
-		var coords: Vector2i = item.tile_atlas_coords
+	var coords = item.get("tile_atlas_coords")
+	if coords != null:
 		var atlas_tex := AtlasTexture.new()
-		atlas_tex.atlas = load("res://resources/tileset/terrain_atlas.png")
+		atlas_tex.atlas = _TERRAIN_ATLAS
 		atlas_tex.region = Rect2(coords.x * 128, coords.y * 128, 128, 128)
 		return atlas_tex
 

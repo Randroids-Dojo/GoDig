@@ -1540,23 +1540,16 @@ async def test_performance_monitor_has_signals(game):
 
 @pytest.mark.asyncio
 async def test_copy_logs_button_exists(game):
-    """Verify the copy console logs button exists in the HUD."""
+    """Verify the copy console logs button exists in the Pause Menu."""
     exists = await game.node_exists(PATHS["copy_logs_button"])
-    assert exists, "CopyLogsButton should exist in HUD"
+    assert exists, "CopyLogsButton should exist in Pause Menu"
 
 
 @pytest.mark.asyncio
 async def test_copy_logs_button_has_text(game):
-    """Verify the copy logs button displays COPY LOGS text."""
+    """Verify the copy logs button displays 'Copy Console Logs'."""
     text = await game.get_property(PATHS["copy_logs_button"], "text")
-    assert text == "COPY LOGS", f"CopyLogsButton should show 'COPY LOGS', got '{text}'"
-
-
-@pytest.mark.asyncio
-async def test_copy_logs_button_is_visible(game):
-    """Verify the copy logs button is visible."""
-    visible = await game.get_property(PATHS["copy_logs_button"], "visible")
-    assert visible is True, "CopyLogsButton should be visible"
+    assert text == "Copy Console Logs", f"CopyLogsButton should show 'Copy Console Logs', got '{text}'"
 
 
 # =============================================================================

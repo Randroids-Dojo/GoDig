@@ -185,10 +185,6 @@ var _danger_zone_visible: bool = false
 var _current_danger_zone_name: String = ""
 const DANGER_ZONE_PULSE_SPEED := 3.0
 
-## TEMP: Copy console logs button (centered on screen)
-var copy_logs_button: Button = null
-var _copy_logs_feedback_tween: Tween = null
-
 
 ## Apply standard dark outline to a label for readability
 static func apply_text_outline(label: Label, outline_size: int = HUD_OUTLINE_SIZE, outline_color: Color = HUD_OUTLINE_COLOR) -> void:
@@ -339,9 +335,6 @@ func _ready() -> void:
 	if PlatformDetector:
 		PlatformDetector.platform_changed.connect(_on_platform_changed_adjust_hud)
 	call_deferred("_adjust_bottom_right_for_touch_controls")
-
-	# TEMP: Copy console logs button
-	_setup_copy_logs_button()
 
 
 func _process(delta: float) -> void:
@@ -3274,71 +3267,3 @@ func _hide_danger_zone_warning() -> void:
 
 	var tween := create_tween()
 	tween.tween_property(danger_zone_warning_container, "modulate:a", 0.0, 0.3)
-
-
-# ============================================
-# TEMP: COPY CONSOLE LOGS BUTTON
-# ============================================
-
-func _setup_copy_logs_button() -> void:
-	## Create a big centered button that copies all console logs to clipboard.
-	copy_logs_button = Button.new()
-	copy_logs_button.name = "CopyLogsButton"
-	copy_logs_button.text = "COPY LOGS"
-	copy_logs_button.custom_minimum_size = Vector2(200, 60)
-
-	# Style: big, semi-transparent dark background with white text
-	copy_logs_button.add_theme_font_size_override("font_size", 24)
-	copy_logs_button.add_theme_color_override("font_color", Color.WHITE)
-	copy_logs_button.add_theme_color_override("font_hover_color", Color.YELLOW)
-
-	var normal_style := StyleBoxFlat.new()
-	normal_style.bg_color = Color(0.15, 0.15, 0.15, 0.85)
-	normal_style.border_color = Color.WHITE
-	normal_style.set_border_width_all(2)
-	normal_style.set_corner_radius_all(12)
-	normal_style.set_content_margin_all(12)
-	copy_logs_button.add_theme_stylebox_override("normal", normal_style)
-
-	var hover_style := StyleBoxFlat.new()
-	hover_style.bg_color = Color(0.25, 0.25, 0.25, 0.9)
-	hover_style.border_color = Color.YELLOW
-	hover_style.set_border_width_all(2)
-	hover_style.set_corner_radius_all(12)
-	hover_style.set_content_margin_all(12)
-	copy_logs_button.add_theme_stylebox_override("hover", hover_style)
-
-	var pressed_style := StyleBoxFlat.new()
-	pressed_style.bg_color = Color(0.1, 0.4, 0.1, 0.9)
-	pressed_style.border_color = Color.GREEN
-	pressed_style.set_border_width_all(2)
-	pressed_style.set_corner_radius_all(12)
-	pressed_style.set_content_margin_all(12)
-	copy_logs_button.add_theme_stylebox_override("pressed", pressed_style)
-
-	# Center it on screen
-	copy_logs_button.anchors_preset = Control.PRESET_CENTER
-	copy_logs_button.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	copy_logs_button.grow_vertical = Control.GROW_DIRECTION_BOTH
-
-	# Ensure it captures mouse input
-	copy_logs_button.mouse_filter = Control.MOUSE_FILTER_STOP
-
-	copy_logs_button.pressed.connect(_on_copy_logs_pressed)
-	add_child(copy_logs_button)
-
-
-func _on_copy_logs_pressed() -> void:
-	## Copy all console logs to clipboard and show brief feedback.
-	if DebugLogger:
-		DebugLogger.copy_to_clipboard()
-
-	# Visual feedback: briefly change text to confirm
-	if copy_logs_button:
-		copy_logs_button.text = "COPIED!"
-
-		if _copy_logs_feedback_tween:
-			_copy_logs_feedback_tween.kill()
-		_copy_logs_feedback_tween = create_tween()
-		_copy_logs_feedback_tween.tween_interval(1.0)
-		_copy_logs_feedback_tween.tween_callback(func(): copy_logs_button.text = "COPY LOGS")
